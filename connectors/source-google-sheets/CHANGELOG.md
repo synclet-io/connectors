@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/synclet-io/synclet/compare/source-google-sheets-v0.1.2...source-google-sheets-v0.2.0) (2026-04-01)
+
+
+### Features
+
+* **connectors:** add meta.json metadata and forward in release workflow ([ce73f9f](https://github.com/synclet-io/synclet/commit/ce73f9f144855d60a11dcf26aa945c0753777531))
+
 ## [0.1.2](https://github.com/synclet-io/synclet/compare/source-google-sheets-v0.1.1...source-google-sheets-v0.1.2) (2026-04-01)
 
 
