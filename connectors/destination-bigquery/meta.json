@@ -1,5 +1,5 @@
 {
-  "name": "Destination BigQuery",
+  "name": "BigQuery",
   "connector_type": "destination",
   "release_stage": "alpha",
   "support_level": "community",

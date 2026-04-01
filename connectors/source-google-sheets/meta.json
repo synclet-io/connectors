@@ -1,5 +1,5 @@
 {
-  "name": "Source Google Sheets",
+  "name": "Google Sheets",
   "connector_type": "source",
   "release_stage": "alpha",
   "support_level": "community",

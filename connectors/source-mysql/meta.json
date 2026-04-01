@@ -1,5 +1,5 @@
 {
-  "name": "Source MySQL",
+  "name": "MySQL",
   "connector_type": "source",
   "release_stage": "alpha",
   "support_level": "community",

@@ -1,5 +1,5 @@
 {
-  "name": "Destination Google Sheets",
+  "name": "Google Sheets",
   "connector_type": "destination",
   "release_stage": "alpha",
   "support_level": "community",
