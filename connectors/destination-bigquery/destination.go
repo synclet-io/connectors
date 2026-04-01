@@ -70,11 +70,13 @@ func (d *BigQueryDestination) Check(dstCfgPath string, logTracker airbyte.LogTra
 	if _, err := dataset.Metadata(ctx); err != nil {
 		// Dataset doesn't exist -- try to create it.
 		logTracker.Log(airbyte.LogLevelInfo, fmt.Sprintf("Dataset %q not found, creating...", config.DatasetID))
+
 		if err := dataset.Create(ctx, &bigquery.DatasetMetadata{
 			Location: config.DatasetLocation,
 		}); err != nil {
 			return fmt.Errorf("failed to create dataset %q: %w", config.DatasetID, err)
 		}
+
 		logTracker.Log(airbyte.LogLevelInfo, fmt.Sprintf("Created dataset %q in %s", config.DatasetID, config.DatasetLocation))
 	}
 

@@ -17,6 +17,7 @@ func parseHeaders(row []interface{}) ([]string, error) {
 		if !ok || s == "" {
 			break
 		}
+
 		raw = append(raw, s)
 	}
 

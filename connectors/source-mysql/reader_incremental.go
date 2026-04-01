@@ -102,6 +102,7 @@ func (r *IncrementalReader) runSnapshot(ctx context.Context, table TableInfo, co
 
 			if err := r.tracker.Record(record, streamName, ""); err != nil {
 				rows.Close()
+
 				return fmt.Errorf("emitting record: %w", err)
 			}
 

@@ -76,6 +76,7 @@ func (d *GoogleSheetsDestination) Check(dstCfgPath string, logTracker airbyte.Lo
 	}
 
 	logTracker.Log(airbyte.LogLevelInfo, "Successfully connected to spreadsheet")
+
 	return nil
 }
 
