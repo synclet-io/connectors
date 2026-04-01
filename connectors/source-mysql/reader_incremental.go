@@ -109,6 +109,7 @@ func (r *IncrementalReader) runSnapshot(ctx context.Context, table TableInfo, co
 			lastRecord = record
 			count++
 		}
+
 		if err := rows.Err(); err != nil {
 			return err
 		}

@@ -74,6 +74,7 @@ func (w *SheetWriter) AddRecord(streamName string, data map[string]interface{}, 
 	for i, h := range buf.headers {
 		row[i] = data[h]
 	}
+
 	buf.rows = append(buf.rows, row)
 
 	// Auto-flush if buffer reaches threshold

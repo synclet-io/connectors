@@ -55,6 +55,7 @@ func columnLetter(index int) string {
 			break
 		}
 	}
+
 	return result
 }
 

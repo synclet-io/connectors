@@ -7,15 +7,15 @@ import (
 
 // Config represents the BigQuery destination connector configuration.
 type Config struct {
-	ProjectID       string            `json:"project_id"`
-	DatasetLocation string            `json:"dataset_location"`
-	DatasetID       string            `json:"dataset_id"`
-	LoadingMethod   json.RawMessage   `json:"loading_method"`
-	Credentials     CredentialsConfig `json:"credentials"`
-	CredentialsJSON string            `json:"credentials_json"`
-	CDCDeletionMode string            `json:"cdc_deletion_mode"`
-	DisableTypeDedupe bool           `json:"disable_type_dedupe"`
-	RawDataDataset  string            `json:"raw_data_dataset"`
+	ProjectID         string            `json:"project_id"`
+	DatasetLocation   string            `json:"dataset_location"`
+	DatasetID         string            `json:"dataset_id"`
+	LoadingMethod     json.RawMessage   `json:"loading_method"`
+	Credentials       CredentialsConfig `json:"credentials"`
+	CredentialsJSON   string            `json:"credentials_json"`
+	CDCDeletionMode   string            `json:"cdc_deletion_mode"`
+	DisableTypeDedupe bool              `json:"disable_type_dedupe"`
+	RawDataDataset    string            `json:"raw_data_dataset"`
 }
 
 // CredentialsConfig holds authentication configuration.
@@ -104,6 +104,7 @@ func (c *Config) loadingMethod() (interface{}, error) {
 		if err := json.Unmarshal(c.LoadingMethod, &std); err != nil {
 			return nil, fmt.Errorf("parsing standard loading method: %w", err)
 		}
+
 		return &std, nil
 	}
 }
