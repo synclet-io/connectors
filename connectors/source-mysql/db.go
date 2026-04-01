@@ -33,6 +33,7 @@ func openDB(ctx context.Context, cfg Config) (*sql.DB, io.Closer, error) {
 	tlsCfg, err := buildTLSConfig(cfg.SSL)
 	if err != nil {
 		closer.Close()
+
 		return nil, nil, fmt.Errorf("failed to build TLS config: %w", err)
 	}
 
