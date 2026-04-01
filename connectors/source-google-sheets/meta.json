@@ -1,0 +1,12 @@
+{
+  "name": "Source Google Sheets",
+  "connector_type": "source",
+  "release_stage": "alpha",
+  "support_level": "community",
+  "source_type": "api",
+  "documentation_url": "",
+  "icon_url": "",
+  "license": "MIT",
+  "breaking_changes": {},
+  "external_documentation_urls": []
+}

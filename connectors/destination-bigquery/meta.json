@@ -1,0 +1,12 @@
+{
+  "name": "Destination BigQuery",
+  "connector_type": "destination",
+  "release_stage": "alpha",
+  "support_level": "community",
+  "source_type": "",
+  "documentation_url": "",
+  "icon_url": "",
+  "license": "MIT",
+  "breaking_changes": {},
+  "external_documentation_urls": []
+}
