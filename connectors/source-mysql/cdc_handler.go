@@ -8,14 +8,14 @@ import (
 	"github.com/go-mysql-org/go-mysql/canal"
 	"github.com/go-mysql-org/go-mysql/mysql"
 	"github.com/go-mysql-org/go-mysql/replication"
-	airbyte "github.com/saturn4er/airbyte-go-sdk"
+	synclet "github.com/synclet-io/synclet-go-sdk"
 )
 
 // cdcHandler implements canal.EventHandler to process binlog events.
 type cdcHandler struct {
 	canal.DummyEventHandler
 
-	tracker            airbyte.MessageTracker
+	em                 *synclet.Emitter
 	state              *CDCState
 	streams            map[string]TableInfo // stream name -> table info
 	checkpointInterval time.Duration
@@ -25,9 +25,9 @@ type cdcHandler struct {
 }
 
 // newCDCHandler creates a new CDC event handler.
-func newCDCHandler(tracker airbyte.MessageTracker, state *CDCState, streams map[string]TableInfo, checkpointInterval time.Duration) *cdcHandler {
+func newCDCHandler(em *synclet.Emitter, state *CDCState, streams map[string]TableInfo, checkpointInterval time.Duration) *cdcHandler {
 	return &cdcHandler{
-		tracker:            tracker,
+		em:                 em,
 		state:              state,
 		streams:            streams,
 		checkpointInterval: checkpointInterval,
@@ -55,7 +55,7 @@ func (h *cdcHandler) OnRow(e *canal.RowsEvent) error {
 			record["_ab_cdc_log_file"] = h.state.BinlogFile
 			record["_ab_cdc_log_pos"] = h.state.BinlogPos
 
-			if err := h.tracker.Record(record, tableName, ""); err != nil {
+			if err := h.em.Record(streamDescriptor(tableName), record); err != nil {
 				return fmt.Errorf("emitting insert record: %w", err)
 			}
 		}
@@ -70,7 +70,7 @@ func (h *cdcHandler) OnRow(e *canal.RowsEvent) error {
 			record["_ab_cdc_log_file"] = h.state.BinlogFile
 			record["_ab_cdc_log_pos"] = h.state.BinlogPos
 
-			if err := h.tracker.Record(record, tableName, ""); err != nil {
+			if err := h.em.Record(streamDescriptor(tableName), record); err != nil {
 				return fmt.Errorf("emitting update record: %w", err)
 			}
 		}
@@ -83,7 +83,7 @@ func (h *cdcHandler) OnRow(e *canal.RowsEvent) error {
 			record["_ab_cdc_log_file"] = h.state.BinlogFile
 			record["_ab_cdc_log_pos"] = h.state.BinlogPos
 
-			if err := h.tracker.Record(record, tableName, ""); err != nil {
+			if err := h.em.Record(streamDescriptor(tableName), record); err != nil {
 				return fmt.Errorf("emitting delete record: %w", err)
 			}
 		}
@@ -106,7 +106,7 @@ func (h *cdcHandler) OnPosSynced(header *replication.EventHeader, pos mysql.Posi
 
 	if force || time.Since(h.lastCheckpoint) >= h.checkpointInterval {
 		h.lastCheckpoint = time.Now()
-		return emitCDCState(h.tracker, h.state)
+		return emitCDCState(h.em, h.state)
 	}
 
 	return nil

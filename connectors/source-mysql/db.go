@@ -32,14 +32,14 @@ func openDB(ctx context.Context, cfg Config) (*sql.DB, io.Closer, error) {
 	// Build TLS config if needed.
 	tlsCfg, err := buildTLSConfig(cfg.SSL)
 	if err != nil {
-		closer.Close()
+		_ = closer.Close()
 
 		return nil, nil, fmt.Errorf("failed to build TLS config: %w", err)
 	}
 
 	if tlsCfg != nil {
 		if err := mysql.RegisterTLSConfig("custom", tlsCfg); err != nil {
-			closer.Close()
+			_ = closer.Close()
 			return nil, nil, fmt.Errorf("failed to register TLS config: %w", err)
 		}
 	}
@@ -63,13 +63,13 @@ func openDB(ctx context.Context, cfg Config) (*sql.DB, io.Closer, error) {
 
 	db, err := sql.Open("mysql", dsnCfg.FormatDSN())
 	if err != nil {
-		closer.Close()
+		_ = closer.Close()
 		return nil, nil, fmt.Errorf("failed to open MySQL connection: %w", err)
 	}
 
 	if err := db.PingContext(ctx); err != nil {
-		db.Close()
-		closer.Close()
+		_ = db.Close()
+		_ = closer.Close()
 		return nil, nil, fmt.Errorf("failed to ping MySQL: %w", err)
 	}
 

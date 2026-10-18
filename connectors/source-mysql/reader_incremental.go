@@ -5,18 +5,18 @@ import (
 	"database/sql"
 	"fmt"
 
-	airbyte "github.com/saturn4er/airbyte-go-sdk"
+	synclet "github.com/synclet-io/synclet-go-sdk"
 )
 
 // IncrementalReader reads a table using incremental mode with cursor-based tracking.
 type IncrementalReader struct {
-	db      *sql.DB
-	tracker airbyte.MessageTracker
+	db *sql.DB
+	em *synclet.Emitter
 }
 
 // NewIncrementalReader creates a new IncrementalReader.
-func NewIncrementalReader(db *sql.DB, tracker airbyte.MessageTracker) *IncrementalReader {
-	return &IncrementalReader{db: db, tracker: tracker}
+func NewIncrementalReader(db *sql.DB, em *synclet.Emitter) *IncrementalReader {
+	return &IncrementalReader{db: db, em: em}
 }
 
 // ReadTable reads a table incrementally, using snapshot-then-cursor strategy.
@@ -96,12 +96,12 @@ func (r *IncrementalReader) runSnapshot(ctx context.Context, table TableInfo, co
 		for rows.Next() {
 			record, err := scanRow(rows, columns)
 			if err != nil {
-				rows.Close()
+				_ = rows.Close()
 				return fmt.Errorf("scanning row: %w", err)
 			}
 
-			if err := r.tracker.Record(record, streamName, ""); err != nil {
-				rows.Close()
+			if err := r.em.Record(streamDescriptor(streamName), record); err != nil {
+				_ = rows.Close()
 
 				return fmt.Errorf("emitting record: %w", err)
 			}
@@ -111,9 +111,12 @@ func (r *IncrementalReader) runSnapshot(ctx context.Context, table TableInfo, co
 		}
 
 		if err := rows.Err(); err != nil {
+			_ = rows.Close()
 			return err
 		}
-		rows.Close()
+		if err := rows.Close(); err != nil {
+			return fmt.Errorf("closing rows: %w", err)
+		}
 
 		if count == 0 || len(pkCols) == 0 {
 			break
@@ -126,7 +129,7 @@ func (r *IncrementalReader) runSnapshot(ctx context.Context, table TableInfo, co
 		}
 		state.SnapshotLastPK = pkVals
 
-		if err := emitStreamState(r.tracker, streamName, state); err != nil {
+		if err := emitStreamState(r.em, streamName, state); err != nil {
 			return fmt.Errorf("emitting snapshot state: %w", err)
 		}
 
@@ -141,7 +144,7 @@ func (r *IncrementalReader) runSnapshot(ctx context.Context, table TableInfo, co
 	state.CursorValue = state.MaxCursorValue
 	state.SnapshotLastPK = nil
 
-	if err := emitStreamState(r.tracker, streamName, state); err != nil {
+	if err := emitStreamState(r.em, streamName, state); err != nil {
 		return fmt.Errorf("emitting cursor state: %w", err)
 	}
 
@@ -168,12 +171,12 @@ func (r *IncrementalReader) readCursorPhase(ctx context.Context, table TableInfo
 		for rows.Next() {
 			record, err := scanRow(rows, columns)
 			if err != nil {
-				rows.Close()
+				_ = rows.Close()
 				return fmt.Errorf("scanning row: %w", err)
 			}
 
-			if err := r.tracker.Record(record, streamName, ""); err != nil {
-				rows.Close()
+			if err := r.em.Record(streamDescriptor(streamName), record); err != nil {
+				_ = rows.Close()
 				return fmt.Errorf("emitting record: %w", err)
 			}
 
@@ -181,9 +184,12 @@ func (r *IncrementalReader) readCursorPhase(ctx context.Context, table TableInfo
 			count++
 		}
 		if err := rows.Err(); err != nil {
+			_ = rows.Close()
 			return err
 		}
-		rows.Close()
+		if err := rows.Close(); err != nil {
+			return fmt.Errorf("closing rows: %w", err)
+		}
 
 		if count == 0 {
 			break
@@ -198,7 +204,7 @@ func (r *IncrementalReader) readCursorPhase(ctx context.Context, table TableInfo
 			SnapshotDone: true,
 		}
 
-		if err := emitStreamState(r.tracker, streamName, state); err != nil {
+		if err := emitStreamState(r.em, streamName, state); err != nil {
 			return fmt.Errorf("emitting cursor state: %w", err)
 		}
 

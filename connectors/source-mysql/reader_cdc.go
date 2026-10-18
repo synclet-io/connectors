@@ -10,19 +10,19 @@ import (
 
 	"github.com/go-mysql-org/go-mysql/canal"
 	"github.com/go-mysql-org/go-mysql/mysql"
-	airbyte "github.com/saturn4er/airbyte-go-sdk"
+	synclet "github.com/synclet-io/synclet-go-sdk"
 )
 
 // CDCReader reads from MySQL using Change Data Capture (binlog streaming).
 type CDCReader struct {
-	db      *sql.DB
-	cfg     Config
-	tracker airbyte.MessageTracker
+	db  *sql.DB
+	cfg Config
+	em  *synclet.Emitter
 }
 
 // NewCDCReader creates a new CDCReader.
-func NewCDCReader(db *sql.DB, cfg Config, tracker airbyte.MessageTracker) *CDCReader {
-	return &CDCReader{db: db, cfg: cfg, tracker: tracker}
+func NewCDCReader(db *sql.DB, cfg Config, em *synclet.Emitter) *CDCReader {
+	return &CDCReader{db: db, cfg: cfg, em: em}
 }
 
 // Read performs CDC replication for all configured streams.
@@ -77,20 +77,20 @@ func (r *CDCReader) runInitialSnapshot(ctx context.Context, tables []TableInfo, 
 			continue
 		}
 
-		r.tracker.Log(airbyte.LogLevelInfo, fmt.Sprintf("CDC snapshot: reading %s", table.Name))
+		synclet.Logger(ctx).Info(fmt.Sprintf("CDC snapshot: reading %s", table.Name))
 
 		if err := r.snapshotTable(ctx, table, ss, state); err != nil {
 			return fmt.Errorf("snapshot table %s: %w", table.Name, err)
 		}
 
 		ss.Done = true
-		if err := emitCDCState(r.tracker, state); err != nil {
+		if err := emitCDCState(r.em, state); err != nil {
 			return fmt.Errorf("emitting state after table snapshot: %w", err)
 		}
 	}
 
 	state.SnapshotDone = true
-	return emitCDCState(r.tracker, state)
+	return emitCDCState(r.em, state)
 }
 
 // snapshotTable reads all rows from a table for the CDC initial snapshot.
@@ -130,7 +130,7 @@ func (r *CDCReader) snapshotTable(ctx context.Context, table TableInfo, ss *CDCS
 		for rows.Next() {
 			record, err := scanRow(rows, columns)
 			if err != nil {
-				rows.Close()
+				_ = rows.Close()
 				return fmt.Errorf("scanning row: %w", err)
 			}
 
@@ -140,8 +140,8 @@ func (r *CDCReader) snapshotTable(ctx context.Context, table TableInfo, ss *CDCS
 			record["_ab_cdc_log_file"] = cdcState.BinlogFile
 			record["_ab_cdc_log_pos"] = cdcState.BinlogPos
 
-			if err := r.tracker.Record(record, streamName, ""); err != nil {
-				rows.Close()
+			if err := r.em.Record(streamDescriptor(streamName), record); err != nil {
+				_ = rows.Close()
 				return fmt.Errorf("emitting record: %w", err)
 			}
 
@@ -149,9 +149,12 @@ func (r *CDCReader) snapshotTable(ctx context.Context, table TableInfo, ss *CDCS
 			count++
 		}
 		if err := rows.Err(); err != nil {
+			_ = rows.Close()
 			return err
 		}
-		rows.Close()
+		if err := rows.Close(); err != nil {
+			return fmt.Errorf("closing snapshot rows: %w", err)
+		}
 
 		if count == 0 || len(pkCols) == 0 {
 			break
@@ -164,7 +167,7 @@ func (r *CDCReader) snapshotTable(ctx context.Context, table TableInfo, ss *CDCS
 		}
 		ss.LastPKVals = pkVals
 
-		if err := emitCDCState(r.tracker, cdcState); err != nil {
+		if err := emitCDCState(r.em, cdcState); err != nil {
 			return fmt.Errorf("emitting state: %w", err)
 		}
 
@@ -210,7 +213,7 @@ func (r *CDCReader) streamBinlog(ctx context.Context, streams map[string]TableIn
 		checkpointInterval = DefaultCheckpointInterval
 	}
 
-	handler := newCDCHandler(r.tracker, state, streams, checkpointInterval)
+	handler := newCDCHandler(r.em, state, streams, checkpointInterval)
 	c.SetEventHandler(handler)
 
 	// Start canal in a goroutine and watch for context cancellation
@@ -230,7 +233,7 @@ func (r *CDCReader) streamBinlog(ctx context.Context, streams map[string]TableIn
 		// Drain the error channel
 		<-errCh
 		// Emit final state checkpoint
-		return emitCDCState(r.tracker, state)
+		return emitCDCState(r.em, state)
 	case err := <-errCh:
 		if err != nil {
 			return fmt.Errorf("canal error: %w", err)

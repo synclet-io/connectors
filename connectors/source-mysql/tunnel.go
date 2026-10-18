@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -42,7 +43,7 @@ func newSSHTunnel(cfg TunnelConfig, mysqlHost string, mysqlPort int) (*SSHTunnel
 
 	listener, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
-		sshClient.Close()
+		_ = sshClient.Close()
 		return nil, fmt.Errorf("failed to start local listener: %w", err)
 	}
 
@@ -57,7 +58,7 @@ func newSSHTunnel(cfg TunnelConfig, mysqlHost string, mysqlPort int) (*SSHTunnel
 
 			remoteConn, err := sshClient.Dial("tcp", remoteAddr)
 			if err != nil {
-				localConn.Close()
+				_ = localConn.Close()
 				continue
 			}
 
@@ -72,16 +73,16 @@ func newSSHTunnel(cfg TunnelConfig, mysqlHost string, mysqlPort int) (*SSHTunnel
 }
 
 func forward(local, remote net.Conn) {
-	defer local.Close()
-	defer remote.Close()
+	defer func() { _ = local.Close() }()
+	defer func() { _ = remote.Close() }()
 
 	done := make(chan struct{}, 1)
 	go func() {
-		io.Copy(local, remote)
+		_, _ = io.Copy(local, remote)
 		done <- struct{}{}
 	}()
 	go func() {
-		io.Copy(remote, local)
+		_, _ = io.Copy(remote, local)
 		done <- struct{}{}
 	}()
 	<-done
@@ -94,8 +95,7 @@ func (t *SSHTunnel) LocalAddr() string {
 
 // Close shuts down the tunnel listener and SSH client.
 func (t *SSHTunnel) Close() error {
-	t.listener.Close()
-	return t.sshClient.Close()
+	return errors.Join(t.listener.Close(), t.sshClient.Close())
 }
 
 // Dialer returns a function that dials through the SSH tunnel.

@@ -1,10 +1,11 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
-	airbyte "github.com/saturn4er/airbyte-go-sdk"
+	synclet "github.com/synclet-io/synclet-go-sdk"
 )
 
 // FullRefreshState tracks progress for full refresh reads with PK-based chunking.
@@ -15,22 +16,21 @@ type FullRefreshState struct {
 
 // IncrementalState tracks progress for incremental reads.
 type IncrementalState struct {
-	Phase           string                 `json:"phase"` // "snapshot" or "incremental"
-	CursorField     string                 `json:"cursor_field"`
-	CursorValue     interface{}            `json:"cursor_value,omitempty"`
-	MaxCursorValue  interface{}            `json:"max_cursor_value,omitempty"`
-	SnapshotLastPK  map[string]interface{} `json:"snapshot_last_pk,omitempty"`
-	SnapshotDone    bool                   `json:"snapshot_done"`
+	Phase          string                 `json:"phase"` // "snapshot" or "incremental"
+	CursorField    string                 `json:"cursor_field"`
+	CursorValue    interface{}            `json:"cursor_value,omitempty"`
+	MaxCursorValue interface{}            `json:"max_cursor_value,omitempty"`
+	SnapshotLastPK map[string]interface{} `json:"snapshot_last_pk,omitempty"`
+	SnapshotDone   bool                   `json:"snapshot_done"`
 }
 
 // CDCState tracks progress for CDC (binlog) replication.
-// Emitted as StateTypeLegacy because the SDK's globalState is unexported.
 type CDCState struct {
-	BinlogFile     string                             `json:"binlog_file"`
-	BinlogPos      uint32                             `json:"binlog_pos"`
-	GTIDSet        string                             `json:"gtid_set,omitempty"`
+	BinlogFile      string                             `json:"binlog_file"`
+	BinlogPos       uint32                             `json:"binlog_pos"`
+	GTIDSet         string                             `json:"gtid_set,omitempty"`
 	SnapshotStreams map[string]*CDCStreamSnapshotState `json:"snapshot_streams"`
-	SnapshotDone   bool                               `json:"snapshot_done"`
+	SnapshotDone    bool                               `json:"snapshot_done"`
 }
 
 // CDCStreamSnapshotState tracks per-stream progress during CDC initial snapshot.
@@ -39,82 +39,83 @@ type CDCStreamSnapshotState struct {
 	Done       bool                   `json:"done"`
 }
 
-// loadStreamState loads the state for a specific stream from the previous state file.
-func loadStreamState(prevStatePath string, streamName string) (map[string]interface{}, error) {
-	if prevStatePath == "" {
-		return nil, nil
-	}
-
-	states, err := airbyte.LoadStreamStates(prevStatePath)
-	if err != nil {
-		return nil, fmt.Errorf("loading stream states: %w", err)
-	}
-
-	return states[streamName], nil
+// streamDescriptor identifies a table's stream in records and state messages:
+// the table name, without the database as namespace.
+func streamDescriptor(table string) synclet.StreamDescriptor {
+	return synclet.StreamDescriptor{Name: table}
 }
 
-// loadCDCState loads the CDC (legacy) state from the previous state file.
-func loadCDCState(prevStatePath string) (*CDCState, error) {
-	if prevStatePath == "" {
+// parseStreamState decodes a stream's saved state into target. A state that
+// does not decode is logged and leaves target partly filled.
+func parseStreamState(ctx context.Context, streamName string, raw json.RawMessage, target any) {
+	if err := json.Unmarshal(raw, target); err != nil {
+		synclet.Logger(ctx).Warn(fmt.Sprintf("Ignoring unreadable state of stream %s: %v", streamName, err))
+	}
+}
+
+// cdcSharedState is the shared part of the GLOBAL CDC state: the binlog
+// position every stream continues from.
+type cdcSharedState struct {
+	BinlogFile   string `json:"binlog_file"`
+	BinlogPos    uint32 `json:"binlog_pos"`
+	GTIDSet      string `json:"gtid_set,omitempty"`
+	SnapshotDone bool   `json:"snapshot_done"`
+}
+
+// loadCDCState returns the CDC state saved by the previous sync, or nil when
+// there is none. It reads a GLOBAL state, and a LEGACY state as written by
+// 0.1.x of this connector.
+func loadCDCState(prev *synclet.InputState) (*CDCState, error) {
+	switch prev.Type {
+	case synclet.StateTypeGlobal:
+		var shared cdcSharedState
+		if err := json.Unmarshal(prev.Shared, &shared); err != nil {
+			return nil, fmt.Errorf("parsing CDC shared state: %w", err)
+		}
+		cdcState := &CDCState{
+			BinlogFile:      shared.BinlogFile,
+			BinlogPos:       shared.BinlogPos,
+			GTIDSet:         shared.GTIDSet,
+			SnapshotDone:    shared.SnapshotDone,
+			SnapshotStreams: make(map[string]*CDCStreamSnapshotState, len(prev.Streams)),
+		}
+		for _, st := range prev.Streams {
+			ss := &CDCStreamSnapshotState{}
+			if len(st.StreamState) > 0 {
+				if err := json.Unmarshal(st.StreamState, ss); err != nil {
+					return nil, fmt.Errorf("parsing CDC state of stream %s: %w", st.StreamDescriptor.Name, err)
+				}
+			}
+			cdcState.SnapshotStreams[st.StreamDescriptor.Name] = ss
+		}
+		return cdcState, nil
+	case synclet.StateTypeLegacy:
+		var cdcState CDCState
+		if err := json.Unmarshal(prev.Legacy, &cdcState); err != nil {
+			return nil, fmt.Errorf("parsing CDC state: %w", err)
+		}
+		return &cdcState, nil
+	default:
 		return nil, nil
 	}
-
-	var entries []json.RawMessage
-	if err := airbyte.UnmarshalFromPath(prevStatePath, &entries); err != nil {
-		return nil, nil // no state file or invalid format
-	}
-
-	for _, raw := range entries {
-		var envelope struct {
-			Type string          `json:"type"`
-			Data json.RawMessage `json:"data"`
-		}
-		if err := json.Unmarshal(raw, &envelope); err != nil {
-			continue
-		}
-		if envelope.Type == string(airbyte.StateTypeLegacy) {
-			var cdcState CDCState
-			if err := json.Unmarshal(envelope.Data, &cdcState); err != nil {
-				return nil, fmt.Errorf("parsing CDC state: %w", err)
-			}
-			return &cdcState, nil
-		}
-	}
-
-	return nil, nil
 }
 
 // emitStreamState emits a per-stream state checkpoint.
-func emitStreamState(tracker airbyte.MessageTracker, streamName string, state interface{}) error {
-	return tracker.State(airbyte.StateTypeStream, airbyte.StreamState{
-		StreamDescriptor: airbyte.StreamDescriptor{Name: streamName},
-		StreamState:      toMap(state),
-	})
+func emitStreamState(em *synclet.Emitter, streamName string, state any) error {
+	return em.StreamState(streamDescriptor(streamName), state)
 }
 
-// emitCDCState emits a legacy (global) CDC state checkpoint.
-func emitCDCState(tracker airbyte.MessageTracker, state *CDCState) error {
-	return tracker.State(airbyte.StateTypeLegacy, state)
-}
-
-// toMap converts a struct to map[string]interface{} via JSON round-trip.
-func toMap(v interface{}) map[string]interface{} {
-	data, err := json.Marshal(v)
-	if err != nil {
-		return nil
+// emitCDCState emits a GLOBAL CDC state checkpoint: the binlog position as
+// shared state and each stream's snapshot progress as its stream state.
+func emitCDCState(em *synclet.Emitter, state *CDCState) error {
+	streams := make(map[synclet.StreamDescriptor]any, len(state.SnapshotStreams))
+	for name, ss := range state.SnapshotStreams {
+		streams[streamDescriptor(name)] = ss
 	}
-	var m map[string]interface{}
-	if err := json.Unmarshal(data, &m); err != nil {
-		return nil
-	}
-	return m
-}
-
-// parseStreamState deserializes a stream state map into the target struct.
-func parseStreamState(raw map[string]interface{}, target interface{}) error {
-	data, err := json.Marshal(raw)
-	if err != nil {
-		return fmt.Errorf("marshaling state: %w", err)
-	}
-	return json.Unmarshal(data, target)
+	return em.GlobalState(cdcSharedState{
+		BinlogFile:   state.BinlogFile,
+		BinlogPos:    state.BinlogPos,
+		GTIDSet:      state.GTIDSet,
+		SnapshotDone: state.SnapshotDone,
+	}, streams)
 }

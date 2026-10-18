@@ -5,18 +5,20 @@ import (
 	"database/sql"
 	"fmt"
 
-	airbyte "github.com/saturn4er/airbyte-go-sdk"
+	"go.uber.org/multierr"
+
+	synclet "github.com/synclet-io/synclet-go-sdk"
 )
 
 // FullRefreshReader reads a table using full refresh mode with PK-based chunking.
 type FullRefreshReader struct {
-	db      *sql.DB
-	tracker airbyte.MessageTracker
+	db *sql.DB
+	em *synclet.Emitter
 }
 
 // NewFullRefreshReader creates a new FullRefreshReader.
-func NewFullRefreshReader(db *sql.DB, tracker airbyte.MessageTracker) *FullRefreshReader {
-	return &FullRefreshReader{db: db, tracker: tracker}
+func NewFullRefreshReader(db *sql.DB, em *synclet.Emitter) *FullRefreshReader {
+	return &FullRefreshReader{db: db, em: em}
 }
 
 // ReadTable reads all rows from a table, optionally resuming from previous state.
@@ -36,14 +38,14 @@ func (r *FullRefreshReader) ReadTable(ctx context.Context, table TableInfo, prev
 }
 
 // readWithoutPK reads the entire table in a single query (non-resumable).
-func (r *FullRefreshReader) readWithoutPK(ctx context.Context, table TableInfo, columns []string, streamName string) error {
+func (r *FullRefreshReader) readWithoutPK(ctx context.Context, table TableInfo, columns []string, streamName string) (rerr error) {
 	query := fmt.Sprintf("SELECT %s FROM `%s`.`%s`", quoteColumns(columns), table.Schema, table.Name)
 
 	rows, err := r.db.QueryContext(ctx, query)
 	if err != nil {
 		return fmt.Errorf("query: %w", err)
 	}
-	defer rows.Close()
+	defer multierr.AppendInvoke(&rerr, multierr.Close(rows))
 
 	for rows.Next() {
 		record, err := scanRow(rows, columns)
@@ -51,7 +53,7 @@ func (r *FullRefreshReader) readWithoutPK(ctx context.Context, table TableInfo, 
 			return fmt.Errorf("scanning row: %w", err)
 		}
 
-		if err := r.tracker.Record(record, streamName, ""); err != nil {
+		if err := r.em.Record(streamDescriptor(streamName), record); err != nil {
 			return fmt.Errorf("emitting record: %w", err)
 		}
 	}
@@ -98,12 +100,12 @@ func (r *FullRefreshReader) readWithPK(ctx context.Context, table TableInfo, col
 		for rows.Next() {
 			record, err := scanRow(rows, columns)
 			if err != nil {
-				rows.Close()
+				_ = rows.Close()
 				return fmt.Errorf("scanning row: %w", err)
 			}
 
-			if err := r.tracker.Record(record, streamName, ""); err != nil {
-				rows.Close()
+			if err := r.em.Record(streamDescriptor(streamName), record); err != nil {
+				_ = rows.Close()
 				return fmt.Errorf("emitting record: %w", err)
 			}
 
@@ -111,13 +113,16 @@ func (r *FullRefreshReader) readWithPK(ctx context.Context, table TableInfo, col
 			count++
 		}
 		if err := rows.Err(); err != nil {
+			_ = rows.Close()
 			return err
 		}
-		rows.Close()
+		if err := rows.Close(); err != nil {
+			return fmt.Errorf("closing rows: %w", err)
+		}
 
 		if count == 0 {
 			// No more rows, emit final state
-			if err := emitStreamState(r.tracker, streamName, &FullRefreshState{Done: true}); err != nil {
+			if err := emitStreamState(r.em, streamName, &FullRefreshState{Done: true}); err != nil {
 				return fmt.Errorf("emitting final state: %w", err)
 			}
 			break
@@ -130,7 +135,7 @@ func (r *FullRefreshReader) readWithPK(ctx context.Context, table TableInfo, col
 		}
 
 		state := &FullRefreshState{LastPKVals: pkVals}
-		if err := emitStreamState(r.tracker, streamName, state); err != nil {
+		if err := emitStreamState(r.em, streamName, state); err != nil {
 			return fmt.Errorf("emitting state: %w", err)
 		}
 
@@ -142,7 +147,7 @@ func (r *FullRefreshReader) readWithPK(ctx context.Context, table TableInfo, col
 
 		if count < DefaultChunkSize {
 			// Last chunk
-			if err := emitStreamState(r.tracker, streamName, &FullRefreshState{Done: true}); err != nil {
+			if err := emitStreamState(r.em, streamName, &FullRefreshState{Done: true}); err != nil {
 				return fmt.Errorf("emitting final state: %w", err)
 			}
 			break

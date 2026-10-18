@@ -1,12 +1,20 @@
 {
+  "$schema": "../../schema/meta.schema.json",
   "name": "MySQL",
   "connector_type": "source",
+  "version": "0.2.0",
   "release_stage": "alpha",
   "support_level": "community",
   "source_type": "database",
-  "documentation_url": "",
-  "icon_url": "",
   "license": "MIT",
+  "documentation_url": "https://github.com/synclet-io/connectors/tree/main/connectors/source-mysql",
+  "icon_url": "",
+  "language": "go",
+  "tags": [
+    "database",
+    "mysql",
+    "cdc"
+  ],
   "breaking_changes": {},
   "external_documentation_urls": []
 }

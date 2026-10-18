@@ -3,107 +3,107 @@ package main
 import (
 	"strings"
 
-	airbyte "github.com/saturn4er/airbyte-go-sdk"
+	synclet "github.com/synclet-io/synclet-go-sdk"
 )
 
 // mapMySQLTypeToAirbyte maps a MySQL column to its Airbyte property type.
-func mapMySQLTypeToAirbyte(col ColumnInfo) airbyte.PropertyType {
+func mapMySQLTypeToAirbyte(col ColumnInfo) synclet.PropertyType {
 	dt := strings.ToLower(col.DataType)
 
 	switch dt {
 	// Boolean-like types represented as integer (0/1).
 	case "boolean", "bool":
-		return airbyte.PropertyType{Type: []airbyte.PropType{airbyte.Integer}}
+		return synclet.PropertyType{Type: []synclet.PropType{synclet.Integer}}
 
 	case "tinyint":
 		// tinyint(1) is MySQL's boolean representation.
 		if strings.Contains(strings.ToLower(col.ColumnType), "(1)") {
-			return airbyte.PropertyType{Type: []airbyte.PropType{airbyte.Integer}}
+			return synclet.PropertyType{Type: []synclet.PropType{synclet.Integer}}
 		}
-		return airbyte.PropertyType{Type: []airbyte.PropType{airbyte.Integer}}
+		return synclet.PropertyType{Type: []synclet.PropType{synclet.Integer}}
 
 	case "bit":
-		return airbyte.PropertyType{Type: []airbyte.PropType{airbyte.Integer}}
+		return synclet.PropertyType{Type: []synclet.PropType{synclet.Integer}}
 
 	// Integer types.
 	case "smallint", "mediumint", "int", "integer":
-		return airbyte.PropertyType{Type: []airbyte.PropType{airbyte.Integer}}
+		return synclet.PropertyType{Type: []synclet.PropType{synclet.Integer}}
 
 	case "bigint":
 		// bigint unsigned can exceed int64 range.
 		if strings.Contains(strings.ToLower(col.ColumnType), "unsigned") {
-			return airbyte.PropertyType{
-				Type:        []airbyte.PropType{airbyte.Integer},
-				AirbyteType: airbyte.BigInteger,
+			return synclet.PropertyType{
+				Type:        []synclet.PropType{synclet.Integer},
+				AirbyteType: synclet.BigInteger,
 			}
 		}
-		return airbyte.PropertyType{Type: []airbyte.PropType{airbyte.Integer}}
+		return synclet.PropertyType{Type: []synclet.PropType{synclet.Integer}}
 
 	// Floating-point types.
 	case "float":
-		return airbyte.PropertyType{Type: []airbyte.PropType{airbyte.Number}}
+		return synclet.PropertyType{Type: []synclet.PropType{synclet.Number}}
 
 	case "double", "real":
-		return airbyte.PropertyType{Type: []airbyte.PropType{airbyte.Number}}
+		return synclet.PropertyType{Type: []synclet.PropType{synclet.Number}}
 
 	// Decimal/numeric types — depends on scale.
 	case "decimal", "numeric":
 		if col.NumericScale != nil && *col.NumericScale == 0 {
-			return airbyte.PropertyType{
-				Type:        []airbyte.PropType{airbyte.Integer},
-				AirbyteType: airbyte.BigInteger,
+			return synclet.PropertyType{
+				Type:        []synclet.PropType{synclet.Integer},
+				AirbyteType: synclet.BigInteger,
 			}
 		}
-		return airbyte.PropertyType{
-			Type:        []airbyte.PropType{airbyte.Number},
-			AirbyteType: airbyte.BigNumber,
+		return synclet.PropertyType{
+			Type:        []synclet.PropType{synclet.Number},
+			AirbyteType: synclet.BigNumber,
 		}
 
 	// Date and time types.
 	case "date":
-		return airbyte.PropertyType{Type: []airbyte.PropType{airbyte.String}}
+		return synclet.PropertyType{Type: []synclet.PropType{synclet.String}}
 
 	case "datetime":
-		return airbyte.PropertyType{
-			Type:        []airbyte.PropType{airbyte.String},
-			AirbyteType: airbyte.TimestampWOTZ,
+		return synclet.PropertyType{
+			Type:        []synclet.PropType{synclet.String},
+			AirbyteType: synclet.TimestampWOTZ,
 		}
 
 	case "timestamp":
-		return airbyte.PropertyType{
-			Type:        []airbyte.PropType{airbyte.String},
-			AirbyteType: airbyte.TimestampWithTZ,
+		return synclet.PropertyType{
+			Type:        []synclet.PropType{synclet.String},
+			AirbyteType: synclet.TimestampWithTZ,
 		}
 
 	case "time":
-		return airbyte.PropertyType{Type: []airbyte.PropType{airbyte.String}}
+		return synclet.PropertyType{Type: []synclet.PropType{synclet.String}}
 
 	case "year":
-		return airbyte.PropertyType{Type: []airbyte.PropType{airbyte.Integer}}
+		return synclet.PropertyType{Type: []synclet.PropType{synclet.Integer}}
 
 	// String types.
 	case "char", "varchar", "tinytext", "text", "mediumtext", "longtext":
-		return airbyte.PropertyType{Type: []airbyte.PropType{airbyte.String}}
+		return synclet.PropertyType{Type: []synclet.PropType{synclet.String}}
 
 	case "enum", "set":
-		return airbyte.PropertyType{Type: []airbyte.PropType{airbyte.String}}
+		return synclet.PropertyType{Type: []synclet.PropType{synclet.String}}
 
 	// JSON.
 	case "json":
-		return airbyte.PropertyType{Type: []airbyte.PropType{airbyte.String}}
+		return synclet.PropertyType{Type: []synclet.PropType{synclet.String}}
 
 	// Binary types (will be base64-encoded at read time).
 	case "binary", "varbinary", "tinyblob", "blob", "mediumblob", "longblob":
-		return airbyte.PropertyType{Type: []airbyte.PropType{airbyte.String}}
+		return synclet.PropertyType{Type: []synclet.PropType{synclet.String}}
 
 	// Spatial types.
 	case "geometry", "point", "linestring", "polygon",
 		"multipoint", "multilinestring", "multipolygon", "geometrycollection":
-		return airbyte.PropertyType{Type: []airbyte.PropType{airbyte.String}}
+		return synclet.PropertyType{Type: []synclet.PropType{synclet.String}}
 
 	default:
 		// Fallback: treat unknown types as string.
-		return airbyte.PropertyType{Type: []airbyte.PropType{airbyte.String}}
+		return synclet.PropertyType{Type: []synclet.PropType{synclet.String}}
 	}
 }
 

@@ -1,0 +1,320 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Reads data from a MySQL database",
+    "properties": {
+      "database": {
+        "description": "Name of the MySQL database to sync",
+        "title": "Database",
+        "type": "string"
+      },
+      "host": {
+        "description": "Hostname of the MySQL server",
+        "title": "Host",
+        "type": "string"
+      },
+      "password": {
+        "airbyte_secret": true,
+        "description": "MySQL password",
+        "title": "Password",
+        "type": "string"
+      },
+      "port": {
+        "default": 3306,
+        "description": "Port of the MySQL server",
+        "title": "Port",
+        "type": "integer"
+      },
+      "replication_method": {
+        "description": "Replication method to use for extracting data from the database",
+        "oneOf": [
+          {
+            "description": "Standard replication uses SELECT queries to read data",
+            "properties": {
+              "method": {
+                "const": "STANDARD",
+                "default": "STANDARD",
+                "type": "string"
+              }
+            },
+            "required": [
+              "method"
+            ],
+            "title": "Standard",
+            "type": "object"
+          },
+          {
+            "description": "CDC uses MySQL binary log to capture row-level changes",
+            "properties": {
+              "checkpoint_seconds": {
+                "default": 300,
+                "description": "How often to emit state checkpoints during CDC replication",
+                "title": "Checkpoint Interval (seconds)",
+                "type": "integer"
+              },
+              "initial_wait_seconds": {
+                "default": 300,
+                "description": "Time to wait for initial CDC snapshot before timing out",
+                "title": "Initial Wait Time (seconds)",
+                "type": "integer"
+              },
+              "method": {
+                "const": "CDC",
+                "type": "string"
+              },
+              "server_id": {
+                "description": "A unique numeric ID for this replication client (1-4294967295). Must be unique across all replication clients.",
+                "title": "Server ID",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "method"
+            ],
+            "title": "CDC (Change Data Capture)",
+            "type": "object"
+          }
+        ],
+        "title": "Replication Method",
+        "type": "object"
+      },
+      "ssl_mode": {
+        "description": "SSL connection mode",
+        "oneOf": [
+          {
+            "properties": {
+              "mode": {
+                "const": "preferred",
+                "default": "preferred",
+                "type": "string"
+              }
+            },
+            "required": [
+              "mode"
+            ],
+            "title": "preferred",
+            "type": "object"
+          },
+          {
+            "properties": {
+              "mode": {
+                "const": "required",
+                "type": "string"
+              }
+            },
+            "required": [
+              "mode"
+            ],
+            "title": "required",
+            "type": "object"
+          },
+          {
+            "description": "Verify the server certificate against a CA",
+            "properties": {
+              "ca_certificate": {
+                "airbyte_secret": true,
+                "description": "PEM-encoded CA certificate to verify the server",
+                "title": "CA Certificate",
+                "type": "string"
+              },
+              "mode": {
+                "const": "verify_ca",
+                "type": "string"
+              }
+            },
+            "required": [
+              "mode",
+              "ca_certificate"
+            ],
+            "title": "verify_ca",
+            "type": "object"
+          },
+          {
+            "description": "Verify the server certificate and hostname",
+            "properties": {
+              "ca_certificate": {
+                "airbyte_secret": true,
+                "description": "PEM-encoded CA certificate to verify the server",
+                "title": "CA Certificate",
+                "type": "string"
+              },
+              "client_certificate": {
+                "airbyte_secret": true,
+                "description": "PEM-encoded client certificate for mutual TLS",
+                "title": "Client Certificate",
+                "type": "string"
+              },
+              "client_key": {
+                "airbyte_secret": true,
+                "description": "PEM-encoded client private key for mutual TLS",
+                "title": "Client Key",
+                "type": "string"
+              },
+              "mode": {
+                "const": "verify_identity",
+                "type": "string"
+              }
+            },
+            "required": [
+              "mode",
+              "ca_certificate",
+              "client_certificate",
+              "client_key"
+            ],
+            "title": "verify_identity",
+            "type": "object"
+          }
+        ],
+        "title": "SSL Mode",
+        "type": "object"
+      },
+      "table_filter": {
+        "description": "Filter which schemas and tables to include in discovery",
+        "properties": {
+          "schema_patterns": {
+            "description": "SQL LIKE patterns to filter databases/schemas (e.g. [\"my_db%\"]). Empty means all.",
+            "items": {
+              "type": "string"
+            },
+            "title": "Schema Patterns",
+            "type": "array"
+          },
+          "table_patterns": {
+            "description": "SQL LIKE patterns to filter tables (e.g. [\"users%\", \"orders%\"]). Empty means all.",
+            "items": {
+              "type": "string"
+            },
+            "title": "Table Patterns",
+            "type": "array"
+          }
+        },
+        "title": "Table Filter",
+        "type": "object"
+      },
+      "tunnel_method": {
+        "description": "Whether to use an SSH tunnel to connect to the database",
+        "oneOf": [
+          {
+            "properties": {
+              "method": {
+                "const": "no_tunnel",
+                "default": "no_tunnel",
+                "type": "string"
+              }
+            },
+            "required": [
+              "method"
+            ],
+            "title": "No Tunnel",
+            "type": "object"
+          },
+          {
+            "description": "Connect through an SSH tunnel using a private key",
+            "properties": {
+              "method": {
+                "const": "ssh_key",
+                "type": "string"
+              },
+              "ssh_key": {
+                "airbyte_secret": true,
+                "description": "PEM-encoded private key for SSH authentication",
+                "title": "SSH Private Key",
+                "type": "string"
+              },
+              "tunnel_host": {
+                "description": "Hostname of the SSH tunnel server",
+                "title": "SSH Tunnel Host",
+                "type": "string"
+              },
+              "tunnel_port": {
+                "default": 22,
+                "description": "Port of the SSH tunnel server",
+                "title": "SSH Tunnel Port",
+                "type": "integer"
+              },
+              "tunnel_user": {
+                "description": "OS-level user account for the SSH tunnel",
+                "title": "SSH Tunnel User",
+                "type": "string"
+              }
+            },
+            "required": [
+              "method",
+              "tunnel_host",
+              "tunnel_port",
+              "tunnel_user",
+              "ssh_key"
+            ],
+            "title": "SSH Key Authentication",
+            "type": "object"
+          },
+          {
+            "description": "Connect through an SSH tunnel using a password",
+            "properties": {
+              "method": {
+                "const": "ssh_password",
+                "type": "string"
+              },
+              "tunnel_host": {
+                "description": "Hostname of the SSH tunnel server",
+                "title": "SSH Tunnel Host",
+                "type": "string"
+              },
+              "tunnel_password": {
+                "airbyte_secret": true,
+                "description": "Password for SSH authentication",
+                "title": "SSH Tunnel Password",
+                "type": "string"
+              },
+              "tunnel_port": {
+                "default": 22,
+                "description": "Port of the SSH tunnel server",
+                "title": "SSH Tunnel Port",
+                "type": "integer"
+              },
+              "tunnel_user": {
+                "description": "OS-level user account for the SSH tunnel",
+                "title": "SSH Tunnel User",
+                "type": "string"
+              }
+            },
+            "required": [
+              "method",
+              "tunnel_host",
+              "tunnel_port",
+              "tunnel_user",
+              "tunnel_password"
+            ],
+            "title": "SSH Password Authentication",
+            "type": "object"
+          }
+        ],
+        "title": "SSH Tunnel Method",
+        "type": "object"
+      },
+      "username": {
+        "description": "MySQL username",
+        "title": "Username",
+        "type": "string"
+      }
+    },
+    "required": [
+      "host",
+      "database",
+      "username",
+      "password"
+    ],
+    "title": "MySQL Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://docs.synclet.dev/connectors/source-mysql",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": true,
+  "supportsNormalization": false
+}

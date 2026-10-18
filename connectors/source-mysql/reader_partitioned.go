@@ -5,20 +5,22 @@ import (
 	"database/sql"
 	"fmt"
 
-	airbyte "github.com/saturn4er/airbyte-go-sdk"
+	"go.uber.org/multierr"
+
+	synclet "github.com/synclet-io/synclet-go-sdk"
 	"golang.org/x/sync/errgroup"
 )
 
 // PartitionedReader reads a table using concurrent partition workers.
 // Non-resumable: if interrupted, the entire table is re-read.
 type PartitionedReader struct {
-	db      *sql.DB
-	tracker airbyte.MessageTracker
+	db *sql.DB
+	em *synclet.Emitter
 }
 
 // NewPartitionedReader creates a new PartitionedReader.
-func NewPartitionedReader(db *sql.DB, tracker airbyte.MessageTracker) *PartitionedReader {
-	return &PartitionedReader{db: db, tracker: tracker}
+func NewPartitionedReader(db *sql.DB, em *synclet.Emitter) *PartitionedReader {
+	return &PartitionedReader{db: db, em: em}
 }
 
 // ReadTable reads a table using concurrent partitions.
@@ -57,7 +59,7 @@ func (r *PartitionedReader) readPartition(
 	columns []string,
 	streamName string,
 	part Partition,
-) error {
+) (rerr error) {
 	var query string
 	var args []interface{}
 
@@ -81,7 +83,7 @@ func (r *PartitionedReader) readPartition(
 	if err != nil {
 		return fmt.Errorf("partition query: %w", err)
 	}
-	defer rows.Close()
+	defer multierr.AppendInvoke(&rerr, multierr.Close(rows))
 
 	for rows.Next() {
 		record, err := scanRow(rows, columns)
@@ -89,7 +91,7 @@ func (r *PartitionedReader) readPartition(
 			return fmt.Errorf("scanning row: %w", err)
 		}
 
-		if err := r.tracker.Record(record, streamName, ""); err != nil {
+		if err := r.em.Record(streamDescriptor(streamName), record); err != nil {
 			return fmt.Errorf("emitting record: %w", err)
 		}
 	}

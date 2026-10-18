@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"strings"
 
-	airbyte "github.com/saturn4er/airbyte-go-sdk"
+	"go.uber.org/multierr"
+
+	synclet "github.com/synclet-io/synclet-go-sdk"
 )
 
 // TableInfo holds metadata about a discovered MySQL table.
@@ -28,7 +30,7 @@ type ColumnInfo struct {
 	NumericScale *int // for DECIMAL/NUMERIC
 }
 
-func discoverTables(ctx context.Context, db *sql.DB, cfg Config) ([]TableInfo, error) {
+func discoverTables(ctx context.Context, db *sql.DB, cfg Config) (_ []TableInfo, rerr error) {
 	tableMap := make(map[string]*TableInfo)
 
 	// Build column query with optional filters.
@@ -52,7 +54,7 @@ func discoverTables(ctx context.Context, db *sql.DB, cfg Config) ([]TableInfo, e
 	if err != nil {
 		return nil, fmt.Errorf("querying columns: %w", err)
 	}
-	defer rows.Close()
+	defer multierr.AppendInvoke(&rerr, multierr.Close(rows))
 
 	for rows.Next() {
 		var (
@@ -92,7 +94,7 @@ func discoverTables(ctx context.Context, db *sql.DB, cfg Config) ([]TableInfo, e
 	if err != nil {
 		return nil, fmt.Errorf("querying primary keys: %w", err)
 	}
-	defer pkRows.Close()
+	defer multierr.AppendInvoke(&rerr, multierr.Close(pkRows))
 
 	for pkRows.Next() {
 		var schema, tableName, colName string
@@ -116,7 +118,7 @@ func discoverTables(ctx context.Context, db *sql.DB, cfg Config) ([]TableInfo, e
 	if err != nil {
 		return nil, fmt.Errorf("querying table sizes: %w", err)
 	}
-	defer sizeRows.Close()
+	defer multierr.AppendInvoke(&rerr, multierr.Close(sizeRows))
 
 	for sizeRows.Next() {
 		var schema, tableName string
@@ -141,14 +143,14 @@ func discoverTables(ctx context.Context, db *sql.DB, cfg Config) ([]TableInfo, e
 	return tables, nil
 }
 
-func buildStreamSchema(table TableInfo) airbyte.Properties {
-	props := make(map[airbyte.PropertyName]airbyte.PropertySpec, len(table.Columns))
+func buildStreamSchema(table TableInfo) map[synclet.PropertyName]synclet.PropertySpec {
+	props := make(map[synclet.PropertyName]synclet.PropertySpec, len(table.Columns))
 	for _, col := range table.Columns {
 		pt := mapMySQLTypeToAirbyte(col)
-		pt.Type = append(pt.Type, airbyte.Null)
-		props[airbyte.PropertyName(col.Name)] = airbyte.PropertySpec{
+		pt.Type = append(pt.Type, synclet.Null)
+		props[synclet.PropertyName(col.Name)] = synclet.PropertySpec{
 			PropertyType: pt,
 		}
 	}
-	return airbyte.Properties{Properties: props}
+	return props
 }
