@@ -13,23 +13,26 @@ import (
 // parityStream is the part of a stream testdata/expected_catalog.json pins:
 // the streams of the earlier private connector this one replaces.
 type parityStream struct {
-	Name       string            `json:"name"`
-	Namespace  string            `json:"namespace"`
-	SyncModes  []string          `json:"sync_modes"`
-	PrimaryKey [][]string        `json:"primary_key"`
-	Cursor     []string          `json:"cursor"`
-	Properties map[string]string `json:"properties"`
+	Name       string                `json:"name"`
+	Namespace  string                `json:"namespace"`
+	SyncModes  []string              `json:"sync_modes"`
+	PrimaryKey [][]string            `json:"primary_key"`
+	Cursor     []string              `json:"cursor"`
+	Properties map[string]parityProp `json:"properties"`
+}
+
+type parityProp struct {
+	Type   string `json:"type"`
+	Format string `json:"format,omitempty"`
 }
 
 func toParity(t *testing.T, s synclet.Stream) parityStream {
 	t.Helper()
 	var schema struct {
-		Properties map[string]struct {
-			Type string `json:"type"`
-		} `json:"properties"`
+		Properties map[string]parityProp `json:"properties"`
 	}
 	require.NoError(t, json.Unmarshal(s.JSONSchema, &schema))
-	p := parityStream{Name: s.Name, Namespace: s.Namespace, PrimaryKey: s.SourceDefinedPrimaryKey, Cursor: s.DefaultCursorField, Properties: map[string]string{}}
+	p := parityStream{Name: s.Name, Namespace: s.Namespace, PrimaryKey: s.SourceDefinedPrimaryKey, Cursor: s.DefaultCursorField, Properties: map[string]parityProp{}}
 	if p.Cursor == nil {
 		p.Cursor = []string{}
 	}
@@ -37,7 +40,7 @@ func toParity(t *testing.T, s synclet.Stream) parityStream {
 		p.SyncModes = append(p.SyncModes, string(m))
 	}
 	for name, prop := range schema.Properties {
-		p.Properties[name] = prop.Type
+		p.Properties[name] = prop
 	}
 	return p
 }

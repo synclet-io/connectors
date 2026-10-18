@@ -16,6 +16,7 @@ import (
 var (
 	statusRunning   = fixture{file: "async/running"}
 	statusDone      = fixture{file: "async/completed"}
+	statusPartial   = fixture{file: "async/completed_partial"}
 	statusJobFailed = fixture{file: "async/failed"}
 	statusJobSkip   = fixture{file: "async/skipped"}
 )
@@ -77,6 +78,17 @@ func TestReadInsights(t *testing.T) {
 		assert.Equal(t, testAccountA, first["account_id"])
 		assert.NotContains(t, first, "date_stop", "only schema fields are emitted")
 		assert.IsType(t, []any{}, first["actions"])
+	})
+
+	t.Run("completed below 100 percent is polled again", func(t *testing.T) {
+		srv, h := fixtureServer(t, map[string][]fixture{"GET " + runA: {statusPartial, statusDone}})
+		src, w := testSource(srv)
+		out := runRead(t, src, testConfig(t, onlyAccountA), configured(t, src, synclet.SyncModeFullRefresh, streamAdInsights), nil)
+		require.NoError(t, out.Err)
+		assert.Len(t, requestsOf(h, http.MethodPost, insightsA), 1)
+		assert.Len(t, requestsOf(h, http.MethodGet, runA), 2)
+		assert.Equal(t, []time.Duration{2 * time.Second}, w.list())
+		assert.Len(t, records(t, out, streamAdInsights), 8)
 	})
 
 	for name, status := range map[string]fixture{"failed": statusJobFailed, "skipped": statusJobSkip} {

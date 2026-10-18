@@ -150,8 +150,8 @@ func (s Source) readReport(ctx context.Context, c *apiClient, d streamDef, acct,
 	return fmt.Errorf("%s: account act_%s %s..%s: report job ended with %q %d times", d.name, acct, since, until, status, jobRetries+1)
 }
 
-// runJob creates a report job and polls it until it completes, fails or is
-// skipped, and returns its id and last status.
+// runJob creates a report job and polls it until it fails, is skipped, or is
+// completed at 100 percent, and returns its id and last status.
 func (s Source) runJob(ctx context.Context, c *apiClient, d streamDef, acct, since, until string) (string, string, error) {
 	timeRange, err := json.Marshal(map[string]string{"since": since, "until": until})
 	if err != nil {
@@ -181,14 +181,16 @@ func (s Source) runJob(ctx context.Context, c *apiClient, d streamDef, acct, sin
 	}
 	for range maxPolls {
 		var run struct {
-			Status string `json:"async_status"`
+			Status  string `json:"async_status"`
+			Percent int    `json:"async_percent_completion"`
 		}
 		q := url.Values{"fields": {"async_status,async_percent_completion"}}
 		if err := c.get(ctx, created.ReportRunID, q, &run); err != nil {
 			return "", "", err
 		}
-		switch run.Status {
-		case statusCompleted, statusFailed, statusSkipped:
+		switch {
+		case run.Status == statusCompleted && run.Percent == 100,
+			run.Status == statusFailed, run.Status == statusSkipped:
 			return created.ReportRunID, run.Status, nil
 		}
 		if err := c.wait(ctx, interval); err != nil {

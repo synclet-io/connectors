@@ -79,7 +79,7 @@ Meta still changes insights for about 28 days, and breakdowns older than 13 mont
 
 Each insights stream creates one asynchronous report job per account (`POST act_<id>/insights` with
 `level`, `time_increment=1`, `time_range`, `fields` and `breakdowns`), polls it every 2 seconds until
-`async_status` is `Job Completed`, then pages its rows. A `Job Failed` or `Job Skipped` job, or one
+`async_status` is `Job Completed` with `async_percent_completion` 100, then pages its rows. A `Job Failed` or `Job Skipped` job, or one
 still unfinished after 1800 polls, is created again up to 3 times; after that the stream fails with
 an error that names the stream, the account and the range, such as
 `ad_insights: account act_1234567890 2026-09-20..2026-10-18: report job ended with "Job Failed" 4 times`.

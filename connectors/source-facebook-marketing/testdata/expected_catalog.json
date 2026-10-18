@@ -18,30 +18,78 @@
         ]
       ],
       "properties": {
-        "account_id": "string",
-        "actions": "array",
-        "ad_id": "string",
-        "ad_name": "string",
-        "adset_id": "string",
-        "adset_name": "string",
-        "campaign_id": "string",
-        "campaign_name": "string",
-        "clicks": "integer",
-        "cost_per_thruplay": "array",
-        "date_start": "string",
-        "impressions": "integer",
-        "inline_link_clicks": "integer",
-        "spend": "number",
-        "unique_clicks": "integer",
-        "unique_inline_link_clicks": "integer",
-        "unique_outbound_clicks": "array",
-        "video_avg_time_watched_actions": "array",
-        "video_continuous_2_sec_watched_actions": "array",
-        "video_p100_watched_actions": "array",
-        "video_p25_watched_actions": "array",
-        "video_p50_watched_actions": "array",
-        "video_p75_watched_actions": "array",
-        "video_play_actions": "array"
+        "account_id": {
+          "type": "string"
+        },
+        "actions": {
+          "type": "array"
+        },
+        "ad_id": {
+          "type": "string"
+        },
+        "ad_name": {
+          "type": "string"
+        },
+        "adset_id": {
+          "type": "string"
+        },
+        "adset_name": {
+          "type": "string"
+        },
+        "campaign_id": {
+          "type": "string"
+        },
+        "campaign_name": {
+          "type": "string"
+        },
+        "clicks": {
+          "type": "integer"
+        },
+        "cost_per_thruplay": {
+          "type": "array"
+        },
+        "date_start": {
+          "type": "string"
+        },
+        "impressions": {
+          "type": "integer"
+        },
+        "inline_link_clicks": {
+          "type": "integer"
+        },
+        "spend": {
+          "type": "number"
+        },
+        "unique_clicks": {
+          "type": "integer"
+        },
+        "unique_inline_link_clicks": {
+          "type": "integer"
+        },
+        "unique_outbound_clicks": {
+          "type": "array"
+        },
+        "video_avg_time_watched_actions": {
+          "type": "array"
+        },
+        "video_continuous_2_sec_watched_actions": {
+          "type": "array"
+        },
+        "video_p100_watched_actions": {
+          "type": "array"
+        },
+        "video_p25_watched_actions": {
+          "type": "array"
+        },
+        "video_p50_watched_actions": {
+          "type": "array"
+        },
+        "video_p75_watched_actions": {
+          "type": "array"
+        },
+        "video_play_actions": {
+          "type": "array"
+        }
       },
       "sync_modes": [
         "full_refresh",
@@ -69,31 +117,81 @@
         ]
       ],
       "properties": {
-        "account_id": "string",
-        "actions": "array",
-        "ad_id": "string",
-        "ad_name": "string",
-        "adset_id": "string",
-        "adset_name": "string",
-        "age": "string",
-        "campaign_id": "string",
-        "campaign_name": "string",
-        "clicks": "integer",
-        "cost_per_thruplay": "array",
-        "date_start": "string",
-        "impressions": "integer",
-        "inline_link_clicks": "integer",
-        "spend": "number",
-        "unique_clicks": "integer",
-        "unique_inline_link_clicks": "integer",
-        "unique_outbound_clicks": "array",
-        "video_avg_time_watched_actions": "array",
-        "video_continuous_2_sec_watched_actions": "array",
-        "video_p100_watched_actions": "array",
-        "video_p25_watched_actions": "array",
-        "video_p50_watched_actions": "array",
-        "video_p75_watched_actions": "array",
-        "video_play_actions": "array"
+        "account_id": {
+          "type": "string"
+        },
+        "actions": {
+          "type": "array"
+        },
+        "ad_id": {
+          "type": "string"
+        },
+        "ad_name": {
+          "type": "string"
+        },
+        "adset_id": {
+          "type": "string"
+        },
+        "adset_name": {
+          "type": "string"
+        },
+        "age": {
+          "type": "string"
+        },
+        "campaign_id": {
+          "type": "string"
+        },
+        "campaign_name": {
+          "type": "string"
+        },
+        "clicks": {
+          "type": "integer"
+        },
+        "cost_per_thruplay": {
+          "type": "array"
+        },
+        "date_start": {
+          "type": "string"
+        },
+        "impressions": {
+          "type": "integer"
+        },
+        "inline_link_clicks": {
+          "type": "integer"
+        },
+        "spend": {
+          "type": "number"
+        },
+        "unique_clicks": {
+          "type": "integer"
+        },
+        "unique_inline_link_clicks": {
+          "type": "integer"
+        },
+        "unique_outbound_clicks": {
+          "type": "array"
+        },
+        "video_avg_time_watched_actions": {
+          "type": "array"
+        },
+        "video_continuous_2_sec_watched_actions": {
+          "type": "array"
+        },
+        "video_p100_watched_actions": {
+          "type": "array"
+        },
+        "video_p25_watched_actions": {
+          "type": "array"
+        },
+        "video_p50_watched_actions": {
+          "type": "array"
+        },
+        "video_p75_watched_actions": {
+          "type": "array"
+        },
+        "video_play_actions": {
+          "type": "array"
+        }
       },
       "sync_modes": [
         "full_refresh",
@@ -124,32 +222,84 @@
         ]
       ],
       "properties": {
-        "account_id": "string",
-        "actions": "array",
-        "ad_id": "string",
-        "ad_name": "string",
-        "adset_id": "string",
-        "adset_name": "string",
-        "age": "string",
-        "campaign_id": "string",
-        "campaign_name": "string",
-        "clicks": "integer",
-        "cost_per_thruplay": "array",
-        "date_start": "string",
-        "gender": "string",
-        "impressions": "integer",
-        "inline_link_clicks": "integer",
-        "spend": "number",
-        "unique_clicks": "integer",
-        "unique_inline_link_clicks": "integer",
-        "unique_outbound_clicks": "array",
-        "video_avg_time_watched_actions": "array",
-        "video_continuous_2_sec_watched_actions": "array",
-        "video_p100_watched_actions": "array",
-        "video_p25_watched_actions": "array",
-        "video_p50_watched_actions": "array",
-        "video_p75_watched_actions": "array",
-        "video_play_actions": "array"
+        "account_id": {
+          "type": "string"
+        },
+        "actions": {
+          "type": "array"
+        },
+        "ad_id": {
+          "type": "string"
+        },
+        "ad_name": {
+          "type": "string"
+        },
+        "adset_id": {
+          "type": "string"
+        },
+        "adset_name": {
+          "type": "string"
+        },
+        "age": {
+          "type": "string"
+        },
+        "campaign_id": {
+          "type": "string"
+        },
+        "campaign_name": {
+          "type": "string"
+        },
+        "clicks": {
+          "type": "integer"
+        },
+        "cost_per_thruplay": {
+          "type": "array"
+        },
+        "date_start": {
+          "type": "string"
+        },
+        "gender": {
+          "type": "string"
+        },
+        "impressions": {
+          "type": "integer"
+        },
+        "inline_link_clicks": {
+          "type": "integer"
+        },
+        "spend": {
+          "type": "number"
+        },
+        "unique_clicks": {
+          "type": "integer"
+        },
+        "unique_inline_link_clicks": {
+          "type": "integer"
+        },
+        "unique_outbound_clicks": {
+          "type": "array"
+        },
+        "video_avg_time_watched_actions": {
+          "type": "array"
+        },
+        "video_continuous_2_sec_watched_actions": {
+          "type": "array"
+        },
+        "video_p100_watched_actions": {
+          "type": "array"
+        },
+        "video_p25_watched_actions": {
+          "type": "array"
+        },
+        "video_p50_watched_actions": {
+          "type": "array"
+        },
+        "video_p75_watched_actions": {
+          "type": "array"
+        },
+        "video_play_actions": {
+          "type": "array"
+        }
       },
       "sync_modes": [
         "full_refresh",
@@ -177,31 +327,81 @@
         ]
       ],
       "properties": {
-        "account_id": "string",
-        "actions": "array",
-        "ad_id": "string",
-        "ad_name": "string",
-        "adset_id": "string",
-        "adset_name": "string",
-        "campaign_id": "string",
-        "campaign_name": "string",
-        "clicks": "integer",
-        "cost_per_thruplay": "array",
-        "country": "string",
-        "date_start": "string",
-        "impressions": "integer",
-        "inline_link_clicks": "integer",
-        "spend": "number",
-        "unique_clicks": "integer",
-        "unique_inline_link_clicks": "integer",
-        "unique_outbound_clicks": "array",
-        "video_avg_time_watched_actions": "array",
-        "video_continuous_2_sec_watched_actions": "array",
-        "video_p100_watched_actions": "array",
-        "video_p25_watched_actions": "array",
-        "video_p50_watched_actions": "array",
-        "video_p75_watched_actions": "array",
-        "video_play_actions": "array"
+        "account_id": {
+          "type": "string"
+        },
+        "actions": {
+          "type": "array"
+        },
+        "ad_id": {
+          "type": "string"
+        },
+        "ad_name": {
+          "type": "string"
+        },
+        "adset_id": {
+          "type": "string"
+        },
+        "adset_name": {
+          "type": "string"
+        },
+        "campaign_id": {
+          "type": "string"
+        },
+        "campaign_name": {
+          "type": "string"
+        },
+        "clicks": {
+          "type": "integer"
+        },
+        "cost_per_thruplay": {
+          "type": "array"
+        },
+        "country": {
+          "type": "string"
+        },
+        "date_start": {
+          "type": "string"
+        },
+        "impressions": {
+          "type": "integer"
+        },
+        "inline_link_clicks": {
+          "type": "integer"
+        },
+        "spend": {
+          "type": "number"
+        },
+        "unique_clicks": {
+          "type": "integer"
+        },
+        "unique_inline_link_clicks": {
+          "type": "integer"
+        },
+        "unique_outbound_clicks": {
+          "type": "array"
+        },
+        "video_avg_time_watched_actions": {
+          "type": "array"
+        },
+        "video_continuous_2_sec_watched_actions": {
+          "type": "array"
+        },
+        "video_p100_watched_actions": {
+          "type": "array"
+        },
+        "video_p25_watched_actions": {
+          "type": "array"
+        },
+        "video_p50_watched_actions": {
+          "type": "array"
+        },
+        "video_p75_watched_actions": {
+          "type": "array"
+        },
+        "video_play_actions": {
+          "type": "array"
+        }
       },
       "sync_modes": [
         "full_refresh",
@@ -232,32 +432,84 @@
         ]
       ],
       "properties": {
-        "account_id": "string",
-        "actions": "array",
-        "ad_id": "string",
-        "ad_name": "string",
-        "adset_id": "string",
-        "adset_name": "string",
-        "campaign_id": "string",
-        "campaign_name": "string",
-        "clicks": "integer",
-        "cost_per_thruplay": "array",
-        "date_start": "string",
-        "impressions": "integer",
-        "inline_link_clicks": "integer",
-        "platform_position": "string",
-        "publisher_platform": "string",
-        "spend": "number",
-        "unique_clicks": "integer",
-        "unique_inline_link_clicks": "integer",
-        "unique_outbound_clicks": "array",
-        "video_avg_time_watched_actions": "array",
-        "video_continuous_2_sec_watched_actions": "array",
-        "video_p100_watched_actions": "array",
-        "video_p25_watched_actions": "array",
-        "video_p50_watched_actions": "array",
-        "video_p75_watched_actions": "array",
-        "video_play_actions": "array"
+        "account_id": {
+          "type": "string"
+        },
+        "actions": {
+          "type": "array"
+        },
+        "ad_id": {
+          "type": "string"
+        },
+        "ad_name": {
+          "type": "string"
+        },
+        "adset_id": {
+          "type": "string"
+        },
+        "adset_name": {
+          "type": "string"
+        },
+        "campaign_id": {
+          "type": "string"
+        },
+        "campaign_name": {
+          "type": "string"
+        },
+        "clicks": {
+          "type": "integer"
+        },
+        "cost_per_thruplay": {
+          "type": "array"
+        },
+        "date_start": {
+          "type": "string"
+        },
+        "impressions": {
+          "type": "integer"
+        },
+        "inline_link_clicks": {
+          "type": "integer"
+        },
+        "platform_position": {
+          "type": "string"
+        },
+        "publisher_platform": {
+          "type": "string"
+        },
+        "spend": {
+          "type": "number"
+        },
+        "unique_clicks": {
+          "type": "integer"
+        },
+        "unique_inline_link_clicks": {
+          "type": "integer"
+        },
+        "unique_outbound_clicks": {
+          "type": "array"
+        },
+        "video_avg_time_watched_actions": {
+          "type": "array"
+        },
+        "video_continuous_2_sec_watched_actions": {
+          "type": "array"
+        },
+        "video_p100_watched_actions": {
+          "type": "array"
+        },
+        "video_p25_watched_actions": {
+          "type": "array"
+        },
+        "video_p50_watched_actions": {
+          "type": "array"
+        },
+        "video_p75_watched_actions": {
+          "type": "array"
+        },
+        "video_play_actions": {
+          "type": "array"
+        }
       },
       "sync_modes": [
         "full_refresh",
@@ -285,31 +537,81 @@
         ]
       ],
       "properties": {
-        "account_id": "string",
-        "actions": "array",
-        "ad_id": "string",
-        "ad_name": "string",
-        "adset_id": "string",
-        "adset_name": "string",
-        "campaign_id": "string",
-        "campaign_name": "string",
-        "clicks": "integer",
-        "cost_per_thruplay": "array",
-        "date_start": "string",
-        "hourly_stats_aggregated_by_advertiser_time_zone": "string",
-        "impressions": "integer",
-        "inline_link_clicks": "integer",
-        "spend": "number",
-        "unique_clicks": "integer",
-        "unique_inline_link_clicks": "integer",
-        "unique_outbound_clicks": "array",
-        "video_avg_time_watched_actions": "array",
-        "video_continuous_2_sec_watched_actions": "array",
-        "video_p100_watched_actions": "array",
-        "video_p25_watched_actions": "array",
-        "video_p50_watched_actions": "array",
-        "video_p75_watched_actions": "array",
-        "video_play_actions": "array"
+        "account_id": {
+          "type": "string"
+        },
+        "actions": {
+          "type": "array"
+        },
+        "ad_id": {
+          "type": "string"
+        },
+        "ad_name": {
+          "type": "string"
+        },
+        "adset_id": {
+          "type": "string"
+        },
+        "adset_name": {
+          "type": "string"
+        },
+        "campaign_id": {
+          "type": "string"
+        },
+        "campaign_name": {
+          "type": "string"
+        },
+        "clicks": {
+          "type": "integer"
+        },
+        "cost_per_thruplay": {
+          "type": "array"
+        },
+        "date_start": {
+          "type": "string"
+        },
+        "hourly_stats_aggregated_by_advertiser_time_zone": {
+          "type": "string"
+        },
+        "impressions": {
+          "type": "integer"
+        },
+        "inline_link_clicks": {
+          "type": "integer"
+        },
+        "spend": {
+          "type": "number"
+        },
+        "unique_clicks": {
+          "type": "integer"
+        },
+        "unique_inline_link_clicks": {
+          "type": "integer"
+        },
+        "unique_outbound_clicks": {
+          "type": "array"
+        },
+        "video_avg_time_watched_actions": {
+          "type": "array"
+        },
+        "video_continuous_2_sec_watched_actions": {
+          "type": "array"
+        },
+        "video_p100_watched_actions": {
+          "type": "array"
+        },
+        "video_p25_watched_actions": {
+          "type": "array"
+        },
+        "video_p50_watched_actions": {
+          "type": "array"
+        },
+        "video_p75_watched_actions": {
+          "type": "array"
+        },
+        "video_play_actions": {
+          "type": "array"
+        }
       },
       "sync_modes": [
         "full_refresh",
@@ -331,10 +633,18 @@
         ]
       ],
       "properties": {
-        "account_currency": "string",
-        "account_id": "string",
-        "date_start": "string",
-        "spend": "number"
+        "account_currency": {
+          "type": "string"
+        },
+        "account_id": {
+          "type": "string"
+        },
+        "date_start": {
+          "type": "string"
+        },
+        "spend": {
+          "type": "number"
+        }
       },
       "sync_modes": [
         "full_refresh",
@@ -351,36 +661,96 @@
         ]
       ],
       "properties": {
-        "allocated_amount_amount": "number",
-        "allocated_amount_amount_in_hundredths": "string",
-        "allocated_amount_currency": "string",
-        "allocated_amount_offsetted_amount": "string",
-        "balance_amount": "number",
-        "balance_amount_in_hundredths": "string",
-        "balance_currency": "string",
-        "balance_offsetted_amount": "string",
-        "credit_available_amount": "number",
-        "credit_available_amount_in_hundredths": "string",
-        "credit_available_currency": "string",
-        "credit_available_offsetted_amount": "string",
-        "credit_type": "string",
-        "date_created": "string",
-        "id": "string",
-        "is_access_revoked": "boolean",
-        "is_automated_experience": "boolean",
-        "legal_entity_name": "string",
-        "liable_biz_name": "string",
-        "max_balance_amount": "number",
-        "max_balance_amount_in_hundredths": "string",
-        "max_balance_currency": "string",
-        "max_balance_offsetted_amount": "string",
-        "online_max_balance_amount": "number",
-        "online_max_balance_amount_in_hundredths": "string",
-        "online_max_balance_currency": "string",
-        "online_max_balance_offsetted_amount": "string",
-        "owner_business_id": "string",
-        "owner_business_name": "string",
-        "send_bill_to_biz_name": "string"
+        "allocated_amount_amount": {
+          "type": "number"
+        },
+        "allocated_amount_amount_in_hundredths": {
+          "type": "string"
+        },
+        "allocated_amount_currency": {
+          "type": "string"
+        },
+        "allocated_amount_offsetted_amount": {
+          "type": "string"
+        },
+        "balance_amount": {
+          "type": "number"
+        },
+        "balance_amount_in_hundredths": {
+          "type": "string"
+        },
+        "balance_currency": {
+          "type": "string"
+        },
+        "balance_offsetted_amount": {
+          "type": "string"
+        },
+        "credit_available_amount": {
+          "type": "number"
+        },
+        "credit_available_amount_in_hundredths": {
+          "type": "string"
+        },
+        "credit_available_currency": {
+          "type": "string"
+        },
+        "credit_available_offsetted_amount": {
+          "type": "string"
+        },
+        "credit_type": {
+          "type": "string"
+        },
+        "date_created": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "is_access_revoked": {
+          "type": "boolean"
+        },
+        "is_automated_experience": {
+          "type": "boolean"
+        },
+        "legal_entity_name": {
+          "type": "string"
+        },
+        "liable_biz_name": {
+          "type": "string"
+        },
+        "max_balance_amount": {
+          "type": "number"
+        },
+        "max_balance_amount_in_hundredths": {
+          "type": "string"
+        },
+        "max_balance_currency": {
+          "type": "string"
+        },
+        "max_balance_offsetted_amount": {
+          "type": "string"
+        },
+        "online_max_balance_amount": {
+          "type": "number"
+        },
+        "online_max_balance_amount_in_hundredths": {
+          "type": "string"
+        },
+        "online_max_balance_currency": {
+          "type": "string"
+        },
+        "online_max_balance_offsetted_amount": {
+          "type": "string"
+        },
+        "owner_business_id": {
+          "type": "string"
+        },
+        "owner_business_name": {
+          "type": "string"
+        },
+        "send_bill_to_biz_name": {
+          "type": "string"
+        }
       },
       "sync_modes": [
         "full_refresh"

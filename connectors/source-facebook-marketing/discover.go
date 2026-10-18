@@ -104,10 +104,6 @@ func fields(typ synclet.PropType, names ...string) []field {
 	return out
 }
 
-func dateField(name string) field {
-	return field{name: name, typ: synclet.String, format: synclet.Date}
-}
-
 func timeFields(names ...string) []field {
 	out := make([]field, len(names))
 	for i, n := range names {
@@ -121,7 +117,7 @@ func concat(parts ...[]field) []field { return slices.Concat(parts...) }
 // adInsightsFields are the fields of ad_insights and its breakdown streams.
 var adInsightsFields = concat(
 	fields(synclet.String, "account_id", "campaign_id", "campaign_name", "adset_id", "adset_name", "ad_id", "ad_name"),
-	[]field{dateField("date_start")},
+	fields(synclet.String, "date_start"),
 	fields(synclet.Number, "spend"),
 	fields(synclet.Integer, "clicks", "unique_clicks", "impressions", "unique_inline_link_clicks", "inline_link_clicks"),
 	fields(synclet.Array, "cost_per_thruplay", "actions", "unique_outbound_clicks", "video_play_actions",
@@ -172,7 +168,7 @@ var streamDefs = []streamDef{
 		kind: kindInsights,
 		fields: concat(
 			fields(synclet.String, "account_id", "account_currency"),
-			[]field{dateField("date_start")},
+			fields(synclet.String, "date_start"),
 			fields(synclet.Number, "spend"),
 		),
 		pk:    []string{"account_id", "date_start"},
