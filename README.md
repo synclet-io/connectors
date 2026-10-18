@@ -40,6 +40,7 @@ Taskfile.yml              local shortcuts
 | [destination-bigquery](connectors/destination-bigquery) | `ghcr.io/synclet-io/connectors/destination-bigquery` |
 | [destination-google-sheets](connectors/destination-google-sheets) | `ghcr.io/synclet-io/connectors/destination-google-sheets` |
 | [destination-postgres](connectors/destination-postgres) | `ghcr.io/synclet-io/connectors/destination-postgres` |
+| [destination-s3](connectors/destination-s3) | `ghcr.io/synclet-io/connectors/destination-s3` |
 
 ## How it works
 

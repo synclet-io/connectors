@@ -39,6 +39,16 @@
         }
       ]
     },
+    "connectors/destination-s3": {
+      "component": "destination-s3",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "meta.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
     "connectors/source-airtable": {
       "component": "source-airtable",
       "extra-files": [
