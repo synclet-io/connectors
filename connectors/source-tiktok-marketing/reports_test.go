@@ -163,6 +163,17 @@ func TestWindowHalving(t *testing.T) {
 			"2026-08-01..2026-08-01", "2026-08-02..2026-08-02"}, windows(h, testAdvertiserA)[:6])
 	})
 
+	t.Run("40067 on a later page fails the stream without re-reading the window", func(t *testing.T) {
+		srv, h := fixtureServer(t, map[string][]fixture{reportPath: {{file: "report/invalid/page1_of_2"}, dateRange}})
+		src, _ := testSource(srv)
+		out := runRead(t, src, testConfig(t, onlyAdvertiserA), configured(t, src, synclet.SyncModeIncremental, streamAdsReportDaily), nil)
+		require.EqualError(t, out.Err, "ads_report_daily: advertiser 1000000001 2026-08-01..2026-08-30: "+
+			"tiktok report/integrated/get/: code 40067: The date range of the report is too long. (page 2)")
+		assert.Equal(t, []string{"2026-08-01..2026-08-30", "2026-08-01..2026-08-30"}, windows(h, testAdvertiserA))
+		assert.Len(t, records(t, out, streamAdsReportDaily), 1, "the row of page 1 is emitted once")
+		assert.Empty(t, out.States())
+	})
+
 	t.Run("40067 on a one-day window fails the stream", func(t *testing.T) {
 		srv, h := fixtureServer(t, map[string][]fixture{reportPath: {dateRange}})
 		src, _ := testSource(srv)

@@ -72,7 +72,9 @@ func reportRange(cfg Config, saved advertiserState, today time.Time) (since, unt
 }
 
 // readReport reads a report stream one advertiser at a time, in ascending
-// windows of up to windowDays days. An incremental read saves the state of
+// windows of up to windowDays days. A window refused with code 40067 on its
+// first page is halved; on a later page, whose earlier rows are already
+// emitted, it fails the stream. An incremental read saves the state of
 // every advertiser after each window.
 func (s Source) readReport(ctx context.Context, c *apiClient, cfg Config, d streamDef, cs synclet.ConfiguredStream, state *synclet.InputState, em *synclet.Emitter) error {
 	desc := cs.Stream.Descriptor()
@@ -98,7 +100,8 @@ func (s Source) readReport(ctx context.Context, c *apiClient, cfg Config, d stre
 				return em.Record(desc, rec)
 			})
 			var ae *apiError
-			if errors.As(err, &ae) && ae.code == codeDateRange && days > 1 {
+			var later *laterPageError
+			if errors.As(err, &ae) && ae.code == codeDateRange && days > 1 && !errors.As(err, &later) {
 				days /= 2
 				continue
 			}

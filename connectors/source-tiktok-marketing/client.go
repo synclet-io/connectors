@@ -210,8 +210,19 @@ type page struct {
 	} `json:"page_info"`
 }
 
+// laterPageError is a failed request for a page after the first, when items
+// of earlier pages have already been handed on.
+type laterPageError struct {
+	page int
+	err  error
+}
+
+func (e *laterPageError) Error() string { return fmt.Sprintf("%v (page %d)", e.err, e.page) }
+func (e *laterPageError) Unwrap() error { return e.err }
+
 // list calls fn with every item of a paged endpoint, requesting pages until
-// page_info.total_page.
+// page_info.total_page. A request that fails after the first page returns a
+// *laterPageError.
 func (c *apiClient) list(ctx context.Context, path string, query url.Values, fn func(map[string]any) error) error {
 	q := url.Values{}
 	for k, v := range query {
@@ -222,6 +233,9 @@ func (c *apiClient) list(ctx context.Context, path string, query url.Values, fn 
 		q.Set("page", fmt.Sprint(n))
 		var p page
 		if err := c.get(ctx, path, q, &p); err != nil {
+			if n > 1 {
+				return &laterPageError{page: n, err: err}
+			}
 			return err
 		}
 		for _, item := range p.List {

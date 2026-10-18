@@ -72,7 +72,8 @@ Lists are paged 1000 at a time by `page` and `page_size` until `page_info.total_
 
 A report stream reads each advertiser in ascending windows of 30 days. When the API refuses a window
 with code 40067 (date range too long), the window is halved (30, 15, 7, 3, 1 days) and stays at that
-size for the rest of that advertiser; 40067 on a one-day window fails the stream.
+size for the rest of that advertiser; 40067 on a one-day window fails the stream, and so does 40067 on
+a later page of a window, whose earlier rows are already emitted.
 
 ## Incremental sync
 
