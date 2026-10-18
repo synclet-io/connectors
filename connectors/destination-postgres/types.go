@@ -135,7 +135,7 @@ func encodeValue(t colType, raw json.RawMessage) (val string, null bool, err err
 		if err := json.Unmarshal(raw, &str); err != nil {
 			return "", false, fmt.Errorf("invalid JSON string: %w", err)
 		}
-		if replacedChars(raw, str) {
+		if badUnicode(raw) {
 			return "", false, errors.New("value is not valid UTF-8 (invalid bytes or a lone UTF-16 surrogate)")
 		}
 	}
@@ -201,32 +201,66 @@ func encodeValue(t colType, raw json.RawMessage) (val string, null bool, err err
 	}
 }
 
-// replacedChars reports whether decoding the JSON string raw into str
-// replaced invalid UTF-8 or a lone surrogate escape with U+FFFD: str holds
-// more U+FFFD than raw spells out, literally or as \ufffd.
-func replacedChars(raw json.RawMessage, str string) bool {
-	decoded := strings.Count(str, string(utf8.RuneError))
-	if decoded == 0 {
-		return false
+// badUnicode reports whether the JSON string raw holds bytes that are not
+// UTF-8 or a \u escape of a UTF-16 surrogate without its partner; decoding
+// would replace either with U+FFFD.
+func badUnicode(raw json.RawMessage) bool {
+	if !utf8.Valid(raw) {
+		return true
 	}
-	lower := bytes.ToLower(raw)
-	spelled := bytes.Count(raw, []byte(string(utf8.RuneError))) + bytes.Count(lower, []byte(`\ufffd`)) - bytes.Count(lower, []byte(`\\ufffd`))
-	return decoded > spelled
+	for i := 0; i < len(raw); i++ {
+		if raw[i] != '\\' || i+1 >= len(raw) {
+			continue
+		}
+		if raw[i+1] != 'u' {
+			i++
+			continue
+		}
+		r, ok := hexEscape(raw[i:])
+		if !ok {
+			return true
+		}
+		switch {
+		case r >= 0xD800 && r <= 0xDBFF:
+			low, ok := hexEscape(raw[i+6:])
+			if !ok || low < 0xDC00 || low > 0xDFFF {
+				return true
+			}
+			i += 11
+		case r >= 0xDC00 && r <= 0xDFFF:
+			return true
+		default:
+			i += 5
+		}
+	}
+	return false
+}
+
+// hexEscape decodes the \uXXXX escape at the start of b.
+func hexEscape(b []byte) (rune, bool) {
+	if len(b) < 6 || b[0] != '\\' || b[1] != 'u' {
+		return 0, false
+	}
+	v, err := strconv.ParseUint(string(b[2:6]), 16, 16)
+	if err != nil {
+		return 0, false
+	}
+	return rune(v), true
 }
 
 // hasTimeZone reports whether a date/time string for a column without a time
 // zone names one: Z, a numeric offset or a zone name in its time part (AM,
-// PM and BC are not zones).
-// Postgres would drop it silently. The time part of a timestamp starts after
-// the "T" or space that ends the date; a lone date has none.
+// PM and BC are not zones). Postgres would drop it silently. The time part of
+// a timestamp starts at the "T", "t" or space that follows the date's last
+// digit; a lone date or a special value such as infinity has none.
 func hasTimeZone(t colType, s string) bool {
 	timePart := s
 	if t == colTimestamp {
-		i := strings.IndexAny(s, "T ")
+		i := dateEnd(timePart)
 		if i < 0 {
 			return false
 		}
-		timePart = s[i+1:]
+		timePart = timePart[i+1:]
 	}
 	timePart = strings.ToLower(timePart)
 	timePart = strings.NewReplacer("am", "", "pm", "", "bc", "").Replace(timePart)
@@ -236,6 +270,17 @@ func hasTimeZone(t colType, s string) bool {
 		}
 	}
 	return false
+}
+
+// dateEnd returns the index of the separator between the date and the time
+// of a timestamp, or -1 when s has no time part.
+func dateEnd(s string) int {
+	for i := 1; i < len(s); i++ {
+		if (s[i] == 'T' || s[i] == 't' || s[i] == ' ') && s[i-1] >= '0' && s[i-1] <= '9' {
+			return i
+		}
+	}
+	return -1
 }
 
 // containsNUL reports whether a JSON value holds a string with a NUL
