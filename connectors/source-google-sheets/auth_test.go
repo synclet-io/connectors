@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -15,7 +16,7 @@ func TestCreateClientOption(t *testing.T) {
 			ClientSecret: "test-client-secret",
 			RefreshToken: "test-refresh-token",
 		}
-		opt, err := createClientOption(creds, "https://www.googleapis.com/auth/spreadsheets.readonly")
+		opt, err := createClientOption(context.Background(), creds, "https://www.googleapis.com/auth/spreadsheets.readonly")
 		require.NoError(t, err)
 		assert.NotNil(t, opt)
 	})
@@ -25,7 +26,7 @@ func TestCreateClientOption(t *testing.T) {
 			AuthType:           "Service",
 			ServiceAccountInfo: "not-valid-json",
 		}
-		_, err := createClientOption(creds, "https://www.googleapis.com/auth/spreadsheets.readonly")
+		_, err := createClientOption(context.Background(), creds, "https://www.googleapis.com/auth/spreadsheets.readonly")
 		assert.Error(t, err)
 	})
 
@@ -33,7 +34,7 @@ func TestCreateClientOption(t *testing.T) {
 		creds := CredentialsConfig{
 			AuthType: "Unknown",
 		}
-		_, err := createClientOption(creds, "https://www.googleapis.com/auth/spreadsheets.readonly")
+		_, err := createClientOption(context.Background(), creds, "https://www.googleapis.com/auth/spreadsheets.readonly")
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "unsupported auth_type")
 	})

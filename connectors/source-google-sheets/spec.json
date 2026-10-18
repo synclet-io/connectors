@@ -1,0 +1,112 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Reads data from a Google Sheets spreadsheet",
+    "properties": {
+      "batch_size": {
+        "description": "Number of rows to fetch per batch request (default: 1000000)",
+        "title": "Batch Size",
+        "type": "string"
+      },
+      "credentials": {
+        "description": "Credentials for connecting to the Google Sheets API",
+        "oneOf": [
+          {
+            "properties": {
+              "auth_type": {
+                "const": "Client",
+                "type": "string"
+              },
+              "client_id": {
+                "airbyte_secret": true,
+                "description": "Enter your Google application's Client ID",
+                "title": "Client ID",
+                "type": "string"
+              },
+              "client_secret": {
+                "airbyte_secret": true,
+                "description": "Enter your Google application's Client Secret",
+                "title": "Client Secret",
+                "type": "string"
+              },
+              "refresh_token": {
+                "airbyte_secret": true,
+                "description": "Enter your Google application's refresh token",
+                "title": "Refresh Token",
+                "type": "string"
+              }
+            },
+            "required": [
+              "auth_type",
+              "client_id",
+              "client_secret",
+              "refresh_token"
+            ],
+            "title": "Authenticate via Google (OAuth)",
+            "type": "object"
+          },
+          {
+            "properties": {
+              "auth_type": {
+                "const": "Service",
+                "type": "string"
+              },
+              "service_account_info": {
+                "airbyte_secret": true,
+                "description": "The JSON key of the service account to use for authorization",
+                "title": "Service Account Information",
+                "type": "string"
+              }
+            },
+            "required": [
+              "auth_type",
+              "service_account_info"
+            ],
+            "title": "Service Account Key Authentication",
+            "type": "object"
+          },
+          {
+            "description": "Use Google Cloud Application Default Credentials (no extra fields needed)",
+            "properties": {
+              "auth_type": {
+                "const": "ApplicationDefault",
+                "type": "string"
+              }
+            },
+            "required": [
+              "auth_type"
+            ],
+            "title": "Application Default Credentials",
+            "type": "object"
+          }
+        ],
+        "title": "Authentication",
+        "type": "object"
+      },
+      "names_conversion": {
+        "description": "Convert column names to snake_case",
+        "title": "Convert Column Names",
+        "type": "string"
+      },
+      "spreadsheet_id": {
+        "description": "The ID or full URL of the Google Sheets spreadsheet",
+        "title": "Spreadsheet Link",
+        "type": "string"
+      }
+    },
+    "required": [
+      "spreadsheet_id",
+      "credentials"
+    ],
+    "title": "Google Sheets Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://docs.google.com/spreadsheets",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": false,
+  "supportsNormalization": false
+}

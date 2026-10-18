@@ -1,10 +1,10 @@
-module github.com/saturn4er/synclet/connectors/source-google-sheets
+module github.com/synclet-io/connectors/connectors/source-google-sheets
 
-go 1.25.0
+go 1.26.0
 
 require (
-	github.com/saturn4er/airbyte-go-sdk v0.1.5
 	github.com/stretchr/testify v1.11.1
+	github.com/synclet-io/synclet-go-sdk v0.2.0
 	golang.org/x/oauth2 v0.36.0
 	google.golang.org/api v0.272.0
 )

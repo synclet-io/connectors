@@ -14,7 +14,7 @@ type SheetsClient struct {
 
 // NewSheetsClient creates an authenticated Google Sheets API client.
 func NewSheetsClient(ctx context.Context, creds CredentialsConfig, scope string) (*SheetsClient, error) {
-	opt, err := createClientOption(creds, scope)
+	opt, err := createClientOption(ctx, creds, scope)
 	if err != nil {
 		return nil, fmt.Errorf("creating auth option: %w", err)
 	}
@@ -28,10 +28,11 @@ func NewSheetsClient(ctx context.Context, creds CredentialsConfig, scope string)
 }
 
 // GetSpreadsheet retrieves spreadsheet metadata (sheet properties only).
-func (c *SheetsClient) GetSpreadsheet(spreadsheetID string) (*sheets.Spreadsheet, error) {
+func (c *SheetsClient) GetSpreadsheet(ctx context.Context, spreadsheetID string) (*sheets.Spreadsheet, error) {
 	resp, err := c.srv.Spreadsheets.Get(spreadsheetID).
 		IncludeGridData(false).
 		Fields("sheets.properties").
+		Context(ctx).
 		Do()
 	if err != nil {
 		return nil, fmt.Errorf("getting spreadsheet: %w", err)
@@ -40,11 +41,12 @@ func (c *SheetsClient) GetSpreadsheet(spreadsheetID string) (*sheets.Spreadsheet
 }
 
 // GetHeaders reads the first row (header row) of the given sheet.
-func (c *SheetsClient) GetHeaders(spreadsheetID, sheetTitle string) ([]interface{}, error) {
+func (c *SheetsClient) GetHeaders(ctx context.Context, spreadsheetID, sheetTitle string) ([]interface{}, error) {
 	rangeStr := fmt.Sprintf("'%s'!1:1", sheetTitle)
 	resp, err := c.srv.Spreadsheets.Values.Get(spreadsheetID, rangeStr).
 		MajorDimension("ROWS").
 		ValueRenderOption("FORMATTED_VALUE").
+		Context(ctx).
 		Do()
 	if err != nil {
 		return nil, fmt.Errorf("reading headers for sheet %q: %w", sheetTitle, err)
@@ -58,12 +60,13 @@ func (c *SheetsClient) GetHeaders(spreadsheetID, sheetTitle string) ([]interface
 }
 
 // BatchGetRows reads rows in the given range from the sheet using BatchGet.
-func (c *SheetsClient) BatchGetRows(spreadsheetID, sheetTitle string, startRow, endRow int) ([][]interface{}, error) {
+func (c *SheetsClient) BatchGetRows(ctx context.Context, spreadsheetID, sheetTitle string, startRow, endRow int) ([][]interface{}, error) {
 	rangeStr := fmt.Sprintf("'%s'!%d:%d", sheetTitle, startRow, endRow)
 	resp, err := c.srv.Spreadsheets.Values.BatchGet(spreadsheetID).
 		Ranges(rangeStr).
 		MajorDimension("ROWS").
 		ValueRenderOption("FORMATTED_VALUE").
+		Context(ctx).
 		Do()
 	if err != nil {
 		return nil, fmt.Errorf("reading data rows for sheet %q: %w", sheetTitle, err)

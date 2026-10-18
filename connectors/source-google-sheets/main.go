@@ -1,17 +1,7 @@
 package main
 
-import (
-	"log"
-	"os"
-
-	airbyte "github.com/saturn4er/airbyte-go-sdk"
-)
+import "github.com/synclet-io/synclet-go-sdk/cli"
 
 func main() {
-	source := NewGoogleSheetsSource()
-	runner := airbyte.NewSourceRunner(source, os.Stdout)
-
-	if err := runner.Start(); err != nil {
-		log.Fatal(err)
-	}
+	cli.RunSource(NewGoogleSheetsSource())
 }

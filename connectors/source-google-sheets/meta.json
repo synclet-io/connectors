@@ -1,12 +1,19 @@
 {
+  "$schema": "../../schema/meta.schema.json",
   "name": "Google Sheets",
   "connector_type": "source",
+  "version": "0.3.0",
   "release_stage": "alpha",
   "support_level": "community",
   "source_type": "api",
-  "documentation_url": "",
-  "icon_url": "",
   "license": "MIT",
+  "documentation_url": "https://github.com/synclet-io/connectors/tree/main/connectors/source-google-sheets",
+  "icon_url": "",
+  "language": "go",
+  "tags": [
+    "google",
+    "spreadsheet"
+  ],
   "breaking_changes": {},
   "external_documentation_urls": []
 }

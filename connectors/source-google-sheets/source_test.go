@@ -1,39 +1,39 @@
 package main
 
 import (
+	"bytes"
+	"context"
+	"encoding/json"
 	"testing"
 
-	airbyte "github.com/saturn4er/airbyte-go-sdk"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	synclet "github.com/synclet-io/synclet-go-sdk"
 )
 
 func TestSpec(t *testing.T) {
 	source := NewGoogleSheetsSource()
-	logTracker := airbyte.LogTracker{
-		Log: func(level airbyte.LogLevel, s string) error { return nil },
-	}
 
-	spec, err := source.Spec(logTracker)
+	spec, err := source.Spec(context.Background())
 	require.NoError(t, err)
 	require.NotNil(t, spec)
 
 	// Verify key properties
 	assert.False(t, spec.SupportsIncremental, "Sheets is full_refresh only")
 	assert.Equal(t, "object", spec.ConnectionSpecification.Type)
-	assert.Contains(t, spec.ConnectionSpecification.Required, airbyte.PropertyName("spreadsheet_id"))
-	assert.Contains(t, spec.ConnectionSpecification.Required, airbyte.PropertyName("credentials"))
+	assert.Contains(t, spec.ConnectionSpecification.Required, synclet.PropertyName("spreadsheet_id"))
+	assert.Contains(t, spec.ConnectionSpecification.Required, synclet.PropertyName("credentials"))
 
 	// Verify destination sync modes
-	assert.Contains(t, spec.SupportedDestinationSyncModes, airbyte.DestinationSyncModeOverwrite)
-	assert.Contains(t, spec.SupportedDestinationSyncModes, airbyte.DestinationSyncModeAppend)
+	assert.Contains(t, spec.SupportedDestinationSyncModes, synclet.DestinationSyncModeOverwrite)
+	assert.Contains(t, spec.SupportedDestinationSyncModes, synclet.DestinationSyncModeAppend)
 
 	// Verify properties exist
 	props := spec.ConnectionSpecification.Properties.Properties
-	assert.Contains(t, props, airbyte.PropertyName("spreadsheet_id"))
-	assert.Contains(t, props, airbyte.PropertyName("credentials"))
-	assert.Contains(t, props, airbyte.PropertyName("batch_size"))
-	assert.Contains(t, props, airbyte.PropertyName("names_conversion"))
+	assert.Contains(t, props, synclet.PropertyName("spreadsheet_id"))
+	assert.Contains(t, props, synclet.PropertyName("credentials"))
+	assert.Contains(t, props, synclet.PropertyName("batch_size"))
+	assert.Contains(t, props, synclet.PropertyName("names_conversion"))
 
 	// Verify credentials uses oneOf with two auth variants
 	credSpec := props["credentials"]
@@ -42,23 +42,23 @@ func TestSpec(t *testing.T) {
 	// OAuth variant
 	oauth := credSpec.OneOf[0]
 	assert.Equal(t, "Authenticate via Google (OAuth)", oauth.Title)
-	assert.Contains(t, oauth.Properties, airbyte.PropertyName("auth_type"))
-	assert.Contains(t, oauth.Properties, airbyte.PropertyName("client_id"))
-	assert.Contains(t, oauth.Properties, airbyte.PropertyName("client_secret"))
-	assert.Contains(t, oauth.Properties, airbyte.PropertyName("refresh_token"))
+	assert.Contains(t, oauth.Properties, synclet.PropertyName("auth_type"))
+	assert.Contains(t, oauth.Properties, synclet.PropertyName("client_id"))
+	assert.Contains(t, oauth.Properties, synclet.PropertyName("client_secret"))
+	assert.Contains(t, oauth.Properties, synclet.PropertyName("refresh_token"))
 	assert.Equal(t, "Client", oauth.Properties["auth_type"].Const)
 
 	// Service Account variant
 	sa := credSpec.OneOf[1]
 	assert.Equal(t, "Service Account Key Authentication", sa.Title)
-	assert.Contains(t, sa.Properties, airbyte.PropertyName("auth_type"))
-	assert.Contains(t, sa.Properties, airbyte.PropertyName("service_account_info"))
+	assert.Contains(t, sa.Properties, synclet.PropertyName("auth_type"))
+	assert.Contains(t, sa.Properties, synclet.PropertyName("service_account_info"))
 	assert.Equal(t, "Service", sa.Properties["auth_type"].Const)
 
 	// ADC variant
 	adc := credSpec.OneOf[2]
 	assert.Equal(t, "Application Default Credentials", adc.Title)
-	assert.Contains(t, adc.Properties, airbyte.PropertyName("auth_type"))
+	assert.Contains(t, adc.Properties, synclet.PropertyName("auth_type"))
 	assert.Equal(t, "ApplicationDefault", adc.Properties["auth_type"].Const)
 }
 
@@ -66,12 +66,12 @@ func TestBuildStreamSchema(t *testing.T) {
 	headers := []string{"name", "email", "age"}
 	schema := buildStreamSchema(headers)
 
-	assert.Len(t, schema.Properties, 3)
+	assert.Len(t, schema, 3)
 
 	for _, h := range headers {
-		prop, exists := schema.Properties[airbyte.PropertyName(h)]
+		prop, exists := schema[synclet.PropertyName(h)]
 		require.True(t, exists, "property %q should exist", h)
-		assert.Equal(t, []airbyte.PropType{airbyte.Null, airbyte.String}, prop.Type)
+		assert.Equal(t, synclet.PropTypes{synclet.Null, synclet.String}, prop.Type)
 	}
 }
 
@@ -109,13 +109,17 @@ func TestMapRowToRecord(t *testing.T) {
 	})
 }
 
-func TestDiscoverGridSheets(t *testing.T) {
-	t.Run("filters non-GRID sheets", func(t *testing.T) {
-		// We cannot easily import sheets.Spreadsheet in tests without the full dependency,
-		// but the function is tested via the build and integration path.
-		// This test verifies the buildStreamSchema helper which is the key logic unit.
-		headers := []string{"col_a", "col_b"}
-		schema := buildStreamSchema(headers)
-		assert.Len(t, schema.Properties, 2)
-	})
+func TestCheckFailureMessage(t *testing.T) {
+	var out bytes.Buffer
+	err := synclet.ServeSource(context.Background(), NewGoogleSheetsSource(), synclet.Request{
+		Command: synclet.CommandCheck,
+		Config:  json.RawMessage(`{"spreadsheet_id":"abc","credentials":{"auth_type":"Unknown"}}`),
+	}, &out)
+	require.NoError(t, err)
+
+	var msg synclet.Message
+	require.NoError(t, json.Unmarshal(out.Bytes(), &msg))
+	require.Equal(t, synclet.MessageTypeConnectionStatus, msg.Type)
+	assert.Equal(t, synclet.ConnectionStatusFailed, msg.ConnectionStatus.Status)
+	assert.Contains(t, msg.ConnectionStatus.Message, "unsupported auth_type: Unknown")
 }
