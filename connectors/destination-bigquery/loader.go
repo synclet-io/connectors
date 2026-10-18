@@ -114,7 +114,7 @@ func (l *gcsLoader) load(ctx context.Context, datasetID, tableName string, schem
 		headers[i] = field.Name
 	}
 	if err := csvWriter.Write(headers); err != nil {
-		w.Close()
+		_ = w.Close()
 		return fmt.Errorf("writing CSV header: %w", err)
 	}
 
@@ -125,14 +125,14 @@ func (l *gcsLoader) load(ctx context.Context, datasetID, tableName string, schem
 			row[i] = fmt.Sprintf("%v", rec[h])
 		}
 		if err := csvWriter.Write(row); err != nil {
-			w.Close()
+			_ = w.Close()
 			return fmt.Errorf("writing CSV row: %w", err)
 		}
 	}
 
 	csvWriter.Flush()
 	if err := csvWriter.Error(); err != nil {
-		w.Close()
+		_ = w.Close()
 		return fmt.Errorf("flushing CSV writer: %w", err)
 	}
 	if err := w.Close(); err != nil {

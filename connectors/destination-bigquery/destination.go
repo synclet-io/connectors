@@ -1,18 +1,20 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 
+	"go.uber.org/multierr"
+
 	"cloud.google.com/go/bigquery"
 	"cloud.google.com/go/storage"
-	airbyte "github.com/saturn4er/airbyte-go-sdk"
+	synclet "github.com/synclet-io/synclet-go-sdk"
 )
 
-// BigQueryDestination implements airbyte.Destination for Google BigQuery.
+// BigQueryDestination implements synclet.Destination for Google BigQuery.
 type BigQueryDestination struct{}
 
 // NewBigQueryDestination creates a new BigQuery destination connector.
@@ -21,13 +23,13 @@ func NewBigQueryDestination() *BigQueryDestination {
 }
 
 // Spec returns the connector specification defining config fields.
-func (d *BigQueryDestination) Spec(_ airbyte.LogTracker) (*airbyte.ConnectorSpecification, error) {
-	return &airbyte.ConnectorSpecification{
+func (d *BigQueryDestination) Spec(_ context.Context) (*synclet.ConnectorSpecification, error) {
+	return &synclet.ConnectorSpecification{
 		DocumentationURL: "https://cloud.google.com/bigquery/docs",
-		SupportedDestinationSyncModes: []airbyte.DestinationSyncMode{
-			airbyte.DestinationSyncModeOverwrite,
-			airbyte.DestinationSyncModeAppend,
-			airbyte.DestinationSyncModeAppendDedup,
+		SupportedDestinationSyncModes: []synclet.DestinationSyncMode{
+			synclet.DestinationSyncModeOverwrite,
+			synclet.DestinationSyncModeAppend,
+			synclet.DestinationSyncModeAppendDedup,
 		},
 		ConnectionSpecification: bigqueryConnectionSpec(),
 	}, nil
@@ -35,13 +37,8 @@ func (d *BigQueryDestination) Spec(_ airbyte.LogTracker) (*airbyte.ConnectorSpec
 
 // Check validates the configuration by verifying BigQuery dataset access
 // and optionally GCS bucket access for staging mode.
-func (d *BigQueryDestination) Check(dstCfgPath string, logTracker airbyte.LogTracker) error {
-	var config Config
-	if err := airbyte.UnmarshalFromPath(dstCfgPath, &config); err != nil {
-		return fmt.Errorf("failed to load configuration: %w", err)
-	}
-
-	ctx := context.Background()
+func (d *BigQueryDestination) Check(ctx context.Context, config Config) (rerr error) {
+	log := synclet.Logger(ctx)
 
 	// Determine auth scopes needed
 	scopes := []string{bigqueryScope}
@@ -54,7 +51,7 @@ func (d *BigQueryDestination) Check(dstCfgPath string, logTracker airbyte.LogTra
 		scopes = append(scopes, gcsReadWriteScope)
 	}
 
-	authOpt, err := createClientOption(config.Credentials, scopes...)
+	authOpt, err := createClientOption(ctx, config.Credentials, scopes...)
 	if err != nil {
 		return fmt.Errorf("failed to create auth: %w", err)
 	}
@@ -64,12 +61,12 @@ func (d *BigQueryDestination) Check(dstCfgPath string, logTracker airbyte.LogTra
 	if err != nil {
 		return fmt.Errorf("failed to create BigQuery client: %w", err)
 	}
-	defer bqClient.Close()
+	defer multierr.AppendInvoke(&rerr, multierr.Close(bqClient))
 
 	dataset := bqClient.Dataset(config.DatasetID)
 	if _, err := dataset.Metadata(ctx); err != nil {
 		// Dataset doesn't exist -- try to create it.
-		logTracker.Log(airbyte.LogLevelInfo, fmt.Sprintf("Dataset %q not found, creating...", config.DatasetID))
+		log.Info(fmt.Sprintf("Dataset %q not found, creating...", config.DatasetID))
 
 		if err := dataset.Create(ctx, &bigquery.DatasetMetadata{
 			Location: config.DatasetLocation,
@@ -77,7 +74,7 @@ func (d *BigQueryDestination) Check(dstCfgPath string, logTracker airbyte.LogTra
 			return fmt.Errorf("failed to create dataset %q: %w", config.DatasetID, err)
 		}
 
-		logTracker.Log(airbyte.LogLevelInfo, fmt.Sprintf("Created dataset %q in %s", config.DatasetID, config.DatasetLocation))
+		log.Info(fmt.Sprintf("Created dataset %q in %s", config.DatasetID, config.DatasetLocation))
 	}
 
 	// If GCS staging, verify bucket access.
@@ -86,36 +83,33 @@ func (d *BigQueryDestination) Check(dstCfgPath string, logTracker airbyte.LogTra
 		if err != nil {
 			return fmt.Errorf("failed to create GCS client: %w", err)
 		}
-		defer gcsClient.Close()
+		defer multierr.AppendInvoke(&rerr, multierr.Close(gcsClient))
 
 		if _, err := gcsClient.Bucket(gcsMethod.GCSBucketName).Attrs(ctx); err != nil {
 			return fmt.Errorf("failed to access GCS bucket %q: %w", gcsMethod.GCSBucketName, err)
 		}
-		logTracker.Log(airbyte.LogLevelInfo, fmt.Sprintf("Verified GCS bucket %q access", gcsMethod.GCSBucketName))
+		log.Info(fmt.Sprintf("Verified GCS bucket %q access", gcsMethod.GCSBucketName))
 	}
 
-	logTracker.Log(airbyte.LogLevelInfo, "Successfully connected to BigQuery")
+	log.Info("Successfully connected to BigQuery")
 	return nil
 }
 
-// Write receives Airbyte messages from inputReader and writes records to BigQuery.
-// Handles RECORD and STATE messages, routing records through the BigQueryWriter
-// which manages sync modes (overwrite, append, append_dedup).
-func (d *BigQueryDestination) Write(dstCfgPath string, catalogPath string, inputReader io.Reader, tracker airbyte.MessageTracker) error {
-	// 1. Parse config.
-	var config Config
-	if err := airbyte.UnmarshalFromPath(dstCfgPath, &config); err != nil {
-		return fmt.Errorf("failed to load configuration: %w", err)
+// Write reads RECORD and STATE messages from in and writes records to BigQuery
+// through the BigQueryWriter, which manages sync modes (overwrite, append,
+// append_dedup).
+func (d *BigQueryDestination) Write(
+	ctx context.Context,
+	config Config,
+	catalog *synclet.ConfiguredCatalog,
+	in *synclet.MessageReader,
+	em *synclet.Emitter,
+) (rerr error) {
+	streams, err := catalogStreams(catalog)
+	if err != nil {
+		return err
 	}
 
-	// 2. Parse configured catalog using raw JSON to preserve format fields
-	// in JSON schema (the SDK Properties type doesn't capture "format").
-	var rawCatalog rawConfiguredCatalog
-	if err := airbyte.UnmarshalFromPath(catalogPath, &rawCatalog); err != nil {
-		return fmt.Errorf("failed to load catalog: %w", err)
-	}
-
-	// 3. Create auth client option.
 	scopes := []string{bigqueryScope}
 	lm, err := config.loadingMethod()
 	if err != nil {
@@ -126,90 +120,99 @@ func (d *BigQueryDestination) Write(dstCfgPath string, catalogPath string, input
 		scopes = append(scopes, gcsReadWriteScope)
 	}
 
-	authOpt, err := createClientOption(config.Credentials, scopes...)
+	authOpt, err := createClientOption(ctx, config.Credentials, scopes...)
 	if err != nil {
 		return fmt.Errorf("failed to create auth: %w", err)
 	}
 
-	// 4. Create BigQuery client.
-	ctx := context.Background()
 	bqClient, err := bigquery.NewClient(ctx, config.ProjectID, authOpt)
 	if err != nil {
 		return fmt.Errorf("failed to create BigQuery client: %w", err)
 	}
-	defer bqClient.Close()
+	defer multierr.AppendInvoke(&rerr, multierr.Close(bqClient))
 
-	// 5. Create loader based on loading method.
 	var ldr loader
 	if isGCS {
 		gcsClient, err := storage.NewClient(ctx, authOpt)
 		if err != nil {
 			return fmt.Errorf("failed to create GCS client: %w", err)
 		}
-		defer gcsClient.Close()
+		defer multierr.AppendInvoke(&rerr, multierr.Close(gcsClient))
 		ldr = newGCSLoader(bqClient, gcsClient, gcsMethod.GCSBucketName, gcsMethod.GCSBucketPath,
 			gcsMethod.KeepFiles == "Keep all tmp files in GCS")
 	} else {
 		ldr = newStandardLoader(bqClient)
 	}
-	defer ldr.close()
+	defer multierr.AppendInvoke(&rerr, multierr.Invoke(ldr.close))
 
-	// 6. Create ops and writer.
-	ops := newBqOps(bqClient, config.ProjectID)
-	writer := NewBigQueryWriter(ops, ldr, &config, rawCatalog.Streams)
+	writer := NewBigQueryWriter(newBqOps(bqClient, config.ProjectID), ldr, &config, streams)
+	return writeMessages(ctx, writer, in, em)
+}
 
-	// 7. Scan input messages.
-	scanner := bufio.NewScanner(inputReader)
-	scanner.Buffer(make([]byte, 0, 4*1024*1024), 4*1024*1024) // 4MB buffer for large records.
-
-	for scanner.Scan() {
-		line := scanner.Bytes()
-
-		var msg struct {
-			Type   string          `json:"type"`
-			Record json.RawMessage `json:"record,omitempty"`
-			State  json.RawMessage `json:"state,omitempty"`
+// writeMessages adds every record of in to writer and queues every state;
+// at the end of the input it flushes, finalizes and echoes the queued states.
+func writeMessages(ctx context.Context, writer *BigQueryWriter, in *synclet.MessageReader, em *synclet.Emitter) error {
+	for {
+		msg, err := in.Next()
+		if errors.Is(err, io.EOF) {
+			break
 		}
-		if err := json.Unmarshal(line, &msg); err != nil {
-			continue
+		if err != nil {
+			return fmt.Errorf("reading input: %w", err)
 		}
 
 		switch msg.Type {
-		case "RECORD":
-			var rec struct {
-				Stream    string                 `json:"stream"`
-				Namespace string                 `json:"namespace"`
-				Data      map[string]interface{} `json:"data"`
-			}
-			if err := json.Unmarshal(msg.Record, &rec); err != nil {
+		case synclet.MessageTypeRecord:
+			if msg.Record == nil {
 				continue
 			}
-			sk := streamKeyFromRecord(rec.Namespace, rec.Stream)
-			if err := writer.AddRecord(sk, rec.Data); err != nil {
-				return fmt.Errorf("adding record for stream %q: %w", rec.Stream, err)
+			var data map[string]interface{}
+			if err := json.Unmarshal(msg.Record.Data, &data); err != nil {
+				continue
+			}
+			sk := streamKeyFromRecord(msg.Record.Namespace, msg.Record.Stream)
+			if err := writer.AddRecord(ctx, sk, data); err != nil {
+				return fmt.Errorf("adding record for stream %q: %w", msg.Record.Stream, err)
 			}
 
-		case "STATE":
-			writer.QueueState(msg.State)
+		case synclet.MessageTypeState:
+			if msg.State != nil {
+				writer.QueueState(*msg.State)
+			}
 		}
 	}
 
-	if err := scanner.Err(); err != nil {
-		return fmt.Errorf("reading input: %w", err)
-	}
-
-	// 8. Final flush + finalize + emit states.
-	if err := writer.FlushAll(tracker); err != nil {
+	if err := writer.FlushAll(ctx, em); err != nil {
 		return fmt.Errorf("flushing remaining records: %w", err)
 	}
 
 	return nil
 }
 
-// rawConfiguredCatalog mirrors the Airbyte ConfiguredCatalog but preserves
-// raw JSON schema (including "format" fields) that the SDK Properties type loses.
-type rawConfiguredCatalog struct {
-	Streams []catalogStream `json:"streams"`
+// catalogStreams converts the configured catalog into the writer's stream
+// definitions, decoding each stream's JSON schema with its "format" keywords.
+func catalogStreams(catalog *synclet.ConfiguredCatalog) ([]catalogStream, error) {
+	streams := make([]catalogStream, 0, len(catalog.Streams))
+	for _, cs := range catalog.Streams {
+		var schema map[string]interface{}
+		if len(cs.Stream.JSONSchema) > 0 {
+			if err := json.Unmarshal(cs.Stream.JSONSchema, &schema); err != nil {
+				return nil, fmt.Errorf("failed to load catalog: json_schema of stream %q: %w", cs.Stream.Name, err)
+			}
+		}
+		streams = append(streams, catalogStream{
+			Stream: streamDef{
+				Name:       cs.Stream.Name,
+				Namespace:  cs.Stream.Namespace,
+				JSONSchema: schema,
+			},
+			SyncMode:            string(cs.SyncMode),
+			DestinationSyncMode: string(cs.DestinationSyncMode),
+			PrimaryKey:          cs.PrimaryKey,
+			CursorField:         cs.CursorField,
+		})
+	}
+	return streams, nil
 }
 
 // streamKeyFromRecord returns a stream key from record namespace and stream name.

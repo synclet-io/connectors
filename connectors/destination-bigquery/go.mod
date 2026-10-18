@@ -1,13 +1,14 @@
-module github.com/saturn4er/synclet/connectors/destination-bigquery
+module github.com/synclet-io/connectors/connectors/destination-bigquery
 
-go 1.25.1
+go 1.26.0
 
 require (
 	cloud.google.com/go/bigquery v1.74.0
 	cloud.google.com/go/storage v1.61.3
 	github.com/google/uuid v1.6.0
-	github.com/saturn4er/airbyte-go-sdk v0.1.5
 	github.com/stretchr/testify v1.11.1
+	github.com/synclet-io/synclet-go-sdk v0.2.0
+	go.uber.org/multierr v1.11.0
 	golang.org/x/oauth2 v0.36.0
 	google.golang.org/api v0.272.0
 )

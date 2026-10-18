@@ -8,7 +8,7 @@ import (
 
 	"cloud.google.com/go/bigquery"
 	"github.com/google/uuid"
-	airbyte "github.com/saturn4er/airbyte-go-sdk"
+	synclet "github.com/synclet-io/synclet-go-sdk"
 )
 
 const defaultBatchSize = 5000
@@ -46,7 +46,7 @@ type BigQueryWriter struct {
 	streams       map[string]*streamConfig
 	buffers       map[string]*streamBuffer
 	batchSize     int
-	pendingStates []pendingState
+	pendingStates []synclet.StateMessage
 	generationID  int64
 }
 
@@ -120,7 +120,7 @@ func NewBigQueryWriter(ops bigqueryOps, ldr loader, config *Config, catalog []ca
 
 // AddRecord buffers a record for the given stream, enriching it with metadata fields.
 // Auto-flushes when the buffer reaches batchSize.
-func (w *BigQueryWriter) AddRecord(streamKey string, data map[string]interface{}) error {
+func (w *BigQueryWriter) AddRecord(ctx context.Context, streamKey string, data map[string]interface{}) error {
 	sc, ok := w.streams[streamKey]
 	if !ok {
 		return fmt.Errorf("unknown stream: %s", streamKey)
@@ -164,7 +164,7 @@ func (w *BigQueryWriter) AddRecord(streamKey string, data map[string]interface{}
 
 	// Auto-flush at threshold.
 	if len(buf.records) >= w.batchSize {
-		if err := w.flushStream(context.Background(), streamKey); err != nil {
+		if err := w.flushStream(ctx, streamKey); err != nil {
 			return fmt.Errorf("auto-flush stream %q: %w", streamKey, err)
 		}
 	}
@@ -173,15 +173,13 @@ func (w *BigQueryWriter) AddRecord(streamKey string, data map[string]interface{}
 }
 
 // QueueState stores a state message for emission after the next flush (D-13).
-func (w *BigQueryWriter) QueueState(raw json.RawMessage) {
-	w.pendingStates = append(w.pendingStates, pendingState{raw: raw})
+func (w *BigQueryWriter) QueueState(msg synclet.StateMessage) {
+	w.pendingStates = append(w.pendingStates, msg)
 }
 
 // FlushAll flushes all stream buffers, finalizes sync modes, and emits pending states.
 // State is only emitted after successful flush (D-13).
-func (w *BigQueryWriter) FlushAll(tracker airbyte.MessageTracker) error {
-	ctx := context.Background()
-
+func (w *BigQueryWriter) FlushAll(ctx context.Context, em *synclet.Emitter) error {
 	// Flush all stream buffers.
 	for key := range w.buffers {
 		if len(w.buffers[key].records) > 0 {
@@ -197,7 +195,7 @@ func (w *BigQueryWriter) FlushAll(tracker airbyte.MessageTracker) error {
 	}
 
 	// Emit pending states only after all flushes succeed.
-	if err := emitPendingStates(tracker, w.pendingStates); err != nil {
+	if err := emitPendingStates(em, w.pendingStates); err != nil {
 		return fmt.Errorf("emitting states: %w", err)
 	}
 	w.pendingStates = nil

@@ -14,9 +14,7 @@ const gcsReadWriteScope = "https://www.googleapis.com/auth/devstorage.read_write
 
 // createClientOption returns an option.ClientOption for authenticating with Google APIs
 // based on the configured auth_type. Accepts variadic scopes so BQ+GCS can be passed together.
-func createClientOption(creds CredentialsConfig, scopes ...string) (option.ClientOption, error) {
-	ctx := context.Background()
-
+func createClientOption(ctx context.Context, creds CredentialsConfig, scopes ...string) (option.ClientOption, error) {
 	switch creds.AuthType {
 	case "Client":
 		conf := &oauth2.Config{
@@ -29,6 +27,7 @@ func createClientOption(creds CredentialsConfig, scopes ...string) (option.Clien
 		return option.WithTokenSource(ts), nil
 
 	case "Service":
+		//nolint:staticcheck // SA1019: service_account_info accepts any Google credential JSON.
 		cred, err := google.CredentialsFromJSON(ctx, []byte(creds.ServiceAccountInfo), scopes...)
 		if err != nil {
 			return nil, fmt.Errorf("parsing service account: %w", err)

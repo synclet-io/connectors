@@ -2,7 +2,6 @@ package main
 
 import (
 	"sort"
-	"strings"
 
 	"cloud.google.com/go/bigquery"
 )
@@ -145,32 +144,6 @@ func fieldTypeToString(ft bigquery.FieldType) string {
 	}
 }
 
-// stringToFieldType converts a SQL type string back to bigquery.FieldType.
-func stringToFieldType(s string) bigquery.FieldType {
-	switch s {
-	case "STRING":
-		return bigquery.StringFieldType
-	case "INT64":
-		return bigquery.IntegerFieldType
-	case "FLOAT64":
-		return bigquery.FloatFieldType
-	case "BOOLEAN":
-		return bigquery.BooleanFieldType
-	case "TIMESTAMP":
-		return bigquery.TimestampFieldType
-	case "DATE":
-		return bigquery.DateFieldType
-	case "TIME":
-		return bigquery.TimeFieldType
-	case "NUMERIC":
-		return bigquery.NumericFieldType
-	case "JSON":
-		return bigquery.JSONFieldType
-	default:
-		return bigquery.FieldType(s)
-	}
-}
-
 // diffSchema compares existing table schema with desired schema from current catalog.
 // Identifies columns to add, remove, and type changes (only widening conversions).
 func diffSchema(existing bigquery.Schema, desired bigquery.Schema) schemaDiff {
@@ -237,14 +210,4 @@ func wrapBacktick(names []string) []string {
 		result[i] = "`" + n + "`"
 	}
 	return result
-}
-
-// wrapBacktickStr wraps a single string with backticks.
-func wrapBacktickStr(name string) string {
-	return "`" + name + "`"
-}
-
-// joinBackticked joins names with backtick quoting and the given separator.
-func joinBackticked(names []string, sep string) string {
-	return strings.Join(wrapBacktick(names), sep)
 }

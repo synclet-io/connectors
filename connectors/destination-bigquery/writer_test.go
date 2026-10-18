@@ -8,9 +8,9 @@ import (
 	"testing"
 
 	"cloud.google.com/go/bigquery"
-	airbyte "github.com/saturn4er/airbyte-go-sdk"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	synclet "github.com/synclet-io/synclet-go-sdk"
 )
 
 // mockOps implements bigqueryOps for testing, tracking all calls.
@@ -18,13 +18,13 @@ type mockOps struct {
 	ensuredDatasets []string
 	ensureErr       error
 
-	createTableCalls []createTableCall
-	tableExistsResults    map[string]bool
-	getTableSchemaResults map[string]bigquery.Schema
+	createTableCalls        []createTableCall
+	tableExistsResults      map[string]bool
+	getTableSchemaResults   map[string]bigquery.Schema
 	getTableMetadataResults map[string]*bigquery.TableMetadata
-	dropTableCalls   []dropTableCall
-	copyTableCalls   []copyTableCall
-	executeQueryCalls []string
+	dropTableCalls          []dropTableCall
+	copyTableCalls          []copyTableCall
+	executeQueryCalls       []string
 }
 
 type createTableCall struct {
@@ -127,26 +127,33 @@ func (m *mockLoader) close() error {
 	return nil
 }
 
-// mockTracker creates a MessageTracker that captures state emissions.
+// stateCapture is one STATE message the writer echoed.
 type stateCapture struct {
-	stateType airbyte.StateType
-	stateData interface{}
+	stateType synclet.StateType
+	state     synclet.StateMessage
 }
 
-func newMockTracker() (airbyte.MessageTracker, *[]stateCapture) {
+// captureWriter decodes every protocol message an Emitter writes to it and
+// keeps the STATE messages.
+type captureWriter struct {
+	captures *[]stateCapture
+}
+
+func (c captureWriter) Write(p []byte) (int, error) {
+	var msg synclet.Message
+	if err := json.Unmarshal(p, &msg); err != nil {
+		return 0, err
+	}
+	if msg.Type == synclet.MessageTypeState {
+		*c.captures = append(*c.captures, stateCapture{stateType: msg.State.Type, state: *msg.State})
+	}
+	return len(p), nil
+}
+
+// newMockTracker returns an Emitter that captures the states it emits.
+func newMockTracker() (*synclet.Emitter, *[]stateCapture) {
 	captures := &[]stateCapture{}
-	return airbyte.MessageTracker{
-		State: func(sType airbyte.StateType, stateData interface{}) error {
-			*captures = append(*captures, stateCapture{stateType: sType, stateData: stateData})
-			return nil
-		},
-		Log: func(_ airbyte.LogLevel, _ string) error {
-			return nil
-		},
-		Record: func(_ interface{}, _ string, _ string) error {
-			return nil
-		},
-	}, captures
+	return synclet.NewEmitter(captureWriter{captures: captures}), captures
 }
 
 func testConfig() *Config {
@@ -226,17 +233,17 @@ func TestAddRecordBuffering(t *testing.T) {
 	w.batchSize = 3
 
 	// Add 2 records (below threshold) -- no flush should happen.
-	err := w.AddRecord("users", map[string]interface{}{"id": float64(1), "name": "Alice", "age": float64(30)})
+	err := w.AddRecord(t.Context(), "users", map[string]interface{}{"id": float64(1), "name": "Alice", "age": float64(30)})
 	require.NoError(t, err)
 
-	err = w.AddRecord("users", map[string]interface{}{"id": float64(2), "name": "Bob", "age": float64(25)})
+	err = w.AddRecord(t.Context(), "users", map[string]interface{}{"id": float64(2), "name": "Bob", "age": float64(25)})
 	require.NoError(t, err)
 
 	assert.Equal(t, 0, ldr.loadCallCount, "should not flush below threshold")
 	assert.Len(t, w.buffers["users"].records, 2)
 
 	// Add 1 more to hit threshold -- should auto-flush.
-	err = w.AddRecord("users", map[string]interface{}{"id": float64(3), "name": "Charlie", "age": float64(35)})
+	err = w.AddRecord(t.Context(), "users", map[string]interface{}{"id": float64(3), "name": "Charlie", "age": float64(35)})
 	require.NoError(t, err)
 
 	assert.Equal(t, 1, ldr.loadCallCount, "should flush at threshold")
@@ -252,19 +259,19 @@ func TestFlushAllEmitsState(t *testing.T) {
 
 	w := NewBigQueryWriter(ops, ldr, cfg, catalog)
 
-	err := w.AddRecord("users", map[string]interface{}{"id": float64(1), "name": "Alice", "age": float64(30)})
+	err := w.AddRecord(t.Context(), "users", map[string]interface{}{"id": float64(1), "name": "Alice", "age": float64(30)})
 	require.NoError(t, err)
 
 	stateJSON := json.RawMessage(`{"type":"STREAM","stream":{"stream_descriptor":{"name":"users"},"stream_state":{"cursor":"2024-01-01"}}}`)
-	w.QueueState(stateJSON)
+	w.QueueState(stateMessage(t, string(stateJSON)))
 
 	tracker, captures := newMockTracker()
-	err = w.FlushAll(tracker)
+	err = w.FlushAll(t.Context(), tracker)
 	require.NoError(t, err)
 
 	assert.Equal(t, 1, ldr.loadCallCount)
 	assert.Len(t, *captures, 1, "should emit 1 state after flush")
-	assert.Equal(t, airbyte.StateTypeStream, (*captures)[0].stateType)
+	assert.Equal(t, synclet.StateTypeStream, (*captures)[0].stateType)
 }
 
 func TestStateNotEmittedBeforeFlush(t *testing.T) {
@@ -275,8 +282,8 @@ func TestStateNotEmittedBeforeFlush(t *testing.T) {
 
 	w := NewBigQueryWriter(ops, ldr, cfg, catalog)
 
-	w.QueueState(json.RawMessage(`{"type":"STREAM","stream":{"stream_descriptor":{"name":"users"},"stream_state":{"cursor":"1"}}}`))
-	w.QueueState(json.RawMessage(`{"type":"STREAM","stream":{"stream_descriptor":{"name":"users"},"stream_state":{"cursor":"2"}}}`))
+	w.QueueState(stateMessage(t, `{"type":"STREAM","stream":{"stream_descriptor":{"name":"users"},"stream_state":{"cursor":"1"}}}`))
+	w.QueueState(stateMessage(t, `{"type":"STREAM","stream":{"stream_descriptor":{"name":"users"},"stream_state":{"cursor":"2"}}}`))
 
 	assert.Len(t, w.pendingStates, 2)
 
@@ -293,7 +300,7 @@ func TestMetadataFieldsAdded(t *testing.T) {
 	w := NewBigQueryWriter(ops, ldr, cfg, catalog)
 	w.batchSize = 1
 
-	err := w.AddRecord("users", map[string]interface{}{"id": float64(1), "name": "Alice", "age": float64(30)})
+	err := w.AddRecord(t.Context(), "users", map[string]interface{}{"id": float64(1), "name": "Alice", "age": float64(30)})
 	require.NoError(t, err)
 
 	require.Equal(t, 1, ldr.loadCallCount)
@@ -328,7 +335,7 @@ func TestValidationErrorsInMeta(t *testing.T) {
 	w := NewBigQueryWriter(ops, ldr, cfg, catalog)
 	w.batchSize = 1
 
-	err := w.AddRecord("users", map[string]interface{}{"id": float64(1e19), "name": "Overflow", "age": float64(25)})
+	err := w.AddRecord(t.Context(), "users", map[string]interface{}{"id": float64(1e19), "name": "Overflow", "age": float64(25)})
 	require.NoError(t, err)
 
 	require.Equal(t, 1, ldr.loadCallCount)
@@ -412,7 +419,7 @@ func TestWriterUnknownStreamError(t *testing.T) {
 
 	w := NewBigQueryWriter(ops, ldr, cfg, nil)
 
-	err := w.AddRecord("nonexistent", map[string]interface{}{})
+	err := w.AddRecord(t.Context(), "nonexistent", map[string]interface{}{})
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "unknown stream")
 }
@@ -425,19 +432,19 @@ func TestFlushAllWithMultipleStates(t *testing.T) {
 
 	w := NewBigQueryWriter(ops, ldr, cfg, catalog)
 
-	err := w.AddRecord("users", map[string]interface{}{"id": float64(1), "name": "Alice", "age": float64(30)})
+	err := w.AddRecord(t.Context(), "users", map[string]interface{}{"id": float64(1), "name": "Alice", "age": float64(30)})
 	require.NoError(t, err)
 
-	w.QueueState(json.RawMessage(`{"type":"STREAM","stream":{"stream_descriptor":{"name":"users"},"stream_state":{"cursor":"1"}}}`))
-	w.QueueState(json.RawMessage(`{"type":"LEGACY","data":{"position":42}}`))
+	w.QueueState(stateMessage(t, `{"type":"STREAM","stream":{"stream_descriptor":{"name":"users"},"stream_state":{"cursor":"1"}}}`))
+	w.QueueState(stateMessage(t, `{"type":"LEGACY","data":{"position":42}}`))
 
 	tracker, captures := newMockTracker()
-	err = w.FlushAll(tracker)
+	err = w.FlushAll(t.Context(), tracker)
 	require.NoError(t, err)
 
 	assert.Len(t, *captures, 2)
-	assert.Equal(t, airbyte.StateTypeStream, (*captures)[0].stateType)
-	assert.Equal(t, airbyte.StateTypeLegacy, (*captures)[1].stateType)
+	assert.Equal(t, synclet.StateTypeStream, (*captures)[0].stateType)
+	assert.Equal(t, synclet.StateTypeLegacy, (*captures)[1].stateType)
 
 	assert.Nil(t, w.pendingStates)
 }
@@ -450,13 +457,13 @@ func TestFlushAllFailureDoesNotEmitState(t *testing.T) {
 
 	w := NewBigQueryWriter(ops, ldr, cfg, catalog)
 
-	err := w.AddRecord("users", map[string]interface{}{"id": float64(1), "name": "Alice", "age": float64(30)})
+	err := w.AddRecord(t.Context(), "users", map[string]interface{}{"id": float64(1), "name": "Alice", "age": float64(30)})
 	require.NoError(t, err)
 
-	w.QueueState(json.RawMessage(`{"type":"STREAM","stream":{"stream_descriptor":{"name":"users"},"stream_state":{"cursor":"1"}}}`))
+	w.QueueState(stateMessage(t, `{"type":"STREAM","stream":{"stream_descriptor":{"name":"users"},"stream_state":{"cursor":"1"}}}`))
 
 	tracker, captures := newMockTracker()
-	err = w.FlushAll(tracker)
+	err = w.FlushAll(t.Context(), tracker)
 	assert.Error(t, err, "should return error on load failure")
 
 	assert.Len(t, *captures, 0, "no state emitted on flush failure")
@@ -477,13 +484,13 @@ func TestOverwriteMode(t *testing.T) {
 
 	writer := NewBigQueryWriter(ops, ldr, config, catalog)
 
-	err := writer.AddRecord("users", map[string]interface{}{"id": float64(1), "name": "Alice"})
+	err := writer.AddRecord(t.Context(), "users", map[string]interface{}{"id": float64(1), "name": "Alice"})
 	require.NoError(t, err)
-	err = writer.AddRecord("users", map[string]interface{}{"id": float64(2), "name": "Bob"})
+	err = writer.AddRecord(t.Context(), "users", map[string]interface{}{"id": float64(2), "name": "Bob"})
 	require.NoError(t, err)
 
 	tracker, _ := newMockTracker()
-	err = writer.FlushAll(tracker)
+	err = writer.FlushAll(t.Context(), tracker)
 	require.NoError(t, err)
 
 	// Verify records were loaded to temp table, not final.
@@ -519,11 +526,11 @@ func TestAppendMode(t *testing.T) {
 
 	writer := NewBigQueryWriter(ops, ldr, config, catalog)
 
-	err := writer.AddRecord("events", map[string]interface{}{"id": float64(1), "name": "event1"})
+	err := writer.AddRecord(t.Context(), "events", map[string]interface{}{"id": float64(1), "name": "event1"})
 	require.NoError(t, err)
 
 	tracker, _ := newMockTracker()
-	err = writer.FlushAll(tracker)
+	err = writer.FlushAll(t.Context(), tracker)
 	require.NoError(t, err)
 
 	// Verify records loaded directly to final table.
@@ -549,11 +556,11 @@ func TestAppendDedupMode(t *testing.T) {
 
 	writer := NewBigQueryWriter(ops, ldr, config, catalog)
 
-	err := writer.AddRecord("users", map[string]interface{}{"id": float64(1), "name": "Alice"})
+	err := writer.AddRecord(t.Context(), "users", map[string]interface{}{"id": float64(1), "name": "Alice"})
 	require.NoError(t, err)
 
 	tracker, _ := newMockTracker()
-	err = writer.FlushAll(tracker)
+	err = writer.FlushAll(t.Context(), tracker)
 	require.NoError(t, err)
 
 	// Verify records were loaded to staging table.
@@ -604,11 +611,11 @@ func TestSchemaEvolution(t *testing.T) {
 
 	writer := NewBigQueryWriter(ops, ldr, config, catalog)
 
-	err := writer.AddRecord("users", map[string]interface{}{"id": float64(1), "name": "Alice"})
+	err := writer.AddRecord(t.Context(), "users", map[string]interface{}{"id": float64(1), "name": "Alice"})
 	require.NoError(t, err)
 
 	tracker, _ := newMockTracker()
-	err = writer.FlushAll(tracker)
+	err = writer.FlushAll(t.Context(), tracker)
 	require.NoError(t, err)
 
 	// Verify ALTER TABLE was executed to add the missing column.
@@ -627,11 +634,11 @@ func TestNamespaceRouting(t *testing.T) {
 
 	writer := NewBigQueryWriter(ops, ldr, config, catalog)
 
-	err := writer.AddRecord("public.users", map[string]interface{}{"id": float64(1), "name": "Alice"})
+	err := writer.AddRecord(t.Context(), "public.users", map[string]interface{}{"id": float64(1), "name": "Alice"})
 	require.NoError(t, err)
 
 	tracker, _ := newMockTracker()
-	err = writer.FlushAll(tracker)
+	err = writer.FlushAll(t.Context(), tracker)
 	require.NoError(t, err)
 
 	// Verify dataset is "public" (from namespace), not "test_dataset".
@@ -649,11 +656,11 @@ func TestLegacyRawMode(t *testing.T) {
 
 	writer := NewBigQueryWriter(ops, ldr, config, catalog)
 
-	err := writer.AddRecord("users", map[string]interface{}{"id": float64(1), "name": "Alice"})
+	err := writer.AddRecord(t.Context(), "users", map[string]interface{}{"id": float64(1), "name": "Alice"})
 	require.NoError(t, err)
 
 	tracker, _ := newMockTracker()
-	err = writer.FlushAll(tracker)
+	err = writer.FlushAll(t.Context(), tracker)
 	require.NoError(t, err)
 
 	// Verify records loaded to raw table in raw dataset.
@@ -673,7 +680,7 @@ func TestCDCHardDeleteMerge(t *testing.T) {
 
 	writer := NewBigQueryWriter(ops, ldr, config, catalog)
 
-	err := writer.AddRecord("users", map[string]interface{}{
+	err := writer.AddRecord(t.Context(), "users", map[string]interface{}{
 		"id": float64(1), "name": "Alice",
 		"_ab_cdc_deleted_at": "2024-01-01T00:00:00Z",
 		"_ab_cdc_updated_at": "2024-01-01T00:00:00Z",
@@ -682,7 +689,7 @@ func TestCDCHardDeleteMerge(t *testing.T) {
 	require.NoError(t, err)
 
 	tracker, _ := newMockTracker()
-	err = writer.FlushAll(tracker)
+	err = writer.FlushAll(t.Context(), tracker)
 	require.NoError(t, err)
 
 	// Verify MERGE SQL contains DELETE clause for hard delete.
@@ -709,7 +716,7 @@ func TestCDCSoftDeleteMerge(t *testing.T) {
 
 	writer := NewBigQueryWriter(ops, ldr, config, catalog)
 
-	err := writer.AddRecord("users", map[string]interface{}{
+	err := writer.AddRecord(t.Context(), "users", map[string]interface{}{
 		"id": float64(1), "name": "Alice",
 		"_ab_cdc_deleted_at": "2024-01-01T00:00:00Z",
 		"_ab_cdc_updated_at": "2024-01-01T00:00:00Z",
@@ -718,7 +725,7 @@ func TestCDCSoftDeleteMerge(t *testing.T) {
 	require.NoError(t, err)
 
 	tracker, _ := newMockTracker()
-	err = writer.FlushAll(tracker)
+	err = writer.FlushAll(t.Context(), tracker)
 	require.NoError(t, err)
 
 	// Verify MERGE SQL does NOT contain DELETE clause for soft delete.
@@ -731,4 +738,11 @@ func TestCDCSoftDeleteMerge(t *testing.T) {
 	}
 	require.NotEmpty(t, mergeSQL, "should execute MERGE SQL")
 	assert.NotContains(t, mergeSQL, "THEN DELETE")
+}
+
+func stateMessage(t *testing.T, raw string) synclet.StateMessage {
+	t.Helper()
+	var msg synclet.StateMessage
+	require.NoError(t, json.Unmarshal([]byte(raw), &msg))
+	return msg
 }

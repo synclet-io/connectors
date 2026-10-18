@@ -1,32 +1,32 @@
 package main
 
-import airbyte "github.com/saturn4er/airbyte-go-sdk"
+import synclet "github.com/synclet-io/synclet-go-sdk"
 
-const booleanType airbyte.PropType = "boolean"
+const booleanType synclet.PropType = "boolean"
 
 // bigqueryConnectionSpec returns the full BigQuery connection specification
 // matching the Airbyte reference BigquerySpecification.
-func bigqueryConnectionSpec() airbyte.ConnectionSpecification {
-	return airbyte.ConnectionSpecification{
+func bigqueryConnectionSpec() synclet.ConnectionSpecification {
+	return synclet.ConnectionSpecification{
 		Title:       "BigQuery Destination Spec",
 		Description: "Writes data to a Google BigQuery dataset",
 		Type:        "object",
-		Required:    []airbyte.PropertyName{"project_id", "dataset_id"},
-		Properties: airbyte.Properties{
-			Properties: map[airbyte.PropertyName]airbyte.PropertySpec{
+		Required:    []synclet.PropertyName{"project_id", "dataset_id"},
+		Properties: synclet.Properties{
+			Properties: map[synclet.PropertyName]synclet.PropertySpec{
 				"project_id": {
 					Title:       "Project ID",
 					Description: "Your Google Cloud project ID",
-					PropertyType: airbyte.PropertyType{
-						Type: []airbyte.PropType{airbyte.String},
+					PropertyType: synclet.PropertyType{
+						Type: []synclet.PropType{synclet.String},
 					},
 					Order: intPtr(0),
 				},
 				"dataset_location": {
 					Title:       "Dataset Location",
 					Description: "The location of the dataset. Supported values: US, EU, us-central1, us-east1, us-west1, europe-west1, europe-west2, asia-east1, asia-northeast1, asia-southeast1, australia-southeast1. Warning: Changes to this after initial setup may cause data loss.",
-					PropertyType: airbyte.PropertyType{
-						Type: []airbyte.PropType{airbyte.String},
+					PropertyType: synclet.PropertyType{
+						Type: []synclet.PropType{synclet.String},
 					},
 					Default:  "US",
 					Examples: []string{"US", "EU", "us-central1", "us-east1", "us-west1", "europe-west1", "europe-west2", "asia-east1", "asia-northeast1", "asia-southeast1", "australia-southeast1"},
@@ -35,8 +35,8 @@ func bigqueryConnectionSpec() airbyte.ConnectionSpecification {
 				"dataset_id": {
 					Title:       "Default Dataset ID",
 					Description: "The default BigQuery dataset ID for writing data. Created if it does not exist.",
-					PropertyType: airbyte.PropertyType{
-						Type: []airbyte.PropType{airbyte.String},
+					PropertyType: synclet.PropertyType{
+						Type: []synclet.PropType{synclet.String},
 					},
 					Order: intPtr(2),
 				},
@@ -45,8 +45,8 @@ func bigqueryConnectionSpec() airbyte.ConnectionSpecification {
 				"credentials_json": {
 					Title:       "Service Account Key JSON (Alternative)",
 					Description: "The contents of the JSON service account key. Alternative to the credentials field.",
-					PropertyType: airbyte.PropertyType{
-						Type: []airbyte.PropType{airbyte.String},
+					PropertyType: synclet.PropertyType{
+						Type: []synclet.PropType{synclet.String},
 					},
 					IsSecret: true,
 					Order:    intPtr(5),
@@ -54,8 +54,8 @@ func bigqueryConnectionSpec() airbyte.ConnectionSpecification {
 				"disable_type_dedupe": {
 					Title:       "Disable Typed Tables and Deduplication",
 					Description: "Disable the creation of typed tables and deduplication of data. This can be useful for debugging or performance testing.",
-					PropertyType: airbyte.PropertyType{
-						Type: []airbyte.PropType{booleanType},
+					PropertyType: synclet.PropertyType{
+						Type: []synclet.PropType{booleanType},
 					},
 					Default: false,
 					Order:   intPtr(6),
@@ -63,8 +63,8 @@ func bigqueryConnectionSpec() airbyte.ConnectionSpecification {
 				"raw_data_dataset": {
 					Title:       "Raw Table Dataset",
 					Description: "The dataset to write raw tables into. Defaults to airbyte_internal.",
-					PropertyType: airbyte.PropertyType{
-						Type: []airbyte.PropType{airbyte.String},
+					PropertyType: synclet.PropertyType{
+						Type: []synclet.PropType{synclet.String},
 					},
 					Default: "airbyte_internal",
 					Order:   intPtr(7),
@@ -76,26 +76,26 @@ func bigqueryConnectionSpec() airbyte.ConnectionSpecification {
 }
 
 // loadingMethodSpec returns the oneOf spec for loading method selection.
-func loadingMethodSpec() airbyte.PropertySpec {
-	return airbyte.PropertySpec{
+func loadingMethodSpec() synclet.PropertySpec {
+	return synclet.PropertySpec{
 		Title:       "Loading Method",
 		Description: "The method to use for loading data into BigQuery",
-		PropertyType: airbyte.PropertyType{
-			Type: []airbyte.PropType{airbyte.Object},
+		PropertyType: synclet.PropertyType{
+			Type: []synclet.PropType{synclet.Object},
 		},
 		Order: intPtr(3),
-		OneOf: []airbyte.PropertySpec{
+		OneOf: []synclet.PropertySpec{
 			{
 				Title:       "Standard Inserts",
 				Description: "Direct loading using BigQuery standard inserts",
-				PropertyType: airbyte.PropertyType{
-					Type: []airbyte.PropType{airbyte.Object},
+				PropertyType: synclet.PropertyType{
+					Type: []synclet.PropType{synclet.Object},
 				},
-				Required: []airbyte.PropertyName{"method"},
-				Properties: map[airbyte.PropertyName]airbyte.PropertySpec{
+				Required: []synclet.PropertyName{"method"},
+				Properties: map[synclet.PropertyName]synclet.PropertySpec{
 					"method": {
-						PropertyType: airbyte.PropertyType{
-							Type: []airbyte.PropType{airbyte.String},
+						PropertyType: synclet.PropertyType{
+							Type: []synclet.PropType{synclet.String},
 						},
 						Const: "Standard",
 					},
@@ -104,44 +104,44 @@ func loadingMethodSpec() airbyte.PropertySpec {
 			{
 				Title:       "GCS Staging",
 				Description: "Staging data in Google Cloud Storage before loading into BigQuery",
-				PropertyType: airbyte.PropertyType{
-					Type: []airbyte.PropType{airbyte.Object},
+				PropertyType: synclet.PropertyType{
+					Type: []synclet.PropType{synclet.Object},
 				},
-				Required: []airbyte.PropertyName{"method", "gcs_bucket_name", "credential"},
-				Properties: map[airbyte.PropertyName]airbyte.PropertySpec{
+				Required: []synclet.PropertyName{"method", "gcs_bucket_name", "credential"},
+				Properties: map[synclet.PropertyName]synclet.PropertySpec{
 					"method": {
-						PropertyType: airbyte.PropertyType{
-							Type: []airbyte.PropType{airbyte.String},
+						PropertyType: synclet.PropertyType{
+							Type: []synclet.PropType{synclet.String},
 						},
 						Const: "GCS Staging",
 					},
 					"credential": {
 						Title:       "GCS Credential",
 						Description: "HMAC key credential for accessing GCS bucket",
-						PropertyType: airbyte.PropertyType{
-							Type: []airbyte.PropType{airbyte.Object},
+						PropertyType: synclet.PropertyType{
+							Type: []synclet.PropType{synclet.Object},
 						},
-						Required: []airbyte.PropertyName{"credential_type", "hmac_key_access_id", "hmac_key_secret"},
-						Properties: map[airbyte.PropertyName]airbyte.PropertySpec{
+						Required: []synclet.PropertyName{"credential_type", "hmac_key_access_id", "hmac_key_secret"},
+						Properties: map[synclet.PropertyName]synclet.PropertySpec{
 							"credential_type": {
-								PropertyType: airbyte.PropertyType{
-									Type: []airbyte.PropType{airbyte.String},
+								PropertyType: synclet.PropertyType{
+									Type: []synclet.PropType{synclet.String},
 								},
 								Const: "HMAC_KEY",
 							},
 							"hmac_key_access_id": {
 								Title:       "HMAC Key Access ID",
 								Description: "HMAC key access ID for the GCS bucket",
-								PropertyType: airbyte.PropertyType{
-									Type: []airbyte.PropType{airbyte.String},
+								PropertyType: synclet.PropertyType{
+									Type: []synclet.PropType{synclet.String},
 								},
 								IsSecret: true,
 							},
 							"hmac_key_secret": {
 								Title:       "HMAC Key Secret",
 								Description: "HMAC key secret for the GCS bucket",
-								PropertyType: airbyte.PropertyType{
-									Type: []airbyte.PropType{airbyte.String},
+								PropertyType: synclet.PropertyType{
+									Type: []synclet.PropType{synclet.String},
 								},
 								IsSecret: true,
 							},
@@ -150,23 +150,23 @@ func loadingMethodSpec() airbyte.PropertySpec {
 					"gcs_bucket_name": {
 						Title:       "GCS Bucket Name",
 						Description: "The name of the GCS bucket for staging",
-						PropertyType: airbyte.PropertyType{
-							Type: []airbyte.PropType{airbyte.String},
+						PropertyType: synclet.PropertyType{
+							Type: []synclet.PropType{synclet.String},
 						},
 					},
 					"gcs_bucket_path": {
 						Title:       "GCS Bucket Path",
 						Description: "Directory within the GCS bucket for staging files",
-						PropertyType: airbyte.PropertyType{
-							Type: []airbyte.PropType{airbyte.String},
+						PropertyType: synclet.PropertyType{
+							Type: []synclet.PropType{synclet.String},
 						},
 						Default: "",
 					},
 					"keep_files_in_gcs-bucket": {
 						Title:       "Keep Files in GCS Bucket",
 						Description: "Whether to keep staging files in the GCS bucket after loading. Options: 'Delete all tmp files from GCS' or 'Keep all tmp files in GCS'",
-						PropertyType: airbyte.PropertyType{
-							Type: []airbyte.PropType{airbyte.String},
+						PropertyType: synclet.PropertyType{
+							Type: []synclet.PropType{synclet.String},
 						},
 						Default:  "Delete all tmp files from GCS",
 						Examples: []string{"Delete all tmp files from GCS", "Keep all tmp files in GCS"},
@@ -178,12 +178,12 @@ func loadingMethodSpec() airbyte.PropertySpec {
 }
 
 // cdcDeletionModeSpec returns the spec for CDC deletion mode.
-func cdcDeletionModeSpec() airbyte.PropertySpec {
-	return airbyte.PropertySpec{
+func cdcDeletionModeSpec() synclet.PropertySpec {
+	return synclet.PropertySpec{
 		Title:       "CDC Deletion Mode",
 		Description: "Determines how deletions are handled in CDC mode. Options: hard_delete (permanently remove rows) or soft_delete (mark rows as deleted).",
-		PropertyType: airbyte.PropertyType{
-			Type: []airbyte.PropType{airbyte.String},
+		PropertyType: synclet.PropertyType{
+			Type: []synclet.PropType{synclet.String},
 		},
 		Default:  "hard_delete",
 		Examples: []string{"hard_delete", "soft_delete"},

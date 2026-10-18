@@ -1,0 +1,249 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Writes data to a Google BigQuery dataset",
+    "properties": {
+      "cdc_deletion_mode": {
+        "default": "hard_delete",
+        "description": "Determines how deletions are handled in CDC mode. Options: hard_delete (permanently remove rows) or soft_delete (mark rows as deleted).",
+        "examples": [
+          "hard_delete",
+          "soft_delete"
+        ],
+        "order": 8,
+        "title": "CDC Deletion Mode",
+        "type": "string"
+      },
+      "credentials": {
+        "description": "Credentials for connecting to the Google BigQuery API",
+        "oneOf": [
+          {
+            "properties": {
+              "auth_type": {
+                "const": "Client",
+                "type": "string"
+              },
+              "client_id": {
+                "airbyte_secret": true,
+                "description": "Enter your Google application's Client ID",
+                "title": "Client ID",
+                "type": "string"
+              },
+              "client_secret": {
+                "airbyte_secret": true,
+                "description": "Enter your Google application's Client Secret",
+                "title": "Client Secret",
+                "type": "string"
+              },
+              "refresh_token": {
+                "airbyte_secret": true,
+                "description": "Enter your Google application's refresh token",
+                "title": "Refresh Token",
+                "type": "string"
+              }
+            },
+            "required": [
+              "auth_type",
+              "client_id",
+              "client_secret",
+              "refresh_token"
+            ],
+            "title": "Authenticate via Google (OAuth)",
+            "type": "object"
+          },
+          {
+            "properties": {
+              "auth_type": {
+                "const": "Service",
+                "type": "string"
+              },
+              "service_account_info": {
+                "airbyte_secret": true,
+                "description": "The JSON key of the service account to use for authorization",
+                "title": "Service Account Information",
+                "type": "string"
+              }
+            },
+            "required": [
+              "auth_type",
+              "service_account_info"
+            ],
+            "title": "Service Account Key Authentication",
+            "type": "object"
+          },
+          {
+            "description": "Use Google Cloud Application Default Credentials (no extra fields needed)",
+            "properties": {
+              "auth_type": {
+                "const": "ApplicationDefault",
+                "type": "string"
+              }
+            },
+            "required": [
+              "auth_type"
+            ],
+            "title": "Application Default Credentials",
+            "type": "object"
+          }
+        ],
+        "title": "Authentication",
+        "type": "object"
+      },
+      "credentials_json": {
+        "airbyte_secret": true,
+        "description": "The contents of the JSON service account key. Alternative to the credentials field.",
+        "order": 5,
+        "title": "Service Account Key JSON (Alternative)",
+        "type": "string"
+      },
+      "dataset_id": {
+        "description": "The default BigQuery dataset ID for writing data. Created if it does not exist.",
+        "order": 2,
+        "title": "Default Dataset ID",
+        "type": "string"
+      },
+      "dataset_location": {
+        "default": "US",
+        "description": "The location of the dataset. Supported values: US, EU, us-central1, us-east1, us-west1, europe-west1, europe-west2, asia-east1, asia-northeast1, asia-southeast1, australia-southeast1. Warning: Changes to this after initial setup may cause data loss.",
+        "examples": [
+          "US",
+          "EU",
+          "us-central1",
+          "us-east1",
+          "us-west1",
+          "europe-west1",
+          "europe-west2",
+          "asia-east1",
+          "asia-northeast1",
+          "asia-southeast1",
+          "australia-southeast1"
+        ],
+        "order": 1,
+        "title": "Dataset Location",
+        "type": "string"
+      },
+      "disable_type_dedupe": {
+        "default": false,
+        "description": "Disable the creation of typed tables and deduplication of data. This can be useful for debugging or performance testing.",
+        "order": 6,
+        "title": "Disable Typed Tables and Deduplication",
+        "type": "boolean"
+      },
+      "loading_method": {
+        "description": "The method to use for loading data into BigQuery",
+        "oneOf": [
+          {
+            "description": "Direct loading using BigQuery standard inserts",
+            "properties": {
+              "method": {
+                "const": "Standard",
+                "type": "string"
+              }
+            },
+            "required": [
+              "method"
+            ],
+            "title": "Standard Inserts",
+            "type": "object"
+          },
+          {
+            "description": "Staging data in Google Cloud Storage before loading into BigQuery",
+            "properties": {
+              "credential": {
+                "description": "HMAC key credential for accessing GCS bucket",
+                "properties": {
+                  "credential_type": {
+                    "const": "HMAC_KEY",
+                    "type": "string"
+                  },
+                  "hmac_key_access_id": {
+                    "airbyte_secret": true,
+                    "description": "HMAC key access ID for the GCS bucket",
+                    "title": "HMAC Key Access ID",
+                    "type": "string"
+                  },
+                  "hmac_key_secret": {
+                    "airbyte_secret": true,
+                    "description": "HMAC key secret for the GCS bucket",
+                    "title": "HMAC Key Secret",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "credential_type",
+                  "hmac_key_access_id",
+                  "hmac_key_secret"
+                ],
+                "title": "GCS Credential",
+                "type": "object"
+              },
+              "gcs_bucket_name": {
+                "description": "The name of the GCS bucket for staging",
+                "title": "GCS Bucket Name",
+                "type": "string"
+              },
+              "gcs_bucket_path": {
+                "default": "",
+                "description": "Directory within the GCS bucket for staging files",
+                "title": "GCS Bucket Path",
+                "type": "string"
+              },
+              "keep_files_in_gcs-bucket": {
+                "default": "Delete all tmp files from GCS",
+                "description": "Whether to keep staging files in the GCS bucket after loading. Options: 'Delete all tmp files from GCS' or 'Keep all tmp files in GCS'",
+                "examples": [
+                  "Delete all tmp files from GCS",
+                  "Keep all tmp files in GCS"
+                ],
+                "title": "Keep Files in GCS Bucket",
+                "type": "string"
+              },
+              "method": {
+                "const": "GCS Staging",
+                "type": "string"
+              }
+            },
+            "required": [
+              "method",
+              "gcs_bucket_name",
+              "credential"
+            ],
+            "title": "GCS Staging",
+            "type": "object"
+          }
+        ],
+        "order": 3,
+        "title": "Loading Method",
+        "type": "object"
+      },
+      "project_id": {
+        "description": "Your Google Cloud project ID",
+        "order": 0,
+        "title": "Project ID",
+        "type": "string"
+      },
+      "raw_data_dataset": {
+        "default": "airbyte_internal",
+        "description": "The dataset to write raw tables into. Defaults to airbyte_internal.",
+        "order": 7,
+        "title": "Raw Table Dataset",
+        "type": "string"
+      }
+    },
+    "required": [
+      "project_id",
+      "dataset_id"
+    ],
+    "title": "BigQuery Destination Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://cloud.google.com/bigquery/docs",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": false,
+  "supportsNormalization": false
+}

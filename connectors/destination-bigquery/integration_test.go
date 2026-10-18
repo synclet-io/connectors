@@ -3,17 +3,18 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"os"
 	"strings"
 	"testing"
 
-	airbyte "github.com/saturn4er/airbyte-go-sdk"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	synclet "github.com/synclet-io/synclet-go-sdk"
 )
 
-func testConfig(t *testing.T) Config {
+func integrationConfig(t *testing.T) Config {
 	t.Helper()
 	projectID := os.Getenv("BIGQUERY_PROJECT_ID")
 	if projectID == "" {
@@ -37,52 +38,42 @@ func testConfig(t *testing.T) Config {
 	}
 }
 
-func writeConfigFile(t *testing.T, cfg Config) string {
+func configJSON(t *testing.T, cfg Config) json.RawMessage {
 	t.Helper()
 	data, err := json.Marshal(cfg)
 	require.NoError(t, err)
-
-	f, err := os.CreateTemp(t.TempDir(), "bq-config-*.json")
-	require.NoError(t, err)
-	_, err = f.Write(data)
-	require.NoError(t, err)
-	require.NoError(t, f.Close())
-	return f.Name()
+	return data
 }
 
-func writeCatalogFile(t *testing.T, streams []catalogStream) string {
+func catalogJSON(t *testing.T, streams []catalogStream) json.RawMessage {
 	t.Helper()
-	catalog := rawConfiguredCatalog{Streams: streams}
-	data, err := json.Marshal(catalog)
+	data, err := json.Marshal(struct {
+		Streams []catalogStream `json:"streams"`
+	}{Streams: streams})
 	require.NoError(t, err)
-
-	f, err := os.CreateTemp(t.TempDir(), "bq-catalog-*.json")
-	require.NoError(t, err)
-	_, err = f.Write(data)
-	require.NoError(t, err)
-	require.NoError(t, f.Close())
-	return f.Name()
+	return data
 }
 
-func noopLogTracker() airbyte.LogTracker {
-	return airbyte.LogTracker{
-		Log: func(_ airbyte.LogLevel, _ string) error { return nil },
+// serve runs one command of the destination and returns the messages it wrote.
+func serve(t *testing.T, req synclet.Request) ([]synclet.Message, error) {
+	t.Helper()
+	var out bytes.Buffer
+	err := synclet.ServeDestination(t.Context(), NewBigQueryDestination(), req, &out)
+	var msgs []synclet.Message
+	for _, line := range bytes.Split(bytes.TrimSpace(out.Bytes()), []byte("\n")) {
+		if len(line) == 0 {
+			continue
+		}
+		var msg synclet.Message
+		require.NoError(t, json.Unmarshal(line, &msg))
+		msgs = append(msgs, msg)
 	}
-}
-
-func noopMessageTracker() airbyte.MessageTracker {
-	return airbyte.MessageTracker{
-		State:   func(_ airbyte.StateType, _ interface{}) error { return nil },
-		Record:  func(_ interface{}, _ string, _ string) error { return nil },
-		Log:     func(_ airbyte.LogLevel, _ string) error { return nil },
-		Trace:   func(_ interface{}) error { return nil },
-		Control: func(_ interface{}) error { return nil },
-	}
+	return msgs, err
 }
 
 func TestSpec(t *testing.T) {
 	dest := NewBigQueryDestination()
-	spec, err := dest.Spec(noopLogTracker())
+	spec, err := dest.Spec(t.Context())
 	require.NoError(t, err)
 	require.NotNil(t, spec)
 
@@ -100,17 +91,17 @@ func TestSpec(t *testing.T) {
 }
 
 func TestCheckWithADC(t *testing.T) {
-	cfg := testConfig(t)
-	cfgPath := writeConfigFile(t, cfg)
-
-	dest := NewBigQueryDestination()
-	err := dest.Check(cfgPath, noopLogTracker())
-	assert.NoError(t, err)
+	cfg := integrationConfig(t)
+	msgs, err := serve(t, synclet.Request{Command: synclet.CommandCheck, Config: configJSON(t, cfg)})
+	require.NoError(t, err)
+	last := msgs[len(msgs)-1]
+	require.Equal(t, synclet.MessageTypeConnectionStatus, last.Type)
+	assert.Equal(t, synclet.ConnectionStatusSucceeded, last.ConnectionStatus.Status, last.ConnectionStatus.Message)
 }
 
 func TestWriteAppend(t *testing.T) {
-	cfg := testConfig(t)
-	cfgPath := writeConfigFile(t, cfg)
+	cfg := integrationConfig(t)
+	config := configJSON(t, cfg)
 
 	streams := []catalogStream{{
 		Stream: streamDef{
@@ -125,7 +116,7 @@ func TestWriteAppend(t *testing.T) {
 		},
 		DestinationSyncMode: "append",
 	}}
-	catalogPath := writeCatalogFile(t, streams)
+	catalog := catalogJSON(t, streams)
 
 	input := strings.NewReader(
 		`{"type":"RECORD","record":{"stream":"test_append","namespace":"` + cfg.DatasetID + `","data":{"id":1,"name":"Alice"}}}` + "\n" +
@@ -133,15 +124,13 @@ func TestWriteAppend(t *testing.T) {
 			`{"type":"STATE","state":{"type":"STREAM","stream":{"stream_descriptor":{"name":"test_append","namespace":"` + cfg.DatasetID + `"},"stream_state":{"cursor":"2"}}}}` + "\n",
 	)
 
-	dest := NewBigQueryDestination()
-	tracker := noopMessageTracker()
-	err := dest.Write(cfgPath, catalogPath, input, tracker)
+	_, err := serve(t, synclet.Request{Command: synclet.CommandWrite, Config: config, Catalog: catalog, Input: input})
 	assert.NoError(t, err)
 }
 
 func TestWriteOverwrite(t *testing.T) {
-	cfg := testConfig(t)
-	cfgPath := writeConfigFile(t, cfg)
+	cfg := integrationConfig(t)
+	config := configJSON(t, cfg)
 
 	streams := []catalogStream{{
 		Stream: streamDef{
@@ -156,22 +145,20 @@ func TestWriteOverwrite(t *testing.T) {
 		},
 		DestinationSyncMode: "overwrite",
 	}}
-	catalogPath := writeCatalogFile(t, streams)
+	catalog := catalogJSON(t, streams)
 
 	input := strings.NewReader(
 		`{"type":"RECORD","record":{"stream":"test_overwrite","namespace":"` + cfg.DatasetID + `","data":{"id":1,"value":"new_data"}}}` + "\n" +
 			`{"type":"STATE","state":{"data":{"cursor":"done"}}}` + "\n",
 	)
 
-	dest := NewBigQueryDestination()
-	tracker := noopMessageTracker()
-	err := dest.Write(cfgPath, catalogPath, input, tracker)
+	_, err := serve(t, synclet.Request{Command: synclet.CommandWrite, Config: config, Catalog: catalog, Input: input})
 	assert.NoError(t, err)
 }
 
 func TestWriteAppendDedup(t *testing.T) {
-	cfg := testConfig(t)
-	cfgPath := writeConfigFile(t, cfg)
+	cfg := integrationConfig(t)
+	config := configJSON(t, cfg)
 
 	streams := []catalogStream{{
 		Stream: streamDef{
@@ -188,7 +175,7 @@ func TestWriteAppendDedup(t *testing.T) {
 		PrimaryKey:          [][]string{{"id"}},
 		CursorField:         []string{"id"},
 	}}
-	catalogPath := writeCatalogFile(t, streams)
+	catalog := catalogJSON(t, streams)
 
 	input := strings.NewReader(
 		`{"type":"RECORD","record":{"stream":"test_dedup","namespace":"` + cfg.DatasetID + `","data":{"id":1,"name":"Alice"}}}` + "\n" +
@@ -196,8 +183,6 @@ func TestWriteAppendDedup(t *testing.T) {
 			`{"type":"STATE","state":{"type":"STREAM","stream":{"stream_descriptor":{"name":"test_dedup","namespace":"` + cfg.DatasetID + `"},"stream_state":{"cursor":"2"}}}}` + "\n",
 	)
 
-	dest := NewBigQueryDestination()
-	tracker := noopMessageTracker()
-	err := dest.Write(cfgPath, catalogPath, input, tracker)
+	_, err := serve(t, synclet.Request{Command: synclet.CommandWrite, Config: config, Catalog: catalog, Input: input})
 	assert.NoError(t, err)
 }

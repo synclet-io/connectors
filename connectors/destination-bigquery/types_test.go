@@ -11,10 +11,10 @@ import (
 
 func TestAirbyteTypeToBigQuery(t *testing.T) {
 	tests := []struct {
-		name       string
+		name        string
 		airbyteType string
-		format     string
-		expected   bigquery.FieldType
+		format      string
+		expected    bigquery.FieldType
 	}{
 		{"boolean", "boolean", "", bigquery.BooleanFieldType},
 		{"integer", "integer", "", bigquery.IntegerFieldType},

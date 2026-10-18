@@ -9,12 +9,8 @@ import (
 )
 
 const (
-	reasonFieldSizeLimitation  = "DESTINATION_FIELD_SIZE_LIMITATION"
-	reasonSerializationError   = "DESTINATION_SERIALIZATION_ERROR"
-
-	// numericMaxIntDigits is the max integer digits for NUMERIC(38,9): 10^29 - 1.
-	numericMaxIntDigits = 29
-	numericMaxScale     = 9
+	reasonFieldSizeLimitation = "DESTINATION_FIELD_SIZE_LIMITATION"
+	reasonSerializationError  = "DESTINATION_SERIALIZATION_ERROR"
 )
 
 // validationError represents a field-level validation failure during type coercion.

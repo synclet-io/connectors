@@ -1,12 +1,19 @@
 {
+  "$schema": "../../schema/meta.schema.json",
   "name": "BigQuery",
   "connector_type": "destination",
+  "version": "0.2.0",
   "release_stage": "alpha",
   "support_level": "community",
   "source_type": "",
-  "documentation_url": "",
-  "icon_url": "",
   "license": "MIT",
+  "documentation_url": "https://github.com/synclet-io/connectors/tree/main/connectors/destination-bigquery",
+  "icon_url": "",
+  "language": "go",
+  "tags": [
+    "google",
+    "warehouse"
+  ],
   "breaking_changes": {},
   "external_documentation_urls": []
 }
