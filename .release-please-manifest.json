@@ -8,5 +8,6 @@
   "connectors/source-openexchangerates": "0.2.0",
   "connectors/source-postgres": "0.2.0",
   "connectors/source-facebook-marketing": "0.1.0",
-  "connectors/source-zendesk-support": "0.1.0"
+  "connectors/source-zendesk-support": "0.1.0",
+  "connectors/source-google-ads": "0.1.0"
 }
