@@ -7,10 +7,10 @@ require (
 	github.com/go-sql-driver/mysql v1.10.1
 	github.com/stretchr/testify v1.12.1
 	github.com/synclet-io/synclet-go-sdk v0.4.0
+	github.com/testcontainers/testcontainers-go v0.44.0
 	github.com/testcontainers/testcontainers-go/modules/mysql v0.44.0
 	go.uber.org/multierr v1.11.0
 	golang.org/x/crypto v0.58.0
-	golang.org/x/sync v0.24.0
 )
 
 require (
@@ -60,7 +60,6 @@ require (
 	github.com/shirou/gopsutil/v4 v4.26.6 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/sirupsen/logrus v1.9.4 // indirect
-	github.com/testcontainers/testcontainers-go v0.44.0 // indirect
 	github.com/tklauser/go-sysconf v0.4.0 // indirect
 	github.com/tklauser/numcpus v0.12.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect

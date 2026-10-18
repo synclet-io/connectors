@@ -1,69 +1,80 @@
 {
   "changelogUrl": "",
   "connectionSpecification": {
-    "description": "Reads data from a MySQL database",
+    "description": "Reads tables and views of a MySQL database: full refresh, incremental by a cursor column, or CDC from the binlog.",
     "properties": {
       "database": {
-        "description": "Name of the MySQL database to sync",
+        "description": "Name of the database.",
+        "order": 2,
         "title": "Database",
         "type": "string"
       },
       "host": {
-        "description": "Hostname of the MySQL server",
+        "description": "Hostname of the database.",
+        "order": 0,
         "title": "Host",
         "type": "string"
       },
       "password": {
         "airbyte_secret": true,
-        "description": "MySQL password",
+        "description": "Password associated with the username.",
+        "order": 4,
         "title": "Password",
         "type": "string"
       },
       "port": {
         "default": 3306,
-        "description": "Port of the MySQL server",
+        "description": "Port of the database.",
+        "examples": [
+          "3306"
+        ],
+        "order": 1,
         "title": "Port",
         "type": "integer"
       },
       "replication_method": {
-        "description": "Replication method to use for extracting data from the database",
+        "description": "How rows are read: by SELECT queries (full refresh, or incremental by a cursor column), or as changes from the binlog.",
         "oneOf": [
           {
-            "description": "Standard replication uses SELECT queries to read data",
+            "description": "Reads rows with SELECT queries; incremental streams read the rows whose cursor column is at least the saved value.",
             "properties": {
               "method": {
                 "const": "STANDARD",
-                "default": "STANDARD",
+                "order": 0,
                 "type": "string"
               }
             },
             "required": [
               "method"
             ],
-            "title": "Standard",
+            "title": "Scan Changes with User Defined Cursor",
             "type": "object"
           },
           {
-            "description": "CDC uses MySQL binary log to capture row-level changes",
+            "description": "Reads a snapshot of each table, then inserts, updates and deletes from the binlog. Needs log_bin=ON, binlog_format=ROW, binlog_row_image=FULL and the REPLICATION CLIENT and REPLICATION SLAVE privileges.",
             "properties": {
               "checkpoint_seconds": {
                 "default": 300,
-                "description": "How often to emit state checkpoints during CDC replication",
-                "title": "Checkpoint Interval (seconds)",
+                "description": "How often the binlog position is saved while the binlog is read.",
+                "order": 3,
+                "title": "Checkpoint Interval in Seconds",
                 "type": "integer"
               },
-              "initial_wait_seconds": {
+              "initial_waiting_seconds": {
                 "default": 300,
-                "description": "Time to wait for initial CDC snapshot before timing out",
-                "title": "Initial Wait Time (seconds)",
+                "description": "Accepted for compatibility with Airbyte's configuration; the binlog is read until the sync is stopped.",
+                "order": 2,
+                "title": "Initial Waiting Time in Seconds",
                 "type": "integer"
               },
               "method": {
                 "const": "CDC",
+                "order": 0,
                 "type": "string"
               },
               "server_id": {
-                "description": "A unique numeric ID for this replication client (1-4294967295). Must be unique across all replication clients.",
+                "description": "A numeric ID for this replication client, unique among the server's replicas and binlog readers (1-4294967295). When empty, a random ID from 5400-6399 is used.",
+                "order": 1,
                 "title": "Server ID",
                 "type": "integer"
               }
@@ -71,21 +82,23 @@
             "required": [
               "method"
             ],
-            "title": "CDC (Change Data Capture)",
+            "title": "Read Changes using Binary Log (CDC)",
             "type": "object"
           }
         ],
-        "title": "Replication Method",
+        "order": 7,
+        "title": "Update Method",
         "type": "object"
       },
       "ssl_mode": {
-        "description": "SSL connection mode",
+        "description": "How the connection is encrypted and which server certificates are trusted.",
         "oneOf": [
           {
+            "description": "Connects with encryption when the server supports it, without otherwise.",
             "properties": {
               "mode": {
                 "const": "preferred",
-                "default": "preferred",
+                "order": 0,
                 "type": "string"
               }
             },
@@ -96,9 +109,11 @@
             "type": "object"
           },
           {
+            "description": "Always encrypts; the server certificate is not verified.",
             "properties": {
               "mode": {
                 "const": "required",
+                "order": 0,
                 "type": "string"
               }
             },
@@ -109,16 +124,32 @@
             "type": "object"
           },
           {
-            "description": "Verify the server certificate against a CA",
+            "description": "Always encrypts and verifies that the server certificate is signed by the given CA.",
             "properties": {
               "ca_certificate": {
                 "airbyte_secret": true,
-                "description": "PEM-encoded CA certificate to verify the server",
-                "title": "CA Certificate",
+                "description": "PEM certificate of the CA that signed the server certificate.",
+                "order": 1,
+                "title": "CA certificate",
+                "type": "string"
+              },
+              "client_certificate": {
+                "airbyte_secret": true,
+                "description": "PEM client certificate, when the server asks for one.",
+                "order": 2,
+                "title": "Client certificate",
+                "type": "string"
+              },
+              "client_key": {
+                "airbyte_secret": true,
+                "description": "PEM private key of the client certificate.",
+                "order": 3,
+                "title": "Client key",
                 "type": "string"
               },
               "mode": {
                 "const": "verify_ca",
+                "order": 0,
                 "type": "string"
               }
             },
@@ -130,49 +161,53 @@
             "type": "object"
           },
           {
-            "description": "Verify the server certificate and hostname",
+            "description": "Always encrypts and verifies the server certificate's CA and that it names the host.",
             "properties": {
               "ca_certificate": {
                 "airbyte_secret": true,
-                "description": "PEM-encoded CA certificate to verify the server",
-                "title": "CA Certificate",
+                "description": "PEM certificate of the CA that signed the server certificate.",
+                "order": 1,
+                "title": "CA certificate",
                 "type": "string"
               },
               "client_certificate": {
                 "airbyte_secret": true,
-                "description": "PEM-encoded client certificate for mutual TLS",
-                "title": "Client Certificate",
+                "description": "PEM client certificate, when the server asks for one.",
+                "order": 2,
+                "title": "Client certificate",
                 "type": "string"
               },
               "client_key": {
                 "airbyte_secret": true,
-                "description": "PEM-encoded client private key for mutual TLS",
-                "title": "Client Key",
+                "description": "PEM private key of the client certificate.",
+                "order": 3,
+                "title": "Client key",
                 "type": "string"
               },
               "mode": {
                 "const": "verify_identity",
+                "order": 0,
                 "type": "string"
               }
             },
             "required": [
               "mode",
-              "ca_certificate",
-              "client_certificate",
-              "client_key"
+              "ca_certificate"
             ],
             "title": "verify_identity",
             "type": "object"
           }
         ],
-        "title": "SSL Mode",
+        "order": 5,
+        "title": "SSL Modes",
         "type": "object"
       },
       "table_filter": {
-        "description": "Filter which schemas and tables to include in discovery",
+        "description": "Which tables discovery lists.",
+        "order": 8,
         "properties": {
           "schema_patterns": {
-            "description": "SQL LIKE patterns to filter databases/schemas (e.g. [\"my_db%\"]). Empty means all.",
+            "description": "Accepted for compatibility; only the configured database is read.",
             "items": {
               "type": "string"
             },
@@ -180,7 +215,7 @@
             "type": "array"
           },
           "table_patterns": {
-            "description": "SQL LIKE patterns to filter tables (e.g. [\"users%\", \"orders%\"]). Empty means all.",
+            "description": "SQL LIKE patterns of the tables to list (e.g. [\"users%\", \"orders%\"]). Empty lists every table.",
             "items": {
               "type": "string"
             },
@@ -192,54 +227,69 @@
         "type": "object"
       },
       "tunnel_method": {
-        "description": "Whether to use an SSH tunnel to connect to the database",
+        "description": "Whether to initiate an SSH tunnel before connecting to the database, and if so, which kind of authentication to use.",
         "oneOf": [
           {
             "properties": {
-              "method": {
-                "const": "no_tunnel",
-                "default": "no_tunnel",
+              "tunnel_method": {
+                "const": "NO_TUNNEL",
+                "description": "No ssh tunnel needed to connect to database",
+                "order": 0,
                 "type": "string"
               }
             },
             "required": [
-              "method"
+              "tunnel_method"
             ],
             "title": "No Tunnel",
             "type": "object"
           },
           {
-            "description": "Connect through an SSH tunnel using a private key",
             "properties": {
-              "method": {
-                "const": "ssh_key",
-                "type": "string"
-              },
               "ssh_key": {
                 "airbyte_secret": true,
-                "description": "PEM-encoded private key for SSH authentication",
+                "description": "OS-level user account ssh key credentials in PEM or OpenSSH format (RSA, ECDSA or Ed25519)",
+                "order": 4,
                 "title": "SSH Private Key",
                 "type": "string"
               },
               "tunnel_host": {
-                "description": "Hostname of the SSH tunnel server",
-                "title": "SSH Tunnel Host",
+                "description": "Hostname of the jump server host that allows inbound ssh tunnel.",
+                "order": 1,
+                "title": "SSH Tunnel Jump Server Host",
+                "type": "string"
+              },
+              "tunnel_host_key": {
+                "description": "Public host keys of the jump server, one per line, each in authorized_keys format (\"ssh-ed25519 AAAA...\") or as a known_hosts line (\"bastion.example.com ssh-ed25519 AAAA...\"); the whole output of ssh-keyscan works. The tunnel is refused when the server presents none of them. When empty, the host key is not verified.",
+                "order": 5,
+                "title": "SSH Host Key",
+                "type": "string"
+              },
+              "tunnel_method": {
+                "const": "SSH_KEY_AUTH",
+                "description": "Connect through a jump server tunnel host using username and ssh key",
+                "order": 0,
                 "type": "string"
               },
               "tunnel_port": {
                 "default": 22,
-                "description": "Port of the SSH tunnel server",
-                "title": "SSH Tunnel Port",
+                "description": "Port on the proxy/jump server that accepts inbound ssh connections.",
+                "examples": [
+                  "22"
+                ],
+                "order": 2,
+                "title": "SSH Connection Port",
                 "type": "integer"
               },
               "tunnel_user": {
-                "description": "OS-level user account for the SSH tunnel",
-                "title": "SSH Tunnel User",
+                "description": "OS-level username for logging into the jump server host.",
+                "order": 3,
+                "title": "SSH Login Username",
                 "type": "string"
               }
             },
             "required": [
-              "method",
+              "tunnel_method",
               "tunnel_host",
               "tunnel_port",
               "tunnel_user",
@@ -249,65 +299,98 @@
             "type": "object"
           },
           {
-            "description": "Connect through an SSH tunnel using a password",
             "properties": {
-              "method": {
-                "const": "ssh_password",
-                "type": "string"
-              },
               "tunnel_host": {
-                "description": "Hostname of the SSH tunnel server",
-                "title": "SSH Tunnel Host",
+                "description": "Hostname of the jump server host that allows inbound ssh tunnel.",
+                "order": 1,
+                "title": "SSH Tunnel Jump Server Host",
                 "type": "string"
               },
-              "tunnel_password": {
-                "airbyte_secret": true,
-                "description": "Password for SSH authentication",
-                "title": "SSH Tunnel Password",
+              "tunnel_host_key": {
+                "description": "Public host keys of the jump server, one per line, each in authorized_keys format (\"ssh-ed25519 AAAA...\") or as a known_hosts line (\"bastion.example.com ssh-ed25519 AAAA...\"); the whole output of ssh-keyscan works. The tunnel is refused when the server presents none of them. When empty, the host key is not verified.",
+                "order": 5,
+                "title": "SSH Host Key",
+                "type": "string"
+              },
+              "tunnel_method": {
+                "const": "SSH_PASSWORD_AUTH",
+                "description": "Connect through a jump server tunnel host using username and password authentication",
+                "order": 0,
                 "type": "string"
               },
               "tunnel_port": {
                 "default": 22,
-                "description": "Port of the SSH tunnel server",
-                "title": "SSH Tunnel Port",
+                "description": "Port on the proxy/jump server that accepts inbound ssh connections.",
+                "examples": [
+                  "22"
+                ],
+                "order": 2,
+                "title": "SSH Connection Port",
                 "type": "integer"
               },
               "tunnel_user": {
-                "description": "OS-level user account for the SSH tunnel",
-                "title": "SSH Tunnel User",
+                "description": "OS-level username for logging into the jump server host.",
+                "order": 3,
+                "title": "SSH Login Username",
+                "type": "string"
+              },
+              "tunnel_user_password": {
+                "airbyte_secret": true,
+                "description": "OS-level password for logging into the jump server host",
+                "order": 4,
+                "title": "Password",
                 "type": "string"
               }
             },
             "required": [
-              "method",
+              "tunnel_method",
               "tunnel_host",
               "tunnel_port",
               "tunnel_user",
-              "tunnel_password"
+              "tunnel_user_password"
             ],
-            "title": "SSH Password Authentication",
+            "title": "Password Authentication",
             "type": "object"
           }
         ],
+        "order": 6,
         "title": "SSH Tunnel Method",
         "type": "object"
       },
       "username": {
-        "description": "MySQL username",
+        "description": "Username to access the database.",
+        "order": 3,
         "title": "Username",
+        "type": "string"
+      },
+      "zero_date_handling": {
+        "default": "null",
+        "description": "What a DATE, DATETIME or TIMESTAMP whose month or day is zero (0000-00-00, 2024-00-15) reads as: null reads it as null, fail stops the sync with an error naming the stream, column and row.",
+        "oneOf": [
+          {
+            "const": "null",
+            "title": "Read as null"
+          },
+          {
+            "const": "fail",
+            "title": "Fail the read"
+          }
+        ],
+        "order": 9,
+        "title": "Zero Dates",
         "type": "string"
       }
     },
     "required": [
       "host",
+      "port",
       "database",
-      "username",
-      "password"
+      "username"
     ],
     "title": "MySQL Source Spec",
     "type": "object"
   },
-  "documentationUrl": "https://docs.synclet.dev/connectors/source-mysql",
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-mysql",
   "protocol_version": "0.5.2",
   "supported_destination_sync_modes": [
     "overwrite",

@@ -26,43 +26,6 @@ func emittedStates(t *testing.T, out *bytes.Buffer) []synclet.StateMessage {
 	return states
 }
 
-func TestEmitStreamState(t *testing.T) {
-	var out bytes.Buffer
-	state := &IncrementalState{Phase: "incremental", CursorField: "updated_at", CursorValue: "2026-01-01T00:00:00Z", SnapshotDone: true}
-	require.NoError(t, emitStreamState(synclet.NewEmitter(&out), streamDescriptor("shop", "users"), state))
-
-	states := emittedStates(t, &out)
-	require.Len(t, states, 1)
-	assert.Equal(t, synclet.StateTypeStream, states[0].Type)
-	assert.Equal(t, synclet.StreamDescriptor{Name: "users", Namespace: "shop"}, states[0].Stream.StreamDescriptor)
-	assert.JSONEq(t, `{"phase":"incremental","cursor_field":"updated_at","cursor_value":"2026-01-01T00:00:00Z","snapshot_done":true}`,
-		string(states[0].Stream.StreamState))
-}
-
-func TestStreamStateRoundTrip(t *testing.T) {
-	var out bytes.Buffer
-	require.NoError(t, emitStreamState(synclet.NewEmitter(&out), streamDescriptor("shop", "users"), &FullRefreshState{LastPKVals: map[string]any{"id": float64(7)}}))
-	states := emittedStates(t, &out)
-	saved, err := json.Marshal(states)
-	require.NoError(t, err)
-
-	prev, err := synclet.ParseInputState(saved)
-	require.NoError(t, err)
-	raw := savedStreamState(prev, streamDescriptor("shop", "users"))
-	require.NotNil(t, raw)
-
-	var got FullRefreshState
-	parseStreamState(t.Context(), "users", raw, &got)
-	assert.Equal(t, map[string]any{"id": json.Number("7")}, got.LastPKVals)
-	assert.False(t, got.Done)
-}
-
-func TestParseStreamState_KeepsPartialStateOnError(t *testing.T) {
-	var got IncrementalState
-	parseStreamState(t.Context(), "users", json.RawMessage(`{"phase":"snapshot","snapshot_done":"no"}`), &got)
-	assert.Equal(t, "snapshot", got.Phase)
-}
-
 func TestLoadCDCState_EmptyState(t *testing.T) {
 	state, err := loadCDCState(&synclet.InputState{}, nil)
 	require.NoError(t, err)
@@ -154,16 +117,6 @@ func TestSavedStreamState_ReadsStateWithoutNamespace(t *testing.T) {
 
 	assert.JSONEq(t, `{"done":true}`, string(savedStreamState(prev, streamDescriptor("shop", "users"))))
 	assert.Nil(t, savedStreamState(prev, streamDescriptor("shop", "orders")))
-}
-
-func TestParseStreamState_KeepsNumbersExact(t *testing.T) {
-	var got IncrementalState
-	parseStreamState(t.Context(), "users", json.RawMessage(`{"phase":"incremental","cursor_field":"amount",
-		"cursor_value":12345678901234567.89,"max_cursor_value":9007199254740993,"snapshot_last_pk":{"id":9007199254740993}}`), &got)
-
-	assert.Equal(t, json.Number("12345678901234567.89"), got.CursorValue)
-	assert.Equal(t, json.Number("9007199254740993"), got.MaxCursorValue)
-	assert.Equal(t, json.Number("9007199254740993"), got.SnapshotLastPK["id"])
 }
 
 func TestLoadCDCState_KeepsPrimaryKeysExact(t *testing.T) {

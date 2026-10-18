@@ -15,6 +15,10 @@
     "mysql",
     "cdc"
   ],
-  "breaking_changes": {},
+  "breaking_changes": {
+    "0.3.0": {
+      "message": "BINARY, VARBINARY and BLOB values are base64-encoded in full refresh and incremental reads, as CDC already did; 0.2 emitted them as raw strings. A STANDARD read whose configured table is missing fails with a config error; 0.2 skipped the stream. Refresh the source schema and resync binary columns if destinations rely on the raw strings."
+    }
+  },
   "external_documentation_urls": []
 }

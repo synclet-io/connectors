@@ -2,29 +2,12 @@ package main
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
 	"slices"
 
 	synclet "github.com/synclet-io/synclet-go-sdk"
 )
-
-// FullRefreshState tracks progress for full refresh reads with PK-based chunking.
-type FullRefreshState struct {
-	LastPKVals map[string]interface{} `json:"last_pk_vals,omitempty"`
-	Done       bool                   `json:"done"`
-}
-
-// IncrementalState tracks progress for incremental reads.
-type IncrementalState struct {
-	Phase          string                 `json:"phase"` // "snapshot" or "incremental"
-	CursorField    string                 `json:"cursor_field"`
-	CursorValue    interface{}            `json:"cursor_value,omitempty"`
-	MaxCursorValue interface{}            `json:"max_cursor_value,omitempty"`
-	SnapshotLastPK map[string]interface{} `json:"snapshot_last_pk,omitempty"`
-	SnapshotDone   bool                   `json:"snapshot_done"`
-}
 
 // CDCState tracks progress for CDC (binlog) replication.
 type CDCState struct {
@@ -62,14 +45,6 @@ func decodeState(raw json.RawMessage, target any) error {
 	dec := json.NewDecoder(bytes.NewReader(raw))
 	dec.UseNumber()
 	return dec.Decode(target)
-}
-
-// parseStreamState decodes a stream's saved state into target. A state that
-// does not decode is logged and leaves target partly filled.
-func parseStreamState(ctx context.Context, streamName string, raw json.RawMessage, target any) {
-	if err := decodeState(raw, target); err != nil {
-		synclet.Logger(ctx).Warn(fmt.Sprintf("Ignoring unreadable state of stream %s: %v", streamName, err))
-	}
 }
 
 // cdcSharedState is the shared part of the GLOBAL CDC state: the binlog
@@ -131,11 +106,6 @@ func decodeCDCState(prev *synclet.InputState) (*CDCState, error) {
 	default:
 		return nil, nil
 	}
-}
-
-// emitStreamState emits a per-stream state checkpoint.
-func emitStreamState(em *synclet.Emitter, desc synclet.StreamDescriptor, state any) error {
-	return em.StreamState(desc, state)
 }
 
 // emitCDCState emits a GLOBAL CDC state checkpoint: the binlog position as

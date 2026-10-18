@@ -1,7 +1,9 @@
+// Command source-mysql reads tables and views of a MySQL database.
 package main
 
 import "github.com/synclet-io/synclet-go-sdk/cli"
 
-func main() {
-	cli.RunSource(NewMySQLSource())
-}
+// Source is the MySQL source connector.
+type Source struct{}
+
+func main() { cli.RunSource(Source{}) }
