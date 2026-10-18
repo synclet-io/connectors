@@ -78,6 +78,15 @@ func TestThrottling(t *testing.T) {
 		assert.Equal(t, []time.Duration{time.Millisecond, 2 * time.Millisecond, 4 * time.Millisecond}, ws)
 	})
 
+	t.Run("throttled with no restore rate waits a doubling delay", func(t *testing.T) {
+		stalled := jsonBody(http.StatusOK, `{"errors":[{"message":"Throttled","extensions":{"code":"THROTTLED"}}],`+
+			`"extensions":{"cost":{"requestedQueryCost":502,"throttleStatus":{"maximumAvailable":2000.0,"currentlyAvailable":10,"restoreRate":0}}}}`)
+		h, ws, err := shopRead(t, map[string]http.HandlerFunc{"Shop": sequence(stalled, stalled, respond(t, http.StatusOK, "graphql/Shop.json"))})
+		require.NoError(t, err)
+		assert.Len(t, h.ops("Shop"), 3)
+		assert.Equal(t, []time.Duration{time.Millisecond, 2 * time.Millisecond}, ws)
+	})
+
 	t.Run("5xx is retried with a doubling delay", func(t *testing.T) {
 		h, ws, err := shopRead(t, map[string]http.HandlerFunc{"Shop": sequence(
 			jsonBody(http.StatusBadGateway, `{"errors":"Bad Gateway"}`), jsonBody(http.StatusServiceUnavailable, `{"errors":"Unavailable"}`),

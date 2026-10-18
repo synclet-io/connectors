@@ -50,7 +50,7 @@ func (Source) Spec(_ context.Context) (*synclet.ConnectorSpecification, error) {
 					PropertyType: typed(synclet.String), Examples: []string{"2026-01-01", "2026-01-01T00:00:00Z"}, Order: order(4),
 				},
 				"window_days": {
-					Title: "Window Days", Description: "Days of updates one query reads; an incremental sync saves its state after each window. 1 to 365, default 30.",
+					Title: "Window Days", Description: "Days of updates one query of an incremental sync reads; the sync saves its state after each window. A full refresh reads in one run. 1 to 365, default 30.",
 					PropertyType: typed(synclet.Integer), Default: defaultWindowDays, Order: order(5),
 				},
 			}},

@@ -50,7 +50,7 @@ func accessScopes(ctx context.Context, c *apiClient) (scopeSet, error) {
 }
 
 func allOrdersError(from time.Time) error {
-	return fmt.Errorf("the app lacks read_all_orders, so Shopify returns only the orders of the last 60 days, but the read starts at %s; grant read_all_orders or set start_date within the last 60 days",
+	return fmt.Errorf("the app lacks read_all_orders, so Shopify returns only the orders created in the last 60 days and skips updates to older ones, but the read starts at %s; grant read_all_orders or set start_date within the last 60 days",
 		from.Format(time.RFC3339))
 }
 
@@ -98,7 +98,7 @@ func (s Source) Check(ctx context.Context, cfg Config) error {
 	if start.Before(c.now().Add(-ordersHistory)) {
 		return synclet.ConfigError(allOrdersError(start))
 	}
-	synclet.Logger(ctx).Warn("the app lacks read_all_orders: orders, refunds, fulfillments and transactions hold only the orders of the last 60 days", "shop", c.domain())
+	synclet.Logger(ctx).Warn("the app lacks read_all_orders: orders, refunds, fulfillments and transactions hold only the orders created in the last 60 days, and updates to older orders are skipped; reads fail once start_date is more than 60 days back", "shop", c.domain())
 	return nil
 }
 

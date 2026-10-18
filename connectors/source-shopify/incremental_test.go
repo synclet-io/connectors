@@ -49,7 +49,7 @@ func TestIncremental(t *testing.T) {
 		pages := h.ops("Collections")
 		require.Len(t, pages, 1)
 		assert.Equal(t, after, pages[0].vars["query"])
-		assert.Contains(t, pages[0].doc, "collections(first: $first, after: $after, query: $query)")
+		assert.Contains(t, pages[0].doc, "collections(first: $first, after: $after, sortKey: ID, query: $query)")
 		assert.Equal(t, []string{`{"cursor":"2026-10-18T11:59:00Z"}`}, states(out))
 	})
 

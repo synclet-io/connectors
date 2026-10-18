@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"slices"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -12,53 +14,80 @@ import (
 	synclet "github.com/synclet-io/synclet-go-sdk"
 )
 
-// searchCollections answers Collections pages from recs, applying the
-// updated_at filter of the request as Shopify would, and records each
-// filter.
-func searchCollections(t *testing.T, filters *[]string, recs map[string]string) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		var b gqlBody
-		require.NoError(t, json.NewDecoder(r.Body).Decode(&b))
-		q, _ := b.Variables["query"].(string)
-		*filters = append(*filters, q)
-		m := windowPattern.FindStringSubmatch(q)
-		require.NotNil(t, m, q)
-		var nodes []string
-		for id, updated := range recs {
-			if updated >= m[1] && (m[2] == "" || updated < m[2]) {
-				nodes = append(nodes, fmt.Sprintf(`{"id":"gid://shopify/Collection/%s","updatedAt":"%s"}`, id, updated))
-			}
-		}
-		jsonBody(http.StatusOK, `{"data":{"collections":{"pageInfo":{"hasNextPage":false,"endCursor":null},"nodes":[`+strings.Join(nodes, ",")+`]}}}`)(w, r)
-	}
+// collectionStore serves Collections pages of one node in id order,
+// applying the updated_at filter as Shopify would. touch runs after the
+// n-th page is served, to update records during the read.
+type collectionStore struct {
+	t       *testing.T
+	mu      sync.Mutex
+	updated map[string]string
+	served  int
+	touch   func(n int, updated map[string]string)
+	filters []string
+	docs    []string
 }
 
-// TestFullRefreshLastWindowOpen reads a full refresh in two windows.
-// Collection 2 was updated in the second window when the read started and
-// is updated again while the first window is read, past the read's end; the
-// open last window still returns it.
-func TestFullRefreshLastWindowOpen(t *testing.T) {
-	var filters []string
-	srv, h := fixtureServer(t, map[string]http.HandlerFunc{
-		"Collections": searchCollections(t, &filters, map[string]string{
-			"1": "2026-10-03T00:00:00Z",
-			"2": "2026-10-18T11:59:30Z",
-		}),
-		"BulkRun-orders-20261011T000000Z": bulkRun("2004"),
-		"BulkPoll-2004":                   poll("2004", "COMPLETED"),
-	})
+func (s *collectionStore) handler(w http.ResponseWriter, r *http.Request) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	var b gqlBody
+	require.NoError(s.t, json.NewDecoder(r.Body).Decode(&b))
+	q, _ := b.Variables["query"].(string)
+	after, _ := b.Variables["after"].(string)
+	s.filters, s.docs = append(s.filters, q), append(s.docs, b.Query)
+	m := windowPattern.FindStringSubmatch(q)
+	require.NotNil(s.t, m, q)
+	var ids []string
+	for id, updated := range s.updated {
+		if id > after && updated >= m[1] && (m[2] == "" || updated < m[2]) {
+			ids = append(ids, id)
+		}
+	}
+	slices.Sort(ids)
+	var nodes, cursor string
+	if len(ids) > 0 {
+		nodes = fmt.Sprintf(`{"id":"gid://shopify/Collection/%s","updatedAt":"%s"}`, ids[0], s.updated[ids[0]])
+		cursor = `"` + ids[0] + `"`
+	} else {
+		cursor = "null"
+	}
+	jsonBody(http.StatusOK, fmt.Sprintf(`{"data":{"collections":{"pageInfo":{"hasNextPage":%t,"endCursor":%s},"nodes":[%s]}}}`,
+		len(ids) > 1, cursor, nodes))(w, r)
+	s.served++
+	s.touch(s.served, s.updated)
+}
+
+// TestFullRefreshOneRun reads a full refresh with window_days 10. After
+// the first page, collection 1, already read, and collection 3, not read
+// yet, are updated past the read's end; each is emitted exactly once.
+func TestFullRefreshOneRun(t *testing.T) {
+	store := &collectionStore{t: t, updated: map[string]string{
+		"1": "2026-10-03T00:00:00Z",
+		"2": "2026-10-05T00:00:00Z",
+		"3": "2026-10-12T00:00:00Z",
+	}, touch: func(n int, updated map[string]string) {
+		if n == 1 {
+			updated["1"] = "2026-10-18T11:59:30Z"
+			updated["3"] = "2026-10-18T11:59:40Z"
+		}
+	}}
+	overrides := map[string]http.HandlerFunc{}
+	for _, key := range []string{"Collections", "Collections-1", "Collections-2", "Collections-3"} {
+		overrides[key] = store.handler
+	}
+	srv, h := fixtureServer(t, overrides)
 	src := testSource(srv)
 	cfg := `{"shop":"example","access_token":"` + testToken + `","start_date":"2026-10-01","window_days":10}`
 	out := readWith(t, src, cfg, catalogOf(t, src, synclet.SyncModeFullRefresh, "collections", "orders"), nil)
 	require.NoError(t, out.Err)
-	assert.Equal(t, []string{
-		"updated_at:>='2026-10-01T00:00:00Z' AND updated_at:<'2026-10-11T00:00:00Z'",
-		"updated_at:>='2026-10-11T00:00:00Z'",
-	}, filters)
-	assert.Equal(t, []string{"gid://shopify/Collection/1", "gid://shopify/Collection/2"}, recordIDs(t, out, "collections"))
+	assert.Equal(t, []string{"gid://shopify/Collection/1", "gid://shopify/Collection/2", "gid://shopify/Collection/3"}, recordIDs(t, out, "collections"))
+	for i, f := range store.filters {
+		assert.Equal(t, "updated_at:>='2026-10-01T00:00:00Z'", f)
+		assert.Contains(t, store.docs[i], "sortKey: ID")
+	}
 	runs := h.ops("BulkRun")
-	require.Len(t, runs, 2)
-	assert.Contains(t, runs[1].vars["query"], `orders(query: "updated_at:>='2026-10-11T00:00:00Z'")`)
+	require.Len(t, runs, 1, "one bulk operation per stream")
+	assert.Contains(t, runs[0].vars["query"], `orders(query: "updated_at:>='2026-10-01T00:00:00Z'")`)
 	assert.Empty(t, states(out))
 }
 
@@ -100,7 +129,7 @@ func TestAllOrders(t *testing.T) {
 		})
 		st, _ := runCheck(t, testSource(srv), Config{Shop: testShop, AccessToken: testToken, StartDate: "2026-01-01"})
 		assert.Equal(t, synclet.ConnectionStatusFailed, st.Status)
-		assert.Contains(t, st.Message, "the app lacks read_all_orders, so Shopify returns only the orders of the last 60 days, but the read starts at 2026-01-01T00:00:00Z")
+		assert.Contains(t, st.Message, "the app lacks read_all_orders, so Shopify returns only the orders created in the last 60 days and skips updates to older ones, but the read starts at 2026-01-01T00:00:00Z")
 	})
 
 	t.Run("check fails for an old shop without start_date", func(t *testing.T) {
@@ -123,11 +152,19 @@ func TestAllOrders(t *testing.T) {
 		})
 	}
 
-	t.Run("read from a recent cursor needs no read_all_orders", func(t *testing.T) {
+	t.Run("read from a recent cursor fails with an old start", func(t *testing.T) {
 		srv, h := fixtureServer(t, map[string]http.HandlerFunc{"AccessScopes": without})
 		src := testSource(srv)
 		out := readWith(t, src, old, catalogOf(t, src, synclet.SyncModeIncremental, "orders"), streamState("orders", `{"cursor":"2026-10-01T00:00:00Z"}`))
-		require.NoError(t, out.Err)
+		require.Error(t, out.Err)
+		assert.Contains(t, out.Err.Error(), "stream orders: the app lacks read_all_orders")
+		assert.Empty(t, h.ops("BulkRun"))
+	})
+
+	t.Run("read with a recent start needs no read_all_orders", func(t *testing.T) {
+		srv, h := fixtureServer(t, map[string]http.HandlerFunc{"AccessScopes": without})
+		src := testSource(srv)
+		out := runRead(t, src, catalogOf(t, src, synclet.SyncModeIncremental, "orders"), nil)
 		assert.Empty(t, h.ops("AccessScopes"))
 		assert.Len(t, records(out, "orders"), 2)
 	})

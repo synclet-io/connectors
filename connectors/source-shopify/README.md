@@ -23,7 +23,7 @@ pinned in the connector (`apiVersion` in `client.go`) and moves with connector r
 | `access_token` | one of | Admin API access token of a custom app installed on the store |
 | `client_id`, `client_secret` | one of | Client credentials of a Dev Dashboard app installed on the store |
 | `start_date` | no | Earliest update time read: RFC 3339 time or `YYYY-MM-DD`, UTC. Empty reads from the shop's creation |
-| `window_days` | no | Days of updates one query reads, 1 to 365, default 30. An incremental sync saves its state after each window |
+| `window_days` | no | Days of updates one query of an incremental sync reads, 1 to 365, default 30. The sync saves its state after each window; a full refresh reads in one run |
 
 ```json
 {"shop": "example", "access_token": "<admin api access token>", "start_date": "2026-01-01"}
@@ -55,7 +55,7 @@ OAuth consent (public apps) is not supported.
 | `read_products` | `products`, `product_variants`, `collections` |
 | `read_customers` | `customers`, `companies`, `company_locations` |
 | `read_orders` | `orders`, `refunds`, `fulfillments`, `transactions` |
-| `read_all_orders` | needed when the read of an order stream starts more than 60 days back; without it Shopify returns only the orders of the last 60 days |
+| `read_all_orders` | needed when the start is more than 60 days back; without it Shopify returns only the orders created in the last 60 days, so updates to older orders are skipped too |
 | `read_inventory` | `inventory_items`, `inventory_levels` |
 | `read_locations` | `inventory_levels`, `locations` |
 
@@ -75,11 +75,12 @@ the app's access scopes. It fails with:
 | Frozen shop (402) | `shop <shop>.myshopify.com is frozen (unpaid)` |
 | Locked shop (423) | `shop <shop>.myshopify.com is locked` |
 
-Without `read_all_orders` the check fails when the start (`start_date`, or the shop's creation) is more than 60
-days back, with `the app lacks read_all_orders, so Shopify returns only the orders of the last 60 days, but the
-read starts at <start>`, and passes with a WARN otherwise. A read of `orders`, `refunds`, `fulfillments` or
-`transactions` whose window starts more than 60 days back fails with the same error instead of reading 60
-days only.
+Without `read_all_orders` Shopify returns only the orders created in the last 60 days, so updates to older
+orders are skipped too. The check then fails when the start (`start_date`, or the shop's creation) is more than
+60 days back, with `the app lacks read_all_orders, so Shopify returns only the orders created in the last 60
+days and skips updates to older ones, but the read starts at <start>`, and passes with a WARN otherwise. A read
+of `orders`, `refunds`, `fulfillments` or `transactions` whose start is more than 60 days back fails with the
+same error, whatever its saved cursor.
 
 ## Streams
 
@@ -114,13 +115,15 @@ fails the read.
 
 ### Windows and state
 
-A windowed stream reads `[from, to)` windows of `window_days`, from the saved cursor or the start
-(`start_date`, or the shop's creation) up to one minute before now, each with the search filter
-`updated_at:>='<from>' AND updated_at:<'<to>'`. An incremental read emits
-`{"cursor": "<to>"}` after all records of a window, so a failed sync resumes at the first unfinished
-window; an object updated during the sync past its end is read by the next sync. A full refresh reads the same
-windows but leaves the last one open (`updated_at:>='<from>'`), so an object updated during the sync is
-still read, and saves no state.
+A full refresh saves no state and reads each stream in one run with the filter `updated_at:>='<start>'`
+(`start_date`, or the shop's creation): one bulk operation, or one pass of pages. Paged streams page by
+`sortKey: ID`, an order an update does not change, so an object updated during the run is read once, neither
+skipped nor repeated.
+
+An incremental read goes in `[from, to)` windows of `window_days`, from the saved cursor or the start up to one
+minute before now, each with the search filter `updated_at:>='<from>' AND updated_at:<'<to>'`, and emits
+`{"cursor": "<to>"}` after all records of a window, so a failed sync resumes at the first unfinished window.
+An object updated during the sync past its end is read by the next sync.
 
 Shopify ignores a search filter it cannot apply and reports it in `extensions.search[].warnings`. A response
 with such warnings fails the stream. A bulk operation does not report them, so before its first window a bulk
@@ -131,7 +134,7 @@ refresh (overwrite) to drop deleted rows.
 
 ### Bulk operations
 
-Each bulk stream runs one `bulkOperationRunQuery` per window, polls it every 5 seconds and downloads its
+Each bulk stream runs one `bulkOperationRunQuery` per incremental window, or one for a full refresh, polls it every 5 seconds and downloads its
 JSONL output from the signed `url`, without the Shopify token. The output goes to a temporary file and is
 verified before any record is emitted. The stream fails, and its state does not advance, when:
 
@@ -151,7 +154,8 @@ connector sends `bulkOperationCancel` for it.
 
 The connector paces by the query cost Shopify reports in `extensions.cost`: before a request it waits until
 the bucket, restoring at `restoreRate`, holds the cost of the last query. A `THROTTLED` error waits the same
-way, or a doubling delay from 1 second when it reports no cost, and is retried up to 10 times; a 429 waits its `Retry-After`; a 5xx, a transport error or an
+way, or a doubling delay from 1 second when it reports no cost or a zero `restoreRate`, and is retried up to
+10 times; a 429 waits its `Retry-After`; a 5xx, a transport error or an
 `INTERNAL_SERVER_ERROR` is retried 3 times with a doubling delay. `ACCESS_DENIED` fails the stream naming the
 scope Shopify requires.
 

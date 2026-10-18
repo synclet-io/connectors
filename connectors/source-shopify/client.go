@@ -247,7 +247,7 @@ func (c *apiClient) query(ctx context.Context, op, doc string, vars map[string]a
 				return fmt.Errorf("%w; gave up after %d waits", err, limitRetries)
 			}
 			throttles++
-			if lim.wait == 0 && !lim.costed {
+			if lim.wait == 0 && (!lim.costed || c.bucket.restore <= 0) {
 				lim.wait = throttleDelay
 				throttleDelay *= 2
 			}

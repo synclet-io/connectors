@@ -92,10 +92,12 @@ type streamRead struct {
 	conv converter
 }
 
-// read reads a windowed stream window by window, from the saved cursor of
-// an incremental read or the start, up to now minus lag; an incremental
-// read saves each window's end once all its records are emitted. Other
-// streams are read whole.
+// read reads a windowed stream. A full refresh saves no state, so it reads
+// everything updated since the start in one run: one bulk operation, or
+// one pass of pages in id order, in which an object updated during the run
+// is neither skipped nor read twice. An incremental read goes window by
+// window from the saved cursor up to now minus lag and saves each window's
+// end once all its records are emitted. Other streams are read whole.
 func (r streamRead) read(ctx context.Context, incremental bool, saved json.RawMessage) error {
 	if !r.st.windowed {
 		return r.window(ctx, nil)
@@ -104,7 +106,19 @@ func (r streamRead) read(ctx context.Context, incremental bool, saved json.RawMe
 	if err != nil {
 		return err
 	}
-	if incremental && saved != nil {
+	if err := r.needAllOrders(ctx, from); err != nil {
+		return err
+	}
+	if !incremental {
+		w := window{from: from}
+		if r.st.bulk {
+			if err := r.probeSearch(ctx, w); err != nil {
+				return err
+			}
+		}
+		return r.window(ctx, &w)
+	}
+	if saved != nil {
 		var st cursorState
 		if err := json.Unmarshal(saved, &st); err != nil {
 			return synclet.ConfigError(fmt.Errorf("state: %w", err))
@@ -116,11 +130,8 @@ func (r streamRead) read(ctx context.Context, incremental bool, saved json.RawMe
 			from = from.UTC()
 		}
 	}
-	if err := r.needAllOrders(ctx, from); err != nil {
-		return err
-	}
 	end := r.c.now().Add(-lag).UTC().Truncate(time.Second)
-	if incremental && !from.Before(end) {
+	if !from.Before(end) {
 		return r.em.StreamState(r.desc, cursorState{Cursor: from.Format(time.RFC3339)})
 	}
 	if r.st.bulk {
@@ -129,30 +140,19 @@ func (r streamRead) read(ctx context.Context, incremental bool, saved json.RawMe
 		}
 	}
 	size := r.cfg.window()
-	for w := (window{from: from}); ; w.from = w.to {
+	for w := (window{from: from}); w.from.Before(end); w.from = w.to {
 		w.to = w.from.Add(size)
-		last := !w.to.Before(end)
-		if last {
-			// A full refresh leaves its last window open, so an object of a
-			// window not read yet whose update moves it past end is still
-			// read; an incremental read saves end and reads the rest next.
+		if w.to.After(end) {
 			w.to = end
-			if !incremental {
-				w.to = time.Time{}
-			}
 		}
 		if err := r.window(ctx, &w); err != nil {
 			return err
 		}
-		if incremental {
-			if err := r.em.StreamState(r.desc, cursorState{Cursor: w.to.Format(time.RFC3339)}); err != nil {
-				return err
-			}
-		}
-		if last {
-			return nil
+		if err := r.em.StreamState(r.desc, cursorState{Cursor: w.to.Format(time.RFC3339)}); err != nil {
+			return err
 		}
 	}
+	return nil
 }
 
 // probeSearch sends the window filter of a bulk stream in an ordinary query
@@ -171,11 +171,13 @@ func (r streamRead) probeSearch(ctx context.Context, w window) error {
 // read_all_orders.
 const ordersHistory = 60 * 24 * time.Hour
 
-// needAllOrders fails a stream of orders that starts more than
-// ordersHistory back when the app lacks read_all_orders, since Shopify
-// would silently return only the recent orders.
-func (r streamRead) needAllOrders(ctx context.Context, from time.Time) error {
-	if !slices.Contains(r.st.scopes, "read_orders") || !from.Before(r.c.now().Add(-ordersHistory)) {
+// needAllOrders fails a stream of orders whose start, start_date or the
+// shop's creation, is more than ordersHistory back when the app lacks
+// read_all_orders: Shopify returns only the orders created in the last
+// ordersHistory, so updates to older orders would be skipped silently,
+// whatever the saved cursor.
+func (r streamRead) needAllOrders(ctx context.Context, start time.Time) error {
+	if !slices.Contains(r.st.scopes, "read_orders") || !start.Before(r.c.now().Add(-ordersHistory)) {
 		return nil
 	}
 	if r.scopes == nil {
@@ -188,7 +190,7 @@ func (r streamRead) needAllOrders(ctx context.Context, from time.Time) error {
 	if r.scopes.has(allOrders) {
 		return nil
 	}
-	return synclet.ConfigError(allOrdersError(from))
+	return synclet.ConfigError(allOrdersError(start))
 }
 
 // window emits the records updated in w, or all records when w is nil.

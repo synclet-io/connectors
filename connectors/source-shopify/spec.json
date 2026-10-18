@@ -45,7 +45,7 @@
       },
       "window_days": {
         "default": 30,
-        "description": "Days of updates one query reads; an incremental sync saves its state after each window. 1 to 365, default 30.",
+        "description": "Days of updates one query of an incremental sync reads; the sync saves its state after each window. A full refresh reads in one run. 1 to 365, default 30.",
         "order": 5,
         "title": "Window Days",
         "type": "integer"

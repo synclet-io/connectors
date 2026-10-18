@@ -16,7 +16,7 @@ func (s stream) pagedDoc(filtered bool) string {
 	if s.single {
 		return fmt.Sprintf("query %s { %s { %s } }", s.op, s.root, selection(s.fields))
 	}
-	vars, args := "$first: Int!, $after: String", "first: $first, after: $after"
+	vars, args := "$first: Int!, $after: String", "first: $first, after: $after, sortKey: ID"
 	if s.args != "" {
 		args += ", " + s.args
 	}
@@ -29,7 +29,8 @@ func (s stream) pagedDoc(filtered bool) string {
 }
 
 // paged emits the records of a paged stream updated in w, or all of them
-// when w is nil, following endCursor.
+// when w is nil, following endCursor. Pages are in id order, which an
+// update does not change.
 func (r streamRead) paged(ctx context.Context, w *window) error {
 	doc := r.st.pagedDoc(w != nil)
 	if r.st.single {
