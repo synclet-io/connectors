@@ -42,24 +42,9 @@ func connect(ctx context.Context, cfg Config) (*db, error) {
 	if err := cfg.validate(); err != nil {
 		return nil, synclet.ConfigError(err)
 	}
-	pc, err := pgx.ParseConfig("")
+	pc, err := pgConfig(cfg)
 	if err != nil {
-		return nil, fmt.Errorf("build connection config: %w", err)
-	}
-	pc.Host = cfg.Host
-	pc.Port = uint16(cfg.Port)
-	pc.Database = cfg.Database
-	pc.User = cfg.Username
-	pc.Password = cfg.Password
-	pc.ConnectTimeout = connectTimeout
-	pc.RuntimeParams = map[string]string{
-		"application_name": "synclet-source-postgres",
-		"TimeZone":         "UTC",
-		"DateStyle":        "ISO, MDY",
-		"IntervalStyle":    "iso_8601",
-	}
-	if err := setTLS(&pc.Config, cfg); err != nil {
-		return nil, synclet.ConfigError(err)
+		return nil, err
 	}
 
 	d := &db{}
@@ -84,6 +69,41 @@ func connect(ctx context.Context, cfg Config) (*db, error) {
 	}
 	d.Conn = conn
 	return d, nil
+}
+
+// neutralSettings sets every connection parameter libpq reads from a PG*
+// environment variable or the home directory, so none of them reaches pgx.
+// The placeholder host, port, database, user and password are replaced by
+// the configured ones.
+const neutralSettings = "host=localhost port=5432 dbname=postgres user=postgres password=placeholder passfile='' " +
+	"connect_timeout=0 sslmode=disable sslrootcert='' sslcert='' sslkey='' sslpassword='' sslsni=1 sslnegotiation=postgres " +
+	"target_session_attrs=any min_protocol_version=3.0 max_protocol_version=3.0 channel_binding=prefer require_auth=''"
+
+// pgConfig builds the pgx configuration from cfg alone; PG* environment
+// variables and files in the home directory are ignored.
+func pgConfig(cfg Config) (*pgx.ConnConfig, error) {
+	pc, err := pgx.ParseConfig(neutralSettings)
+	if err != nil {
+		return nil, fmt.Errorf("build connection config: %w", err)
+	}
+	pc.Host = cfg.Host
+	pc.Port = uint16(cfg.Port)
+	pc.Database = cfg.Database
+	pc.User = cfg.Username
+	pc.Password = cfg.Password
+	pc.ConnectTimeout = connectTimeout
+	pc.KerberosSrvName = ""
+	pc.KerberosSpn = ""
+	pc.RuntimeParams = map[string]string{
+		"application_name": "synclet-source-postgres",
+		"TimeZone":         "UTC",
+		"DateStyle":        "ISO, MDY",
+		"IntervalStyle":    "iso_8601",
+	}
+	if err := setTLS(&pc.Config, cfg); err != nil {
+		return nil, synclet.ConfigError(err)
+	}
+	return pc, nil
 }
 
 // setTLS gives the connection libpq's sslmode behaviour. Certificates stay
@@ -167,11 +187,19 @@ func dialSSH(ctx context.Context, t TunnelMethod) (*ssh.Client, error) {
 	} else {
 		auth = ssh.Password(t.TunnelUserPassword)
 	}
+	hostKey := ssh.InsecureIgnoreHostKey() //nolint:gosec // no tunnel_host_key configured: the host key is not verified
+	if t.TunnelHostKey != "" {
+		key, err := parseHostKey(t.TunnelHostKey)
+		if err != nil {
+			return nil, synclet.ConfigError(err)
+		}
+		hostKey = ssh.FixedHostKey(key)
+	}
 	addr := net.JoinHostPort(t.TunnelHost, strconv.Itoa(t.TunnelPort))
 	sc := &ssh.ClientConfig{
 		User:            t.TunnelUser,
 		Auth:            []ssh.AuthMethod{auth},
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(), //nolint:gosec // the spec carries no host key to pin
+		HostKeyCallback: hostKey,
 		Timeout:         connectTimeout,
 	}
 	var d net.Dialer
@@ -187,6 +215,19 @@ func dialSSH(ctx context.Context, t TunnelMethod) (*ssh.Client, error) {
 		return nil, synclet.ConfigError(fmt.Errorf("cannot open SSH tunnel as %q at %s: %w", t.TunnelUser, addr, err))
 	}
 	return ssh.NewClient(conn, chans, reqs), nil
+}
+
+// parseHostKey reads a public key in authorized_keys format
+// ("ssh-ed25519 AAAA... comment") or as a known_hosts line
+// ("host ssh-ed25519 AAAA...").
+func parseHostKey(s string) (ssh.PublicKey, error) {
+	if key, _, _, _, err := ssh.ParseAuthorizedKey([]byte(s)); err == nil {
+		return key, nil
+	}
+	if _, _, key, _, _, err := ssh.ParseKnownHosts([]byte(s)); err == nil {
+		return key, nil
+	}
+	return nil, errors.New("tunnel_host_key is not a public key in authorized_keys or known_hosts format")
 }
 
 // connectError names the cause of a failed connection.

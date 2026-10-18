@@ -205,24 +205,43 @@ func (c colType) elementKind() kind {
 	return c.kind
 }
 
+// nullIf is the condition, on value ref of kind k, under which the value
+// reads as NULL because its schema cannot hold it: NaN and infinite numbers,
+// infinite dates and timestamps. It is empty for kinds that hold every value.
+func nullIf(k kind, ref string) string {
+	switch k {
+	case kindFloat:
+		return ref + `::text IN ('NaN', 'Infinity', '-Infinity')`
+	case kindDate, kindTimestamp, kindTimestampTZ:
+		return "NOT isfinite(" + ref + ")"
+	default:
+		return ""
+	}
+}
+
 // expr is the SQL expression that renders column ref so that to_json emits
-// the value its schema declares.
+// the value its schema declares. Multidimensional arrays are flattened in
+// storage order.
 func (c colType) expr(ref string) string {
-	const nonFinite = `::text IN ('NaN', 'Infinity', '-Infinity')`
-	switch {
-	case c.array && c.kind == kindFloat:
-		return fmt.Sprintf(`CASE WHEN %[1]s IS NULL THEN NULL ELSE ARRAY(SELECT CASE WHEN e%[2]s THEN NULL ELSE e END FROM unnest(%[1]s) WITH ORDINALITY AS u(e, i) ORDER BY i) END`, ref, nonFinite)
-	case c.array && c.elementKind() == kindOther:
-		return ref + "::text[]"
-	case c.array:
-		return ref
-	case c.kind == kindFloat:
-		return fmt.Sprintf(`CASE WHEN %[1]s%[2]s THEN NULL ELSE %[1]s END`, ref, nonFinite)
-	case c.kind == kindTimeTZ:
+	if c.array {
+		src := ref
+		if c.elementKind() == kindOther {
+			src = ref + "::text[]"
+		}
+		if cond := nullIf(c.kind, "e"); cond != "" {
+			return fmt.Sprintf(`CASE WHEN %[1]s IS NULL THEN NULL ELSE ARRAY(SELECT CASE WHEN %[2]s THEN NULL ELSE e END FROM unnest(%[1]s) WITH ORDINALITY AS u(e, i) ORDER BY i) END`, src, cond)
+		}
+		return fmt.Sprintf(`CASE WHEN array_ndims(%[1]s) > 1 THEN ARRAY(SELECT e FROM unnest(%[1]s) WITH ORDINALITY AS u(e, i) ORDER BY i) ELSE %[1]s END`, src)
+	}
+	if cond := nullIf(c.kind, ref); cond != "" {
+		return fmt.Sprintf(`CASE WHEN %s THEN NULL ELSE %s END`, cond, ref)
+	}
+	switch c.kind {
+	case kindTimeTZ:
 		return fmt.Sprintf(`regexp_replace(%s::text, '([+-][0-9]{2})$', '\1:00')`, ref)
-	case c.kind == kindBytea:
+	case kindBytea:
 		return fmt.Sprintf(`translate(encode(%s, 'base64'), E'\n', '')`, ref)
-	case c.kind == kindOther:
+	case kindOther:
 		return ref + "::text"
 	default:
 		return ref

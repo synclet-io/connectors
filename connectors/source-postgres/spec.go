@@ -57,6 +57,13 @@ func tunnelOption(title, method, description string, secret synclet.PropertyName
 			PropertyType: typed(synclet.String), Order: order(3),
 		}
 		props[secret] = secretSpec
+		props["tunnel_host_key"] = synclet.PropertySpec{
+			Title: "SSH Host Key",
+			Description: "Public host key of the jump server, in authorized_keys format (\"ssh-ed25519 AAAA...\") or as a known_hosts line " +
+				"(\"bastion.example.com ssh-ed25519 AAAA...\", as ssh-keyscan prints it). The tunnel is refused when the server presents another key. " +
+				"When empty, the host key is not verified.",
+			PropertyType: typed(synclet.String), Order: order(5),
+		}
 		required = append(required, "tunnel_host", "tunnel_port", "tunnel_user", secret)
 	}
 	return synclet.PropertySpec{

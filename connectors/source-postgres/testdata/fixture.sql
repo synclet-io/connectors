@@ -32,7 +32,13 @@ CREATE TABLE public.types (
     c_interval      interval,
     c_bool          boolean,
     c_point         point,
-    c_inet          inet
+    c_inet          inet,
+    c_int_matrix    integer[],
+    c_text_matrix   text[],
+    c_date_inf      date,
+    c_timestamp_inf timestamp,
+    c_tstz_inf      timestamptz,
+    c_tstz_array    timestamptz[]
 );
 
 INSERT INTO public.types VALUES (
@@ -66,7 +72,13 @@ INSERT INTO public.types VALUES (
     '1 year 2 months 3 days 4 hours 5 minutes 6 seconds',
     true,
     '(1,2)',
-    '192.168.0.1/24'
+    '192.168.0.1/24',
+    '{{1,2},{3,4}}',
+    '{{a,b},{NULL,d}}',
+    'infinity',
+    '-infinity',
+    'infinity',
+    '{"2024-01-02 03:04:05+00",infinity,NULL}'
 );
 INSERT INTO public.types (id) VALUES (2);
 
@@ -106,3 +118,21 @@ CREATE ROLE nousage LOGIN PASSWORD 'nousage';
 CREATE ROLE noconnect LOGIN PASSWORD 'noconnect';
 CREATE DATABASE restricted;
 REVOKE CONNECT ON DATABASE restricted FROM PUBLIC;
+
+CREATE SCHEMA colgrants;
+CREATE TABLE colgrants.partial (id integer PRIMARY KEY, visible text, secret text);
+INSERT INTO colgrants.partial VALUES (1, 'shown', 'hidden');
+CREATE TABLE colgrants.pk_hidden (secret_id integer PRIMARY KEY, name text);
+INSERT INTO colgrants.pk_hidden VALUES (1, 'shown');
+CREATE TABLE colgrants.none (id integer);
+CREATE ROLE colonly LOGIN PASSWORD 'colonly';
+GRANT USAGE ON SCHEMA colgrants TO colonly;
+GRANT SELECT (id, visible) ON colgrants.partial TO colonly;
+GRANT SELECT (name) ON colgrants.pk_hidden TO colonly;
+
+CREATE SCHEMA twin_a;
+CREATE TABLE twin_a.twin (id integer);
+INSERT INTO twin_a.twin VALUES (1);
+CREATE SCHEMA twin_b;
+CREATE TABLE twin_b.twin (id integer);
+INSERT INTO twin_b.twin VALUES (2);

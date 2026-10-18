@@ -17,7 +17,8 @@ func TestSelectQuery(t *testing.T) {
 	full, args := selectQuery{table: tbl, columns: tbl.columns}.sql()
 	require.Empty(t, args)
 	require.Equal(t, `SELECT row_to_json(_synclet_r)::text, NULL::text FROM "my schema"."we""ird" AS _synclet_t, `+
-		`LATERAL (SELECT _synclet_t."id" AS "id", translate(encode(_synclet_t."blob", 'base64'), E'\n', '') AS "blob", _synclet_t."at" AS "at") AS _synclet_r`, full)
+		`LATERAL (SELECT _synclet_t."id" AS "id", translate(encode(_synclet_t."blob", 'base64'), E'\n', '') AS "blob", `+
+		`CASE WHEN NOT isfinite(_synclet_t."at") THEN NULL ELSE _synclet_t."at" END AS "at") AS _synclet_r`, full)
 
 	cursor := tbl.columns[2]
 	first, args := selectQuery{table: tbl, columns: tbl.columns[:1], cursor: &cursor}.sql()
@@ -42,9 +43,13 @@ func TestColumnExpr(t *testing.T) {
 		{colType{kind: kindOther}, `c::text`},
 		{colType{kind: kindTimeTZ}, `regexp_replace(c::text, '([+-][0-9]{2})$', '\1:00')`},
 		{colType{kind: kindJSON}, `c`},
-		{colType{kind: kindInt, array: true}, `c`},
-		{colType{kind: kindBytea, array: true}, `c::text[]`},
-		{colType{kind: kindOther, array: true}, `c::text[]`},
+		{colType{kind: kindDate}, `CASE WHEN NOT isfinite(c) THEN NULL ELSE c END`},
+		{colType{kind: kindTimestamp}, `CASE WHEN NOT isfinite(c) THEN NULL ELSE c END`},
+		{colType{kind: kindTimestampTZ}, `CASE WHEN NOT isfinite(c) THEN NULL ELSE c END`},
+		{colType{kind: kindInt, array: true}, `CASE WHEN array_ndims(c) > 1 THEN ARRAY(SELECT e FROM unnest(c) WITH ORDINALITY AS u(e, i) ORDER BY i) ELSE c END`},
+		{colType{kind: kindBytea, array: true}, `CASE WHEN array_ndims(c::text[]) > 1 THEN ARRAY(SELECT e FROM unnest(c::text[]) WITH ORDINALITY AS u(e, i) ORDER BY i) ELSE c::text[] END`},
+		{colType{kind: kindOther, array: true}, `CASE WHEN array_ndims(c::text[]) > 1 THEN ARRAY(SELECT e FROM unnest(c::text[]) WITH ORDINALITY AS u(e, i) ORDER BY i) ELSE c::text[] END`},
+		{colType{kind: kindTimestampTZ, array: true}, `CASE WHEN c IS NULL THEN NULL ELSE ARRAY(SELECT CASE WHEN NOT isfinite(e) THEN NULL ELSE e END FROM unnest(c) WITH ORDINALITY AS u(e, i) ORDER BY i) END`},
 		{colType{kind: kindFloat, array: true}, `CASE WHEN c IS NULL THEN NULL ELSE ARRAY(SELECT CASE WHEN e::text IN ('NaN', 'Infinity', '-Infinity') THEN NULL ELSE e END FROM unnest(c) WITH ORDINALITY AS u(e, i) ORDER BY i) END`},
 	}
 	for _, tc := range cases {

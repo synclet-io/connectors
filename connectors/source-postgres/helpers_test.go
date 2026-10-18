@@ -182,16 +182,28 @@ func newTestCA(t *testing.T) *testCA {
 // returns it and its key as PEM.
 func (ca *testCA) serverCert(t *testing.T) (certPEM, keyPEM string) {
 	t.Helper()
+	return ca.issue(t, 2, "localhost", []string{"localhost"}, x509.ExtKeyUsageServerAuth)
+}
+
+// clientCert issues a client certificate for the common name cn and returns
+// it and its key as PEM.
+func (ca *testCA) clientCert(t *testing.T, cn string) (certPEM, keyPEM string) {
+	t.Helper()
+	return ca.issue(t, 3, cn, nil, x509.ExtKeyUsageClientAuth)
+}
+
+func (ca *testCA) issue(t *testing.T, serial int64, cn string, dnsNames []string, usage x509.ExtKeyUsage) (certPEM, keyPEM string) {
+	t.Helper()
 	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	require.NoError(t, err)
 	tmpl := &x509.Certificate{
-		SerialNumber: big.NewInt(2),
-		Subject:      pkix.Name{CommonName: "localhost"},
-		DNSNames:     []string{"localhost"},
+		SerialNumber: big.NewInt(serial),
+		Subject:      pkix.Name{CommonName: cn},
+		DNSNames:     dnsNames,
 		NotBefore:    time.Now().Add(-time.Hour),
 		NotAfter:     time.Now().Add(24 * time.Hour),
 		KeyUsage:     x509.KeyUsageDigitalSignature,
-		ExtKeyUsage:  []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+		ExtKeyUsage:  []x509.ExtKeyUsage{usage},
 	}
 	der, err := x509.CreateCertificate(rand.Reader, tmpl, ca.cert, &key.PublicKey, ca.key)
 	require.NoError(t, err)
@@ -212,6 +224,7 @@ func writeFile(t *testing.T, dir, name, content string) string {
 // dialing the address routes maps a requested address to.
 type sshServer struct {
 	addr     string
+	hostKey  ssh.PublicKey
 	password string
 	key      ssh.PublicKey
 	routes   map[string]string
@@ -223,7 +236,7 @@ func startSSHServer(t *testing.T, password string, key ssh.PublicKey, routes map
 	require.NoError(t, err)
 	hostKey, err := ssh.NewSignerFromKey(hostPriv)
 	require.NoError(t, err)
-	s := &sshServer{password: password, key: key, routes: routes}
+	s := &sshServer{hostKey: hostKey.PublicKey(), password: password, key: key, routes: routes}
 	cfg := &ssh.ServerConfig{
 		PasswordCallback: func(_ ssh.ConnMetadata, p []byte) (*ssh.Permissions, error) {
 			if s.password != "" && string(p) == s.password {

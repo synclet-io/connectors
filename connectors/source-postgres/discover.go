@@ -31,8 +31,10 @@ func (t *table) column(name string) (column, bool) {
 }
 
 // loadTables returns the tables, partitioned tables, views, materialized
-// views and foreign tables of schemas the user may SELECT from, ordered by
-// schema and name. A non-empty name keeps only the relations so named.
+// views and foreign tables of schemas with the columns the user may SELECT,
+// through a table or a column grant, ordered by schema and name. A relation
+// without such a column is left out. A non-empty name keeps only the
+// relations so named.
 func loadTables(ctx context.Context, conn *pgx.Conn, schemas []string, name string) ([]*table, error) {
 	rows, err := conn.Query(ctx, `
 SELECT n.nspname, c.relname, a.attname, a.atttypid, format_type(a.atttypid, NULL)
@@ -43,7 +45,7 @@ WHERE c.relkind IN ('r', 'p', 'v', 'm', 'f')
   AND NOT c.relispartition
   AND n.nspname = ANY($1::text[])
   AND ($2::text = '' OR c.relname = $2::text)
-  AND has_table_privilege(c.oid, 'SELECT')
+  AND has_column_privilege(c.oid, a.attnum, 'SELECT')
 ORDER BY n.nspname, c.relname, a.attnum`, schemas, name)
 	if err != nil {
 		return nil, fmt.Errorf("list tables: %w", err)
@@ -117,6 +119,14 @@ ORDER BY n.nspname, c.relname, k.ord`, schemas, name)
 	}
 	if err := rows.Err(); err != nil {
 		return fmt.Errorf("list primary keys: %w", err)
+	}
+	for _, t := range tables {
+		for _, c := range t.primaryKey {
+			if _, ok := t.column(c); !ok {
+				t.primaryKey = nil
+				break
+			}
+		}
 	}
 	return nil
 }

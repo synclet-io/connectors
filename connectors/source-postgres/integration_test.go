@@ -16,6 +16,7 @@ import (
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 	"golang.org/x/crypto/ssh"
+	"golang.org/x/crypto/ssh/knownhosts"
 )
 
 func closedPort(t *testing.T) int {
@@ -102,6 +103,78 @@ func TestDiscover(t *testing.T) {
 	require.Equal(t, "hidden", cat.Streams[0].Name)
 }
 
+func fullRefresh(streams ...synclet.Stream) *synclet.ConfiguredCatalog {
+	cat := &synclet.ConfiguredCatalog{}
+	for _, s := range streams {
+		cat.Streams = append(cat.Streams, synclet.ConfiguredStream{
+			Stream: s, SyncMode: synclet.SyncModeFullRefresh, DestinationSyncMode: synclet.DestinationSyncModeOverwrite,
+		})
+	}
+	return cat
+}
+
+func TestConnectIgnoresPGEnv(t *testing.T) {
+	cfg := sharedPostgres(t)
+	setHostilePGEnv(t)
+	d, err := connect(t.Context(), cfg)
+	require.NoError(t, err)
+	defer d.close()
+	var app, tz, searchPath string
+	require.NoError(t, d.QueryRow(t.Context(),
+		`SELECT current_setting('application_name'), current_setting('TimeZone'), current_setting('search_path')`).Scan(&app, &tz, &searchPath))
+	require.Equal(t, "synclet-source-postgres", app)
+	require.Equal(t, "UTC", tz)
+	require.Equal(t, `"$user", public`, searchPath)
+}
+
+func TestDiscoverColumnGrants(t *testing.T) {
+	cfg := sharedPostgres(t)
+	cfg.Username, cfg.Password, cfg.Schemas = "colonly", "colonly", []string{"colgrants"}
+
+	cat, err := Source{}.Discover(t.Context(), cfg)
+	require.NoError(t, err)
+	byName := map[string]synclet.Stream{}
+	for _, s := range cat.Streams {
+		byName[s.Name] = s
+	}
+	require.Contains(t, byName, "partial", "table readable through column grants")
+	require.Contains(t, byName, "pk_hidden", "table readable through column grants")
+	require.NotContains(t, byName, "none", "table without any grant")
+
+	partial, pkHidden := byName["partial"], byName["pk_hidden"]
+	require.JSONEq(t, `{"type":"object","properties":{"id":{"type":["integer","null"]},"visible":{"type":["string","null"]}}}`,
+		string(partial.JSONSchema))
+	require.Equal(t, [][]string{{"id"}}, partial.SourceDefinedPrimaryKey)
+	require.JSONEq(t, `{"type":"object","properties":{"name":{"type":["string","null"]}}}`, string(pkHidden.JSONSchema))
+	require.Empty(t, pkHidden.SourceDefinedPrimaryKey, "primary key on a column the user may not read")
+
+	out := runRead(t, cfg, fullRefresh(partial, pkHidden), nil)
+	require.Len(t, out.Records(partial.Descriptor()), 1)
+	require.JSONEq(t, `{"id":1,"visible":"shown"}`, string(out.Records(partial.Descriptor())[0].Data))
+	require.Len(t, out.Records(pkHidden.Descriptor()), 1)
+	require.JSONEq(t, `{"name":"shown"}`, string(out.Records(pkHidden.Descriptor())[0].Data))
+}
+
+func TestReadStreamWithoutNamespace(t *testing.T) {
+	cfg := sharedPostgres(t)
+	cfg.Schemas = []string{"twin_a", "twin_b"}
+	bare := discoverStream(t, cfg, "twin_b", "twin")
+	bare.Namespace = ""
+
+	out, err := testkit.RunSource(t.Context(), Source{}, synclet.Request{
+		Command: synclet.CommandRead, Config: mustJSON(t, cfg), Catalog: mustJSON(t, fullRefresh(bare)),
+	})
+	require.NoError(t, err)
+	require.ErrorContains(t, out.Err, `stream twin: a table or view of that name is in schemas "twin_a", "twin_b"`)
+	require.Empty(t, out.Records(bare.Descriptor()))
+	traces := out.ErrorTraces()
+	require.Len(t, traces, 1)
+	require.Equal(t, synclet.FailureTypeConfigError, traces[0].FailureType)
+
+	cfg.Schemas = []string{"twin_b"}
+	require.Equal(t, []int{2}, ids(t, runRead(t, cfg, fullRefresh(bare), nil), bare.Descriptor()))
+}
+
 // typeCases is the fixture row of public.types: each column's declared schema
 // and the value it reads as.
 var typeCases = []struct {
@@ -139,6 +212,12 @@ var typeCases = []struct {
 	{"c_bool", `{"type":["boolean","null"]}`, `true`},
 	{"c_point", `{"type":["string","null"]}`, `"(1,2)"`},
 	{"c_inet", `{"type":["string","null"]}`, `"192.168.0.1/24"`},
+	{"c_int_matrix", `{"type":["array","null"],"items":{"type":["integer","null"]}}`, `[1,2,3,4]`},
+	{"c_text_matrix", `{"type":["array","null"],"items":{"type":["string","null"]}}`, `["a","b",null,"d"]`},
+	{"c_date_inf", `{"type":["string","null"],"format":"date"}`, `null`},
+	{"c_timestamp_inf", `{"type":["string","null"],"airbyte_type":"timestamp_without_timezone"}`, `null`},
+	{"c_tstz_inf", `{"type":["string","null"],"format":"date-time","airbyte_type":"timestamp_with_timezone"}`, `null`},
+	{"c_tstz_array", `{"type":["array","null"],"items":{"type":["string","null"],"format":"date-time","airbyte_type":"timestamp_with_timezone"}}`, `["2024-01-02T03:04:05+00:00",null,null]`},
 }
 
 func TestTypesRoundTrip(t *testing.T) {
@@ -398,6 +477,44 @@ func TestSSL(t *testing.T) {
 	})
 }
 
+func TestSSLClientCertificate(t *testing.T) {
+	needDocker(t)
+	ca := newTestCA(t)
+	serverPEM, serverKey := ca.serverCert(t)
+	clientPEM, clientKey := ca.clientCert(t, pgUser)
+	dir := t.TempDir()
+	const hba = "local all all trust\nhostssl all all all scram-sha-256 clientcert=verify-full\n"
+	cfg, err := runPostgres(
+		postgres.WithSSLCert(writeFile(t, dir, "ca.pem", ca.certPEM), writeFile(t, dir, "server.pem", serverPEM), writeFile(t, dir, "server.key", serverKey)),
+		testcontainers.WithFiles(testcontainers.ContainerFile{
+			HostFilePath: writeFile(t, dir, "pg_hba.conf", hba), ContainerFilePath: "/tmp/testcontainers-go/postgres/pg_hba.conf", FileMode: 0o644,
+		}),
+		testcontainers.WithCmd("postgres", "-c", "fsync=off", "-c", "ssl=on",
+			"-c", "ssl_cert_file=/tmp/testcontainers-go/postgres/server.cert",
+			"-c", "ssl_key_file=/tmp/testcontainers-go/postgres/server.key",
+			"-c", "ssl_ca_file=/tmp/testcontainers-go/postgres/ca_cert.pem",
+			"-c", "hba_file=/tmp/testcontainers-go/postgres/pg_hba.conf"),
+	)
+	require.NoError(t, err)
+	cfg.Host = "localhost"
+
+	for _, m := range []string{sslVerifyCA, sslVerifyFull} {
+		t.Run(m+" with a client certificate", func(t *testing.T) {
+			c := cfg
+			c.SSLMode = SSLMode{Mode: m, CACertificate: ca.certPEM, ClientCertificate: clientPEM, ClientKey: clientKey}
+			require.NoError(t, Source{}.Check(t.Context(), c))
+			require.True(t, sslStatus(t, c))
+			users := discoverStream(t, c, "public", "users")
+			require.Len(t, runRead(t, c, fullRefresh(users), nil).Records(users.Descriptor()), 4)
+		})
+		t.Run(m+" without a client certificate", func(t *testing.T) {
+			c := cfg
+			c.SSLMode = SSLMode{Mode: m, CACertificate: ca.certPEM}
+			require.ErrorContains(t, Source{}.Check(t.Context(), c), "certificate")
+		})
+	}
+}
+
 func TestSSHTunnel(t *testing.T) {
 	cfg := sharedPostgres(t)
 	pub, priv, err := ed25519.GenerateKey(rand.Reader)
@@ -439,6 +556,25 @@ func TestSSHTunnel(t *testing.T) {
 		c := tunneled
 		c.TunnelMethod = TunnelMethod{TunnelMethod: tunnelPassword, TunnelHost: host, TunnelPort: port, TunnelUser: "bastion", TunnelUserPassword: "nope"}
 		require.ErrorContains(t, Source{}.Check(t.Context(), c), `cannot open SSH tunnel as "bastion"`)
+	})
+	pinned := func(hostKey string) Config {
+		c := tunneled
+		c.TunnelMethod = TunnelMethod{TunnelMethod: tunnelKey, TunnelHost: host, TunnelPort: port, TunnelUser: "bastion", SSHKey: keyPEM, TunnelHostKey: hostKey}
+		return c
+	}
+	authorizedKey := strings.TrimSpace(string(ssh.MarshalAuthorizedKey(srv.hostKey)))
+	t.Run("pinned host key", func(t *testing.T) {
+		require.NoError(t, Source{}.Check(t.Context(), pinned(authorizedKey)))
+		require.NoError(t, Source{}.Check(t.Context(), pinned(authorizedKey+" bastion.example.com")))
+		require.NoError(t, Source{}.Check(t.Context(), pinned(knownhosts.Line([]string{knownhosts.Normalize(srv.addr)}, srv.hostKey))))
+	})
+	t.Run("mismatched host key", func(t *testing.T) {
+		otherPub, _, err := ed25519.GenerateKey(rand.Reader)
+		require.NoError(t, err)
+		other, err := ssh.NewPublicKey(otherPub)
+		require.NoError(t, err)
+		err = Source{}.Check(t.Context(), pinned(string(ssh.MarshalAuthorizedKey(other))))
+		require.ErrorContains(t, err, "host key mismatch")
 	})
 	t.Run("unreachable tunnel host", func(t *testing.T) {
 		c := tunneled

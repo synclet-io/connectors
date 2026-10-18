@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/jackc/pgx/v5"
@@ -144,6 +145,13 @@ func planStream(ctx context.Context, conn *pgx.Conn, cfg Config, cs synclet.Conf
 	}
 	if len(tables) == 0 {
 		return selectQuery{}, synclet.ConfigError(fmt.Errorf("stream %s: no such table or view, or user %q may not SELECT from it", streamName(desc), cfg.Username))
+	}
+	if len(tables) > 1 {
+		in := make([]string, len(tables))
+		for i, t := range tables {
+			in[i] = strconv.Quote(t.schema)
+		}
+		return selectQuery{}, synclet.ConfigError(fmt.Errorf("stream %s: a table or view of that name is in schemas %s; set the stream's namespace", streamName(desc), strings.Join(in, ", ")))
 	}
 	t := tables[0]
 	q := selectQuery{table: t}

@@ -21,7 +21,7 @@ The keys match Airbyte's source-postgres, so an existing configuration carries o
 | `schemas` | `["public"]` | Schemas to discover and read |
 | `username`, `password` | | Login |
 | `ssl_mode` | `{"mode": "prefer"}` | See [SSL modes](#ssl-modes) |
-| `tunnel_method` | `{"tunnel_method": "NO_TUNNEL"}` | `SSH_KEY_AUTH` (`ssh_key`) or `SSH_PASSWORD_AUTH` (`tunnel_user_password`), both with `tunnel_host`, `tunnel_port` (22) and `tunnel_user` |
+| `tunnel_method` | `{"tunnel_method": "NO_TUNNEL"}` | `SSH_KEY_AUTH` (`ssh_key`) or `SSH_PASSWORD_AUTH` (`tunnel_user_password`), both with `tunnel_host`, `tunnel_port` (22), `tunnel_user` and optionally `tunnel_host_key` |
 
 ```json
 {
@@ -36,12 +36,20 @@ The keys match Airbyte's source-postgres, so an existing configuration carries o
 ```
 
 The user needs `CONNECT` on the database, `USAGE` on each schema and `SELECT` on the tables to read;
-discover lists only the relations the user may `SELECT` from. `check` names the cause of a failure:
+discover lists only the relations the user may `SELECT` from, with the columns the user may `SELECT`.
+A table readable only through column grants (`GRANT SELECT (id, name) ON ...`) is listed with just
+those columns, and without its primary key when a key column is not granted. `check` names the cause of a failure:
 wrong user name or password, an unreachable host, a missing database or schema, or a missing
 `CONNECT` or `USAGE` privilege.
 
 Through an SSH tunnel the database host is resolved and dialed by the jump server, so `host` can be a
-name only the jump server knows. The jump server's host key is not verified.
+name only the jump server knows. Set `tunnel_host_key` to the jump server's public host key, in
+authorized_keys format (`ssh-ed25519 AAAA...`) or as a known_hosts line as `ssh-keyscan` prints it, and
+the tunnel is refused when the server presents another key. Without it the host key is not verified.
+
+Only the configuration reaches the Postgres driver: the `PG*` environment variables (`PGHOST`,
+`PGSSLMODE`, `PGOPTIONS`, ...) and `~/.pgpass` and `~/.postgresql` are ignored. One exception:
+`PGSERVICE` naming a service that is missing from the service file fails the connection.
 
 ## SSL modes
 
@@ -57,7 +65,9 @@ are never written to disk.
 | `verify-ca` | always | chain checked against `ca_certificate` |
 | `verify-full` | always | chain and host name checked |
 
-`client_certificate` and `client_key` add a client certificate in the `verify-*` modes.
+`client_certificate` and `client_key` add a client certificate in the `verify-*` modes, for servers
+that require one (`clientcert=verify-ca` or `verify-full` in `pg_hba.conf`). `prefer` and `allow` refuse
+a `ca_certificate`: they may connect without encryption, so the CA would protect nothing.
 
 ## Types
 
@@ -78,10 +88,17 @@ Every property is nullable. Domains map as their base type.
 | `timestamp` | `string`, airbyte_type `timestamp_without_timezone` | `2024-01-02T03:04:05.123456` |
 | `timestamptz` | `string`, format `date-time`, airbyte_type `timestamp_with_timezone` | `2024-01-02T01:04:05+00:00` (UTC) |
 | `interval` | `string` | ISO 8601, `P1Y2M3DT4H5M6S` |
-| arrays | `array` of the element type | `bytea` and unmapped elements as their text form; `NaN`/`Infinity` elements as `null`; multidimensional `real`, `double precision` and `numeric` arrays are flattened, other multidimensional arrays nest |
+| arrays | `array` of the element type | `bytea` and unmapped elements as their text form; `NaN`/`Infinity` and infinite date and timestamp elements as `null`; multidimensional arrays are flattened in storage order (`{{1,2},{3,4}}` reads as `[1,2,3,4]`) |
 | anything else (`point`, `inet`, ranges, composites, `tsvector`, ...) | `string` | the Postgres text form |
 
-`infinity` and `-infinity` dates and timestamps read as those strings.
+`infinity` and `-infinity` dates and timestamps read as `null`: the `date` format and the timestamp
+types of their schemas cannot hold them.
+
+## Streams
+
+A configured stream names its table by namespace (the schema) and name. A stream without a namespace
+is looked up in every configured schema; when more than one has a table or view of that name, the read
+fails with a config error asking for the namespace.
 
 ## Incremental sync
 

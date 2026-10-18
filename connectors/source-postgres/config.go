@@ -36,6 +36,7 @@ type TunnelMethod struct {
 	TunnelUser         string `json:"tunnel_user"`
 	SSHKey             string `json:"ssh_key"`
 	TunnelUserPassword string `json:"tunnel_user_password"`
+	TunnelHostKey      string `json:"tunnel_host_key"`
 }
 
 const (
@@ -91,6 +92,9 @@ func (c *Config) validate() error {
 	case (c.SSLMode.Mode == sslVerifyCA || c.SSLMode.Mode == sslVerifyFull) && c.SSLMode.CACertificate == "":
 		errs = append(errs, fmt.Errorf("ssl_mode %s needs ca_certificate", c.SSLMode.Mode))
 	}
+	if (c.SSLMode.Mode == sslPrefer || c.SSLMode.Mode == sslAllow) && c.SSLMode.CACertificate != "" {
+		errs = append(errs, fmt.Errorf("ssl_mode %s does not use ca_certificate, since it may connect without encryption; use require, verify-ca or verify-full", c.SSLMode.Mode))
+	}
 	if (c.SSLMode.ClientCertificate == "") != (c.SSLMode.ClientKey == "") {
 		errs = append(errs, errors.New("client_certificate and client_key go together"))
 	}
@@ -109,6 +113,11 @@ func (c *Config) validate() error {
 		}
 		if t.TunnelMethod == tunnelPassword && t.TunnelUserPassword == "" {
 			errs = append(errs, errors.New("tunnel_user_password is required for SSH_PASSWORD_AUTH"))
+		}
+		if t.TunnelHostKey != "" {
+			if _, err := parseHostKey(t.TunnelHostKey); err != nil {
+				errs = append(errs, err)
+			}
 		}
 	default:
 		errs = append(errs, fmt.Errorf("tunnel_method %q is not one of NO_TUNNEL, SSH_KEY_AUTH, SSH_PASSWORD_AUTH", t.TunnelMethod))
