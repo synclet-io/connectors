@@ -289,7 +289,9 @@ func TestCursorTypes(t *testing.T) {
 	coll := rootClient(t, e).Database(testDatabase).Collection("cursors")
 	dec, err := bson.ParseDecimal128("4")
 	require.NoError(t, err)
-	day := func(d int) bson.DateTime { return bson.NewDateTimeFromTime(time.Date(2024, 1, d, 0, 0, 0, 0, time.UTC)) }
+	day := func(d int) bson.DateTime {
+		return bson.NewDateTimeFromTime(time.Date(2024, 1, d, 0, 0, 0, 0, time.UTC))
+	}
 	_, err = coll.InsertMany(t.Context(), []any{
 		bson.D{{Key: "_id", Value: int32(1)}, {Key: "num", Value: int32(1)}, {Key: "when", Value: day(1)}},
 		bson.D{{Key: "_id", Value: int32(2)}, {Key: "num", Value: int64(2)}, {Key: "when", Value: day(2)}},
