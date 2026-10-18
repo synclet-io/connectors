@@ -1,0 +1,25 @@
+{
+  "rows": [
+    {
+      "keys": [
+        "2026-10-14",
+        "https://www.example.com/"
+      ],
+      "clicks": 8,
+      "impressions": 91,
+      "ctr": 0.0879120879120879,
+      "position": 2.21428571428571
+    },
+    {
+      "keys": [
+        "2026-10-14",
+        "https://www.example.com/pricing"
+      ],
+      "clicks": 15,
+      "impressions": 176,
+      "ctr": 0.0852272727272727,
+      "position": 4.07142857142857
+    }
+  ],
+  "responseAggregationType": "byPage"
+}

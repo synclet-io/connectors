@@ -1,0 +1,38 @@
+{
+  "rows": [
+    {
+      "keys": [
+        "2026-10-15",
+        "blue widgets",
+        "https://example.org/"
+      ],
+      "clicks": 18,
+      "impressions": 209,
+      "ctr": 0.0861244019138756,
+      "position": 3.64285714285714
+    },
+    {
+      "keys": [
+        "2026-10-15",
+        "widget repair",
+        "https://example.org/blog/widgets"
+      ],
+      "clicks": 25,
+      "impressions": 311,
+      "ctr": 0.0803858520900322,
+      "position": 5.5
+    },
+    {
+      "keys": [
+        "2026-10-15",
+        "buy widgets online",
+        "https://example.org/signup"
+      ],
+      "clicks": 32,
+      "impressions": 427,
+      "ctr": 0.0749414519906323,
+      "position": 7.35714285714286
+    }
+  ],
+  "responseAggregationType": "byPage"
+}

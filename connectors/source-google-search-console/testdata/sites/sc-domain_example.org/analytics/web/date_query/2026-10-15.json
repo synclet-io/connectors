@@ -1,0 +1,25 @@
+{
+  "rows": [
+    {
+      "keys": [
+        "2026-10-15",
+        "blue widgets"
+      ],
+      "clicks": 13,
+      "impressions": 89,
+      "ctr": 0.1460674157303371,
+      "position": 2.92857142857143
+    },
+    {
+      "keys": [
+        "2026-10-15",
+        "widget repair"
+      ],
+      "clicks": 20,
+      "impressions": 151,
+      "ctr": 0.1324503311258278,
+      "position": 4.78571428571429
+    }
+  ],
+  "responseAggregationType": "byProperty"
+}

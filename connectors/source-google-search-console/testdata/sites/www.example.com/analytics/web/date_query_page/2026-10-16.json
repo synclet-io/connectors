@@ -1,0 +1,60 @@
+{
+  "rows": [
+    {
+      "keys": [
+        "2026-10-16",
+        "blue widgets",
+        "https://www.example.com/"
+      ],
+      "clicks": 19,
+      "impressions": 239,
+      "ctr": 0.0794979079497908,
+      "position": 3.78571428571429
+    },
+    {
+      "keys": [
+        "2026-10-16",
+        "widget repair",
+        "https://www.example.com/blog/widgets"
+      ],
+      "clicks": 26,
+      "impressions": 349,
+      "ctr": 0.0744985673352436,
+      "position": 5.64285714285714
+    },
+    {
+      "keys": [
+        "2026-10-16",
+        "buy widgets online",
+        "https://www.example.com/signup"
+      ],
+      "clicks": 33,
+      "impressions": 176,
+      "ctr": 0.1875,
+      "position": 7.5
+    },
+    {
+      "keys": [
+        "2026-10-16",
+        "widget sizes",
+        "https://www.example.com/pricing"
+      ],
+      "clicks": 40,
+      "impressions": 251,
+      "ctr": 0.1593625498007968,
+      "position": 9.35714285714286
+    },
+    {
+      "keys": [
+        "2026-10-16",
+        "best widget",
+        "https://www.example.com/blog/repair"
+      ],
+      "clicks": 7,
+      "impressions": 60,
+      "ctr": 0.1166666666666667,
+      "position": 11.21428571428571
+    }
+  ],
+  "responseAggregationType": "byPage"
+}

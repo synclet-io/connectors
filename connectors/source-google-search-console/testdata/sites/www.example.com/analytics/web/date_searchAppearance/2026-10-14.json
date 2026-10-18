@@ -1,0 +1,25 @@
+{
+  "rows": [
+    {
+      "keys": [
+        "2026-10-14",
+        "AMP_BLUE_LINK"
+      ],
+      "clicks": 24,
+      "impressions": 203,
+      "ctr": 0.1182266009852217,
+      "position": 4.5
+    },
+    {
+      "keys": [
+        "2026-10-14",
+        "REVIEW_SNIPPET"
+      ],
+      "clicks": 31,
+      "impressions": 290,
+      "ctr": 0.1068965517241379,
+      "position": 6.35714285714286
+    }
+  ],
+  "responseAggregationType": "byProperty"
+}

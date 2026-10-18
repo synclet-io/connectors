@@ -1,0 +1,187 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Reads the sites, sitemaps and daily search analytics, built-in and custom, of Google Search Console properties.",
+    "properties": {
+      "credentials": {
+        "description": "A service account key, or an OAuth client with the refresh token of a Google user. Either must be a user of every site in Search Console.",
+        "oneOf": [
+          {
+            "properties": {
+              "auth_type": {
+                "const": "service_account",
+                "order": 0,
+                "type": "string"
+              },
+              "service_account_key": {
+                "airbyte_secret": true,
+                "description": "The JSON key of a service account of a Google Cloud project with the Google Search Console API enabled.",
+                "order": 1,
+                "title": "Service Account Key",
+                "type": "string"
+              }
+            },
+            "required": [
+              "auth_type",
+              "service_account_key"
+            ],
+            "title": "Service Account Key",
+            "type": "object"
+          },
+          {
+            "properties": {
+              "auth_type": {
+                "const": "oauth",
+                "order": 0,
+                "type": "string"
+              },
+              "client_id": {
+                "description": "Client ID of the Google Cloud OAuth client the refresh token was issued to.",
+                "order": 1,
+                "title": "OAuth Client ID",
+                "type": "string"
+              },
+              "client_secret": {
+                "airbyte_secret": true,
+                "description": "Client secret of the OAuth client.",
+                "order": 2,
+                "title": "OAuth Client Secret",
+                "type": "string"
+              },
+              "refresh_token": {
+                "airbyte_secret": true,
+                "description": "OAuth refresh token with the https://www.googleapis.com/auth/webmasters.readonly scope.",
+                "order": 3,
+                "title": "Refresh Token",
+                "type": "string"
+              }
+            },
+            "required": [
+              "auth_type",
+              "client_id",
+              "client_secret",
+              "refresh_token"
+            ],
+            "title": "Google OAuth",
+            "type": "object"
+          }
+        ],
+        "order": 0,
+        "title": "Authentication",
+        "type": "object"
+      },
+      "custom_reports": {
+        "description": "Each report becomes a stream with its name, read by day for every site. date is added as the first dimension when missing. discover and googleNews do not support the query dimension.",
+        "items": {
+          "properties": {
+            "dimensions": {
+              "items": {
+                "enum": [
+                  "date",
+                  "query",
+                  "page",
+                  "country",
+                  "device",
+                  "searchAppearance"
+                ],
+                "type": "string"
+              },
+              "title": "Dimensions",
+              "type": "array",
+              "uniqueItems": true
+            },
+            "name": {
+              "pattern": "^[a-z][a-z0-9_]*$",
+              "type": "string"
+            },
+            "search_type": {
+              "default": "web",
+              "enum": [
+                "web",
+                "image",
+                "video",
+                "news",
+                "discover",
+                "googleNews"
+              ],
+              "title": "Search Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "type": "object"
+        },
+        "order": 6,
+        "title": "Custom Reports",
+        "type": "array"
+      },
+      "data_state": {
+        "default": "final",
+        "description": "final reads only finalized data; all also reads fresh data that may still change.",
+        "examples": [
+          "final",
+          "all"
+        ],
+        "order": 5,
+        "title": "Data State",
+        "type": "string"
+      },
+      "end_date": {
+        "description": "Last day, YYYY-MM-DD, whose search analytics are read; empty reads up to today (UTC).",
+        "format": "date",
+        "order": 3,
+        "title": "End Date",
+        "type": "string"
+      },
+      "lookback_days": {
+        "default": 3,
+        "description": "Days before the saved date an incremental read starts again, since Search Console keeps updating recent days.",
+        "order": 4,
+        "title": "Lookback Days",
+        "type": "integer"
+      },
+      "site_urls": {
+        "description": "Search Console properties to read: URL-prefix properties such as https://www.example.com/ and domain properties such as sc-domain:example.com. Every stream reads each of them.",
+        "examples": [
+          "https://www.example.com/",
+          "sc-domain:example.com"
+        ],
+        "items": {
+          "pattern": "^(https://[^/\\s]+/\\S*|sc-domain:[^/:\\s]+)$",
+          "type": "string"
+        },
+        "order": 1,
+        "title": "Site URLs",
+        "type": "array"
+      },
+      "start_date": {
+        "description": "First day, YYYY-MM-DD, whose search analytics are read; empty reads the last 16 months, all Search Console keeps.",
+        "examples": [
+          "2026-01-01"
+        ],
+        "format": "date",
+        "order": 2,
+        "title": "Start Date",
+        "type": "string"
+      }
+    },
+    "required": [
+      "credentials",
+      "site_urls"
+    ],
+    "title": "Google Search Console Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-google-search-console",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": true,
+  "supportsNormalization": false
+}

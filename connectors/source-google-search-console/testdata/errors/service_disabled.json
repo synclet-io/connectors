@@ -1,0 +1,25 @@
+{
+  "error": {
+    "code": 403,
+    "message": "Google Search Console API has not been used in project 123456789012 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/searchconsole.googleapis.com/overview?project=123456789012 then retry.",
+    "errors": [
+      {
+        "message": "...",
+        "domain": "usageLimits",
+        "reason": "accessNotConfigured"
+      }
+    ],
+    "status": "PERMISSION_DENIED",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "SERVICE_DISABLED",
+        "domain": "googleapis.com",
+        "metadata": {
+          "consumer": "projects/123456789012",
+          "service": "searchconsole.googleapis.com"
+        }
+      }
+    ]
+  }
+}

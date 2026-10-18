@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": 429,
+    "message": "Quota exceeded for quota metric 'Search Analytics queries' and limit 'Search Analytics queries per day' of service 'searchconsole.googleapis.com' for consumer 'project_number:123456789012'.",
+    "status": "RESOURCE_EXHAUSTED"
+  }
+}

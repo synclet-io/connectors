@@ -1,0 +1,35 @@
+{
+  "rows": [
+    {
+      "keys": [
+        "2026-10-14",
+        "usa"
+      ],
+      "clicks": 15,
+      "impressions": 131,
+      "ctr": 0.1145038167938931,
+      "position": 3.21428571428571
+    },
+    {
+      "keys": [
+        "2026-10-14",
+        "deu"
+      ],
+      "clicks": 22,
+      "impressions": 209,
+      "ctr": 0.1052631578947368,
+      "position": 5.07142857142857
+    },
+    {
+      "keys": [
+        "2026-10-14",
+        "gbr"
+      ],
+      "clicks": 29,
+      "impressions": 301,
+      "ctr": 0.0963455149501661,
+      "position": 6.92857142857143
+    }
+  ],
+  "responseAggregationType": "byProperty"
+}

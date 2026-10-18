@@ -1,0 +1,35 @@
+{
+  "rows": [
+    {
+      "keys": [
+        "2026-10-15",
+        "https://example.org/"
+      ],
+      "clicks": 12,
+      "impressions": 71,
+      "ctr": 0.1690140845070423,
+      "position": 2.78571428571429
+    },
+    {
+      "keys": [
+        "2026-10-15",
+        "https://example.org/pricing"
+      ],
+      "clicks": 19,
+      "impressions": 125,
+      "ctr": 0.152,
+      "position": 4.64285714285714
+    },
+    {
+      "keys": [
+        "2026-10-15",
+        "https://example.org/blog/widgets"
+      ],
+      "clicks": 26,
+      "impressions": 193,
+      "ctr": 0.1347150259067358,
+      "position": 6.5
+    }
+  ],
+  "responseAggregationType": "byPage"
+}

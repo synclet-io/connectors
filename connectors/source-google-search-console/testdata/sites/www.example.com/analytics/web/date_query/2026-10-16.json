@@ -1,0 +1,45 @@
+{
+  "rows": [
+    {
+      "keys": [
+        "2026-10-16",
+        "blue widgets"
+      ],
+      "clicks": 14,
+      "impressions": 109,
+      "ctr": 0.1284403669724771,
+      "position": 3.07142857142857
+    },
+    {
+      "keys": [
+        "2026-10-16",
+        "widget repair"
+      ],
+      "clicks": 21,
+      "impressions": 179,
+      "ctr": 0.1173184357541899,
+      "position": 4.92857142857143
+    },
+    {
+      "keys": [
+        "2026-10-16",
+        "buy widgets online"
+      ],
+      "clicks": 28,
+      "impressions": 263,
+      "ctr": 0.1064638783269962,
+      "position": 6.78571428571429
+    },
+    {
+      "keys": [
+        "2026-10-16",
+        "widget sizes"
+      ],
+      "clicks": 35,
+      "impressions": 361,
+      "ctr": 0.0969529085872576,
+      "position": 8.64285714285714
+    }
+  ],
+  "responseAggregationType": "byProperty"
+}

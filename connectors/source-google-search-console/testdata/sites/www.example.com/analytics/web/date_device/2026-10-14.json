@@ -1,0 +1,35 @@
+{
+  "rows": [
+    {
+      "keys": [
+        "2026-10-14",
+        "DESKTOP"
+      ],
+      "clicks": 14,
+      "impressions": 109,
+      "ctr": 0.1284403669724771,
+      "position": 3.07142857142857
+    },
+    {
+      "keys": [
+        "2026-10-14",
+        "MOBILE"
+      ],
+      "clicks": 21,
+      "impressions": 179,
+      "ctr": 0.1173184357541899,
+      "position": 4.92857142857143
+    },
+    {
+      "keys": [
+        "2026-10-14",
+        "TABLET"
+      ],
+      "clicks": 28,
+      "impressions": 263,
+      "ctr": 0.1064638783269962,
+      "position": 6.78571428571429
+    }
+  ],
+  "responseAggregationType": "byProperty"
+}

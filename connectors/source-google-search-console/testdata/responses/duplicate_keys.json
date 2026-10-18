@@ -1,0 +1,24 @@
+{
+  "rows": [
+    {
+      "keys": [
+        "2026-10-14",
+        "blue widgets"
+      ],
+      "clicks": 4,
+      "impressions": 35,
+      "ctr": 0.1142857142857143,
+      "position": 1.64285714285714
+    },
+    {
+      "keys": [
+        "2026-10-14",
+        "blue widgets"
+      ],
+      "clicks": 11,
+      "impressions": 88,
+      "ctr": 0.125,
+      "position": 3.5
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "$schema": "../../schema/meta.schema.json",
+  "name": "Google Search Console",
+  "connector_type": "source",
+  "version": "0.1.0",
+  "release_stage": "alpha",
+  "support_level": "community",
+  "source_type": "api",
+  "license": "MIT",
+  "documentation_url": "https://github.com/synclet-io/connectors/tree/main/connectors/source-google-search-console",
+  "icon_url": "",
+  "language": "go",
+  "tags": [
+    "api",
+    "marketing"
+  ],
+  "allowed_hosts": [
+    "searchconsole.googleapis.com",
+    "oauth2.googleapis.com"
+  ],
+  "breaking_changes": {},
+  "external_documentation_urls": []
+}
