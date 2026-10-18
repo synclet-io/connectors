@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -56,6 +57,12 @@ func TestCheck(t *testing.T) {
 			requests:  3,
 		},
 		{
+			name:      "40001 for a batch whose advertisers pass one by one",
+			overrides: map[string][]fixture{info: {errCode("40001"), {}, {}}},
+			message:   "advertiser/info/ refused advertisers 1000000001, 1000000002 together with code 40001: No permission to operate advertiser 1000000003.",
+			requests:  3,
+		},
+		{
 			name: "advertiser missing from the result", edit: func(c *Config) { c.AdvertiserIDs = append(c.AdvertiserIDs, testAdvertiserC) },
 			message: "advertiser 1000000003 is not authorised for this access token", requests: 1,
 		},
@@ -78,4 +85,14 @@ func TestCheck(t *testing.T) {
 			assert.Contains(t, status.Message, tt.message)
 		})
 	}
+}
+
+func TestCheckBatchRefusalIsConfigError(t *testing.T) {
+	srv, _ := fixtureServer(t, map[string][]fixture{"advertiser/info/": {{file: "errors/40001"}, {}, {}}})
+	src, _ := testSource(srv)
+	var cfg Config
+	require.NoError(t, json.Unmarshal(testConfig(t, nil), &cfg))
+	err := src.Check(t.Context(), cfg)
+	require.EqualError(t, err, "advertiser/info/ refused advertisers 1000000001, 1000000002 together with code 40001: No permission to operate advertiser 1000000003.")
+	assert.Equal(t, "*synclet.configError", fmt.Sprintf("%T", err), "the SDK reports it with failure_type config_error")
 }

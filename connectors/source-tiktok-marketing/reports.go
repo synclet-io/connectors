@@ -118,7 +118,8 @@ func (s Source) readReport(ctx context.Context, c *apiClient, cfg Config, d stre
 }
 
 // readWindow calls fn with the record of every report row of one advertiser
-// from first to last, both YYYY-MM-DD.
+// from first to last, both YYYY-MM-DD. A row without stat_time_day or outside
+// that range fails the window.
 func readWindow(ctx context.Context, c *apiClient, d streamDef, adv, first, last string, fn func(map[string]any) error) error {
 	q := url.Values{
 		"advertiser_id": {adv},
@@ -131,8 +132,12 @@ func readWindow(ctx context.Context, c *apiClient, d streamDef, adv, first, last
 	}
 	return c.list(ctx, "report/integrated/get/", q, func(row map[string]any) error {
 		rec := reportRecord(d, adv, row)
-		if day, _ := rec[cursorField].(string); day < first || day > last {
-			return nil
+		day, ok := rec[cursorField].(string)
+		switch {
+		case !ok || day == "":
+			return fmt.Errorf("report row has no %s", cursorField)
+		case day < first || day > last:
+			return fmt.Errorf("report row of day %s is outside the requested window", day)
 		}
 		return fn(rec)
 	})

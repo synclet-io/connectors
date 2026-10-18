@@ -36,7 +36,9 @@ and app secret as well, which this connector does not ask for.
 `check` requests `advertiser/info/` for the configured advertisers, 100 per request. Codes 40102,
 40104 and 40105 fail with `access token is invalid or expired (code <n>)`. Code 40001, or an
 advertiser missing from the answer, fails with `advertiser <id> is not authorised for this access
-token`; when the API refuses a batch with 40001, each advertiser is checked on its own to name it.
+token`; when the API refuses a batch with 40001, each advertiser is checked on its own to name it, and a
+batch refused although each advertiser passes alone fails with `advertiser/info/ refused advertisers
+<ids> together with code 40001: <message>`.
 
 ## Streams
 
@@ -61,7 +63,8 @@ The report streams request `report_type=BASIC` with the dimensions `[<level id>,
 and the metrics `spend`, `impressions`, `clicks`, `ctr`, `cpc`, `cpm`, `reach`, `frequency`,
 `conversion`, `cost_per_conversion` and `conversion_rate`. A record carries `advertiser_id`, the
 level id, `stat_time_day` as `YYYY-MM-DD` and the metrics as numbers; a metric the API sends as `-`
-is null. Rows outside the requested range are dropped.
+is null. A row without `stat_time_day` or outside the requested range fails the stream with the
+stream, advertiser, range and day.
 
 Lists are paged 1000 at a time by `page` and `page_size` until `page_info.total_page`.
 

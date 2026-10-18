@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/url"
 	"slices"
+	"strings"
 
 	synclet "github.com/synclet-io/synclet-go-sdk"
 )
@@ -31,7 +32,8 @@ func (s Source) Check(ctx context.Context, cfg Config) error {
 
 // checkAdvertisers requests advertiser/info/ for ids. When the API refuses a
 // batch of several ids with code 40001, which does not say which id, each id
-// is checked on its own.
+// is checked on its own; a batch refused although every id passes alone fails
+// with the code.
 func checkAdvertisers(ctx context.Context, c *apiClient, ids []string) error {
 	found := map[string]bool{}
 	err := c.advertiserInfo(ctx, ids, []string{"advertiser_id", "name"}, func(obj map[string]any) error {
@@ -51,7 +53,8 @@ func checkAdvertisers(ctx context.Context, c *apiClient, ids []string) error {
 					return err
 				}
 			}
-			return err
+			return synclet.ConfigError(fmt.Errorf("%s refused advertisers %s together with code %d: %s",
+				ae.path, strings.Join(ids, ", "), ae.code, ae.message))
 		case ae.code == codeNoPermission:
 			return synclet.ConfigError(fmt.Errorf("advertiser %s is not authorised for this access token (%w)", ids[0], ae))
 		}

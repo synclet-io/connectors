@@ -1,0 +1,15 @@
+{
+  "code": 0,
+  "message": "OK",
+  "request_id": "test-request",
+  "data": {
+    "list": [
+      {
+        "dimensions": {"ad_id": "1820000000000001", "stat_time_day": "2026-07-31 00:00:00"},
+        "metrics": {"spend": "10.00", "impressions": "1000", "clicks": "20", "ctr": "2.00", "cpc": "0.50", "cpm": "10.00",
+          "reach": "800", "frequency": "1.25", "conversion": "0", "cost_per_conversion": "-", "conversion_rate": "0.00"}
+      }
+    ],
+    "page_info": {"page": 1, "page_size": 1000, "total_number": 1, "total_page": 1}
+  }
+}

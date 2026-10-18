@@ -173,3 +173,28 @@ func TestWindowHalving(t *testing.T) {
 		assert.Empty(t, out.States())
 	})
 }
+
+func TestReportRowOutsideWindow(t *testing.T) {
+	tests := []struct {
+		name, file, err string
+	}{
+		{
+			name: "day before the window", file: "report/invalid/outside_window",
+			err: "ads_report_daily: advertiser 1000000001 2026-08-01..2026-08-30: report row of day 2026-07-31 is outside the requested window",
+		},
+		{
+			name: "row without a day", file: "report/invalid/no_day",
+			err: "ads_report_daily: advertiser 1000000001 2026-08-01..2026-08-30: report row has no stat_time_day",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			srv, _ := fixtureServer(t, map[string][]fixture{reportPath: {{file: tt.file}}})
+			src, _ := testSource(srv)
+			out := runRead(t, src, testConfig(t, onlyAdvertiserA), configured(t, src, synclet.SyncModeIncremental, streamAdsReportDaily), nil)
+			require.EqualError(t, out.Err, tt.err)
+			assert.Empty(t, records(t, out, streamAdsReportDaily))
+			assert.Empty(t, out.States())
+		})
+	}
+}
