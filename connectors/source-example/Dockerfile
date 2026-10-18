@@ -4,7 +4,7 @@
 # builds against a local SDK checkout instead of the published module.
 FROM scratch AS sdk
 
-FROM golang:1.26-alpine AS builder
+FROM golang:1.27-alpine AS builder
 
 WORKDIR /build
 
