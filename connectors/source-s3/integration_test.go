@@ -39,7 +39,7 @@ func TestCheck(t *testing.T) {
 		{"assume role", func(c *Config) {
 			c.Credentials = Credentials{AuthType: authAssumeRole, RoleARN: role, AccessKeyID: "roleuser", SecretAccessKey: "roleuser-secret"}
 		}, ""},
-		{"role not assumable", func(c *Config) {
+		{"assume role with a wrong source secret", func(c *Config) {
 			c.Credentials = Credentials{AuthType: authAssumeRole, RoleARN: role, AccessKeyID: "roleuser", SecretAccessKey: "wrong"}
 		}, `cannot assume role "` + role + `"`},
 		{"no matching object", func(c *Config) { c.Streams[0].Glob = "nothing/*.csv" }, `no object matches glob "nothing/*.csv"`},
