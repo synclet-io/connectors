@@ -1,0 +1,7 @@
+/source-applovin
+*_test.go
+testdata
+README.md
+CHANGELOG.md
+spec.json
+meta.json

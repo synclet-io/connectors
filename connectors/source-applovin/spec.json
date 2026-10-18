@@ -1,0 +1,48 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Reads the AppLovin advertiser (Axon) report and the MAX revenue report day by day.",
+    "properties": {
+      "api_key": {
+        "airbyte_secret": true,
+        "description": "Report Key of the AppLovin account, listed on the Keys page of the dashboard. AppLovin accepts it only as the api_key query parameter; the connector never logs request URLs and removes the key from error messages.",
+        "order": 0,
+        "title": "Report Key",
+        "type": "string"
+      },
+      "lookback_days": {
+        "default": 3,
+        "description": "Days before the saved day an incremental read requests again, so revenue and cohort metrics that keep changing after the day are picked up. Default 3.",
+        "order": 2,
+        "title": "Lookback Days",
+        "type": "integer"
+      },
+      "start_date": {
+        "description": "First UTC day, YYYY-MM-DD, to read. The API serves only the last 45 days; an earlier day starts at the oldest day it serves.",
+        "examples": [
+          "2026-09-01"
+        ],
+        "format": "date",
+        "order": 1,
+        "title": "Start Date",
+        "type": "string"
+      }
+    },
+    "required": [
+      "api_key",
+      "start_date"
+    ],
+    "title": "AppLovin Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-applovin",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": true,
+  "supportsNormalization": false
+}

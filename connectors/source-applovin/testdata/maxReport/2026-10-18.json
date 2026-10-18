@@ -1,0 +1,46 @@
+{
+  "code": 200,
+  "count": 2,
+  "results": [
+    {
+      "day": "2026-10-18",
+      "application": "Example Puzzle",
+      "package_name": "com.example.puzzle",
+      "store_id": "1000000001",
+      "platform": "ios",
+      "country": "us",
+      "device_type": "phone",
+      "ad_format": "INTER",
+      "max_ad_unit_id": "au0000000000001",
+      "max_ad_unit": "Example Interstitial",
+      "max_ad_unit_test": "",
+      "network": "APPLOVIN_EXCHANGE",
+      "custom_network_name": "",
+      "impressions": "1000",
+      "estimated_revenue": "14.00",
+      "ecpm": "10.00",
+      "attempts": "1500",
+      "responses": "1200",
+      "fill_rate": "0.80"
+    },
+    {
+      "day": "2026-10-18",
+      "application": "Example Runner",
+      "package_name": "com.example.runner",
+      "store_id": "com.example.runner",
+      "platform": "android",
+      "country": "de",
+      "device_type": "phone",
+      "ad_format": "BANNER",
+      "max_ad_unit_id": "au0000000000002",
+      "max_ad_unit": "Example Banner",
+      "network": "EXAMPLE_NETWORK",
+      "impressions": "4000",
+      "estimated_revenue": "2.00",
+      "ecpm": "0.50",
+      "attempts": "",
+      "responses": null,
+      "fill_rate": "0.75"
+    }
+  ]
+}

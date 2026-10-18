@@ -1,0 +1,51 @@
+{
+  "code": 200,
+  "count": 2,
+  "results": [
+    {
+      "day": "2026-10-14",
+      "campaign": "Example Puzzle - US iOS",
+      "campaign_id_external": "cmp-0001",
+      "campaign_package_name": "com.example.puzzle",
+      "campaign_store_id": "1000000001",
+      "campaign_type": "CPP",
+      "campaign_ad_type": "ua",
+      "platform": "ios",
+      "device_type": "phone",
+      "country": "us",
+      "impressions": "10000",
+      "clicks": "200",
+      "ctr": "0.02",
+      "conversions": "20",
+      "cost": "50.00",
+      "average_cpa": "2.50",
+      "ad_rev_0d": "5.00",
+      "roas_7d": "0.40",
+      "ret_1d": "0.35",
+      "sales_7d": "",
+      "campaign_roas_goal": null
+    },
+    {
+      "day": "2026-10-14",
+      "campaign": "Example Runner - DE Android",
+      "campaign_id_external": "cmp-0002",
+      "campaign_package_name": "com.example.runner",
+      "campaign_store_id": "com.example.runner",
+      "campaign_type": "ROAS",
+      "campaign_ad_type": "ua",
+      "platform": "android",
+      "device_type": "tablet",
+      "country": "de",
+      "impressions": "5000",
+      "clicks": "100",
+      "ctr": "0.02",
+      "conversions": "10",
+      "cost": "25.00",
+      "average_cpa": "2.50",
+      "ad_rev_0d": "2.00",
+      "roas_7d": "0.20",
+      "ret_1d": "0.30",
+      "campaign_roas_goal": "120"
+    }
+  ]
+}
