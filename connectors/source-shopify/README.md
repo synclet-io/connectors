@@ -55,7 +55,7 @@ OAuth consent (public apps) is not supported.
 | `read_products` | `products`, `product_variants`, `collections` |
 | `read_customers` | `customers`, `companies`, `company_locations` |
 | `read_orders` | `orders`, `refunds`, `fulfillments`, `transactions` |
-| `read_all_orders` | needed when the start is more than 60 days back; without it Shopify returns only the orders created in the last 60 days, so updates to older orders are skipped too |
+| `read_all_orders` | needed by `orders`, `refunds`, `fulfillments` and `transactions` once the shop is more than 60 days old; without it Shopify returns only the orders created in the last 60 days, so updates to older orders are skipped too |
 | `read_inventory` | `inventory_items`, `inventory_levels` |
 | `read_locations` | `inventory_levels`, `locations` |
 
@@ -76,11 +76,11 @@ the app's access scopes. It fails with:
 | Locked shop (423) | `shop <shop>.myshopify.com is locked` |
 
 Without `read_all_orders` Shopify returns only the orders created in the last 60 days, so updates to older
-orders are skipped too. The check then fails when the start (`start_date`, or the shop's creation) is more than
-60 days back, with `the app lacks read_all_orders, so Shopify returns only the orders created in the last 60
-days and skips updates to older ones, but the read starts at <start>`, and passes with a WARN otherwise. A read
-of `orders`, `refunds`, `fulfillments` or `transactions` whose start is more than 60 days back fails with the
-same error, whatever its saved cursor.
+orders are skipped too, whatever `start_date` or the saved cursor. When the shop was created more than 60 days
+ago and the app lacks the scope, the check fails with `the app lacks read_all_orders, so Shopify returns only
+the orders created in the last 60 days and skips updates to older ones, but the shop was created at <time>`,
+and a read of `orders`, `refunds`, `fulfillments` or `transactions` fails with the same configuration error
+before it starts a query. A shop younger than 60 days needs no `read_all_orders`.
 
 ## Streams
 

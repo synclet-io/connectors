@@ -49,9 +49,9 @@ func accessScopes(ctx context.Context, c *apiClient) (scopeSet, error) {
 	return res.CurrentAppInstallation.set(), nil
 }
 
-func allOrdersError(from time.Time) error {
-	return fmt.Errorf("the app lacks read_all_orders, so Shopify returns only the orders created in the last 60 days and skips updates to older ones, but the read starts at %s; grant read_all_orders or set start_date within the last 60 days",
-		from.Format(time.RFC3339))
+func allOrdersError(created time.Time) error {
+	return fmt.Errorf("the app lacks read_all_orders, so Shopify returns only the orders created in the last 60 days and skips updates to older ones, but the shop was created at %s; grant read_all_orders to sync orders, refunds, fulfillments and transactions",
+		created.Format(time.RFC3339))
 }
 
 // allOrders is the scope without which Shopify returns only the orders of
@@ -61,8 +61,7 @@ const allOrders = "read_all_orders"
 // Check fetches a token when the config has client credentials, reads the
 // shop and the app's access scopes, and fails naming every scope a stream
 // needs that the app lacks, with the streams that need it. Without
-// read_all_orders it fails when the start, start_date or the shop's
-// creation, is more than 60 days back, and warns otherwise.
+// read_all_orders it fails when the shop is more than 60 days old.
 func (s Source) Check(ctx context.Context, cfg Config) error {
 	if err := cfg.validate(); err != nil {
 		return synclet.ConfigError(err)
@@ -91,14 +90,12 @@ func (s Source) Check(ctx context.Context, cfg Config) error {
 	if granted.has(allOrders) {
 		return nil
 	}
-	start, ok, _ := cfg.start()
-	if !ok {
-		start = res.Shop.CreatedAt
+	if res.Shop.CreatedAt.IsZero() {
+		return errors.New("CheckShop: response without shop.createdAt")
 	}
-	if start.Before(c.now().Add(-ordersHistory)) {
-		return synclet.ConfigError(allOrdersError(start))
+	if res.Shop.CreatedAt.Before(c.now().Add(-ordersHistory)) {
+		return synclet.ConfigError(allOrdersError(res.Shop.CreatedAt.UTC()))
 	}
-	synclet.Logger(ctx).Warn("the app lacks read_all_orders: orders, refunds, fulfillments and transactions hold only the orders created in the last 60 days, and updates to older orders are skipped; reads fail once start_date is more than 60 days back", "shop", c.domain())
 	return nil
 }
 

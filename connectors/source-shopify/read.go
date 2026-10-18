@@ -66,6 +66,11 @@ func (r *reader) start(ctx context.Context) (time.Time, error) {
 	if err != nil || ok {
 		return t, err
 	}
+	return r.shopCreated(ctx)
+}
+
+// shopCreated is the shop's creation time, read once.
+func (r *reader) shopCreated(ctx context.Context) (time.Time, error) {
 	if !r.created.IsZero() {
 		return r.created, nil
 	}
@@ -106,7 +111,7 @@ func (r streamRead) read(ctx context.Context, incremental bool, saved json.RawMe
 	if err != nil {
 		return err
 	}
-	if err := r.needAllOrders(ctx, from); err != nil {
+	if err := r.needAllOrders(ctx); err != nil {
 		return err
 	}
 	if !incremental {
@@ -171,13 +176,19 @@ func (r streamRead) probeSearch(ctx context.Context, w window) error {
 // read_all_orders.
 const ordersHistory = 60 * 24 * time.Hour
 
-// needAllOrders fails a stream of orders whose start, start_date or the
-// shop's creation, is more than ordersHistory back when the app lacks
-// read_all_orders: Shopify returns only the orders created in the last
-// ordersHistory, so updates to older orders would be skipped silently,
-// whatever the saved cursor.
-func (r streamRead) needAllOrders(ctx context.Context, start time.Time) error {
-	if !slices.Contains(r.st.scopes, "read_orders") || !start.Before(r.c.now().Add(-ordersHistory)) {
+// needAllOrders fails a stream of orders when the shop is older than
+// ordersHistory and the app lacks read_all_orders: Shopify returns only the
+// orders created in the last ordersHistory, so updates to older orders
+// would be skipped silently, whatever start_date or the saved cursor.
+func (r streamRead) needAllOrders(ctx context.Context) error {
+	if !slices.Contains(r.st.scopes, "read_orders") {
+		return nil
+	}
+	created, err := r.shopCreated(ctx)
+	if err != nil {
+		return err
+	}
+	if !created.Before(r.c.now().Add(-ordersHistory)) {
 		return nil
 	}
 	if r.scopes == nil {
@@ -190,7 +201,7 @@ func (r streamRead) needAllOrders(ctx context.Context, start time.Time) error {
 	if r.scopes.has(allOrders) {
 		return nil
 	}
-	return synclet.ConfigError(allOrdersError(start))
+	return synclet.ConfigError(allOrdersError(created))
 }
 
 // window emits the records updated in w, or all records when w is nil.

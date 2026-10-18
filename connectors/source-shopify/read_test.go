@@ -44,6 +44,7 @@ func TestReadRecords(t *testing.T) {
 	assert.Equal(t, []string{
 		"ShopPlan",
 		"Shop",
+		"ShopCreatedAt",
 		"SearchProbe", "BulkRun-orders-20261001T000000Z", "BulkPoll-1004",
 		"SearchProbe", "BulkRun-refunds-20261001T000000Z", "BulkPoll-1005",
 		"SearchProbe", "BulkRun-transactions-20261001T000000Z", "BulkPoll-1007",

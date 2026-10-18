@@ -118,50 +118,74 @@ func TestSearchWarnings(t *testing.T) {
 	})
 }
 
+// TestAllOrders: without read_all_orders Shopify returns only the orders
+// created in the last 60 days, so order streams need the scope whenever the
+// shop is older than that, whatever start_date or the saved cursor.
 func TestAllOrders(t *testing.T) {
+	const oldShop = "2025-03-01T00:00:00Z"
+	noScope := []string{"read_products", "read_customers", "read_orders", "read_inventory", "read_locations"}
 	without := jsonBody(http.StatusOK, `{"data":{"currentAppInstallation":{"accessScopes":[{"handle":"read_orders"},{"handle":"read_products"}]}}}`)
 	with := jsonBody(http.StatusOK, `{"data":{"currentAppInstallation":{"accessScopes":[{"handle":"read_orders"},{"handle":"read_all_orders"}]}}}`)
-	old := `{"shop":"example","access_token":"` + testToken + `","start_date":"2026-01-01","window_days":365}`
+	created := func(at string) http.HandlerFunc {
+		return jsonBody(http.StatusOK, `{"data":{"shop":{"createdAt":"`+at+`"}}}`)
+	}
+	checkBody := func(createdAt string, scopes ...string) http.HandlerFunc {
+		return jsonBody(http.StatusOK, strings.Replace(scopesBody(scopes...), "2026-09-20T08:15:30Z", createdAt, 1))
+	}
+	recent := Config{Shop: testShop, AccessToken: testToken, StartDate: "2026-10-01"}
 
-	t.Run("check fails with an old start", func(t *testing.T) {
-		srv, _ := fixtureServer(t, map[string]http.HandlerFunc{
-			"CheckShop": jsonBody(http.StatusOK, scopesBody("read_products", "read_customers", "read_orders", "read_inventory", "read_locations")),
-		})
-		st, _ := runCheck(t, testSource(srv), Config{Shop: testShop, AccessToken: testToken, StartDate: "2026-01-01"})
+	t.Run("check fails for an old shop with a recent start", func(t *testing.T) {
+		srv, _ := fixtureServer(t, map[string]http.HandlerFunc{"CheckShop": checkBody(oldShop, noScope...)})
+		st, out := runCheck(t, testSource(srv), recent)
 		assert.Equal(t, synclet.ConnectionStatusFailed, st.Status)
-		assert.Contains(t, st.Message, "the app lacks read_all_orders, so Shopify returns only the orders created in the last 60 days and skips updates to older ones, but the read starts at 2026-01-01T00:00:00Z")
+		assert.Contains(t, st.Message, "the app lacks read_all_orders, so Shopify returns only the orders created in the last 60 days and skips updates to older ones, but the shop was created at 2025-03-01T00:00:00Z")
+		for _, m := range out.Messages {
+			assert.NotEqual(t, synclet.MessageTypeLog, m.Type, "no WARN path")
+		}
 	})
 
-	t.Run("check fails for an old shop without start_date", func(t *testing.T) {
-		body := strings.Replace(scopesBody("read_products", "read_customers", "read_orders", "read_inventory", "read_locations"), "2026-09-20T08:15:30Z", "2025-03-01T00:00:00Z", 1)
-		srv, _ := fixtureServer(t, map[string]http.HandlerFunc{"CheckShop": jsonBody(http.StatusOK, body)})
-		st, _ := runCheck(t, testSource(srv), Config{Shop: testShop, AccessToken: testToken})
-		assert.Equal(t, synclet.ConnectionStatusFailed, st.Status)
-		assert.Contains(t, st.Message, "lacks read_all_orders")
+	t.Run("check passes for a young shop", func(t *testing.T) {
+		srv, _ := fixtureServer(t, map[string]http.HandlerFunc{"CheckShop": checkBody("2026-09-20T08:15:30Z", noScope...)})
+		st, _ := runCheck(t, testSource(srv), recent)
+		assert.Equal(t, synclet.ConnectionStatusSucceeded, st.Status, st.Message)
+	})
+
+	t.Run("check passes with the scope", func(t *testing.T) {
+		srv, _ := fixtureServer(t, map[string]http.HandlerFunc{"CheckShop": checkBody(oldShop, append(noScope, "read_all_orders")...)})
+		st, _ := runCheck(t, testSource(srv), recent)
+		assert.Equal(t, synclet.ConnectionStatusSucceeded, st.Status, st.Message)
 	})
 
 	for _, stream := range []string{"orders", "refunds", "fulfillments", "transactions"} {
-		t.Run("read of "+stream+" fails with an old start", func(t *testing.T) {
-			srv, h := fixtureServer(t, map[string]http.HandlerFunc{"AccessScopes": without})
+		t.Run("read of "+stream+" fails for an old shop with a recent start", func(t *testing.T) {
+			srv, h := fixtureServer(t, map[string]http.HandlerFunc{"AccessScopes": without, "ShopCreatedAt": created(oldShop)})
 			src := testSource(srv)
-			out := readWith(t, src, old, catalogOf(t, src, synclet.SyncModeIncremental, stream), nil)
+			out := read(t, src, catalogOf(t, src, synclet.SyncModeIncremental, stream), nil)
 			require.Error(t, out.Err)
 			assert.Contains(t, out.Err.Error(), "stream "+stream+": the app lacks read_all_orders")
+			var failure synclet.FailureType
+			for _, m := range out.Messages {
+				if m.Type == synclet.MessageTypeTrace && m.Trace.Error != nil {
+					failure = m.Trace.Error.FailureType
+				}
+			}
+			assert.Equal(t, synclet.FailureTypeConfigError, failure)
+			assert.Empty(t, h.ops("SearchProbe"))
 			assert.Empty(t, h.ops("BulkRun"))
 			assert.Empty(t, states(out))
 		})
 	}
 
-	t.Run("read from a recent cursor fails with an old start", func(t *testing.T) {
-		srv, h := fixtureServer(t, map[string]http.HandlerFunc{"AccessScopes": without})
+	t.Run("read fails from a recent cursor", func(t *testing.T) {
+		srv, h := fixtureServer(t, map[string]http.HandlerFunc{"AccessScopes": without, "ShopCreatedAt": created(oldShop)})
 		src := testSource(srv)
-		out := readWith(t, src, old, catalogOf(t, src, synclet.SyncModeIncremental, "orders"), streamState("orders", `{"cursor":"2026-10-01T00:00:00Z"}`))
+		out := read(t, src, catalogOf(t, src, synclet.SyncModeIncremental, "orders"), streamState("orders", `{"cursor":"2026-10-17T00:00:00Z"}`))
 		require.Error(t, out.Err)
-		assert.Contains(t, out.Err.Error(), "stream orders: the app lacks read_all_orders")
+		assert.Contains(t, out.Err.Error(), "read_all_orders")
 		assert.Empty(t, h.ops("BulkRun"))
 	})
 
-	t.Run("read with a recent start needs no read_all_orders", func(t *testing.T) {
+	t.Run("read passes for a young shop", func(t *testing.T) {
 		srv, h := fixtureServer(t, map[string]http.HandlerFunc{"AccessScopes": without})
 		src := testSource(srv)
 		out := runRead(t, src, catalogOf(t, src, synclet.SyncModeIncremental, "orders"), nil)
@@ -169,22 +193,18 @@ func TestAllOrders(t *testing.T) {
 		assert.Len(t, records(out, "orders"), 2)
 	})
 
-	t.Run("read with read_all_orders", func(t *testing.T) {
-		srv, _ := fixtureServer(t, map[string]http.HandlerFunc{
-			"AccessScopes":                    with,
-			"BulkRun-orders-20260101T000000Z": bulkRun("1004"),
-		})
+	t.Run("read passes with the scope", func(t *testing.T) {
+		srv, _ := fixtureServer(t, map[string]http.HandlerFunc{"AccessScopes": with, "ShopCreatedAt": created(oldShop)})
 		src := testSource(srv)
-		out := readWith(t, src, old, catalogOf(t, src, synclet.SyncModeIncremental, "orders"), nil)
-		require.NoError(t, out.Err)
+		out := runRead(t, src, catalogOf(t, src, synclet.SyncModeIncremental, "orders"), nil)
 		assert.Len(t, records(out, "orders"), 2)
 	})
 
 	t.Run("other streams need no read_all_orders", func(t *testing.T) {
-		srv, h := fixtureServer(t, map[string]http.HandlerFunc{"BulkRun-products-20260101T000000Z": bulkRun("1001")})
+		srv, h := fixtureServer(t, map[string]http.HandlerFunc{"AccessScopes": without, "ShopCreatedAt": created(oldShop)})
 		src := testSource(srv)
-		out := readWith(t, src, old, catalogOf(t, src, synclet.SyncModeIncremental, "products"), nil)
-		require.NoError(t, out.Err)
+		runRead(t, src, catalogOf(t, src, synclet.SyncModeIncremental, "products"), nil)
 		assert.Empty(t, h.ops("AccessScopes"))
+		assert.Empty(t, h.ops("ShopCreatedAt"))
 	})
 }

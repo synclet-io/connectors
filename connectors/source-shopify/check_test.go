@@ -104,24 +104,6 @@ func TestCheck(t *testing.T) {
 	}
 }
 
-// TestCheckAllOrders passes without read_all_orders and warns that only
-// 60 days of orders are read.
-func TestCheckAllOrders(t *testing.T) {
-	srv, _ := fixtureServer(t, map[string]http.HandlerFunc{
-		"CheckShop": jsonBody(http.StatusOK, scopesBody("read_products", "read_customers", "read_orders", "read_inventory", "read_locations")),
-	})
-	st, out := runCheck(t, testSource(srv), Config{Shop: testShop, AccessToken: testToken})
-	assert.Equal(t, synclet.ConnectionStatusSucceeded, st.Status, st.Message)
-	var warned bool
-	for _, m := range out.Messages {
-		if m.Type == synclet.MessageTypeLog && m.Log.Level == synclet.LogLevelWarn {
-			assert.Contains(t, m.Log.Message, "read_all_orders")
-			warned = true
-		}
-	}
-	assert.True(t, warned, "no WARN about read_all_orders")
-}
-
 func TestCheckConfig(t *testing.T) {
 	tests := []struct {
 		cfg  Config
