@@ -1,0 +1,9 @@
+{
+  "id": "usrTester0000001",
+  "email": "tester@example.com",
+  "scopes": [
+    "data.records:read",
+    "schema.bases:read",
+    "user.email:read"
+  ]
+}

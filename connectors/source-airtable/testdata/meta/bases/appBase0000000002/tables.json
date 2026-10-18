@@ -1,0 +1,21 @@
+{
+  "tables": [
+    {
+      "id": "tblContacts00001",
+      "name": "Contacts",
+      "primaryFieldId": "fldContactName001",
+      "fields": [
+        {
+          "id": "fldContactName001",
+          "name": "Name",
+          "type": "singleLineText"
+        },
+        {
+          "id": "fldContactMail001",
+          "name": "Email",
+          "type": "email"
+        }
+      ]
+    }
+  ]
+}

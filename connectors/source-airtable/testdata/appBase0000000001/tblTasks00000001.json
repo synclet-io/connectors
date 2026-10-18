@@ -1,0 +1,50 @@
+{
+  "records": [
+    {
+      "id": "recTask000000003",
+      "createdTime": "2026-10-06T08:00:00.000Z",
+      "fields": {
+        "fldTaskName000001": "Task 3",
+        "fldTaskStatus0001": "Todo",
+        "fldTaskHours00001": 4.5,
+        "fldTaskScore00001": {
+          "specialValue": "NaN"
+        }
+      }
+    },
+    {
+      "id": "recTask000000001",
+      "createdTime": "2026-10-01T09:00:00.000Z",
+      "fields": {
+        "fldTaskName000001": "Task 1",
+        "fldTaskStatus0001": "Todo",
+        "fldTaskHours00001": 1.5,
+        "fldTaskModified01": "2026-10-03T10:00:00.000Z",
+        "fldTaskScore00001": 5,
+        "fldTaskLookup0001": [
+          "Ann"
+        ]
+      }
+    },
+    {
+      "id": "recTask000000002",
+      "createdTime": "2026-10-02T09:00:00.000Z",
+      "fields": {
+        "fldTaskName000001": "Task 2",
+        "fldTaskStatus0001": "Todo",
+        "fldTaskHours00001": 3.0,
+        "fldTaskModified01": "2026-10-05T10:00:00.000Z",
+        "fldTaskScore00001": {
+          "error": "#ERROR!"
+        },
+        "fldTaskLookup0001": [
+          "Bob",
+          {
+            "error": "#ERROR!"
+          }
+        ]
+      }
+    }
+  ],
+  "offset": "itrTasks2/recTask000000002"
+}

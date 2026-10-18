@@ -1,0 +1,10 @@
+{
+  "bases": [
+    {
+      "id": "appBase0000000001",
+      "name": "Projects",
+      "permissionLevel": "read"
+    }
+  ],
+  "offset": "itrBases2"
+}

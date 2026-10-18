@@ -1,0 +1,127 @@
+{
+  "records": [
+    {
+      "id": "recAllTypes00001",
+      "createdTime": "2026-10-01T00:00:00.000Z",
+      "fields": {
+        "fldAllTypes000001": "one",
+        "fldAllTypes000002": "line 1\nline 2",
+        "fldAllTypes000003": "**bold**",
+        "fldAllTypes000004": "a@example.com",
+        "fldAllTypes000005": "https://example.com",
+        "fldAllTypes000006": "+1 555 0100",
+        "fldAllTypes000007": "Open",
+        "fldAllTypes000008": "Sheet A",
+        "fldAllTypes000009": 12.5,
+        "fldAllTypes000010": 0.25,
+        "fldAllTypes000011": 9.99,
+        "fldAllTypes000012": 5400,
+        "fldAllTypes000013": 1,
+        "fldAllTypes000014": 2,
+        "fldAllTypes000015": 4,
+        "fldAllTypes000016": true,
+        "fldAllTypes000017": "2026-10-20",
+        "fldAllTypes000018": "2026-10-20T08:00:00.000Z",
+        "fldAllTypes000019": "2026-10-01T00:00:00.000Z",
+        "fldAllTypes000020": "2026-10-08T00:00:00.000Z",
+        "fldAllTypes000021": [
+          "a",
+          "b"
+        ],
+        "fldAllTypes000022": [
+          "recTask000000001",
+          "recTask000000002"
+        ],
+        "fldAllTypes000023": {
+          "id": "usrTester0000001",
+          "email": "tester@example.com",
+          "name": "Tester"
+        },
+        "fldAllTypes000024": {
+          "id": "usrTester0000001",
+          "email": "tester@example.com",
+          "name": "Tester"
+        },
+        "fldAllTypes000025": {
+          "id": "usrTester0000002",
+          "email": "other@example.com",
+          "name": "Other"
+        },
+        "fldAllTypes000026": [
+          {
+            "id": "usrTester0000001",
+            "email": "tester@example.com",
+            "name": "Tester"
+          }
+        ],
+        "fldAllTypes000027": [
+          {
+            "id": "attFile000000001",
+            "url": "https://files.example.com/a.png",
+            "filename": "a.png",
+            "size": 1024,
+            "type": "image/png",
+            "width": 10,
+            "height": 20,
+            "thumbnails": {
+              "small": {
+                "url": "https://files.example.com/a-s.png",
+                "width": 5,
+                "height": 10
+              },
+              "large": {
+                "url": "https://files.example.com/a-l.png",
+                "width": 10,
+                "height": 20
+              },
+              "full": {
+                "url": "https://files.example.com/a.png",
+                "width": 10,
+                "height": 20
+              }
+            }
+          }
+        ],
+        "fldAllTypes000028": {
+          "text": "4006381333931",
+          "type": "ean13"
+        },
+        "fldAllTypes000029": {
+          "label": "Open",
+          "url": "https://example.com/1"
+        },
+        "fldAllTypes000030": {
+          "state": "generated",
+          "value": "A summary",
+          "isStale": false
+        },
+        "fldAllTypes000031": 25,
+        "fldAllTypes000032": "2026-10-21T00:00:00.000Z",
+        "fldAllTypes000033": {
+          "anything": [
+            1,
+            "x"
+          ]
+        },
+        "fldAllTypes000034": 4.5,
+        "fldAllTypes000035": [
+          "Task 1",
+          "Task 2"
+        ],
+        "fldAllTypes000036": [
+          "2026-10-03T10:00:00.000Z",
+          "2026-10-05T10:00:00.000Z"
+        ],
+        "fldAllTypes000037": [
+          5,
+          {
+            "error": "#ERROR!"
+          }
+        ],
+        "fldAllTypes000038": {
+          "whatever": true
+        }
+      }
+    }
+  ]
+}

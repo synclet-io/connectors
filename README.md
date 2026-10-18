@@ -22,6 +22,7 @@ Taskfile.yml              local shortcuts
 | Connector | Image |
 |---|---|
 | [source-example](connectors/source-example) | `ghcr.io/synclet-io/connectors/source-example` |
+| [source-airtable](connectors/source-airtable) | `ghcr.io/synclet-io/connectors/source-airtable` |
 | [source-applovin](connectors/source-applovin) | `ghcr.io/synclet-io/connectors/source-applovin` |
 | [source-bigquery](connectors/source-bigquery) | `ghcr.io/synclet-io/connectors/source-bigquery` |
 | [source-facebook-marketing](connectors/source-facebook-marketing) | `ghcr.io/synclet-io/connectors/source-facebook-marketing` |

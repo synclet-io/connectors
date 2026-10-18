@@ -1,0 +1,454 @@
+{
+  "tables": [
+    {
+      "id": "tblTasks00000001",
+      "name": "Tasks",
+      "primaryFieldId": "fldTaskName000001",
+      "fields": [
+        {
+          "id": "fldTaskName000001",
+          "name": "Name",
+          "type": "singleLineText"
+        },
+        {
+          "id": "fldTaskStatus0001",
+          "name": "Status",
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selTodo000000001",
+                "name": "Todo"
+              }
+            ]
+          }
+        },
+        {
+          "id": "fldTaskHours00001",
+          "name": "Hours",
+          "type": "number",
+          "options": {
+            "precision": 1
+          }
+        },
+        {
+          "id": "fldTaskModified01",
+          "name": "Last Modified",
+          "type": "lastModifiedTime",
+          "options": {
+            "isValid": true,
+            "referencedFieldIds": [
+              "fldTaskName000001",
+              "fldTaskStatus0001"
+            ],
+            "result": {
+              "type": "dateTime"
+            }
+          }
+        },
+        {
+          "id": "fldTaskScore00001",
+          "name": "Score",
+          "type": "formula",
+          "options": {
+            "isValid": true,
+            "formula": "{Hours}/0",
+            "referencedFieldIds": [
+              "fldTaskHours00001"
+            ],
+            "result": {
+              "type": "number",
+              "options": {
+                "precision": 0
+              }
+            }
+          }
+        },
+        {
+          "id": "fldTaskLookup0001",
+          "name": "Owner Names",
+          "type": "multipleLookupValues",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldTaskOwners0001",
+            "fieldIdInLinkedTable": "fldContactName001",
+            "result": {
+              "type": "singleLineText"
+            }
+          }
+        }
+      ],
+      "views": [
+        {
+          "id": "viwTasks00000001",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblAllTypes00001",
+      "name": "All Types",
+      "primaryFieldId": "fldAllTypes000001",
+      "fields": [
+        {
+          "id": "fldAllTypes000001",
+          "name": "Single Line",
+          "type": "singleLineText"
+        },
+        {
+          "id": "fldAllTypes000002",
+          "name": "Long Text",
+          "type": "multilineText"
+        },
+        {
+          "id": "fldAllTypes000003",
+          "name": "Rich",
+          "type": "richText"
+        },
+        {
+          "id": "fldAllTypes000004",
+          "name": "Email",
+          "type": "email"
+        },
+        {
+          "id": "fldAllTypes000005",
+          "name": "Website",
+          "type": "url"
+        },
+        {
+          "id": "fldAllTypes000006",
+          "name": "Phone",
+          "type": "phoneNumber"
+        },
+        {
+          "id": "fldAllTypes000007",
+          "name": "Stage",
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selStage00000001",
+                "name": "Open",
+                "color": "blueLight2"
+              }
+            ]
+          }
+        },
+        {
+          "id": "fldAllTypes000008",
+          "name": "Sync Source",
+          "type": "externalSyncSource",
+          "options": {
+            "choices": []
+          }
+        },
+        {
+          "id": "fldAllTypes000009",
+          "name": "Amount",
+          "type": "number",
+          "options": {
+            "precision": 2
+          }
+        },
+        {
+          "id": "fldAllTypes000010",
+          "name": "Progress",
+          "type": "percent",
+          "options": {
+            "precision": 0
+          }
+        },
+        {
+          "id": "fldAllTypes000011",
+          "name": "Price",
+          "type": "currency",
+          "options": {
+            "precision": 2,
+            "symbol": "$"
+          }
+        },
+        {
+          "id": "fldAllTypes000012",
+          "name": "Time Spent",
+          "type": "duration",
+          "options": {
+            "durationFormat": "h:mm"
+          }
+        },
+        {
+          "id": "fldAllTypes000013",
+          "name": "Ticket",
+          "type": "autoNumber"
+        },
+        {
+          "id": "fldAllTypes000014",
+          "name": "Link Count",
+          "type": "count",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldAllTypes000022"
+          }
+        },
+        {
+          "id": "fldAllTypes000015",
+          "name": "Stars",
+          "type": "rating",
+          "options": {
+            "max": 5,
+            "icon": "star",
+            "color": "yellowBright"
+          }
+        },
+        {
+          "id": "fldAllTypes000016",
+          "name": "Done",
+          "type": "checkbox",
+          "options": {
+            "icon": "check",
+            "color": "greenBright"
+          }
+        },
+        {
+          "id": "fldAllTypes000017",
+          "name": "Due",
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "iso",
+              "format": "YYYY-MM-DD"
+            }
+          }
+        },
+        {
+          "id": "fldAllTypes000018",
+          "name": "Starts At",
+          "type": "dateTime",
+          "options": {
+            "timeZone": "utc",
+            "dateFormat": {
+              "name": "iso"
+            },
+            "timeFormat": {
+              "name": "24hour"
+            }
+          }
+        },
+        {
+          "id": "fldAllTypes000019",
+          "name": "Created",
+          "type": "createdTime",
+          "options": {
+            "result": {
+              "type": "dateTime",
+              "options": {
+                "timeZone": "utc"
+              }
+            }
+          }
+        },
+        {
+          "id": "fldAllTypes000020",
+          "name": "Modified",
+          "type": "lastModifiedTime",
+          "options": {
+            "isValid": true,
+            "referencedFieldIds": [],
+            "result": {
+              "type": "dateTime"
+            }
+          }
+        },
+        {
+          "id": "fldAllTypes000021",
+          "name": "Tags",
+          "type": "multipleSelects",
+          "options": {
+            "choices": [
+              {
+                "id": "selTag0000000001",
+                "name": "a"
+              }
+            ]
+          }
+        },
+        {
+          "id": "fldAllTypes000022",
+          "name": "Linked",
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblTasks00000001",
+            "isReversed": false,
+            "prefersSingleRecordLink": false
+          }
+        },
+        {
+          "id": "fldAllTypes000023",
+          "name": "Owner",
+          "type": "singleCollaborator",
+          "options": {}
+        },
+        {
+          "id": "fldAllTypes000024",
+          "name": "Created By",
+          "type": "createdBy"
+        },
+        {
+          "id": "fldAllTypes000025",
+          "name": "Modified By",
+          "type": "lastModifiedBy",
+          "options": {
+            "referencedFieldIds": []
+          }
+        },
+        {
+          "id": "fldAllTypes000026",
+          "name": "Watchers",
+          "type": "multipleCollaborators",
+          "options": {}
+        },
+        {
+          "id": "fldAllTypes000027",
+          "name": "Files",
+          "type": "multipleAttachments",
+          "options": {
+            "isReversed": false
+          }
+        },
+        {
+          "id": "fldAllTypes000028",
+          "name": "Barcode",
+          "type": "barcode"
+        },
+        {
+          "id": "fldAllTypes000029",
+          "name": "Open",
+          "type": "button"
+        },
+        {
+          "id": "fldAllTypes000030",
+          "name": "Summary",
+          "type": "aiText",
+          "options": {
+            "prompt": [],
+            "referencedFieldIds": []
+          }
+        },
+        {
+          "id": "fldAllTypes000031",
+          "name": "Total",
+          "type": "formula",
+          "options": {
+            "isValid": true,
+            "formula": "{Amount}*2",
+            "referencedFieldIds": [],
+            "result": {
+              "type": "number",
+              "options": {
+                "precision": 2
+              }
+            }
+          }
+        },
+        {
+          "id": "fldAllTypes000032",
+          "name": "Next Due",
+          "type": "formula",
+          "options": {
+            "isValid": true,
+            "formula": "DATEADD({Due},1,'days')",
+            "referencedFieldIds": [],
+            "result": {
+              "type": "dateTime",
+              "options": {
+                "timeZone": "utc"
+              }
+            }
+          }
+        },
+        {
+          "id": "fldAllTypes000033",
+          "name": "Broken Formula",
+          "type": "formula",
+          "options": {
+            "isValid": false,
+            "formula": "{Gone}",
+            "referencedFieldIds": []
+          }
+        },
+        {
+          "id": "fldAllTypes000034",
+          "name": "Sum Hours",
+          "type": "rollup",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldAllTypes000022",
+            "fieldIdInLinkedTable": "fldTaskHours00001",
+            "referencedFieldIds": [],
+            "result": {
+              "type": "number",
+              "options": {
+                "precision": 1
+              }
+            }
+          }
+        },
+        {
+          "id": "fldAllTypes000035",
+          "name": "Linked Names",
+          "type": "multipleLookupValues",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldAllTypes000022",
+            "fieldIdInLinkedTable": "fldTaskName000001",
+            "result": {
+              "type": "singleLineText"
+            }
+          }
+        },
+        {
+          "id": "fldAllTypes000036",
+          "name": "Linked Modified",
+          "type": "multipleLookupValues",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldAllTypes000022",
+            "fieldIdInLinkedTable": "fldTaskModified01",
+            "result": {
+              "type": "lastModifiedTime",
+              "options": {
+                "result": {
+                  "type": "dateTime"
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "fldAllTypes000037",
+          "name": "Linked Scores",
+          "type": "multipleLookupValues",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldAllTypes000022",
+            "fieldIdInLinkedTable": "fldTaskScore00001",
+            "result": {
+              "type": "formula",
+              "options": {
+                "result": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "fldAllTypes000038",
+          "name": "Future",
+          "type": "someFutureType"
+        }
+      ],
+      "views": []
+    }
+  ]
+}

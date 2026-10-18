@@ -1,0 +1,47 @@
+{
+  "records": [
+    {
+      "id": "recTask000000003",
+      "createdTime": "2026-10-06T08:00:00.000Z",
+      "fields": {
+        "fldTaskName000001": "Task 3",
+        "fldTaskStatus0001": "Todo",
+        "fldTaskHours00001": 4.5,
+        "fldTaskScore00001": {
+          "specialValue": "NaN"
+        }
+      }
+    },
+    {
+      "id": "recTask000000002",
+      "createdTime": "2026-10-02T09:00:00.000Z",
+      "fields": {
+        "fldTaskName000001": "Task 2",
+        "fldTaskStatus0001": "Todo",
+        "fldTaskHours00001": 3.0,
+        "fldTaskModified01": "2026-10-05T10:00:00.000Z",
+        "fldTaskScore00001": {
+          "error": "#ERROR!"
+        },
+        "fldTaskLookup0001": [
+          "Bob",
+          {
+            "error": "#ERROR!"
+          }
+        ]
+      }
+    },
+    {
+      "id": "recTask000000004",
+      "createdTime": "2026-10-04T09:00:00.000Z",
+      "fields": {
+        "fldTaskName000001": "Task 4",
+        "fldTaskStatus0001": "Todo",
+        "fldTaskHours00001": 6.0,
+        "fldTaskModified01": "2026-10-07T12:30:00.000Z",
+        "fldTaskScore00001": 7,
+        "fldTaskUnknown01": "not in schema"
+      }
+    }
+  ]
+}

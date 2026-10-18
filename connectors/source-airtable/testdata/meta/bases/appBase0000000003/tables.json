@@ -1,0 +1,20 @@
+{
+  "tables": [
+    {
+      "id": "tblDeals00000001",
+      "name": "Deals",
+      "primaryFieldId": "fldDealAmount0001",
+      "fields": [
+        {
+          "id": "fldDealAmount0001",
+          "name": "Amount",
+          "type": "currency",
+          "options": {
+            "precision": 2,
+            "symbol": "EUR"
+          }
+        }
+      ]
+    }
+  ]
+}

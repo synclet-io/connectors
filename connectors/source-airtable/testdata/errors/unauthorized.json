@@ -1,0 +1,6 @@
+{
+  "error": {
+    "type": "AUTHENTICATION_REQUIRED",
+    "message": "Authentication required"
+  }
+}

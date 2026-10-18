@@ -1,0 +1,19 @@
+{
+  "records": [
+    {
+      "id": "recContact000001",
+      "createdTime": "2026-10-01T00:00:00.000Z",
+      "fields": {
+        "fldContactName001": "Ann",
+        "fldContactMail001": "ann@example.com"
+      }
+    },
+    {
+      "id": "recContact000002",
+      "createdTime": "2026-10-02T00:00:00.000Z",
+      "fields": {
+        "fldContactName001": "Bob"
+      }
+    }
+  ]
+}

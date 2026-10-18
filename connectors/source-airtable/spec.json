@@ -1,0 +1,43 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Reads every table of the Airtable bases a personal access token can see, one stream per table.",
+    "properties": {
+      "base_ids": {
+        "description": "Bases to sync, by the id in the base URL (appXXXXXXXXXXXXXX). Empty syncs every base the token can see.",
+        "examples": [
+          "appAbCdEfGhIjKlMn"
+        ],
+        "items": {
+          "pattern": "^app[A-Za-z0-9]{14}$",
+          "type": "string"
+        },
+        "order": 1,
+        "title": "Base IDs",
+        "type": "array"
+      },
+      "personal_access_token": {
+        "airbyte_secret": true,
+        "description": "Airtable personal access token (https://airtable.com/create/tokens) with the scopes data.records:read and schema.bases:read and access to the bases to sync. It is sent in the Authorization header.",
+        "order": 0,
+        "title": "Personal Access Token",
+        "type": "string"
+      }
+    },
+    "required": [
+      "personal_access_token"
+    ],
+    "title": "Airtable Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-airtable",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": true,
+  "supportsNormalization": false
+}

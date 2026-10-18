@@ -1,0 +1,16 @@
+{
+  "records": [
+    {
+      "id": "recTask000000004",
+      "createdTime": "2026-10-04T09:00:00.000Z",
+      "fields": {
+        "fldTaskName000001": "Task 4",
+        "fldTaskStatus0001": "Todo",
+        "fldTaskHours00001": 6.0,
+        "fldTaskModified01": "2026-10-07T12:30:00.000Z",
+        "fldTaskScore00001": 7,
+        "fldTaskUnknown01": "not in schema"
+      }
+    }
+  ]
+}
