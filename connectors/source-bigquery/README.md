@@ -29,8 +29,11 @@ The account (service account or ADC principal) needs:
   Discovering every dataset (`datasets` empty) needs `bigquery.datasets.list` on the project too, which
   Data Viewer on the project grants.
 
-`check` names the cause of a failure: a `service_account_info` that is not a valid key, a project or
-dataset that does not exist, or the missing Job User or Data Viewer role.
+`check` runs `SELECT 1`, then for each configured dataset (each visible one when `datasets` is empty)
+reads its metadata, lists its tables and reads one row of its first table, so an account with only
+BigQuery Metadata Viewer fails. It names the cause of a failure: a `service_account_info` that is not a
+valid key, a project or dataset that does not exist, no visible dataset, or the missing Job User or Data
+Viewer role. Quota, rate-limit and billing errors are reported as they are, not as a missing role.
 
 ## Types
 

@@ -52,7 +52,9 @@ type streamPlan struct {
 	from     *string
 }
 
-func quote(name string) string { return "`" + strings.ReplaceAll(name, "`", "\\`") + "`" }
+func quote(name string) string {
+	return "`" + strings.ReplaceAll(strings.ReplaceAll(name, `\`, `\\`), "`", "\\`") + "`"
+}
 
 // query renders the statement that reads the plan's columns, and the cursor
 // column when it is not one of them.
