@@ -76,6 +76,16 @@ func TestCheck(t *testing.T) {
 			message:   "no access to property 987654321: grant the service account or user Viewer on it (properties/987654321/metadata: HTTP 404 NOT_FOUND",
 		},
 		{
+			name:      "credentials without the analytics scope",
+			overrides: map[string][]fixture{metaB: {{status: http.StatusForbidden, file: "errors/scope_insufficient"}}},
+			message:   "the credentials lack the https://www.googleapis.com/auth/analytics.readonly scope: authorize the refresh token with it (properties/987654321/metadata: HTTP 403 ACCESS_TOKEN_SCOPE_INSUFFICIENT",
+		},
+		{
+			name:      "other permission denied",
+			overrides: map[string][]fixture{metaB: {{status: http.StatusForbidden, file: "errors/permission_denied_other"}}},
+			message:   "permission denied for property 987654321 (properties/987654321/metadata: HTTP 403 IAM_PERMISSION_DENIED: The caller does not have permission.)",
+		},
+		{
 			name:    "property without fixtures",
 			edit:    func(c *Config) { c.PropertyIDs = []string{"555555555"} },
 			message: "no access to property 555555555",

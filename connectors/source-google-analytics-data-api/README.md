@@ -70,7 +70,9 @@ a new one when the API answers 401. The access token travels only in the `Author
 | `refresh_token is invalid or revoked` | The token endpoint answered `invalid_grant` |
 | `client_id or client_secret is invalid` | The token endpoint answered `invalid_client` or `unauthorized_client` |
 | `Google Analytics Data API is not enabled in Google Cloud project <n>: enable analyticsdata.googleapis.com` | 403 with reason `SERVICE_DISABLED` |
-| `no access to property <id>: grant the service account or user Viewer on it` | 403 `PERMISSION_DENIED` or 404 for the property |
+| `the credentials lack the https://www.googleapis.com/auth/analytics.readonly scope` | 403 with reason `ACCESS_TOKEN_SCOPE_INSUFFICIENT` |
+| `no access to property <id>: grant the service account or user Viewer on it` | 403 `PERMISSION_DENIED` without a reason, or 404, for the property |
+| `permission denied for property <id>` | Any other 403, with Google's reason and message |
 | `custom report <r>: property <id> has no dimension <x>` (or `metric`) | A configured field the property's metadata does not list |
 
 ## Streams
@@ -147,7 +149,7 @@ report and the day.
 Requests are sent one at a time with `returnPropertyQuota: true`. When a response shows fewer hourly
 property tokens remaining than it consumed, the connector logs a `WARN` and waits for the next full hour
 before the property's next request; when that happens a third time in a row, the read fails. When the daily
-tokens are exhausted (fewer remaining than consumed, or a 429 naming the daily tokens), the read fails
-before the property's next request, naming the property and day; the next sync continues from the saved
+tokens are exhausted (fewer remaining than consumed, or a 429 naming the daily tokens), the connector logs a
+`WARN` and the read fails before the property's next request, naming the property and day; the next sync continues from the saved
 state. Any other 429, a 5xx response or a transport error is sent again after a doubling, jittered delay
 (2 s, 4 s, 8 s, 16 s), five times in all.

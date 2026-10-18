@@ -1,0 +1,12 @@
+{
+  "dimensionHeaders": [{"name": "date"}],
+  "metricHeaders": [{"name": "screenPageViews", "type": "TYPE_INTEGER"}],
+  "rows": [
+    {"dimensionValues": [{"value": "20261012"}], "metricValues": [{"value": "77"}]}
+  ],
+  "metadata": {
+    "subjectToThresholding": true,
+    "currencyCode": "EUR",
+    "timeZone": "Europe/Lisbon"
+  }
+}

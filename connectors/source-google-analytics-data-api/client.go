@@ -163,7 +163,9 @@ func (e retryable) Unwrap() error { return e.err }
 // A request rejected with 401 gets a new access token and is sent once more;
 // a retryable failure is sent again after a doubling, jittered delay, up to
 // attempts times in all. A disabled API and a property the credentials
-// cannot read become configuration errors.
+// cannot read become configuration errors. A PERMISSION_DENIED without an
+// ErrorInfo reason is the Data API's answer for a property the credentials
+// have no role on.
 func (c *apiClient) send(ctx context.Context, method, path, prop string, body, out any) error {
 	var payload []byte
 	if body != nil {
@@ -192,8 +194,12 @@ func (c *apiClient) send(ctx context.Context, method, path, prop string, body, o
 					project = "(unknown)"
 				}
 				return synclet.ConfigError(fmt.Errorf("Google Analytics Data API is not enabled in Google Cloud project %s: enable analyticsdata.googleapis.com (%w)", project, ae)) //nolint:staticcheck // the message starts with the product name
-			case ae.status == http.StatusForbidden && ae.state == "PERMISSION_DENIED", ae.status == http.StatusNotFound:
+			case ae.has("ACCESS_TOKEN_SCOPE_INSUFFICIENT"):
+				return synclet.ConfigError(fmt.Errorf("the credentials lack the %s scope: authorize the refresh token with it (%w)", scope, ae))
+			case ae.status == http.StatusForbidden && ae.state == "PERMISSION_DENIED" && len(ae.reasons) == 0, ae.status == http.StatusNotFound:
 				return synclet.ConfigError(fmt.Errorf("no access to property %s: grant the service account or user Viewer on it (%w)", prop, ae))
+			case ae.status == http.StatusForbidden:
+				return synclet.ConfigError(fmt.Errorf("permission denied for property %s (%w)", prop, ae))
 			}
 		}
 		var r retryable

@@ -1,0 +1,7 @@
+{
+  "dimensionHeaders": [{"name": "date"}],
+  "metricHeaders": [{"name": "active1DayUsers", "type": "TYPE_INTEGER"}],
+  "rows": [{"dimensionValues": [{"value": "20261015"}], "metricValues": [{"value": "40"}]}],
+  "rowCount": 1,
+  "kind": "analyticsData#runReport"
+}

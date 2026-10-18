@@ -184,6 +184,56 @@ func TestReadSampling(t *testing.T) {
 	}, warnings(out))
 }
 
+func TestReadDataQuality(t *testing.T) {
+	tests := []struct {
+		report, metric, record, warning string
+	}{
+		{
+			report: "data_loss_report", metric: "newUsers",
+			record: `{"property_id":"123456789","date":"2026-10-12","newUsers":318,` +
+				`"sampled":false,"sampling_ratio":null,"subject_to_thresholding":false,"data_loss_from_other_row":true}`,
+			warning: "report data may be incomplete property=123456789 report=data_loss_report day=2026-10-12 sampled=false sampling_ratio=<nil> " +
+				"subject_to_thresholding=false data_loss_from_other_row=true",
+		},
+		{
+			report: "thresholded_report", metric: "screenPageViews",
+			record: `{"property_id":"123456789","date":"2026-10-12","screenPageViews":77,` +
+				`"sampled":false,"sampling_ratio":null,"subject_to_thresholding":true,"data_loss_from_other_row":false}`,
+			warning: "report data may be incomplete property=123456789 report=thresholded_report day=2026-10-12 sampled=false sampling_ratio=<nil> " +
+				"subject_to_thresholding=true data_loss_from_other_row=false",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.report, func(t *testing.T) {
+			cfg := testConfig(t, func(c *Config) {
+				onlyPropA(c)
+				c.StartDate, c.EndDate = "2026-10-12", "2026-10-12"
+				c.CustomReports = []CustomReport{{Name: tt.report, Metrics: []string{tt.metric}}}
+			})
+			srv, _ := fixtureServer(t, nil)
+			src, _ := testSource(srv)
+			out := runRead(t, src, cfg, configured(t, src, cfg, synclet.SyncModeFullRefresh, tt.report), nil)
+			require.NoError(t, out.Err)
+			recs := out.Records(synclet.StreamDescriptor{Name: tt.report, Namespace: namespace})
+			require.Len(t, recs, 1)
+			assert.JSONEq(t, tt.record, string(recs[0].Data))
+			assert.Equal(t, []string{tt.warning}, warnings(out))
+		})
+	}
+}
+
+func TestReadRowOfAnotherDay(t *testing.T) {
+	report := "POST properties/" + testPropA + ":runReport"
+	srv, _ := fixtureServer(t, map[string][]fixture{report: {{file: "responses/wrong_date"}}})
+	src, _ := testSource(srv)
+	cfg := testConfig(t, func(c *Config) { onlyPropA(c); c.StartDate = "2026-10-16" })
+	out := runRead(t, src, cfg, configured(t, src, cfg, synclet.SyncModeIncremental, "daily_active_users"), nil)
+	require.Error(t, out.Err)
+	assert.Equal(t, "daily_active_users: property 123456789, 2026-10-16: row 0: row of date 2026-10-15 in the report of 2026-10-16", out.Err.Error())
+	assert.Empty(t, records(t, out, "daily_active_users"))
+	assert.Empty(t, out.States())
+}
+
 func TestReadSamplingWithoutDataQualityFields(t *testing.T) {
 	cfg := testConfig(t, func(c *Config) {
 		onlyPropA(c)
@@ -230,6 +280,7 @@ func TestReadQuota(t *testing.T) {
 		waits     []time.Duration
 		err       string
 		requests  int
+		warnings  []string
 	}{
 		{
 			name:      "hourly tokens low waits for the next hour",
@@ -255,6 +306,13 @@ func TestReadQuota(t *testing.T) {
 			overrides: []fixture{{}, {file: "responses/day_out"}, {}},
 			err:       "daily_active_users: property 123456789, 2026-10-13: daily token quota of property 123456789 is exhausted (last request for 2026-10-12); the next sync continues from the saved state",
 			requests:  2,
+			warnings:  []string{"daily token quota of the property is exhausted; its next request fails property=123456789 day=2026-10-12 consumed=12 remaining=0"},
+		},
+		{
+			name:      "daily tokens exhausted on the last request warns",
+			overrides: []fixture{{}, {}, {}, {}, {}, {file: "responses/day_out"}},
+			requests:  6,
+			warnings:  []string{"daily token quota of the property is exhausted; its next request fails property=123456789 day=2026-10-16 consumed=12 remaining=0"},
 		},
 		{
 			name:      "429 naming daily tokens fails at once",
@@ -297,6 +355,9 @@ func TestReadQuota(t *testing.T) {
 			}
 			assert.Equal(t, tt.waits, w.list())
 			assert.Len(t, h.reports(testPropA, "active1DayUsers"), tt.requests)
+			if tt.warnings != nil {
+				assert.Equal(t, tt.warnings, warnings(out))
+			}
 		})
 	}
 }

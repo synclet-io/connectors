@@ -259,7 +259,8 @@ func (r *reader) pace(ctx context.Context, prop, day string) error {
 	return r.c.wait(ctx, d)
 }
 
-// account records the quota a response reports.
+// account records the quota a response reports, warning when the daily
+// tokens of the property run out.
 func (r *reader) account(prop, day string, resp reportResponse) {
 	q := r.quota[prop]
 	if q == nil {
@@ -275,7 +276,9 @@ func (r *reader) account(prop, day string, resp reportResponse) {
 	} else {
 		q.hourWaits = 0
 	}
-	if dq := pq.TokensPerDay; dq != nil && dq.Remaining < dq.Consumed {
+	if dq := pq.TokensPerDay; dq != nil && dq.Remaining < dq.Consumed && q.dayOut == "" {
 		q.dayOut = day
+		r.log.Warn("daily token quota of the property is exhausted; its next request fails", "property", prop, "day", day,
+			"consumed", dq.Consumed, "remaining", dq.Remaining)
 	}
 }
