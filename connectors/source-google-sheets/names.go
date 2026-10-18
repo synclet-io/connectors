@@ -11,6 +11,10 @@ import (
 // is the name of column i. Columns past len(names) have no name.
 type header struct {
 	names []string
+	// positional marks the names taken from the column's position: a
+	// duplicate with _<column letter> and the column_<letter> of an empty
+	// cell. They follow the column, not its header, when columns move.
+	positional []bool
 	// dropped is, in legacy mode, the number of non-empty header cells after
 	// the first empty one, which get no name.
 	dropped int
@@ -57,6 +61,7 @@ func legacyNames(row []any, convert bool) (header, error) {
 		counts[n]++
 	}
 	h.names = make([]string, len(raw))
+	h.positional = make([]bool, len(raw))
 	owner := map[string]int{}
 	for i, n := range raw {
 		name := n
@@ -72,6 +77,7 @@ func legacyNames(row []any, convert bool) (header, error) {
 		}
 		owner[name] = i
 		h.names[i] = name
+		h.positional[i] = counts[n] > 1
 	}
 	return h, nil
 }
@@ -88,11 +94,13 @@ func stableNames(row []any, convert bool) (header, error) {
 		return h, errNoHeader
 	}
 	h.names = make([]string, last+1)
+	h.positional = make([]bool, last+1)
 	for i := range h.names {
 		s := headerText(row[i])
 		switch {
 		case s == "":
 			h.names[i] = "column_" + columnLetter(i)
+			h.positional[i] = true
 		case convert:
 			h.names[i] = toSnakeCase(s)
 		default:
@@ -119,6 +127,7 @@ func stableNames(row []any, convert bool) (header, error) {
 		}
 		taken[name] = true
 		h.names[i] = name
+		h.positional[i] = true
 	}
 	return h, nil
 }

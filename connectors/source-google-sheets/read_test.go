@@ -249,9 +249,15 @@ func TestReadValueRender(t *testing.T) {
 			out := runRead(t, src, cfg, cat, nil)
 			require.NoError(t, out.Err)
 			assert.Equal(t, tt.want, records(t, out, stream("Prices")))
-			var rowRequests int
+			var rowRequests, headerRequests int
 			for _, r := range h.list()[before:] {
-				if r.path != batchGetPath(testSheetA) || r.query.Get("ranges") == "'Prices'!1:1" {
+				if r.path != batchGetPath(testSheetA) {
+					continue
+				}
+				if r.query.Get("ranges") == "'Prices'!1:1" {
+					headerRequests++
+					assert.Equal(t, "FORMATTED_VALUE", r.query.Get("valueRenderOption"), "header rows are read formatted, so a numeric header stays a name")
+					assert.Empty(t, r.query.Get("dateTimeRenderOption"))
 					continue
 				}
 				rowRequests++
@@ -259,6 +265,7 @@ func TestReadValueRender(t *testing.T) {
 				assert.Equal(t, tt.dateTime, r.query.Get("dateTimeRenderOption"))
 			}
 			assert.Equal(t, 1, rowRequests)
+			assert.Equal(t, 1, headerRequests)
 		})
 	}
 }

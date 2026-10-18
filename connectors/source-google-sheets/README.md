@@ -88,7 +88,15 @@ shorter than the header gives `null` for the missing columns.
 
 A read fails, before emitting any record of the spreadsheet, when the configured schema has a column the
 current header no longer has (`column "<name>" is no longer in the header of sheet "<title>"; refresh the
-source schema`) or a configured sheet is gone. Values never shift under another column's name.
+source schema`) or a configured sheet is gone.
+
+Names taken from a column's position (a duplicate's `_<letter>`, `stable`'s `column_<letter>`) follow the
+column, not its header: when columns move, such a name can come to hold another column's values. A current
+header column named by position that the configured schema lacks is the sign of that: `stable` fails the
+read (`column <letter> of sheet "<title>" is named "<name>" by its position and is not in the configured
+schema ...; refresh the source schema`), `legacy` keeps reading as 0.3.0 did and logs a `WARN` per stream.
+A move that keeps the same set of position names, such as two swapped duplicate columns, cannot be told
+apart from an edit of their values.
 
 ## Column names
 
@@ -99,6 +107,7 @@ source schema`) or a configured sheet is gone. Values never shift under another 
 | `First Name, first_name` with `names_conversion` | discover and read fail, naming both columns and `column_naming: stable` | `first_name_A, first_name_B` |
 | Non-ASCII (`Prénom, 名前`) | kept (`prénom, 名前` with `names_conversion`) | kept |
 | Value right of the last named column | one `WARN` per stream naming the first row and column; the value is not read | the read fails, naming the row and column |
+| New column named by position, not in the configured schema | one `WARN` per stream; values may sit under the wrong duplicate name | the read fails |
 
 In `legacy` mode duplicates get `_<letter>` before `names_conversion`; in `stable` mode after it, and a
 suffix that would collide with another column gets the letter again. With `incremental: true` a header named
@@ -132,6 +141,11 @@ an edit to any sheet re-reads all its incremental streams. Each read is a whole-
 `append` with deduplication on a key column, or `overwrite`, in the destination. A read of an incremental
 stream fails when Drive does not return `modifiedTime`.
 
+Drive moves `modifiedTime` only when someone (or an API client) edits the spreadsheet. Values that formulas
+recalculate on their own, such as `NOW()`, `TODAY()`, `RAND()`, `IMPORTRANGE`, `IMPORTDATA`, `IMPORTXML`,
+`GOOGLEFINANCE` or `GOOGLETRANSLATE`, change without moving it, so an incremental stream skips them until the
+next edit. Sync sheets like that with full refresh.
+
 ## Quotas
 
 The Sheets API allows 60 read requests per minute per user and 300 per project by default. Requests are
@@ -143,7 +157,7 @@ ReadRequestsPerMinutePerUser (60) is still exceeded after 5 attempts: lower requ
 
 ## Breaking-change switches
 
-Configurations without the keys above keep the stream names, column names, types and records of 0.3.0.
+Configurations without the keys above keep the stream names, column names and types of 0.3.0.
 Behaviour that would change them is opt-in:
 
 - `column_naming: stable` reads columns after an empty header cell and names them `column_<letter>`;
@@ -151,9 +165,20 @@ Behaviour that would change them is opt-in:
 - `incremental: true` adds the `_spreadsheet_modified_time` column;
 - `additional_spreadsheet_ids` adds namespaced streams.
 
-Defaults that changed without changing records: `batch_size` is 10000 (was 1000000), reads continue past
-empty batches up to `rowCount`, requests are paced at `requests_per_minute`, and two `legacy` columns whose
-names collide after `names_conversion` fail instead of silently keeping one value.
+Defaults that changed without changing the records of a sheet that reads correctly: `batch_size` is 10000
+(was 1000000), reads continue past empty batches up to `rowCount` (0.3.0 stopped at the first batch without
+values, dropping the rows after it), and requests are paced at `requests_per_minute`.
+
+Changes that make a sync fail where 0.3.0 kept going, so values never land silently under the wrong
+column or get dropped (recorded in `meta.json` `breaking_changes` for 0.4.0):
+
+- a column of the configured schema missing from the current header fails the read with `column "<name>" is
+  no longer in the header of sheet "<title>"; refresh the source schema` (0.3.0 read the current header and
+  left the column out of every record);
+- two `legacy` columns whose names collide after `names_conversion` fail discover and read (0.3.0 kept one
+  of the two values).
+
+Refreshing the source schema after a header change makes the sync pass again.
 
 ## Tests
 

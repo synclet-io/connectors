@@ -105,7 +105,7 @@ func TestIncremental(t *testing.T) {
 		{
 			name:      "Drive forbidden fails the read",
 			overrides: map[string][]fixture{driveKey(testSheetA): {{status: http.StatusForbidden, file: "errors/drive_scope_insufficient"}}},
-			err:       "spreadsheet " + testSheetA + ": Google Drive does not return its modifiedTime, which incremental sync needs",
+			err:       "; set its incremental streams to full refresh and refresh the source schema to read its streams without the cursor column",
 		},
 		{
 			name:  "bad state",
@@ -182,4 +182,19 @@ func TestIncrementalPerSpreadsheet(t *testing.T) {
 	}
 	assert.Equal(t, 2, driveReads, "one modifiedTime per spreadsheet")
 	assert.Len(t, h.ranges(testSheetB), valuesB, "no values request for spreadsheet B")
+}
+
+func TestIncrementalFullRefreshDriveGone(t *testing.T) {
+	discoverSrv, _ := fixtureServer(t, nil)
+	discoverSrc, _ := testSource(discoverSrv)
+	cfg := testConfig(t, withIncremental)
+	cat := configured(t, discoverSrc, cfg, synclet.SyncModeFullRefresh, "People")
+
+	srv, _ := fixtureServer(t, map[string][]fixture{driveKey(testSheetA): {{status: http.StatusForbidden, file: "errors/drive_scope_insufficient"}}})
+	src, _ := testSource(srv)
+	out := runRead(t, src, cfg, cat, nil)
+	require.Error(t, out.Err)
+	assert.Contains(t, out.Err.Error(), "the credentials lack the https://www.googleapis.com/auth/drive.metadata.readonly scope")
+	assert.Contains(t, out.Err.Error(), "; refresh the source schema to read its streams without the cursor column")
+	assert.NotContains(t, out.Err.Error(), "set its incremental streams", "the streams already are full refresh")
 }

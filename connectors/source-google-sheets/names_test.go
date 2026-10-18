@@ -1,8 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
+	"log/slog"
 	"net/http"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -137,5 +140,111 @@ func TestToSnakeCase(t *testing.T) {
 func TestColumnLetter(t *testing.T) {
 	for i, want := range map[int]string{0: "A", 1: "B", 25: "Z", 26: "AA", 27: "AB", 51: "AZ", 52: "BA", 701: "ZZ", 702: "AAA"} {
 		assert.Equal(t, want, columnLetter(i))
+	}
+}
+
+// headerRanges is a values:batchGet body whose first range holds header and
+// whose other ranges, up to n in all, are empty.
+func headerRanges(t *testing.T, n int, header ...any) fixture {
+	t.Helper()
+	ranges := []any{map[string]any{"values": [][]any{header}}}
+	for len(ranges) < n {
+		ranges = append(ranges, map[string]any{})
+	}
+	raw, err := json.Marshal(map[string]any{"valueRanges": ranges})
+	require.NoError(t, err)
+	return fixture{status: http.StatusOK, body: raw}
+}
+
+func TestColumnNamesMoved(t *testing.T) {
+	tests := []struct {
+		name          string
+		before, after []any
+		mode          string
+		err           string
+		warn          string
+	}{
+		{
+			name: "stable duplicate inserted in front", mode: columnNamingStable,
+			before: row("Name", "Name"), after: row("Name", "Name", "Name"),
+			err: `column C of sheet "S" is named "Name_C" by its position and is not in the configured schema: columns named by position have moved, so their values would land under other columns; refresh the source schema`,
+		},
+		{
+			name: "stable column inserted among empty headers", mode: columnNamingStable,
+			before: row("id", "", "", "x"), after: row("id", "", "", "", "x"),
+			err: `column D of sheet "S" is named "column_D" by its position`,
+		},
+		{
+			name: "stable column removed among empty headers", mode: columnNamingStable,
+			before: row("id", "", "", "x"), after: row("id", "", "x"),
+			err: `column "column_C" is no longer in the header of sheet "S"; refresh the source schema`,
+		},
+		{
+			name: "stable named column added", mode: columnNamingStable,
+			before: row("id", "", "x"), after: row("id", "", "x", "y"),
+		},
+		{
+			name: "legacy duplicate inserted warns", mode: columnNamingLegacy,
+			before: row("Name", "Name"), after: row("Name", "Name", "Name"),
+			warn: `sheet "S": column C is named "Name_C" by its position and is not in the configured schema; duplicate columns may have moved, so their values may land under other columns: refresh the source schema (column_naming: stable fails instead)`,
+		},
+		{
+			name: "legacy unchanged duplicates", mode: columnNamingLegacy,
+			before: row("Name", "Name", "Age"), after: row("Name", "Name", "Age", "Email"),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			before, err := columnNames(tt.before, tt.mode, false)
+			require.NoError(t, err)
+			after, err := columnNames(tt.after, tt.mode, false)
+			require.NoError(t, err)
+			var logs bytes.Buffer
+			log := slog.New(slog.NewTextHandler(&logs, &slog.HandlerOptions{ReplaceAttr: func(_ []string, a slog.Attr) slog.Attr {
+				if a.Key == slog.TimeKey || a.Key == slog.LevelKey {
+					return slog.Attr{}
+				}
+				return a
+			}}))
+			err = checkColumns(log, tt.mode, before.names, sheet{props: sheetProperties{Title: "S"}, header: after})
+			if tt.err != "" {
+				require.Error(t, err)
+				assert.Contains(t, err.Error(), tt.err)
+			} else {
+				require.NoError(t, err)
+			}
+			if tt.warn != "" {
+				assert.Contains(t, logs.String(), strings.ReplaceAll(strings.ReplaceAll(tt.warn, `\`, `\\`), `"`, `\"`))
+			} else {
+				assert.Empty(t, logs.String())
+			}
+		})
+	}
+}
+
+func TestReadColumnsMoved(t *testing.T) {
+	for _, tt := range []struct {
+		mode string
+		edit func(*Config)
+	}{{mode: columnNamingStable, edit: withStable}, {mode: columnNamingLegacy}} {
+		t.Run(tt.mode, func(t *testing.T) {
+			discoverSrv, _ := fixtureServer(t, map[string][]fixture{batchGetKey(testSheetA): {headerRanges(t, 6, "Full Name", "Full Name")}})
+			discoverSrc, _ := testSource(discoverSrv)
+			cfg := testConfig(t, tt.edit)
+			cat := configured(t, discoverSrc, cfg, synclet.SyncModeFullRefresh, "People")
+
+			srv, _ := fixtureServer(t, map[string][]fixture{batchGetKey(testSheetA): {headerRanges(t, 1, "Full Name", "Full Name", "Full Name"), {}}})
+			src, _ := testSource(srv)
+			out := runRead(t, src, cfg, cat, nil)
+			if tt.mode == columnNamingStable {
+				require.Error(t, out.Err)
+				assert.Contains(t, out.Err.Error(), `column C of sheet "People" is named "Full Name_C" by its position`)
+				assert.Empty(t, out.Records(stream("People")))
+				return
+			}
+			require.NoError(t, out.Err)
+			assert.Len(t, out.Records(stream("People")), 4, "legacy keeps reading as before")
+			assert.Contains(t, warnings(out), `sheet "People": column C is named "Full Name_C" by its position and is not in the configured schema; duplicate columns may have moved, so their values may land under other columns: refresh the source schema (column_naming: stable fails instead)`)
+		})
 	}
 }

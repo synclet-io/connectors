@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"slices"
 	"time"
 
@@ -98,7 +99,11 @@ func (s Source) readSpreadsheet(ctx context.Context, c *apiClient, cfg Config, r
 			if ctx.Err() != nil {
 				return ctx.Err()
 			}
-			return fmt.Errorf("spreadsheet %s: %s; set its streams to full refresh and refresh the source schema to read it without", ref.id, driveUnreadable(err))
+			fix := "refresh the source schema to read its streams without the cursor column"
+			if slices.ContainsFunc(configured, func(cs synclet.ConfiguredStream) bool { return cs.SyncMode == synclet.SyncModeIncremental }) {
+				fix = "set its incremental streams to full refresh and " + fix
+			}
+			return fmt.Errorf("spreadsheet %s: %s; %s", ref.id, driveUnreadable(err), fix)
 		}
 	}
 	// saved holds the state of each incremental stream whose spreadsheet
@@ -131,7 +136,7 @@ func (s Source) readSpreadsheet(ctx context.Context, c *apiClient, cfg Config, r
 			if saved[i] != "" {
 				continue
 			}
-			if err := checkColumns(props[i], byTitle[cs.Stream.Name]); err != nil {
+			if err := checkColumns(log, cfg.ColumnNaming, props[i], byTitle[cs.Stream.Name]); err != nil {
 				return err
 			}
 		}
@@ -180,14 +185,26 @@ func schemaProperties(raw json.RawMessage) ([]string, error) {
 	return names, nil
 }
 
-// checkColumns fails when a column of the configured schema is not in the
-// sheet's current header, so values never land under a column they do not
-// belong to.
-func checkColumns(props []string, sh sheet) error {
+// checkColumns compares the configured schema with the sheet's current
+// header. A configured column missing from the header fails. A column of
+// the header named by its position that the schema lacks means columns
+// named by position may have moved, so their values could now sit under
+// another column's name: stable fails, legacy warns.
+func checkColumns(log *slog.Logger, mode string, props []string, sh sheet) error {
 	for _, p := range props {
 		if p != cursorColumn && !slices.Contains(sh.header.names, p) {
 			return synclet.ConfigError(fmt.Errorf("column %q is no longer in the header of sheet %q; refresh the source schema", p, sh.props.Title))
 		}
+	}
+	for i, n := range sh.header.names {
+		if !sh.header.positional[i] || slices.Contains(props, n) {
+			continue
+		}
+		if mode == columnNamingStable {
+			return synclet.ConfigError(fmt.Errorf("column %s of sheet %q is named %q by its position and is not in the configured schema: columns named by position have moved, so their values would land under other columns; refresh the source schema", columnLetter(i), sh.props.Title, n))
+		}
+		log.Warn(fmt.Sprintf("sheet %q: column %s is named %q by its position and is not in the configured schema; duplicate columns may have moved, so their values may land under other columns: refresh the source schema (column_naming: stable fails instead)", sh.props.Title, columnLetter(i), n))
+		return nil
 	}
 	return nil
 }

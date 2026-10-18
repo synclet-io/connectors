@@ -19,6 +19,10 @@
     "www.googleapis.com",
     "oauth2.googleapis.com"
   ],
-  "breaking_changes": {},
+  "breaking_changes": {
+    "0.4.0": {
+      "message": "A sync now fails, asking to refresh the source schema, when a configured column is no longer in the sheet's header, or when two columns get the same name after names_conversion; 0.3.0 kept syncing without the column or kept one of the two values. Refresh the source schema after changing a header."
+    }
+  },
   "external_documentation_urls": []
 }
