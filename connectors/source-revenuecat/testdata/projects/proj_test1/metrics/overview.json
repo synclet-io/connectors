@@ -1,0 +1,28 @@
+{
+  "object": "overview_metrics",
+  "metrics": [
+    {
+      "object": "overview_metric",
+      "id": "active_trials",
+      "name": "Active Trials",
+      "description": "Trials not yet converted or expired",
+      "unit": "#",
+      "period": "P0D",
+      "value": 12,
+      "last_updated_at": 1790000000000,
+      "last_updated_at_iso8601": "2026-09-21 12:00:00.000000+00:00"
+    },
+    {
+      "object": "overview_metric",
+      "id": "mrr",
+      "name": "MRR",
+      "description": "Monthly recurring revenue",
+      "unit": "$",
+      "period": "P28D",
+      "value": 1500.5,
+      "last_updated_at": 1790000000000,
+      "last_updated_at_iso8601": "2026-09-21 12:00:00.000000+00:00"
+    }
+  ],
+  "currency": "USD"
+}

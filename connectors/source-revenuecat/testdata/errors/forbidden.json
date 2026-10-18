@@ -1,0 +1,6 @@
+{
+  "type": "authorization_error",
+  "message": "The API key lacks the permission for this endpoint.",
+  "retryable": false,
+  "doc_url": "https://errors.rev.cat/authorization-error"
+}

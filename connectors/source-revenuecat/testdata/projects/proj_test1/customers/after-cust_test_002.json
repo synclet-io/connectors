@@ -1,0 +1,18 @@
+{
+  "object": "list",
+  "items": [
+    {
+      "object": "customer",
+      "id": "cust_test_003",
+      "project_id": "proj_test1",
+      "first_seen_at": 1790000002000,
+      "last_seen_at": 1790000007000,
+      "last_seen_app_version": "1.0.0",
+      "last_seen_country": "US",
+      "last_seen_platform": "ios",
+      "last_seen_platform_version": "18.0",
+      "experiment": null
+    }
+  ],
+  "url": "/v2/projects/proj_test1/customers"
+}

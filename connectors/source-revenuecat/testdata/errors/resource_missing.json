@@ -1,0 +1,6 @@
+{
+  "type": "resource_missing",
+  "message": "The resource does not exist.",
+  "retryable": false,
+  "doc_url": "https://errors.rev.cat/resource-missing"
+}

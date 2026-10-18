@@ -1,0 +1,20 @@
+{
+  "object": "list",
+  "items": [
+    {
+      "state": "active",
+      "object": "product",
+      "id": "prod_lifetime_test",
+      "store_identifier": "example_lifetime_test",
+      "type": "non_consumable",
+      "subscription": null,
+      "one_time": {
+        "is_consumable": false
+      },
+      "created_at": 1790000001000,
+      "app_id": "app_test_android",
+      "display_name": "Test Lifetime"
+    }
+  ],
+  "url": "/v2/projects/proj_test1/products"
+}

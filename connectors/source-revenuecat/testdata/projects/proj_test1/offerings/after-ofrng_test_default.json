@@ -1,0 +1,18 @@
+{
+  "object": "list",
+  "items": [
+    {
+      "state": "active",
+      "object": "offering",
+      "id": "ofrng_test_promo",
+      "lookup_key": "promo",
+      "display_name": "Promo",
+      "is_current": false,
+      "created_at": 1790000001000,
+      "project_id": "proj_test1",
+      "paywall_id": "pw_test_1",
+      "metadata": null
+    }
+  ],
+  "url": "/v2/projects/proj_test1/offerings"
+}

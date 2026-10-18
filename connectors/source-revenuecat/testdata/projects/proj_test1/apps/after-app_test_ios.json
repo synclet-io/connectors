@@ -1,0 +1,18 @@
+{
+  "object": "list",
+  "items": [
+    {
+      "object": "app",
+      "id": "app_test_android",
+      "name": "Test Weather Android",
+      "created_at": 1790000001000,
+      "type": "play_store",
+      "project_id": "proj_test1",
+      "custom_url_scheme": "rc-testandroid",
+      "play_store": {
+        "package_name": "com.example.weather"
+      }
+    }
+  ],
+  "url": "/v2/projects/proj_test1/apps"
+}

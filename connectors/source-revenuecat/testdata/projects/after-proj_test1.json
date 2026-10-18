@@ -1,0 +1,14 @@
+{
+  "object": "list",
+  "items": [
+    {
+      "object": "project",
+      "id": "proj_test2",
+      "name": "Test Notes",
+      "created_at": 1790000001000,
+      "icon_url": "https://example.com/icon-small.png",
+      "icon_url_large": "https://example.com/icon-large.png"
+    }
+  ],
+  "url": "/v2/projects"
+}

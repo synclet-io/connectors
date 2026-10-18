@@ -1,0 +1,15 @@
+{
+  "object": "list",
+  "items": [
+    {
+      "state": "inactive",
+      "object": "entitlement",
+      "project_id": "proj_test1",
+      "id": "entl_test_pro",
+      "lookup_key": "pro",
+      "display_name": "Pro",
+      "created_at": 1790000001000
+    }
+  ],
+  "url": "/v2/projects/proj_test1/entitlements"
+}

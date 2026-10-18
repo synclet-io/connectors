@@ -1,0 +1,6 @@
+{
+  "type": "authentication_error",
+  "message": "Invalid API key.",
+  "retryable": false,
+  "doc_url": "https://errors.rev.cat/authentication-error"
+}

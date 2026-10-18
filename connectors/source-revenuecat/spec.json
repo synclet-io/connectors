@@ -1,0 +1,49 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Reads project configuration, customers with their subscriptions, purchases and active entitlements, and overview metrics from the RevenueCat REST API v2 with a v2 secret API key.",
+    "properties": {
+      "api_key": {
+        "airbyte_secret": true,
+        "description": "A RevenueCat secret API key of version V2 (Project settings > API keys). It is sent in the Authorization header. API v1 keys do not work with REST API v2. See the README for the read permissions each stream needs.",
+        "order": 0,
+        "title": "Secret API Key (v2)",
+        "type": "string"
+      },
+      "environment": {
+        "description": "Store environment of the customer subscriptions and purchases to read: sandbox or production. Leave empty to read both.",
+        "examples": [
+          "production",
+          "sandbox"
+        ],
+        "order": 2,
+        "title": "Environment",
+        "type": "string"
+      },
+      "project_id": {
+        "description": "ID of the RevenueCat project to read. Leave empty when the key can see exactly one project.",
+        "examples": [
+          "proj1ab2c3d4"
+        ],
+        "order": 1,
+        "title": "Project ID",
+        "type": "string"
+      }
+    },
+    "required": [
+      "api_key"
+    ],
+    "title": "RevenueCat Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-revenuecat",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": false,
+  "supportsNormalization": false
+}

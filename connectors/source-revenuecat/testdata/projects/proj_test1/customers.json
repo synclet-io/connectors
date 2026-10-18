@@ -1,0 +1,31 @@
+{
+  "object": "list",
+  "items": [
+    {
+      "object": "customer",
+      "id": "cust_test_001",
+      "project_id": "proj_test1",
+      "first_seen_at": 1790000000000,
+      "last_seen_at": 1790000005000,
+      "last_seen_app_version": "1.0.0",
+      "last_seen_country": "US",
+      "last_seen_platform": "ios",
+      "last_seen_platform_version": "18.0",
+      "experiment": null
+    },
+    {
+      "object": "customer",
+      "id": "cust_test_002",
+      "project_id": "proj_test1",
+      "first_seen_at": 1790000001000,
+      "last_seen_at": 1790000006000,
+      "last_seen_app_version": "1.0.0",
+      "last_seen_country": "US",
+      "last_seen_platform": "ios",
+      "last_seen_platform_version": "18.0",
+      "experiment": null
+    }
+  ],
+  "next_page": "/v2/projects/proj_test1/customers?starting_after=cust_test_002",
+  "url": "/v2/projects/proj_test1/customers"
+}

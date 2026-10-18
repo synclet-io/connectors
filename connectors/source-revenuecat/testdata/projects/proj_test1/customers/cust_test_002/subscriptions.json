@@ -1,0 +1,41 @@
+{
+  "object": "list",
+  "items": [
+    {
+      "object": "subscription",
+      "id": "sub_test_002a",
+      "customer_id": "cust_test_002",
+      "original_customer_id": "cust_test_002",
+      "product_id": "prod_monthly_test",
+      "starts_at": 1790000001000,
+      "current_period_starts_at": 1790000001000,
+      "current_period_ends_at": 1792592001000,
+      "ends_at": 1792592001000,
+      "gives_access": true,
+      "pending_payment": false,
+      "auto_renewal_status": "will_renew",
+      "status": "active",
+      "total_revenue_in_usd": {
+        "currency": "USD",
+        "gross": 10.0,
+        "commission": 3.0,
+        "tax": 0.0,
+        "proceeds": 7.0
+      },
+      "presented_offering_id": "ofrng_test_default",
+      "entitlements": {
+        "object": "list",
+        "items": [],
+        "url": "/v2/projects/proj_test1/subscriptions/sub_test_002a/entitlements"
+      },
+      "environment": "production",
+      "store": "app_store",
+      "store_subscription_identifier": "txn_test_002a",
+      "ownership": "purchased",
+      "pending_changes": null,
+      "country": "US",
+      "management_url": "https://example.com/manage"
+    }
+  ],
+  "url": "/v2/projects/proj_test1/customers/cust_test_002/subscriptions"
+}

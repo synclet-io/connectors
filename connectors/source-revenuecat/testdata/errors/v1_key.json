@@ -1,0 +1,6 @@
+{
+  "type": "authentication_error",
+  "message": "API v1 keys are not supported by API v2. Use a v2 secret key.",
+  "retryable": false,
+  "doc_url": "https://errors.rev.cat/authentication-error"
+}

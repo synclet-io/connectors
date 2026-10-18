@@ -1,0 +1,11 @@
+{
+  "object": "list",
+  "items": [
+    {
+      "object": "customer.active_entitlement",
+      "entitlement_id": "entl_test_premium",
+      "expires_at": 1792592001000
+    }
+  ],
+  "url": "/v2/projects/proj_test1/customers/cust_test_002/active_entitlements"
+}

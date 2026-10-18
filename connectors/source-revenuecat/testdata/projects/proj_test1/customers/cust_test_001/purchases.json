@@ -1,0 +1,35 @@
+{
+  "object": "list",
+  "items": [
+    {
+      "object": "purchase",
+      "id": "purch_test_001a",
+      "customer_id": "cust_test_001",
+      "original_customer_id": "cust_test_001",
+      "product_id": "prod_lifetime_test",
+      "purchased_at": 1790000000000,
+      "revenue_in_usd": {
+        "currency": "USD",
+        "gross": 20.0,
+        "commission": 6.0,
+        "tax": 0.0,
+        "proceeds": 14.0
+      },
+      "quantity": 1,
+      "status": "owned",
+      "presented_offering_id": null,
+      "entitlements": {
+        "object": "list",
+        "items": [],
+        "url": "/v2/projects/proj_test1/purchases/purch_test_001a/entitlements"
+      },
+      "environment": "production",
+      "store": "play_store",
+      "store_purchase_identifier": "order_test_001a",
+      "ownership": "purchased",
+      "country": "DE"
+    }
+  ],
+  "next_page": "/v2/projects/proj_test1/customers/cust_test_001/purchases?starting_after=purch_test_001a",
+  "url": "/v2/projects/proj_test1/customers/cust_test_001/purchases"
+}

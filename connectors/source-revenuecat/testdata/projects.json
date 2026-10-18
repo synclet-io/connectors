@@ -1,0 +1,15 @@
+{
+  "object": "list",
+  "items": [
+    {
+      "object": "project",
+      "id": "proj_test1",
+      "name": "Test Weather",
+      "created_at": 1790000000000,
+      "icon_url": null,
+      "icon_url_large": null
+    }
+  ],
+  "next_page": "/v2/projects?starting_after=proj_test1",
+  "url": "/v2/projects"
+}

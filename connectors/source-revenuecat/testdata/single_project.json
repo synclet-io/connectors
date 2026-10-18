@@ -1,0 +1,14 @@
+{
+  "object": "list",
+  "items": [
+    {
+      "object": "project",
+      "id": "proj_test1",
+      "name": "Test Weather",
+      "created_at": 1790000000000,
+      "icon_url": null,
+      "icon_url_large": null
+    }
+  ],
+  "url": "/v2/projects"
+}

@@ -1,0 +1,16 @@
+{
+  "object": "list",
+  "items": [
+    {
+      "state": "active",
+      "object": "entitlement",
+      "project_id": "proj_test1",
+      "id": "entl_test_premium",
+      "lookup_key": "premium",
+      "display_name": "Premium",
+      "created_at": 1790000000000
+    }
+  ],
+  "next_page": "/v2/projects/proj_test1/entitlements?starting_after=entl_test_premium",
+  "url": "/v2/projects/proj_test1/entitlements"
+}

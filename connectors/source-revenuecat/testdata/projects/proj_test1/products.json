@@ -1,0 +1,23 @@
+{
+  "object": "list",
+  "items": [
+    {
+      "state": "active",
+      "object": "product",
+      "id": "prod_monthly_test",
+      "store_identifier": "example_monthly_test",
+      "type": "subscription",
+      "subscription": {
+        "duration": "P1M",
+        "grace_period_duration": null,
+        "trial_duration": null
+      },
+      "one_time": null,
+      "created_at": 1790000000000,
+      "app_id": "app_test_ios",
+      "display_name": "Test Monthly"
+    }
+  ],
+  "next_page": "/v2/projects/proj_test1/products?starting_after=prod_monthly_test",
+  "url": "/v2/projects/proj_test1/products"
+}

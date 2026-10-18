@@ -1,0 +1,22 @@
+{
+  "object": "list",
+  "items": [
+    {
+      "object": "app",
+      "id": "app_test_ios",
+      "name": "Test Weather iOS",
+      "created_at": 1790000000000,
+      "type": "app_store",
+      "project_id": "proj_test1",
+      "custom_url_scheme": "rc-testios",
+      "app_store": {
+        "bundle_id": "com.example.weather",
+        "app_store_connect_api_key_configured": false,
+        "subscription_key_configured": false,
+        "app_store_connect_vendor_number": null
+      }
+    }
+  ],
+  "next_page": "/v2/projects/proj_test1/apps?starting_after=app_test_ios",
+  "url": "/v2/projects/proj_test1/apps"
+}

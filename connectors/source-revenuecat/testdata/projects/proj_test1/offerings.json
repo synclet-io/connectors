@@ -1,0 +1,21 @@
+{
+  "object": "list",
+  "items": [
+    {
+      "state": "active",
+      "object": "offering",
+      "id": "ofrng_test_default",
+      "lookup_key": "default",
+      "display_name": "Default",
+      "is_current": true,
+      "created_at": 1790000000000,
+      "project_id": "proj_test1",
+      "paywall_id": null,
+      "metadata": {
+        "color": "blue"
+      }
+    }
+  ],
+  "next_page": "/v2/projects/proj_test1/offerings?starting_after=ofrng_test_default",
+  "url": "/v2/projects/proj_test1/offerings"
+}
