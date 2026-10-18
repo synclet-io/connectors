@@ -179,7 +179,8 @@ feat(source-acme)!: rename the `items` stream to `orders`
 
 release-please assigns a commit to every connector whose directory it touches, whatever the scope says; the
 scope is for people reading the history. `fix` releases a patch, `feat` a minor version and `!` or a
-`BREAKING CHANGE:` footer a major version; `chore`, `docs`, `test`, `ci` and
+`BREAKING CHANGE:` footer a major version (a minor one while the connector is below 1.0: `bump-minor-pre-major` in
+`release-please-config.json`); `chore`, `docs`, `test`, `ci` and
 `refactor` release nothing on their own. Record a breaking change in `breaking_changes` in `meta.json` too, so
 Synclet can warn before the upgrade.
 
