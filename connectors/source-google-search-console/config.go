@@ -17,7 +17,6 @@ const (
 	authOAuth            = "oauth"
 	dataStateFinal       = "final"
 	dataStateAll         = "all"
-	sitePrefixURL        = "https://"
 	sitePrefixDomain     = "sc-domain:"
 )
 
@@ -91,8 +90,9 @@ func (c Config) validate() error {
 	return errors.Join(errs...)
 }
 
-// validSiteURL accepts a URL-prefix property (https://www.example.com/) or a
-// domain property (sc-domain:example.com), as Search Console names them.
+// validSiteURL accepts a URL-prefix property (https://www.example.com/ or
+// http://www.example.com/) or a domain property (sc-domain:example.com), as
+// Search Console names them.
 func validSiteURL(u string) error {
 	switch {
 	case strings.HasPrefix(u, sitePrefixDomain):
@@ -100,13 +100,13 @@ func validSiteURL(u string) error {
 		if d == "" || strings.ContainsAny(d, "/: ") {
 			return fmt.Errorf("site %q is not a domain property sc-domain:<domain>", u)
 		}
-	case strings.HasPrefix(u, sitePrefixURL):
-		host := strings.TrimPrefix(u, sitePrefixURL)
-		if !strings.HasSuffix(u, "/") || host == "/" || strings.HasPrefix(host, "/") || strings.Contains(u, " ") {
-			return fmt.Errorf("site %q is not a URL-prefix property https://<host>/...: it must end with /", u)
+	case strings.HasPrefix(u, "https://"), strings.HasPrefix(u, "http://"):
+		_, host, _ := strings.Cut(u, "://")
+		if !strings.HasSuffix(u, "/") || strings.HasPrefix(host, "/") || strings.Contains(u, " ") {
+			return fmt.Errorf("site %q is not a URL-prefix property http(s)://<host>/...: it must end with /", u)
 		}
 	default:
-		return fmt.Errorf("site %q is neither a URL-prefix property https://<host>/ nor a domain property sc-domain:<domain>", u)
+		return fmt.Errorf("site %q is neither a URL-prefix property http(s)://<host>/ nor a domain property sc-domain:<domain>", u)
 	}
 	return nil
 }

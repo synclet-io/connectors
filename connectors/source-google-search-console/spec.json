@@ -143,13 +143,13 @@
         "type": "integer"
       },
       "site_urls": {
-        "description": "Search Console properties to read: URL-prefix properties such as https://www.example.com/ and domain properties such as sc-domain:example.com. Every stream reads each of them.",
+        "description": "Search Console properties to read: URL-prefix properties such as https://www.example.com/ or http://www.example.com/ (ending with /) and domain properties such as sc-domain:example.com. Every stream reads each of them.",
         "examples": [
           "https://www.example.com/",
           "sc-domain:example.com"
         ],
         "items": {
-          "pattern": "^(https://[^/\\s]+/\\S*|sc-domain:[^/:\\s]+)$",
+          "pattern": "^(https?://[^/\\s]+/\\S*|sc-domain:[^/:\\s]+)$",
           "type": "string"
         },
         "order": 1,

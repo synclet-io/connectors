@@ -77,9 +77,9 @@ func (Source) Spec(_ context.Context) (*synclet.ConnectorSpecification, error) {
 				"credentials": credentialsSpec(),
 				"site_urls": {
 					Title:        "Site URLs",
-					Description:  "Search Console properties to read: URL-prefix properties such as https://www.example.com/ and domain properties such as sc-domain:example.com. Every stream reads each of them.",
+					Description:  "Search Console properties to read: URL-prefix properties such as https://www.example.com/ or http://www.example.com/ (ending with /) and domain properties such as sc-domain:example.com. Every stream reads each of them.",
 					PropertyType: typed(synclet.Array),
-					Items:        map[string]any{"type": "string", "pattern": `^(https://[^/\s]+/\S*|sc-domain:[^/:\s]+)$`},
+					Items:        map[string]any{"type": "string", "pattern": `^(https?://[^/\s]+/\S*|sc-domain:[^/:\s]+)$`},
 					Examples:     []string{"https://www.example.com/", "sc-domain:example.com"},
 					Order:        order(1),
 				},

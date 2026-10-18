@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"net/http"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -127,6 +128,29 @@ func TestIncrementalStateAfterEachDay(t *testing.T) {
 		`{"sites":{"https://www.example.com/":{"date":"2026-10-16"},"sc-domain:example.org":{"date":"2026-10-15"}}}`,
 		`{"sites":{"https://www.example.com/":{"date":"2026-10-16"},"sc-domain:example.org":{"date":"2026-10-16"}}}`,
 	}, streamStates(t, out))
+}
+
+func TestIncrementalStateNeverGoesBack(t *testing.T) {
+	saved := `{"sites":{"https://www.example.com/":{"date":"2026-10-16"}}}`
+	t.Run("lookback days keep the saved date", func(t *testing.T) {
+		srv, h := fixtureServer(t, nil)
+		src, _ := testSource(srv)
+		cfg := testConfig(t, func(c *Config) { c.SiteURLs = []string{testSiteA}; c.StartDate = "2026-10-01" })
+		out := runRead(t, src, cfg, configured(t, src, cfg, synclet.SyncModeIncremental, byDate),
+			byDateState(`{"https://www.example.com/":{"date":"2026-10-16"}}`))
+		require.NoError(t, out.Err)
+		assert.Equal(t, []string{"2026-10-13", "2026-10-14", "2026-10-15", "2026-10-16"}, days(h, testSiteA))
+		assert.Equal(t, []string{saved, saved, saved, saved}, streamStates(t, out))
+	})
+	t.Run("a failure during the lookback keeps the saved date", func(t *testing.T) {
+		srv, _ := fixtureServer(t, map[string][]fixture{queryKey(testSiteA): {{}, {}, {}, {}, {status: http.StatusBadRequest, file: "errors/internal"}}})
+		src, _ := testSource(srv)
+		cfg := testConfig(t, func(c *Config) { c.SiteURLs = []string{testSiteA}; c.StartDate = "2026-10-01" })
+		out := runRead(t, src, cfg, configured(t, src, cfg, synclet.SyncModeIncremental, byDate),
+			byDateState(`{"https://www.example.com/":{"date":"2026-10-16"}}`))
+		require.Error(t, out.Err)
+		assert.Equal(t, []string{saved}, streamStates(t, out), "the state after 2026-10-13 is still 2026-10-16")
+	})
 }
 
 func TestIncrementalBadState(t *testing.T) {

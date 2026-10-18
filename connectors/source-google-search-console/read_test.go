@@ -342,6 +342,18 @@ func TestReadQuota(t *testing.T) {
 			requests:  3,
 		},
 		{
+			name:      "403 userRateLimitExceeded retries with backoff",
+			overrides: []fixture{{status: http.StatusForbidden, file: "errors/rate_limit_403"}, {}},
+			waits:     []time.Duration{time.Second + time.Millisecond},
+			requests:  2,
+		},
+		{
+			name:      "403 quotaExceeded retries with backoff",
+			overrides: []fixture{{status: http.StatusForbidden, file: "errors/quota_exceeded_403"}, {status: http.StatusForbidden, file: "errors/quota_exceeded_403"}, {}},
+			waits:     []time.Duration{time.Second + time.Millisecond, 2*time.Second + time.Millisecond},
+			requests:  3,
+		},
+		{
 			name:      "5xx retries with backoff",
 			overrides: []fixture{{status: http.StatusInternalServerError, file: "errors/internal"}, {}},
 			waits:     []time.Duration{time.Second + time.Millisecond},

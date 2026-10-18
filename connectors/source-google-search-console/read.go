@@ -86,7 +86,7 @@ type reader struct {
 
 // Read emits every configured stream in catalog order. A search analytics
 // stream reads every site day by day; an incremental read emits its state
-// after each site-day.
+// after each site-day, and that state never goes below the saved date.
 func (s Source) Read(ctx context.Context, cfg Config, catalog *synclet.ConfiguredCatalog, state *synclet.InputState, em *synclet.Emitter) error {
 	if err := cfg.validate(); err != nil {
 		return synclet.ConfigError(err)
@@ -232,7 +232,9 @@ func (r *reader) stream(ctx context.Context, d reportDef, cs synclet.ConfiguredS
 				}
 			}
 			if incremental {
-				st.Sites[u] = siteState{Date: ds}
+				if ds > st.Sites[u].Date {
+					st.Sites[u] = siteState{Date: ds}
+				}
 				if err := r.em.StreamState(desc, st); err != nil {
 					return err
 				}

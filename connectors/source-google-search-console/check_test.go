@@ -124,3 +124,46 @@ func TestCheck(t *testing.T) {
 		})
 	}
 }
+
+// TestCredentialErrorsAreConfigErrors checks the failure class of a rejected
+// credential: a check status carries only the message, so the same
+// credentials run a read, whose error trace carries the failure type.
+func TestCredentialErrorsAreConfigErrors(t *testing.T) {
+	tests := []struct {
+		name    string
+		edit    func(*Config)
+		message string
+	}{
+		{
+			name:    "revoked refresh token",
+			edit:    func(c *Config) { withOAuth(c); c.Credentials.RefreshToken = "revoked-refresh-token" },
+			message: "refresh_token is invalid or revoked",
+		},
+		{
+			name:    "invalid oauth client",
+			edit:    func(c *Config) { withOAuth(c); c.Credentials.ClientSecret = "wrong-client-secret" },
+			message: "client_id or client_secret is invalid",
+		},
+		{
+			name:    "revoked service account key",
+			edit:    func(c *Config) { c.Credentials.ServiceAccountKey = serviceAccountKey(t, otherKey()) },
+			message: "service account key is invalid, disabled or deleted",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			srv, _ := fixtureServer(t, nil)
+			src, _ := testSource(srv)
+			cfg := testConfig(t, tt.edit)
+			status := runCheck(t, src, cfg)
+			assert.Equal(t, synclet.ConnectionStatusFailed, status.Status)
+			assert.Contains(t, status.Message, tt.message)
+
+			out := runRead(t, src, cfg, configured(t, src, cfg, synclet.SyncModeFullRefresh, streamSites), nil)
+			require.Error(t, out.Err)
+			assert.Contains(t, out.Err.Error(), tt.message)
+			require.Len(t, out.ErrorTraces(), 1)
+			assert.Equal(t, synclet.FailureTypeConfigError, out.ErrorTraces()[0].FailureType)
+		})
+	}
+}

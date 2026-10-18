@@ -1,0 +1,14 @@
+{
+  "error": {
+    "code": 403,
+    "message": "Quota exceeded for this site.",
+    "errors": [
+      {
+        "message": "Quota exceeded for this site.",
+        "domain": "usageLimits",
+        "reason": "quotaExceeded"
+      }
+    ],
+    "status": "PERMISSION_DENIED"
+  }
+}

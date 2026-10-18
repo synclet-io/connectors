@@ -21,7 +21,7 @@ The site URL is escaped as one path segment, `:` and `/` included (`sites/https%
 | Key | Required | Meaning |
 |---|---|---|
 | `credentials` | yes | `{"auth_type": "service_account", "service_account_key": "<JSON key>"}` or `{"auth_type": "oauth", "client_id": "...", "client_secret": "...", "refresh_token": "..."}` |
-| `site_urls` | yes | Search Console properties, exactly as Search Console names them: URL-prefix properties `https://www.example.com/` (ending with `/`) and domain properties `sc-domain:example.com`. Listed once each; every stream reads each of them |
+| `site_urls` | yes | Search Console properties, exactly as Search Console names them: URL-prefix properties `https://www.example.com/` or `http://www.example.com/` (ending with `/`) and domain properties `sc-domain:example.com`. Listed once each; every stream reads each of them |
 | `start_date` | no | First day read, `YYYY-MM-DD`; empty reads the last 16 months, all Search Console keeps |
 | `end_date` | no | Last day read; empty reads up to today (UTC) |
 | `lookback_days` | no | Days before the saved date an incremental read starts again (default 3) |
@@ -67,7 +67,7 @@ a new one when the API answers 401. The access token travels only in the `Author
 | `service account key is invalid, disabled or deleted` | The token endpoint rejected the signed assertion (`invalid_grant`) |
 | `refresh_token is invalid or revoked` | The token endpoint answered `invalid_grant` |
 | `client_id or client_secret is invalid` | The token endpoint answered `invalid_client` or `unauthorized_client` |
-| `site <url> is not verified for service account <email>: add it as a user in Search Console` (or `for the Google user of the refresh token`) | 403 or 404 for the site, or permission level `siteUnverifiedUser` |
+| `site <url> is not verified for service account <email>: add it as a user in Search Console` (or `for the Google user of the refresh token`) | 403 (other than a rate limit) or 404 for the site, or permission level `siteUnverifiedUser` |
 | `Google Search Console API is not enabled in Google Cloud project <n>: enable searchconsole.googleapis.com` | 403 with reason `SERVICE_DISABLED` or `accessNotConfigured` |
 | `the credentials lack the https://www.googleapis.com/auth/webmasters.readonly scope` | 403 with reason `ACCESS_TOKEN_SCOPE_INSUFFICIENT` |
 
@@ -118,7 +118,8 @@ The state of a search analytics stream holds, per site, the last day read:
 
 A read covers, for each site, from the saved date minus `lookback_days` (default 3, since Search Console
 keeps updating recent days), never before the start, up to `end_date` or today (UTC). The state is emitted
-after each site-day, once every search type of the day is read. A full refresh reads from the start without
+after each site-day, once every search type of the day is read; it never goes below the saved date, so a
+sync that fails during the lookback days does not widen the next window. A full refresh reads from the start without
 state.
 
 Each site, day and search type is one query with `rowLimit` 25000, paged with `startRow` until a page shorter
@@ -140,7 +141,8 @@ within the day, or `clicks` or `impressions` that are not whole numbers.
 ## Quotas
 
 Search Console allows 1,200 queries per minute per site and per user, plus daily limits. Requests are sent
-one at a time, at least 50 ms apart. A 429 or a 5xx response, or a transport error, is sent again after a
+one at a time, at least 50 ms apart. A 429, a 403 with reason `rateLimitExceeded`, `userRateLimitExceeded` or `quotaExceeded`, a 5xx
+response or a transport error is sent again after a
 doubling, jittered delay (2 s, 4 s, 8 s, 16 s), five times in all. An exhausted daily quota (reason
 `dailyLimitExceeded`, or a 429 whose message names a per-day limit) fails the read at once: `daily quota of
 Search Console API is exhausted; the next sync continues from the saved state`.

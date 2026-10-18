@@ -31,6 +31,7 @@ func TestConfig(t *testing.T) {
 		{name: "no start_date", edit: func(c *Config) { c.StartDate = "" }},
 		{name: "data_state all", edit: func(c *Config) { c.DataState = dataStateAll }},
 		{name: "URL-prefix property with a path", edit: func(c *Config) { c.SiteURLs = []string{"https://www.example.com/blog/"} }},
+		{name: "http URL-prefix property", edit: func(c *Config) { c.SiteURLs = []string{"http://www.example.com/", "https://www.example.com/"} }},
 		{
 			name: "missing fields",
 			edit: func(c *Config) { c.Credentials = Credentials{}; c.SiteURLs = nil },
@@ -61,11 +62,13 @@ func TestConfig(t *testing.T) {
 		{
 			name: "bad site urls",
 			edit: func(c *Config) {
-				c.SiteURLs = []string{"www.example.com", "https://www.example.com", "sc-domain:", "sc-domain:example.org/x", "https:///", testSiteB, testSiteB}
+				c.SiteURLs = []string{"www.example.com", "https://www.example.com", "http://www.example.com", "sc-domain:", "sc-domain:example.org/x", "https:///", "ftp://www.example.com/", testSiteB, testSiteB}
 			},
 			errs: []string{
-				`site "www.example.com" is neither a URL-prefix property https://<host>/ nor a domain property sc-domain:<domain>`,
-				`site "https://www.example.com" is not a URL-prefix property https://<host>/...: it must end with /`,
+				`site "www.example.com" is neither a URL-prefix property http(s)://<host>/ nor a domain property sc-domain:<domain>`,
+				`site "https://www.example.com" is not a URL-prefix property http(s)://<host>/...: it must end with /`,
+				`site "http://www.example.com" is not a URL-prefix property http(s)://<host>/...: it must end with /`,
+				`site "ftp://www.example.com/" is neither a URL-prefix property`,
 				`site "sc-domain:" is not a domain property sc-domain:<domain>`,
 				`site "sc-domain:example.org/x" is not a domain property sc-domain:<domain>`,
 				`site "https:///" is not a URL-prefix property`,

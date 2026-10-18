@@ -150,6 +150,13 @@ func (e *apiError) dailyQuota() bool {
 		e.status == http.StatusTooManyRequests && strings.Contains(strings.ToLower(e.message), "per day")
 }
 
+// rateLimited reports whether the error is a per-minute rate or quota limit,
+// which Search Console may answer with 403 as well as 429 and which passes
+// after a wait.
+func (e *apiError) rateLimited() bool {
+	return e.has("rateLimitExceeded") || e.has("userRateLimitExceeded") || e.has("quotaExceeded")
+}
+
 // errorBody is the error body of Google APIs: the ErrorInfo details of the
 // newer error model and the errors list of v3 APIs.
 type errorBody struct {
@@ -259,6 +266,7 @@ func (c *apiClient) send(ctx context.Context, method, path, site string, body, o
 				return synclet.ConfigError(fmt.Errorf("Google Search Console API is not enabled in Google Cloud project %s: enable searchconsole.googleapis.com (%w)", project, ae)) //nolint:staticcheck // the message starts with the product name
 			case ae.has("ACCESS_TOKEN_SCOPE_INSUFFICIENT") || strings.Contains(ae.message, "insufficient authentication scopes"):
 				return synclet.ConfigError(fmt.Errorf("the credentials lack the %s scope: authorize the refresh token with it (%w)", scope, ae))
+			case ae.rateLimited():
 			case ae.status == http.StatusForbidden, ae.status == http.StatusNotFound:
 				return c.notVerified(site, ae)
 			}
@@ -323,7 +331,7 @@ func (c *apiClient) do(ctx context.Context, method, path string, payload []byte,
 		return ae
 	case ae.dailyQuota():
 		return ae
-	case resp.StatusCode == http.StatusTooManyRequests, resp.StatusCode >= 500:
+	case resp.StatusCode == http.StatusTooManyRequests, resp.StatusCode >= 500, ae.rateLimited():
 		return retryable{err: ae}
 	}
 	return ae
