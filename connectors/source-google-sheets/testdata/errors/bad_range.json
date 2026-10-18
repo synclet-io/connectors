@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": 400,
+    "message": "Range ('People'!8:9) exceeds grid limits. Max rows: 7, max columns: 26",
+    "status": "INVALID_ARGUMENT"
+  }
+}

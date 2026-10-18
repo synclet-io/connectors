@@ -1,4 +1,6 @@
+/source-google-sheets
 *_test.go
+testdata
 README.md
 CHANGELOG.md
 spec.json

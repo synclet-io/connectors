@@ -1,0 +1,84 @@
+{
+  "sheets": [
+    {
+      "properties": {
+        "sheetId": 0,
+        "title": "People",
+        "index": 0,
+        "sheetType": "GRID",
+        "gridProperties": {
+          "rowCount": 7,
+          "columnCount": 26
+        }
+      }
+    },
+    {
+      "properties": {
+        "sheetId": 1,
+        "title": "Chart",
+        "index": 1,
+        "sheetType": "OBJECT"
+      }
+    },
+    {
+      "properties": {
+        "sheetId": 2,
+        "title": "Prices",
+        "index": 2,
+        "sheetType": "GRID",
+        "gridProperties": {
+          "rowCount": 3,
+          "columnCount": 26
+        }
+      }
+    },
+    {
+      "properties": {
+        "sheetId": 3,
+        "title": "Ragged",
+        "index": 3,
+        "sheetType": "GRID",
+        "gridProperties": {
+          "rowCount": 4,
+          "columnCount": 26
+        }
+      }
+    },
+    {
+      "properties": {
+        "sheetId": 4,
+        "title": "Gaps",
+        "index": 4,
+        "sheetType": "GRID",
+        "gridProperties": {
+          "rowCount": 2,
+          "columnCount": 26
+        }
+      }
+    },
+    {
+      "properties": {
+        "sheetId": 5,
+        "title": "Blank",
+        "index": 5,
+        "sheetType": "GRID",
+        "gridProperties": {
+          "rowCount": 1000,
+          "columnCount": 26
+        }
+      }
+    },
+    {
+      "properties": {
+        "sheetId": 6,
+        "title": "Large",
+        "index": 6,
+        "sheetType": "GRID",
+        "gridProperties": {
+          "rowCount": 10501,
+          "columnCount": 3
+        }
+      }
+    }
+  ]
+}

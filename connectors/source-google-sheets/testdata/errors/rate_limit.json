@@ -1,0 +1,21 @@
+{
+  "error": {
+    "code": 429,
+    "message": "Quota exceeded for quota metric 'Read requests' and limit 'Read requests per minute per user' of service 'sheets.googleapis.com' for consumer 'project_number:123456789012'.",
+    "status": "RESOURCE_EXHAUSTED",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "RATE_LIMIT_EXCEEDED",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "sheets.googleapis.com",
+          "quota_metric": "sheets.googleapis.com/read_requests",
+          "quota_limit": "ReadRequestsPerMinutePerUser",
+          "quota_limit_value": "60",
+          "consumer": "projects/123456789012"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "values": [
+    [
+      "Full Name",
+      "Age",
+      "E-mail"
+    ],
+    [
+      "Alice",
+      "30",
+      "alice@example.com"
+    ],
+    [
+      "Bob",
+      "",
+      "bob@example.com"
+    ],
+    [],
+    [],
+    [
+      "Carol",
+      "41"
+    ],
+    [
+      "Dave",
+      "27",
+      "dave@example.com"
+    ]
+  ]
+}

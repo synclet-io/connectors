@@ -3,9 +3,27 @@
   "connectionSpecification": {
     "description": "Reads data from a Google Sheets spreadsheet",
     "properties": {
+      "additional_spreadsheet_ids": {
+        "description": "IDs or URLs of more spreadsheets to read. Their streams have the spreadsheet ID as namespace.",
+        "items": {
+          "type": "string"
+        },
+        "title": "Additional Spreadsheets",
+        "type": "array"
+      },
       "batch_size": {
-        "description": "Number of rows to fetch per batch request (default: 1000000)",
+        "description": "Number of rows to fetch per batch request (default: 10000)",
         "title": "Batch Size",
+        "type": "string"
+      },
+      "column_naming": {
+        "default": "legacy",
+        "description": "legacy: the header stops at the first empty cell, and two columns whose names collide fail discover. stable: every column up to the last header cell is read, an empty header is column_<letter>, and colliding names get _<letter>.",
+        "examples": [
+          "legacy",
+          "stable"
+        ],
+        "title": "Column Naming",
         "type": "string"
       },
       "credentials": {
@@ -31,7 +49,7 @@
               },
               "refresh_token": {
                 "airbyte_secret": true,
-                "description": "Enter your Google application's refresh token",
+                "description": "Enter your Google application's refresh token, authorized with the spreadsheets.readonly scope (and drive.metadata.readonly for incremental sync)",
                 "title": "Refresh Token",
                 "type": "string"
               }
@@ -83,14 +101,36 @@
         "title": "Authentication",
         "type": "object"
       },
+      "incremental": {
+        "default": false,
+        "description": "Offer incremental sync with the _spreadsheet_modified_time cursor, read from Google Drive: a sheet is read again only when its spreadsheet changed since the last sync. Needs the drive.metadata.readonly scope.",
+        "title": "Incremental Sync",
+        "type": "boolean"
+      },
       "names_conversion": {
         "description": "Convert column names to snake_case",
         "title": "Convert Column Names",
         "type": "string"
       },
+      "requests_per_minute": {
+        "default": 60,
+        "description": "Most Sheets and Drive API requests sent per minute; the default Sheets quota is 60 read requests per minute per user.",
+        "title": "Requests per Minute",
+        "type": "integer"
+      },
       "spreadsheet_id": {
         "description": "The ID or full URL of the Google Sheets spreadsheet",
         "title": "Spreadsheet Link",
+        "type": "string"
+      },
+      "value_render": {
+        "default": "formatted",
+        "description": "formatted: every value is the string the sheet displays. unformatted: numbers and booleans keep their type, dates and times stay formatted strings.",
+        "examples": [
+          "formatted",
+          "unformatted"
+        ],
+        "title": "Value Rendering",
         "type": "string"
       }
     },
@@ -101,12 +141,14 @@
     "title": "Google Sheets Source Spec",
     "type": "object"
   },
-  "documentationUrl": "https://docs.google.com/spreadsheets",
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-google-sheets",
+  "protocol_version": "0.5.2",
   "supported_destination_sync_modes": [
     "overwrite",
-    "append"
+    "append",
+    "append_dedup"
   ],
   "supportsDBT": false,
-  "supportsIncremental": false,
+  "supportsIncremental": true,
   "supportsNormalization": false
 }

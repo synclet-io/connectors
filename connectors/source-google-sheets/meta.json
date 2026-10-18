@@ -14,6 +14,11 @@
     "google",
     "spreadsheet"
   ],
+  "allowed_hosts": [
+    "sheets.googleapis.com",
+    "www.googleapis.com",
+    "oauth2.googleapis.com"
+  ],
   "breaking_changes": {},
   "external_documentation_urls": []
 }
