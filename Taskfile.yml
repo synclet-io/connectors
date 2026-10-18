@@ -80,13 +80,13 @@ tasks:
         <(docker run --rm --network none {{.IMAGE_PREFIX}}/{{.CONNECTOR}}:dev spec | jq -S 'select(.type == "SPEC") | .spec')
 
   entry:
-    desc: Print a connector's registry entry as the release sends it (CONNECTOR=source-example)
+    desc: Print a connector's registry entry from the working tree (CONNECTOR=source-example)
     requires:
       vars: [CONNECTOR]
     cmds:
       - go run ./scripts entry --connector {{.CONNECTOR}} --image-prefix {{.IMAGE_PREFIX}}
 
   registry:
-    desc: Generate dist/registry.json from every connector (dry run of the entries releases publish)
+    desc: Generate dist/registry.json from every connector in the working tree
     cmds:
       - go run ./scripts registry --image-prefix {{.IMAGE_PREFIX}} --out dist/registry.json

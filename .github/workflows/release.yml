@@ -1,6 +1,6 @@
 name: Release
 
-# One connector per tag: pushing <dir>-v<version> (for example source-example-v0.1.0) releases
+# One connector per tag: pushing <dir>-v<version> (for example source-postgres-v0.2.0) releases
 # connectors/<dir> at that version. meta.json must declare the same version.
 on:
   push:
@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Existing release tag to (re)run, e.g. source-example-v0.1.0
+        description: Existing release tag to (re)run, e.g. source-postgres-v0.2.0
         required: true
 
 permissions:
@@ -20,7 +20,6 @@ concurrency:
 
 env:
   TAG: ${{ inputs.tag || github.ref_name }}
-  REGISTRY_REPOSITORY: synclet-io/synclet-connector-registry
 
 jobs:
   plan:
@@ -144,61 +143,3 @@ jobs:
             echo "::error::$REPO is not public. Make the package public (Packages -> $CONNECTOR -> Package settings -> Change visibility), then re-run this workflow for $TAG."
             exit 1
           fi
-
-  # Runs only when the image job succeeded, so a failed build never reaches the registry.
-  registry:
-    needs: [plan, image]
-    runs-on: ubuntu-latest
-    env:
-      CONNECTOR: ${{ needs.plan.outputs.connector }}
-      VERSION: ${{ needs.plan.outputs.version }}
-      IMAGE: ${{ needs.image.outputs.repo }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: refs/tags/${{ env.TAG }}
-
-      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
-        with:
-          go-version-file: go.mod
-
-      - name: Build the dispatch payload
-        run: |
-          go run ./scripts entry --connector "$CONNECTOR" --image-prefix "${IMAGE%/*}" > entry.json
-          jq -e --arg image "$IMAGE" --arg version "$VERSION" \
-            '.dockerRepository == $image and .dockerImageTag == $version' entry.json > /dev/null
-          jq -n \
-            --arg connector "$CONNECTOR" --arg version "$VERSION" --arg image "$IMAGE" \
-            --slurpfile metadata "connectors/$CONNECTOR/meta.json" \
-            --slurpfile spec "connectors/$CONNECTOR/spec.json" \
-            --slurpfile entry entry.json \
-            '{event_type: "connector-released", client_payload: {
-                connector: $connector, version: $version, image: $image,
-                metadata: ($metadata[0] | del(."$schema")), spec: $spec[0],
-                entry: ($entry[0] | del(.spec))
-              }}' > payload.json
-          jq '.client_payload | del(.spec)' payload.json
-
-      - name: Require the dispatch app
-        env:
-          APP_ID: ${{ secrets.REGISTRY_DISPATCH_APP_ID }}
-          APP_KEY: ${{ secrets.REGISTRY_DISPATCH_APP_PRIVATE_KEY }}
-        run: |
-          if [ -z "$APP_ID" ] || [ -z "$APP_KEY" ]; then
-            echo "::error::Secrets REGISTRY_DISPATCH_APP_ID and REGISTRY_DISPATCH_APP_PRIVATE_KEY are not set; see README, \"Registry dispatch\". The image is published; re-run this workflow for $TAG once they are set."
-            exit 1
-          fi
-
-      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
-        id: app-token
-        with:
-          app-id: ${{ secrets.REGISTRY_DISPATCH_APP_ID }}
-          private-key: ${{ secrets.REGISTRY_DISPATCH_APP_PRIVATE_KEY }}
-          owner: synclet-io
-          repositories: synclet-connector-registry
-          permission-contents: write
-
-      - name: Dispatch connector-released to the registry
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-        run: gh api "repos/$REGISTRY_REPOSITORY/dispatches" --method POST --input payload.json

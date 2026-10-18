@@ -1,11 +1,13 @@
 // Command registry validates connector metadata and builds registry.json.
 //
 //	go run ./scripts validate
-//	go run ./scripts registry [--image-prefix ghcr.io/org/repo] [--out dist/registry.json]
+//	go run ./scripts registry [--image-prefix ghcr.io/org/repo] [--out dist/registry.json] [--released]
 //	go run ./scripts release --tag <dir>-v<version>   # JSON {connector, version, tag}; fails unless meta.json has that version
 //	go run ./scripts entry --connector <dir> [--image-prefix ghcr.io/org/repo]   # one registry entry as JSON
 //	go run ./scripts changed --base <git-ref>   # JSON list of connectors touched since <git-ref>
-//	go run ./scripts check-versions --base <git-ref>
+//
+// registry builds from the working tree; with --released it builds from each
+// connector's newest release tag whose image can be pulled anonymously.
 package main
 
 import (
@@ -20,7 +22,7 @@ import (
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "usage: registry <validate|registry|release|entry|changed|check-versions> [flags]")
+		fmt.Fprintln(os.Stderr, "usage: registry <validate|registry|release|entry|changed> [flags]")
 		os.Exit(2)
 	}
 
@@ -38,6 +40,7 @@ func run(cmd string, args []string) error {
 	out := fs.String("out", "dist/registry.json", "output file")
 	tag := fs.String("tag", "", "release tag <dir>-v<version>")
 	connector := fs.String("connector", "", "connector directory")
+	released := fs.Bool("released", false, "build registry.json from published release tags")
 
 	if err := fs.Parse(args); err != nil {
 		return err
@@ -47,15 +50,13 @@ func run(cmd string, args []string) error {
 	case "validate":
 		return validate(*root)
 	case "registry":
-		return writeRegistry(*root, *imagePrefix, *out)
+		return writeRegistry(*root, *imagePrefix, *out, *released)
 	case "release":
 		return release(*root, *tag)
 	case "entry":
 		return entry(*root, *connector, *imagePrefix)
 	case "changed":
 		return changed(*root, *base)
-	case "check-versions":
-		return checkVersions(*root, *base)
 	default:
 		return fmt.Errorf("unknown command %q", cmd)
 	}
@@ -71,16 +72,22 @@ func validate(root string) error {
 		fmt.Printf("ok  %s %s\n", c.Dir, c.Meta.Version)
 	}
 
-	return nil
+	return checkReleasePlease(root, connectors)
 }
 
-func writeRegistry(root, imagePrefix, out string) error {
+func writeRegistry(root, imagePrefix, out string, released bool) error {
 	imagePrefix, err := resolveImagePrefix(imagePrefix)
 	if err != nil {
 		return err
 	}
 
-	connectors, err := loadConnectors(root)
+	var connectors []Connector
+	if released {
+		connectors, err = loadReleased(root, imagePrefix, newAnonymousPull())
+	} else {
+		connectors, err = loadConnectors(root)
+	}
+
 	if err != nil {
 		return err
 	}
@@ -173,50 +180,6 @@ func changed(root, base string) error {
 	}
 
 	return printJSON(dirs)
-}
-
-// checkVersions fails when a connector's image inputs changed but its version
-// is already released, since merging would silently skip the release.
-func checkVersions(root, base string) error {
-	if base == "" {
-		return errors.New("--base is required")
-	}
-
-	connectors, err := loadConnectors(root)
-	if err != nil {
-		return err
-	}
-
-	byDir, err := changedFiles(root, base)
-	if err != nil {
-		return err
-	}
-
-	tags, err := gitTags(root)
-	if err != nil {
-		return err
-	}
-
-	var errs []error
-
-	for _, c := range connectors {
-		files, ok := byDir[c.Dir]
-		if !ok || !tags[c.ReleaseTag()] {
-			continue
-		}
-
-		for _, f := range files {
-			if affectsImage(f) {
-				fmt.Printf("::error file=%s/%s/meta.json::%s changed but version %s is already released; bump \"version\"\n",
-					connectorsDir, c.Dir, f, c.Meta.Version)
-				errs = append(errs, fmt.Errorf("%s: bump version (already released as %s)", c.Dir, c.ReleaseTag()))
-
-				break
-			}
-		}
-	}
-
-	return errors.Join(errs...)
 }
 
 func printJSON(v any) error {

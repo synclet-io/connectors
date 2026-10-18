@@ -20,16 +20,16 @@ The image must implement the [Airbyte protocol](https://docs.airbyte.com/underst
 `spec`, `check --config` and `write --config --catalog` (records on stdin) for destinations. Messages go to
 stdout as JSON lines.
 
-Copy `source-example`, which is built on [synclet-go-sdk](https://github.com/synclet-io/synclet-go-sdk)
-v0.3.0:
+Start from the connector closest to yours. `source-postgres` is the reference connector, built on
+[synclet-go-sdk](https://github.com/synclet-io/synclet-go-sdk):
 
 ```bash
-cp -r connectors/source-example connectors/source-acme
-# edit go.mod (module name), main.go, source.go, .gitignore, .dockerignore, meta.json, README.md
+cp -r connectors/source-postgres connectors/source-acme
+# edit go.mod (module name), the Go code, .gitignore, .dockerignore, meta.json, README.md; empty CHANGELOG.md
 ```
 
 Connectors in this repository are written in Go on synclet-go-sdk and use ordinary Go libraries for
-everything else (HTTP clients, database drivers). For a larger example, read `source-postgres`.
+everything else (HTTP clients, database drivers).
 
 ### The SDK API
 
@@ -61,7 +61,7 @@ func main() { cli.RunSource(Source{}) }
 Every source runs the conformance suite, `testkit.RunSourceSuite`, with a working config, a config `check`
 must reject and a configured catalog. It checks spec, check, discover and read against the protocol: record
 schemas, state order, incremental resume and that a read stops once its context is cancelled. See
-`source-example/source_test.go` and `TestConformance` in `source-postgres`.
+`TestConformance` in `source-postgres/integration_test.go`.
 
 Tests use no build tags. Tests that need Docker (testcontainers) call `t.Skip` under `testing.Short()`, so
 `go test -short ./...` runs everything else without Docker; `go test ./...` runs all of them. CI runs
@@ -94,7 +94,7 @@ access at runtime, and keep `ENTRYPOINT` pointing at the connector binary.
 |---|---|---|
 | `name` | yes | Display name in Synclet |
 | `connector_type` | yes | `source` or `destination`; must match the directory prefix |
-| `version` | yes | Semver. The image tag Synclet will run. Bump it to release |
+| `version` | yes | Semver. The image tag Synclet will run. Set by release-please; start a new connector at `0.1.0` |
 | `release_stage` | yes | `alpha`, `beta`, `generally_available`, `custom` |
 | `support_level` | yes | `community`, `certified` |
 | `license` | yes | The connector's own license (SPDX id). Independent of this repository's license |
@@ -127,30 +127,40 @@ task entry CONNECTOR=source-acme | jq .     # the registry entry a release will 
 ```
 
 On the pull request CI validates all metadata, runs vet, lint and tests and builds the image for the
-changed connectors only, compares `spec.json` with the image, and fails if code changed while `version`
-still equals an already released version.
+changed connectors only, and compares `spec.json` with the image. Do not change `version` or `CHANGELOG.md`
+by hand.
 
-## Releasing a new version
+## Releasing
 
-Bump `version` in `meta.json` (plus `spec.json` if the spec changed) and merge. Then tag the merge commit
-and push the tag:
+Releases are cut by [release-please](https://github.com/googleapis/release-please) from
+[Conventional Commits](https://www.conventionalcommits.org). Use the connector directory as the scope:
 
-```bash
-git tag source-acme-v0.2.0 && git push origin source-acme-v0.2.0
+```
+fix(source-acme): retry on HTTP 429
+feat(source-acme)!: rename the `items` stream to `orders`
 ```
 
-The release workflow checks that the tag matches `meta.json`, builds
-`ghcr.io/synclet-io/connectors/source-acme:<version>` (also `latest`) for linux/amd64 and linux/arm64,
-runs `spec` on the pushed image for both platforms, checks the image can be pulled anonymously and then
-sends the connector's registry entry to
-[synclet-connector-registry](https://github.com/synclet-io/synclet-connector-registry). If any step fails,
-nothing is sent and the registry keeps the previous version. A failed release can be re-run from
-**Actions → Release → Run workflow** with the same tag.
+release-please assigns a commit to every connector whose directory it touches, whatever the scope says; the
+scope is for people reading the history. `fix` releases a patch, `feat` a minor version and `!` or a
+`BREAKING CHANGE:` footer a major version; `chore`, `docs`, `test`, `ci` and
+`refactor` release nothing on their own. Record a breaking change in `breaking_changes` in `meta.json` too, so
+Synclet can warn before the upgrade.
 
-Changes that only touch `meta.json` (other than `version`), `spec.json`, `*.md` or `*_test.go` do not need
-a version bump in CI, but reach the registry only with the connector's next release.
+After a merge to main, release-please opens or updates one pull request per connector with releasable
+changes, titled `chore(<dir>): release <version>`. It bumps `version` in `meta.json`, the connector's entry in
+`.release-please-manifest.json` and its `CHANGELOG.md`. Merging that pull request creates the GitHub release
+and the tag `<dir>-v<version>`, which runs the release workflow: it checks that the tag matches
+`meta.json`, builds `ghcr.io/synclet-io/connectors/<dir>:<version>` (also `latest`) for linux/amd64 and
+linux/arm64, runs `spec` on the pushed image for both platforms, checks the image can be pulled anonymously
+and, once it succeeds, the Registry workflow republishes `registry.json` on GitHub Pages. If any step fails, the registry keeps the previous
+version. A failed release can be re-run from **Actions → Release → Run workflow** with the same tag.
+
+A new connector needs a package in `release-please-config.json` (copy another connector's) and its directory
+in `.release-please-manifest.json` at its `meta.json` version; `task validate` fails until both are there.
+Push its first tag, `<dir>-v0.1.0`, by hand after merging, then make its GHCR package public (see the
+README).
 
 ## Removing a connector
 
-Set `"tombstone": true`, bump `version` and release it. Synclet skips tombstoned entries, so the connector
+Set `"tombstone": true` in a `feat(<dir>)!:` or `fix(<dir>):` commit and release it. Synclet skips tombstoned entries, so the connector
 disappears from the catalog on the next repository sync while its images stay available.

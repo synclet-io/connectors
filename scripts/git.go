@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os/exec"
-	"path"
 	"sort"
 	"strings"
 )
@@ -22,20 +21,6 @@ func git(root string, args ...string) (string, error) {
 	}
 
 	return strings.TrimSpace(string(out)), nil
-}
-
-func gitTags(root string) (map[string]bool, error) {
-	out, err := git(root, "tag", "--list")
-	if err != nil {
-		return nil, err
-	}
-
-	tags := map[string]bool{}
-	for _, t := range strings.Fields(out) {
-		tags[t] = true
-	}
-
-	return tags, nil
 }
 
 // changedFiles groups files changed between base and HEAD by connector directory.
@@ -68,19 +53,4 @@ func sortedKeys[V any](m map[string]V) []string {
 	sort.Strings(keys)
 
 	return keys
-}
-
-// affectsImage reports whether a changed file ends up in the connector image.
-// Docs, metadata and the checked-in spec do not, so they never require a version bump.
-func affectsImage(file string) bool {
-	switch {
-	case file == "meta.json", file == "spec.json":
-		return false
-	case strings.HasSuffix(file, ".md"):
-		return false
-	case strings.HasSuffix(path.Base(file), "_test.go"):
-		return false
-	}
-
-	return true
 }

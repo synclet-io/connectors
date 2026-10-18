@@ -43,9 +43,6 @@ jobs:
       - name: Validate meta.json and spec.json
         run: go run ./scripts validate
 
-      - name: Require a version bump for changed connectors
-        run: go run ./scripts check-versions --base "$BASE"
-
       - name: Generate registry entries (dry run)
         run: |
           go run ./scripts registry --image-prefix "ghcr.io/${GITHUB_REPOSITORY,,}" --out dist/registry.json

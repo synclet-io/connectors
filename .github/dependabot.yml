@@ -4,11 +4,30 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    groups:
+      github-actions:
+        patterns: ["*"]
+  # With `directories`, a group yields one pull request per directory, so each connector gets a single
+  # gomod and a single docker pull request per week instead of sibling PRs that conflict on go.sum.
   - package-ecosystem: gomod
     directories: ["/", "/connectors/*"]
     schedule:
       interval: weekly
+    groups:
+      gomod:
+        patterns: ["*"]
+    # fix: makes release-please release the connector with the bumped dependencies.
+    commit-message:
+      prefix: fix
+      include: scope
   - package-ecosystem: docker
     directories: ["/connectors/*"]
     schedule:
       interval: weekly
+    groups:
+      docker:
+        patterns: ["*"]
+    # fix: makes release-please release the connector with the bumped dependencies.
+    commit-message:
+      prefix: fix
+      include: scope

@@ -1,0 +1,53 @@
+name: Registry
+
+# Publishes registry.json on GitHub Pages after every successful release. It runs on main (workflow_run
+# and workflow_dispatch always do), which the github-pages environment allows to deploy. Each run
+# rebuilds the file from all release tags, so releases finishing in any order publish the same result.
+on:
+  workflow_run:
+    workflows: [Release]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  registry:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}registry.json
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          fetch-depth: 0
+          fetch-tags: true
+
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+
+      - name: Build registry.json from released connectors
+        run: |
+          mkdir -p _site
+          go run ./scripts registry --released --out _site/registry.json
+          jq -e '[.sources[]?, .destinations[]?] | length > 0' _site/registry.json > /dev/null
+          jq '[.sources[]?, .destinations[]?] | map({dockerRepository, dockerImageTag})' _site/registry.json
+
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: _site
+
+      - id: deploy
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
