@@ -1,25 +1,39 @@
-From 9b098f4741338677874b8e57e6ee51d06363757b Mon Sep 17 00:00:00 2001
+From fff5c960ee0df4862a247296cd1d7c33adf66a4a Mon Sep 17 00:00:00 2001
 From: saturn4er <saturn4er@gmail.com>
 Date: Sun, 18 Oct 2026 03:55:00 +0300
 Subject: [PATCH] feat: accept registry entries from synclet-io/connectors,
  write releases.breakingChanges
 
 ---
- .github/workflows/update-registry.yml | 58 ++++++-------------------
- README.md                             | 43 +++++++++++++++++--
- scripts/update-registry.sh            | 62 +++++++++++++++++++++++++++
- 3 files changed, 113 insertions(+), 50 deletions(-)
+ .github/workflows/pages.yml           |  1 +
+ .github/workflows/update-registry.yml | 65 ++++++++-------------------
+ README.md                             | 43 ++++++++++++++++--
+ scripts/update-registry.sh            | 62 +++++++++++++++++++++++++
+ 4 files changed, 121 insertions(+), 50 deletions(-)
  create mode 100755 scripts/update-registry.sh
 
+diff --git a/.github/workflows/pages.yml b/.github/workflows/pages.yml
+index 838a101..679f879 100644
+--- a/.github/workflows/pages.yml
++++ b/.github/workflows/pages.yml
+@@ -4,6 +4,7 @@ on:
+   push:
+     branches: [main]
+     paths: [registry.json]
++  workflow_dispatch:
+ 
+ permissions:
+   pages: write
 diff --git a/.github/workflows/update-registry.yml b/.github/workflows/update-registry.yml
-index 776251a..f6d6697 100644
+index 776251a..aaa862e 100644
 --- a/.github/workflows/update-registry.yml
 +++ b/.github/workflows/update-registry.yml
-@@ -6,7 +6,10 @@ on:
+@@ -6,7 +6,11 @@ on:
  
  permissions:
    contents: write
 -  pages: write
++  actions: write
 +
 +concurrency:
 +  group: update-registry
@@ -27,7 +41,7 @@ index 776251a..f6d6697 100644
  
  jobs:
    update:
-@@ -14,58 +17,21 @@ jobs:
+@@ -14,58 +18,27 @@ jobs:
      steps:
        - uses: actions/checkout@v4
  
@@ -49,9 +63,7 @@ index 776251a..f6d6697 100644
 -            echo "::error::Unknown connector type for: $CONNECTOR"
 -            exit 1
 -          fi
-+          PAYLOAD: ${{ toJSON(github.event.client_payload) }}
-+        run: printf '%s' "$PAYLOAD" > "$RUNNER_TEMP/payload.json"
- 
+-
 -          # Build the connector entry from metadata + spec
 -          ENTRY=$(echo "$METADATA" | jq -c \
 -            --arg dockerRepository "$IMAGE" \
@@ -72,7 +84,9 @@ index 776251a..f6d6697 100644
 -              externalDocumentationUrls: .external_documentation_urls,
 -              tombstone: false
 -            }')
--
++          PAYLOAD: ${{ toJSON(github.event.client_payload) }}
++        run: printf '%s' "$PAYLOAD" > "$RUNNER_TEMP/payload.json"
+ 
 -          # Update registry.json: remove existing entry for this connector, add new one
 -          jq --arg key "$ARRAY_KEY" \
 -             --arg repo "$IMAGE" \
@@ -94,6 +108,12 @@ index 776251a..f6d6697 100644
 -          git commit -m "registry: update ${{ github.event.client_payload.connector }} to ${{ github.event.client_payload.version }}"
 +          git commit -m "registry: update $CONNECTOR to $VERSION"
            git push
++
++      # A push made with GITHUB_TOKEN starts no push-triggered workflow, so Pages is deployed by dispatch.
++      - name: Deploy Pages
++        env:
++          GH_TOKEN: ${{ github.token }}
++        run: gh workflow run pages.yml --repo "$GITHUB_REPOSITORY" --ref main
 diff --git a/README.md b/README.md
 index f1bd6fc..f98d14c 100644
 --- a/README.md
