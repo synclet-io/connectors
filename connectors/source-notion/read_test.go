@@ -125,7 +125,7 @@ func TestReadPages(t *testing.T) {
 	for _, s := range h.to("search") {
 		if s.body["filter"].(map[string]any)["value"] == "page" {
 			searchCursors = append(searchCursors, s.cursor)
-			assert.Equal(t, map[string]any{"direction": "descending", "timestamp": "last_edited_time"}, s.body["sort"])
+			assert.Equal(t, map[string]any{"direction": "ascending", "timestamp": "last_edited_time"}, s.body["sort"])
 		}
 	}
 	assert.Equal(t, []string{"", "cursor-p2"}, searchCursors)
@@ -297,4 +297,44 @@ func TestReadUsersIncrementalRejected(t *testing.T) {
 	out := runRead(t, src, testConfig, cat, nil)
 	require.Error(t, out.Err)
 	assert.Equal(t, "stream users supports full refresh only", out.Err.Error())
+}
+
+// searchSorts returns the sort direction of every search for kind.
+func searchSorts(h *hits, kind string) []string {
+	var out []string
+	for _, s := range h.to("search") {
+		if s.body["filter"].(map[string]any)["value"] == kind {
+			out = append(out, s.body["sort"].(map[string]any)["direction"].(string))
+		}
+	}
+	return out
+}
+
+// TestReadSearchSortOrder: a full refresh searches the least recently
+// edited first, so a page edited during the read moves behind the cursor
+// instead of ahead of it; the listing of data sources for pages and blocks
+// is always complete, so it sorts the same way.
+func TestReadSearchSortOrder(t *testing.T) {
+	for _, tt := range []struct {
+		mode      synclet.SyncMode
+		direction string
+	}{
+		{synclet.SyncModeFullRefresh, "ascending"},
+		{synclet.SyncModeIncremental, "descending"},
+	} {
+		t.Run(string(tt.mode), func(t *testing.T) {
+			srv, h := fixtureServer(t, nil)
+			src := testSource(srv)
+			out := runRead(t, src, testConfig, catalogOf(t, src, tt.mode, databasesStream), nil)
+			require.NoError(t, out.Err)
+			assert.Equal(t, []string{tt.direction, tt.direction}, searchSorts(h, "data_source"))
+
+			srv, h = fixtureServer(t, nil)
+			src = testSource(srv)
+			out = runRead(t, src, testConfig, catalogOf(t, src, tt.mode, pagesStream), nil)
+			require.NoError(t, out.Err)
+			assert.Equal(t, []string{"ascending", "ascending"}, searchSorts(h, "data_source"))
+			assert.Equal(t, []string{tt.direction, tt.direction}, searchSorts(h, "page"))
+		})
+	}
 }

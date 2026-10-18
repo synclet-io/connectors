@@ -166,3 +166,25 @@ func TestClientHasMoreWithoutCursor(t *testing.T) {
 	err := c.getAll(t.Context(), "users", func(json.RawMessage) (bool, error) { return true, nil })
 	require.EqualError(t, err, "GET users: has_more is true but next_cursor is empty")
 }
+
+func TestClientRepeatedCursor(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`{"object":"list","results":[{"id":"x"}],"has_more":true,"next_cursor":"cursor-same"}`))
+	}))
+	t.Cleanup(srv.Close)
+	c := clockClient(srv, &fakeClock{now: testNow})
+	var n int
+	err := c.getAll(t.Context(), "users", func(json.RawMessage) (bool, error) { n++; return n < 10, nil })
+	require.EqualError(t, err, `GET users: next_cursor "cursor-same" was returned before`)
+	assert.Equal(t, 2, n)
+	err = c.postAll(t.Context(), "search", map[string]any{}, func(json.RawMessage) (bool, error) { return true, nil })
+	require.EqualError(t, err, `POST search: next_cursor "cursor-same" was returned before`)
+}
+
+func TestClientServerErrorWaits(t *testing.T) {
+	srv, _ := statusServer(t, `{}`, "", http.StatusInternalServerError, http.StatusInternalServerError)
+	clock := &fakeClock{now: testNow}
+	var out struct{}
+	require.NoError(t, clockClient(srv, clock).get(t.Context(), "users/me", nil, &out))
+	assert.Equal(t, []time.Duration{time.Millisecond, 349 * time.Millisecond, 2 * time.Millisecond, 348 * time.Millisecond}, clock.waits())
+}

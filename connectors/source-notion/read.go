@@ -89,11 +89,18 @@ func (r *reader) readUsers(ctx context.Context, desc synclet.StreamDescriptor, d
 }
 
 // search pages through POST /search for objects of kind ("page" or
-// "data_source"), the most recently edited first.
-func (r *reader) search(ctx context.Context, kind string, fn func(json.RawMessage) (bool, error)) error {
+// "data_source"), the most recently edited first when newestFirst, else the
+// least recently edited first. A complete listing sorts oldest first, so an
+// object edited during the listing moves behind the cursor, where it is
+// still read, instead of ahead of it.
+func (r *reader) search(ctx context.Context, kind string, newestFirst bool, fn func(json.RawMessage) (bool, error)) error {
+	direction := "ascending"
+	if newestFirst {
+		direction = "descending"
+	}
 	body := map[string]any{
 		"filter": map[string]any{"property": "object", "value": kind},
-		"sort":   map[string]any{"direction": "descending", "timestamp": cursorField},
+		"sort":   map[string]any{"direction": direction, "timestamp": cursorField},
 	}
 	return r.c.postAll(ctx, "search", body, fn)
 }
@@ -176,8 +183,8 @@ func laterOf(a, b time.Time) time.Time {
 }
 
 // readDatabases emits the data sources search finds. An incremental read
-// stops at the first one edited before the lookback window and emits its
-// state at the end.
+// searches the most recently edited first, stops at the first one edited
+// before the lookback window and emits its state at the end.
 func (r *reader) readDatabases(ctx context.Context, desc synclet.StreamDescriptor, d streamDef, incremental bool, raw json.RawMessage) error {
 	var st cursorState
 	if raw != nil {
@@ -192,7 +199,7 @@ func (r *reader) readDatabases(ctx context.Context, desc synclet.StreamDescripto
 	since := r.since(saved)
 	top := saved
 	seen := map[string]bool{}
-	err = r.search(ctx, "data_source", func(raw json.RawMessage) (bool, error) {
+	err = r.search(ctx, "data_source", incremental, func(raw json.RawMessage) (bool, error) {
 		o, err := decodeObject(raw, "data source")
 		if err != nil {
 			return false, err
@@ -229,7 +236,7 @@ func (r *reader) readDatabases(ctx context.Context, desc synclet.StreamDescripto
 func (r *reader) dataSourceIDs(ctx context.Context) ([]string, error) {
 	var ids []string
 	seen := map[string]bool{}
-	err := r.search(ctx, "data_source", func(raw json.RawMessage) (bool, error) {
+	err := r.search(ctx, "data_source", false, func(raw json.RawMessage) (bool, error) {
 		o, err := decodeObject(raw, "data source")
 		if err != nil {
 			return false, err
@@ -253,7 +260,7 @@ func (r *reader) dataSourceIDs(ctx context.Context) ([]string, error) {
 // and emits the state after each data source. Search runs the most
 // recently edited first and stops at the first page edited before its
 // saved cursor less the lookback window; the state is emitted again at the
-// end.
+// end. A full refresh searches the least recently edited first.
 func (r *reader) walkPages(ctx context.Context, desc synclet.StreamDescriptor, incremental bool, raw json.RawMessage, visit func(context.Context, page, time.Time) error) error {
 	var st pageState
 	if raw != nil {
@@ -324,7 +331,7 @@ func (r *reader) walkPages(ctx context.Context, desc synclet.StreamDescriptor, i
 	}
 	since := r.since(saved)
 	top := saved
-	err = r.search(ctx, "page", func(raw json.RawMessage) (bool, error) {
+	err = r.search(ctx, "page", incremental, func(raw json.RawMessage) (bool, error) {
 		p, err := decodeObject(raw, "page")
 		if err != nil {
 			return false, err

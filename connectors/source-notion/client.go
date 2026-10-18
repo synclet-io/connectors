@@ -167,7 +167,7 @@ func (c *apiClient) send(ctx context.Context, method, u string, body []byte, out
 			return err
 		}
 		failures++
-		if err := sleep(ctx, delay); err != nil {
+		if err := c.wait(ctx, delay); err != nil {
 			return err
 		}
 		delay *= 2
@@ -274,21 +274,29 @@ type listPage struct {
 }
 
 // next returns the cursor of the following page, "" after the last one, or
-// an error when has_more is set without a cursor.
-func (p listPage) next(what string) (string, error) {
+// an error when has_more is set without a cursor or with a cursor already
+// in seen, which would read the same pages again. It adds the cursor to
+// seen.
+func (p listPage) next(what string, seen map[string]bool) (string, error) {
 	if !p.HasMore {
 		return "", nil
 	}
 	if p.NextCursor == nil || *p.NextCursor == "" {
 		return "", fmt.Errorf("%s: has_more is true but next_cursor is empty", what)
 	}
-	return *p.NextCursor, nil
+	cur := *p.NextCursor
+	if seen[cur] {
+		return "", fmt.Errorf("%s: next_cursor %q was returned before", what, cur)
+	}
+	seen[cur] = true
+	return cur, nil
 }
 
 // getAll pages through GET path by start_cursor and calls fn for every
 // result, in order. fn returns false to stop.
 func (c *apiClient) getAll(ctx context.Context, path string, fn func(json.RawMessage) (bool, error)) error {
 	query := url.Values{"page_size": {strconv.Itoa(pageSize)}}
+	seen := map[string]bool{}
 	for {
 		var p listPage
 		if err := c.get(ctx, path, query, &p); err != nil {
@@ -300,7 +308,7 @@ func (c *apiClient) getAll(ctx context.Context, path string, fn func(json.RawMes
 				return err
 			}
 		}
-		cur, err := p.next("GET " + path)
+		cur, err := p.next("GET "+path, seen)
 		if err != nil || cur == "" {
 			return err
 		}
@@ -313,6 +321,7 @@ func (c *apiClient) getAll(ctx context.Context, path string, fn func(json.RawMes
 func (c *apiClient) postAll(ctx context.Context, path string, body map[string]any, fn func(json.RawMessage) (bool, error)) error {
 	body["page_size"] = pageSize
 	delete(body, "start_cursor")
+	seen := map[string]bool{}
 	for {
 		var p listPage
 		if err := c.post(ctx, path, body, &p); err != nil {
@@ -324,7 +333,7 @@ func (c *apiClient) postAll(ctx context.Context, path string, body map[string]an
 				return err
 			}
 		}
-		cur, err := p.next("POST " + path)
+		cur, err := p.next("POST "+path, seen)
 		if err != nil || cur == "" {
 			return err
 		}
