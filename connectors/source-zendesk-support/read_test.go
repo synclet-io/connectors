@@ -171,16 +171,34 @@ func TestResume(t *testing.T) {
 		assert.Equal(t, []string{`{"start_time":1791331201}`, `{"start_time":1791331300}`}, states(out))
 	})
 
-	t.Run("bad state", func(t *testing.T) {
+	for _, state := range []string{`{}`, `{"cursor":""}`, `{"date":"x"}`} {
+		t.Run("cursor-less state "+state+" starts at start_date", func(t *testing.T) {
+			srv, h := fixtureServer(t, nil)
+			src := testSource(srv)
+			saved := json.RawMessage(`[{"type":"STREAM","stream":{"stream_descriptor":{"name":"tickets"},"stream_state":` + state +
+				`}},{"type":"STREAM","stream":{"stream_descriptor":{"name":"users"},"stream_state":` + state + `}}]`)
+			out := runRead(t, src, catalogOf(t, src, synclet.SyncModeIncremental, "tickets", "users"), saved)
+
+			assert.Equal(t, []string{
+				"incremental/tickets/cursor.json?start_time=1790812800",
+				"incremental/tickets/cursor.json?cursor=c1",
+				"incremental/users/cursor.json?start_time=1790812800",
+			}, h.list())
+			assert.Equal(t, []int64{2001, 2002, 2003}, recordIDs(t, out, "tickets"))
+			assert.Equal(t, []int64{1001, 1003}, recordIDs(t, out, "users"))
+		})
+	}
+
+	t.Run("undecodable state", func(t *testing.T) {
 		srv, _ := fixtureServer(t, nil)
 		src := testSource(srv)
 		raw, err := json.Marshal(catalogOf(t, src, synclet.SyncModeIncremental, "tickets"))
 		require.NoError(t, err)
 		out, err := testkit.RunSource(t.Context(), src, synclet.Request{
-			Command: synclet.CommandRead, Config: json.RawMessage(testConfig), Catalog: raw, State: streamState("tickets", `{"date":"x"}`),
+			Command: synclet.CommandRead, Config: json.RawMessage(testConfig), Catalog: raw, State: streamState("tickets", `["c1"]`),
 		})
 		require.NoError(t, err)
-		require.ErrorContains(t, out.Err, "state of tickets has no cursor")
+		require.ErrorContains(t, out.Err, "state of tickets")
 	})
 }
 

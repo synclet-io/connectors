@@ -86,7 +86,8 @@ comes, the connector moves on one second (`start_time + 1`) and logs a warning. 
 ```
 
 Zendesk rejects a `start_time` less than a minute old, so `start_time` is never later than one minute
-before now. A saved state takes priority over `start_date`. A full refresh of an incremental stream
+before now. A saved state takes priority over `start_date`; a state without a cursor (such as `{}`) starts from
+`start_date`. A full refresh of an incremental stream
 reads everything from `start_date` and saves no state.
 
 ## Rate limits

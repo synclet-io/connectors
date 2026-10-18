@@ -23,19 +23,19 @@ type timeState struct {
 	StartTime int64 `json:"start_time"`
 }
 
-// cursorExport requests the first page by start_time, or by the saved
-// cursor, and then each after_cursor until end_of_stream. An incremental
-// read saves the after_cursor of every page once its records are out.
+// cursorExport requests the first page by the saved cursor, or by
+// start_time when the state has none, and then each after_cursor until
+// end_of_stream. An incremental read saves the after_cursor of every page
+// once its records are out.
 func (r streamRead) cursorExport(ctx context.Context) error {
 	query := url.Values{}
+	var st cursorState
 	if r.saved != nil {
-		var st cursorState
 		if err := r.decodeState(&st); err != nil {
 			return err
 		}
-		if st.Cursor == "" {
-			return synclet.ConfigError(fmt.Errorf("state of %s has no cursor", r.desc.Name))
-		}
+	}
+	if st.Cursor != "" {
 		query.Set("cursor", st.Cursor)
 	} else {
 		start, err := r.cfg.start()
