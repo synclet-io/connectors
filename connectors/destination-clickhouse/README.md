@@ -81,8 +81,8 @@ Objects land as JSON text rather than ClickHouse's `JSON` type, whose inference 
 into `Float64`; ClickHouse's JSON functions (`JSONExtract...`) read the text.
 
 `DateTime64(6)` holds 1900 to 2299 on the server, but clickhouse-go encodes a timestamp through Go's
-`time.UnixNano`, which ends at 2262-04-11 23:47:16.854775807 UTC. A timestamp outside 1900-01-01
-00:00:00 to 2262-04-11 23:47:16.854775 UTC fails the sync rather than wrap around.
+`time.UnixNano`, which ends at 2262-04-11 23:47:16.854775807 UTC. A timestamp outside
+1900-01-01 00:00:00 to 2262-04-11 23:47:16.854775 UTC fails the sync rather than wrap around.
 
 A JSON `null` or a missing field lands as `NULL`. Numbers given as JSON strings (`"12.5"`) are accepted
 in `Int64` and `Decimal` columns.

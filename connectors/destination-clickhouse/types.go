@@ -349,10 +349,14 @@ func parseTimestamp(s string, withZone bool) (time.Time, error) {
 		}
 		if zone != "Z" && zone != "z" {
 			digits := strings.ReplaceAll(zone[1:], ":", "")
-			offset := atoi(digits[:2]) * 3600
+			hours, minutes := atoi(digits[:2]), 0
 			if len(digits) == 4 {
-				offset += atoi(digits[2:]) * 60
+				minutes = atoi(digits[2:])
 			}
+			if hours > 23 || minutes > 59 {
+				return time.Time{}, fmt.Errorf("value %q has an invalid time zone offset %s", s, zone)
+			}
+			offset := hours*3600 + minutes*60
 			if zone[0] == '+' {
 				offset = -offset
 			}
