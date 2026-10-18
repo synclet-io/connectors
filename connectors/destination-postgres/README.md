@@ -105,7 +105,9 @@ Deduplication rules:
   with no record pending is echoed at once.
 - The STREAM states of an `overwrite` stream, and GLOBAL and LEGACY states while the catalog has an
   `overwrite` stream, are held until the final swap commits: before it, the records are not in the
-  table readers see.
+  table readers see. A STREAM state is matched to its catalog stream by name and namespace, and, when
+  no stream has that exact namespace, by name alone: it is held if any `overwrite` stream has its
+  name, or if it matches no catalog stream at all while the catalog has an `overwrite` stream.
 
 ## Failures
 

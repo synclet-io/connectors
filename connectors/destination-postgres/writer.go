@@ -186,11 +186,30 @@ func (w *writer) release(states []synclet.StateMessage) error {
 	return nil
 }
 
+// isHeld reports whether st may cover an overwrite stream. A STREAM state
+// belongs to the catalog stream of its exact descriptor; failing that, to
+// every catalog stream of its name, since sources and platforms disagree on
+// namespaces. A state that matches no catalog stream, like a GLOBAL or LEGACY
+// one, is held while the catalog has an overwrite stream.
 func (w *writer) isHeld(st synclet.StateMessage) bool {
-	if st.Type == synclet.StateTypeStream && st.Stream != nil {
-		return w.overwrite[st.Stream.StreamDescriptor]
+	if st.Type != synclet.StateTypeStream || st.Stream == nil {
+		return len(w.overwrite) > 0
 	}
-	return len(w.overwrite) > 0
+	desc := st.Stream.StreamDescriptor
+	if _, ok := w.byDesc[desc]; ok {
+		return w.overwrite[desc]
+	}
+	named := false
+	for d := range w.byDesc {
+		if d.Name != desc.Name {
+			continue
+		}
+		if w.overwrite[d] {
+			return true
+		}
+		named = true
+	}
+	return !named && len(w.overwrite) > 0
 }
 
 // flush commits every pending row in one transaction, then echoes the

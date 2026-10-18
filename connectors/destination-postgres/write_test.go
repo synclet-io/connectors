@@ -365,3 +365,37 @@ func TestWriteGlobalStateWaitsForSwap(t *testing.T) {
 	assert.Equal(t, []string{"2"}, stateKinds(out))
 	assert.Equal(t, [][]string{{"a"}, {"b"}}, queryStrings(t, cfg, `SELECT code FROM global_state.rates ORDER BY code`))
 }
+
+func TestWriteOverwriteStateWithOtherNamespaceWaitsForSwap(t *testing.T) {
+	cfg := sharedPostgres(t, "namespaced_state")
+	streams := []synclet.ConfiguredStream{
+		stream("rates", `{"type":"object","properties":{"code":{"type":"string"}}}`, synclet.DestinationSyncModeOverwrite, nil, nil),
+		stream("logs", `{"type":"object","properties":{"day":{"type":"string","format":"date"}}}`, synclet.DestinationSyncModeAppend, nil, nil),
+	}
+	namespaced := `{"type":"STATE","state":{"type":"STREAM","stream":{"stream_descriptor":{"name":"rates","namespace":"public"},"stream_state":7}}}`
+
+	out := runWrite(t, testDestination(2), cfg, streams,
+		rec("rates", `{"code":"a"}`), rec("rates", `{"code":"b"}`), namespaced,
+		rec("logs", `{"day":"not-a-date"}`),
+	)
+	require.Error(t, out.Err)
+	assert.Empty(t, stateValues(out))
+}
+
+func TestStateHeldForOverwriteStreamOfSameName(t *testing.T) {
+	plans := []*streamPlan{
+		{index: 0, desc: synclet.StreamDescriptor{Name: "rates"}, mode: synclet.DestinationSyncModeOverwrite},
+		{index: 1, desc: synclet.StreamDescriptor{Name: "logs", Namespace: "app"}, mode: synclet.DestinationSyncModeAppend},
+	}
+	w := newWriter(nil, "public", nil, Destination{}, plans)
+	streamState := func(name, namespace string) synclet.StateMessage {
+		return synclet.StateMessage{Type: synclet.StateTypeStream, Stream: &synclet.StreamState{
+			StreamDescriptor: synclet.StreamDescriptor{Name: name, Namespace: namespace},
+		}}
+	}
+	assert.True(t, w.isHeld(streamState("rates", "")))
+	assert.True(t, w.isHeld(streamState("rates", "public")))
+	assert.False(t, w.isHeld(streamState("logs", "app")))
+	assert.False(t, w.isHeld(streamState("logs", "")))
+	assert.True(t, w.isHeld(streamState("unknown", "")), "a state of no catalog stream may cover an overwrite stream")
+}
