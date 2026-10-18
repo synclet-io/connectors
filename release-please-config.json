@@ -139,6 +139,16 @@
         }
       ]
     },
+    "connectors/source-mongodb": {
+      "component": "source-mongodb",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "meta.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
     "connectors/source-mssql": {
       "component": "source-mssql",
       "extra-files": [

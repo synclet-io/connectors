@@ -1,0 +1,286 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Reads the collections of a MongoDB database: full refresh, or incremental by a cursor field.",
+    "properties": {
+      "database_config": {
+        "description": "Configures the MongoDB cluster type.",
+        "oneOf": [
+          {
+            "description": "MongoDB Atlas-hosted cluster configured as a replica set",
+            "properties": {
+              "auth_source": {
+                "default": "admin",
+                "description": "The database that holds the user. Empty: the authSource of the connection string, else admin.",
+                "examples": [
+                  "admin"
+                ],
+                "order": 5,
+                "title": "Authentication Source",
+                "type": "string"
+              },
+              "cluster_type": {
+                "const": "ATLAS_REPLICA_SET",
+                "order": 0,
+                "type": "string"
+              },
+              "connection_string": {
+                "description": "A mongodb:// URI, with several hosts separated by commas for a replica set, or a mongodb+srv:// URI whose SRV and TXT records list the hosts and options. Options in the URI (replicaSet, tls, readPreference, authMechanism, ...) apply. Leave the user name and password out and set them below.",
+                "examples": [
+                  "mongodb+srv://cluster0.abcd1.mongodb.net/"
+                ],
+                "order": 1,
+                "title": "Connection String",
+                "type": "string"
+              },
+              "database": {
+                "description": "The database whose collections are synced.",
+                "order": 2,
+                "title": "Database Name",
+                "type": "string"
+              },
+              "password": {
+                "airbyte_secret": true,
+                "description": "The password of the user.",
+                "order": 4,
+                "title": "Password",
+                "type": "string"
+              },
+              "username": {
+                "description": "The user to log in as. Empty: no authentication, or the user named in the connection string.",
+                "order": 3,
+                "title": "Username",
+                "type": "string"
+              }
+            },
+            "required": [
+              "cluster_type",
+              "connection_string",
+              "database"
+            ],
+            "title": "MongoDB Atlas Replica Set",
+            "type": "object"
+          },
+          {
+            "description": "MongoDB self-hosted cluster configured as a replica set",
+            "properties": {
+              "auth_source": {
+                "default": "admin",
+                "description": "The database that holds the user. Empty: the authSource of the connection string, else admin.",
+                "examples": [
+                  "admin"
+                ],
+                "order": 5,
+                "title": "Authentication Source",
+                "type": "string"
+              },
+              "cluster_type": {
+                "const": "SELF_MANAGED_REPLICA_SET",
+                "order": 0,
+                "type": "string"
+              },
+              "connection_string": {
+                "description": "A mongodb:// URI, with several hosts separated by commas for a replica set, or a mongodb+srv:// URI whose SRV and TXT records list the hosts and options. Options in the URI (replicaSet, tls, readPreference, authMechanism, ...) apply. Leave the user name and password out and set them below.",
+                "examples": [
+                  "mongodb://example1.host.com:27017,example2.host.com:27017/?replicaSet=rs0"
+                ],
+                "order": 1,
+                "title": "Connection String",
+                "type": "string"
+              },
+              "database": {
+                "description": "The database whose collections are synced.",
+                "order": 2,
+                "title": "Database Name",
+                "type": "string"
+              },
+              "password": {
+                "airbyte_secret": true,
+                "description": "The password of the user.",
+                "order": 4,
+                "title": "Password",
+                "type": "string"
+              },
+              "username": {
+                "description": "The user to log in as. Empty: no authentication, or the user named in the connection string.",
+                "order": 3,
+                "title": "Username",
+                "type": "string"
+              }
+            },
+            "required": [
+              "cluster_type",
+              "connection_string",
+              "database"
+            ],
+            "title": "Self-Managed Replica Set",
+            "type": "object"
+          }
+        ],
+        "order": 0,
+        "title": "Cluster Type",
+        "type": "object"
+      },
+      "discover_sample_size": {
+        "default": 10000,
+        "description": "How many documents of each collection discover samples to infer the collection's schema. Between 1 and 100000. Fields seen in no sampled document are not part of the schema.",
+        "order": 1,
+        "title": "Document discovery sample size",
+        "type": "integer"
+      },
+      "tls_ca_certificate": {
+        "airbyte_secret": true,
+        "description": "PEM certificate of the CA that signed the server certificates. Setting it turns TLS on. Empty: the CAs trusted by the connector image, and TLS as the connection string says (on for mongodb+srv://).",
+        "order": 2,
+        "title": "TLS CA Certificate",
+        "type": "string"
+      },
+      "tunnel_method": {
+        "description": "Whether to initiate an SSH tunnel before connecting to the database, and if so, which kind of authentication to use.",
+        "oneOf": [
+          {
+            "properties": {
+              "tunnel_method": {
+                "const": "NO_TUNNEL",
+                "description": "No ssh tunnel needed to connect to database",
+                "order": 0,
+                "type": "string"
+              }
+            },
+            "required": [
+              "tunnel_method"
+            ],
+            "title": "No Tunnel",
+            "type": "object"
+          },
+          {
+            "properties": {
+              "ssh_key": {
+                "airbyte_secret": true,
+                "description": "OS-level user account ssh key credentials in PEM or OpenSSH format (RSA, ECDSA or Ed25519)",
+                "order": 4,
+                "title": "SSH Private Key",
+                "type": "string"
+              },
+              "tunnel_host": {
+                "description": "Hostname of the jump server host that allows inbound ssh tunnel.",
+                "order": 1,
+                "title": "SSH Tunnel Jump Server Host",
+                "type": "string"
+              },
+              "tunnel_host_key": {
+                "description": "Public host keys of the jump server, one per line, each in authorized_keys format (\"ssh-ed25519 AAAA...\") or as a known_hosts line (\"bastion.example.com ssh-ed25519 AAAA...\"); the whole output of ssh-keyscan works. The tunnel is refused when the server presents none of them. When empty, the host key is not verified.",
+                "order": 5,
+                "title": "SSH Host Key",
+                "type": "string"
+              },
+              "tunnel_method": {
+                "const": "SSH_KEY_AUTH",
+                "description": "Connect through a jump server tunnel host using username and ssh key",
+                "order": 0,
+                "type": "string"
+              },
+              "tunnel_port": {
+                "default": 22,
+                "description": "Port on the proxy/jump server that accepts inbound ssh connections.",
+                "examples": [
+                  "22"
+                ],
+                "order": 2,
+                "title": "SSH Connection Port",
+                "type": "integer"
+              },
+              "tunnel_user": {
+                "description": "OS-level username for logging into the jump server host.",
+                "order": 3,
+                "title": "SSH Login Username",
+                "type": "string"
+              }
+            },
+            "required": [
+              "tunnel_method",
+              "tunnel_host",
+              "tunnel_port",
+              "tunnel_user",
+              "ssh_key"
+            ],
+            "title": "SSH Key Authentication",
+            "type": "object"
+          },
+          {
+            "properties": {
+              "tunnel_host": {
+                "description": "Hostname of the jump server host that allows inbound ssh tunnel.",
+                "order": 1,
+                "title": "SSH Tunnel Jump Server Host",
+                "type": "string"
+              },
+              "tunnel_host_key": {
+                "description": "Public host keys of the jump server, one per line, each in authorized_keys format (\"ssh-ed25519 AAAA...\") or as a known_hosts line (\"bastion.example.com ssh-ed25519 AAAA...\"); the whole output of ssh-keyscan works. The tunnel is refused when the server presents none of them. When empty, the host key is not verified.",
+                "order": 5,
+                "title": "SSH Host Key",
+                "type": "string"
+              },
+              "tunnel_method": {
+                "const": "SSH_PASSWORD_AUTH",
+                "description": "Connect through a jump server tunnel host using username and password authentication",
+                "order": 0,
+                "type": "string"
+              },
+              "tunnel_port": {
+                "default": 22,
+                "description": "Port on the proxy/jump server that accepts inbound ssh connections.",
+                "examples": [
+                  "22"
+                ],
+                "order": 2,
+                "title": "SSH Connection Port",
+                "type": "integer"
+              },
+              "tunnel_user": {
+                "description": "OS-level username for logging into the jump server host.",
+                "order": 3,
+                "title": "SSH Login Username",
+                "type": "string"
+              },
+              "tunnel_user_password": {
+                "airbyte_secret": true,
+                "description": "OS-level password for logging into the jump server host",
+                "order": 4,
+                "title": "Password",
+                "type": "string"
+              }
+            },
+            "required": [
+              "tunnel_method",
+              "tunnel_host",
+              "tunnel_port",
+              "tunnel_user",
+              "tunnel_user_password"
+            ],
+            "title": "Password Authentication",
+            "type": "object"
+          }
+        ],
+        "order": 3,
+        "title": "SSH Tunnel Method",
+        "type": "object"
+      }
+    },
+    "required": [
+      "database_config"
+    ],
+    "title": "MongoDb Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-mongodb",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": true,
+  "supportsNormalization": false
+}
