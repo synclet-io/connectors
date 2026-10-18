@@ -101,7 +101,10 @@ func (s *tokenSource) fetch(ctx context.Context) (_ string, rerr error) {
 		Error        string `json:"error"`
 		Description  string `json:"error_description"`
 	}
-	_ = json.Unmarshal(raw, &body)
+	decodeErr := json.Unmarshal(raw, &body)
+	if decodeErr != nil && resp.StatusCode == http.StatusOK {
+		return "", fmt.Errorf("token endpoint: decode response: %w", decodeErr)
+	}
 	if resp.StatusCode == http.StatusOK && body.AccessToken != "" {
 		if err := s.matchInstance(body.InstanceURL); err != nil {
 			return "", err
@@ -117,6 +120,9 @@ func (s *tokenSource) fetch(ctx context.Context) (_ string, rerr error) {
 		return body.AccessToken, nil
 	}
 	cause := fmt.Errorf("token endpoint: HTTP %d %s: %s", resp.StatusCode, body.Error, body.Description)
+	if decodeErr != nil {
+		cause = fmt.Errorf("token endpoint: HTTP %d: %s", resp.StatusCode, strings.TrimSpace(string(raw)))
+	}
 	switch {
 	case body.Error == "invalid_grant":
 		org := "a sandbox org while is_sandbox is false"

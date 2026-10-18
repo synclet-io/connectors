@@ -116,7 +116,17 @@ func newStreamRead(c *apiClient, em *synclet.Emitter, cs synclet.ConfiguredStrea
 func (r *streamRead) run(ctx context.Context) error {
 	full := r.q.build(r.fields)
 	if len(encodeQuery(full)) <= r.c.maxSelect {
-		return r.c.query(ctx, r.all, full, r.page)
+		return r.c.query(ctx, r.all, full, func(recs []map[string]any) error {
+			if len(recs) == 0 {
+				return r.page(recs, nil)
+			}
+			last := recs[len(recs)-1]
+			pos, err := r.position(last[r.q.cursor], last["Id"])
+			if err != nil {
+				return err
+			}
+			return r.page(recs, pos)
+		})
 	}
 	if len(r.fields) == 0 || r.fields[0] != "Id" {
 		return fmt.Errorf("%s: the SELECT of all fields is longer than %d encoded characters and the object has no Id to read it in chunks", r.desc.Name, r.c.maxSelect)
@@ -126,11 +136,21 @@ func (r *streamRead) run(ctx context.Context) error {
 		driver = append(driver, r.q.cursor)
 	}
 	return r.c.query(ctx, r.all, r.q.build(driver), func(rows []map[string]any) error {
+		if len(rows) == 0 {
+			return r.page(nil, nil)
+		}
+		// The page's position is its last id row's: a chunk query runs later
+		// and may see a newer cursor value of the same record.
+		last := rows[len(rows)-1]
+		pos, err := r.position(last[r.q.cursor], last["Id"])
+		if err != nil {
+			return err
+		}
 		recs, err := r.chunks(ctx, rows)
 		if err != nil {
 			return err
 		}
-		return r.page(recs)
+		return r.page(recs, pos)
 	})
 }
 
@@ -201,10 +221,27 @@ func (r *streamRead) chunk(ctx context.Context, fields, ids []string, merged map
 	return nil
 }
 
-// page emits recs, then the position after the last one for an incremental
-// read, then stops the read when the org's API usage has reached the
-// threshold.
-func (r *streamRead) page(recs []map[string]any) error {
+// position returns the position of a record with cursor value cursor and
+// id id as the query returned them, or nil for a full refresh.
+func (r *streamRead) position(cursor, id any) (*position, error) {
+	if !r.incremental {
+		return nil, nil
+	}
+	c, _ := cursor.(string)
+	i, _ := id.(string)
+	if c == "" || i == "" {
+		return nil, fmt.Errorf("%s record %v has no %s", r.desc.Name, id, r.q.cursor)
+	}
+	c, err := normalizeTime(c)
+	if err != nil {
+		return nil, fmt.Errorf("%s field %s of record %s: %w", r.desc.Name, r.q.cursor, i, err)
+	}
+	return &position{Cursor: c, ID: i}, nil
+}
+
+// page emits recs, then pos as the stream's state when it is not nil, then
+// stops the read when the org's API usage has reached the threshold.
+func (r *streamRead) page(recs []map[string]any, pos *position) error {
 	for _, rec := range recs {
 		for f := range r.datetimes {
 			v, ok := rec[f].(string)
@@ -221,14 +258,8 @@ func (r *streamRead) page(recs []map[string]any) error {
 			return err
 		}
 	}
-	if r.incremental && len(recs) > 0 {
-		last := recs[len(recs)-1]
-		cursor, _ := last[r.q.cursor].(string)
-		id, _ := last["Id"].(string)
-		if cursor == "" || id == "" {
-			return fmt.Errorf("%s record %v has no %s", r.desc.Name, last["Id"], r.q.cursor)
-		}
-		if err := r.em.StreamState(r.desc, position{Cursor: cursor, ID: id}); err != nil {
+	if pos != nil {
+		if err := r.em.StreamState(r.desc, *pos); err != nil {
 			return err
 		}
 	}

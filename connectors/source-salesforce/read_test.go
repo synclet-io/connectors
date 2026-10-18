@@ -244,3 +244,18 @@ func resetHits(t *testing.T, o *fakeOrg) *fakeOrg {
 	o.reqs = nil
 	return o
 }
+
+func TestReadChunkedSelectStateFromDriver(t *testing.T) {
+	// Record 3 changed between the id query and its chunk query, so the
+	// chunk carries a newer LastModifiedDate than the page's ORDER BY saw.
+	o := fixtureServer(t, map[string][]fixture{
+		"GET query/Invoice__c-in-a01000000000003AAA-Amount__c": {{file: "query/Invoice__c-in-a01000000000003AAA-Amount__c-newer"}},
+	})
+	src, _ := testSource(o)
+	src.maxSelectLen = chunkLimit
+	cfg := testCfg(o)
+	out := runRead(t, src, cfg, catalogOf(t, src, cfg, synclet.SyncModeIncremental, "Invoice__c"), nil)
+	require.NoError(t, out.Err)
+	assert.Equal(t, "2026-09-09T09:00:00.000Z", records(t, out, "Invoice__c")[2]["LastModifiedDate"], "the record carries its current value")
+	assert.Equal(t, []string{`{"cursor":"2026-04-10T10:00:00.000Z","id":"a01000000000003AAA"}`}, states(out), "the state is the driver row's position")
+}

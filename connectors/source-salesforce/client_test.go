@@ -78,3 +78,17 @@ func TestParseLimitInfo(t *testing.T) {
 		assert.Equal(t, want, [2]int{used, max}, in)
 	}
 }
+
+func TestTokenEndpointUndecodableBody(t *testing.T) {
+	o := fixtureServer(t, map[string][]fixture{"POST token": {{status: http.StatusBadGateway, file: "errors/bad_gateway_html"}}})
+	src, _ := testSource(o)
+	st := runCheck(t, src, testCfg(o))
+	assert.Equal(t, synclet.ConnectionStatusFailed, st.Status)
+	assert.Contains(t, st.Message, "token endpoint: HTTP 502: <html><body>Bad Gateway</body></html>")
+
+	o = fixtureServer(t, map[string][]fixture{"POST token": {{file: "token_garbled"}}})
+	src, _ = testSource(o)
+	st = runCheck(t, src, testCfg(o))
+	assert.Equal(t, synclet.ConnectionStatusFailed, st.Status)
+	assert.Contains(t, st.Message, "token endpoint: decode response: invalid character")
+}
