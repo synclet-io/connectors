@@ -123,6 +123,12 @@ func (Source) Spec(_ context.Context) (*synclet.ConnectorSpecification, error) {
 						"Empty: the CAs trusted by the connector image, and TLS as the connection string says (on for mongodb+srv://).",
 					PropertyType: typed(synclet.String), IsSecret: true, Order: order(2),
 				},
+				"allow_missing_cursor": {
+					Title: "Skip documents without a cursor value",
+					Description: "Incremental streams only. When false, an incremental read fails while any document of the collection " +
+						"has the cursor field null or missing. When true, those documents are skipped on every read and each read logs their count.",
+					PropertyType: typed(synclet.PropType("boolean")), Default: false, Order: order(4),
+				},
 				"tunnel_method": {
 					Title:        "SSH Tunnel Method",
 					Description:  "Whether to initiate an SSH tunnel before connecting to the database, and if so, which kind of authentication to use.",

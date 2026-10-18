@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"slices"
 	"strings"
@@ -68,8 +69,13 @@ func readStream(ctx context.Context, c *client, cs synclet.ConfiguredStream, sta
 	filter := bson.D{}
 	opts := options.Find().SetBatchSize(batchSize)
 	if incremental {
+		if err := checkCursorValues(ctx, c, desc, p); err != nil {
+			return err
+		}
 		if p.from != nil {
 			filter = bson.D{{Key: p.field(), Value: bson.D{{Key: "$gte", Value: *p.from}}}}
+		} else {
+			filter = bson.D{{Key: p.field(), Value: bson.D{{Key: "$ne", Value: nil}}}}
 		}
 		opts.SetSort(bson.D{{Key: p.field(), Value: 1}}).SetAllowDiskUse(true)
 	}
@@ -104,7 +110,7 @@ func readStream(ctx context.Context, c *client, cs synclet.ConfiguredStream, sta
 		if !incremental {
 			continue
 		}
-		if v, err := cur.Current.LookupErr(p.cursor...); err == nil && v.Type != bson.TypeNull && v.Type != bson.TypeUndefined {
+		if v, err := cur.Current.LookupErr(p.cursor...); err == nil && !isNullish(v.Type) {
 			v.Value = bytes.Clone(v.Value)
 			last = &v
 		}
@@ -212,4 +218,100 @@ func streamName(desc synclet.StreamDescriptor) string {
 		return desc.Name
 	}
 	return desc.Namespace + "." + desc.Name
+}
+
+func isNullish(t bson.Type) bool { return t == bson.TypeNull || t == bson.TypeUndefined }
+
+// typeNames are the BSON type aliases of the $type query operator.
+var typeNames = map[bson.Type]string{
+	bson.TypeDouble: "double", bson.TypeString: "string", bson.TypeEmbeddedDocument: "object",
+	bson.TypeArray: "array", bson.TypeBinary: "binData", bson.TypeUndefined: "undefined",
+	bson.TypeObjectID: "objectId", bson.TypeBoolean: "bool", bson.TypeDateTime: "date",
+	bson.TypeNull: "null", bson.TypeRegex: "regex", bson.TypeDBPointer: "dbPointer",
+	bson.TypeJavaScript: "javascript", bson.TypeSymbol: "symbol", bson.TypeCodeWithScope: "javascriptWithScope",
+	bson.TypeInt32: "int", bson.TypeTimestamp: "timestamp", bson.TypeInt64: "long",
+	bson.TypeDecimal128: "decimal", bson.TypeMinKey: "minKey", bson.TypeMaxKey: "maxKey",
+}
+
+func typeName(t bson.Type) string {
+	if n, ok := typeNames[t]; ok {
+		return n
+	}
+	return t.String()
+}
+
+// bracket returns the BSON types MongoDB compares with values of type t:
+// all numeric types together, string with symbol, every other type alone.
+func bracket(t bson.Type) []bson.Type {
+	switch t {
+	case bson.TypeInt32, bson.TypeInt64, bson.TypeDouble, bson.TypeDecimal128:
+		return []bson.Type{bson.TypeInt32, bson.TypeInt64, bson.TypeDouble, bson.TypeDecimal128}
+	case bson.TypeString, bson.TypeSymbol:
+		return []bson.Type{bson.TypeString, bson.TypeSymbol}
+	}
+	return []bson.Type{t}
+}
+
+// checkCursorValues fails an incremental read whose cursor field a range
+// query on it would skip in some documents: documents where it is null or
+// missing (unless allow_missing_cursor is set, then they are counted and
+// skipped), and documents where its type is outside the comparison bracket
+// of the saved cursor, or of the first cursor in sort order.
+func checkCursorValues(ctx context.Context, c *client, desc synclet.StreamDescriptor, p streamPlan) error {
+	field := p.field()
+	missing, err := p.coll.CountDocuments(ctx, bson.D{{Key: field, Value: nil}})
+	if err != nil {
+		return readError(c, desc, err)
+	}
+	if missing > 0 {
+		if !c.cfg.AllowMissingCursor {
+			var doc bson.Raw
+			if err := p.coll.FindOne(ctx, bson.D{{Key: field, Value: nil}}, options.FindOne().SetProjection(bson.D{{Key: "_id", Value: 1}})).Decode(&doc); err != nil {
+				return readError(c, desc, err)
+			}
+			return synclet.ConfigError(fmt.Errorf("stream %s: %d documents of collection %q have no value in cursor field %q (for example _id %s); "+
+				"an incremental read would skip them: set allow_missing_cursor to skip them knowingly, choose another cursor field or use full refresh",
+				streamName(desc), missing, desc.Name, field, docID(doc)))
+		}
+		synclet.Logger(ctx).Warn("skipping documents without a cursor value",
+			"stream", streamName(desc), "cursor_field", field, "count", missing)
+	}
+
+	ref := p.from
+	if ref == nil {
+		var doc bson.Raw
+		err := p.coll.FindOne(ctx, bson.D{{Key: field, Value: bson.D{{Key: "$ne", Value: nil}}}},
+			options.FindOne().SetSort(bson.D{{Key: field, Value: 1}}).SetProjection(bson.D{{Key: field, Value: 1}})).Decode(&doc)
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil
+		}
+		if err != nil {
+			return readError(c, desc, err)
+		}
+		v, err := doc.LookupErr(p.cursor...)
+		if err != nil {
+			return nil
+		}
+		ref = &v
+	}
+	allowed := bson.A{"null", "undefined"}
+	for _, t := range bracket(ref.Type) {
+		allowed = append(allowed, typeName(t))
+	}
+	var doc bson.Raw
+	err = p.coll.FindOne(ctx, bson.D{{Key: field, Value: bson.D{{Key: "$exists", Value: true}, {Key: "$not", Value: bson.D{{Key: "$type", Value: allowed}}}}}},
+		options.FindOne().SetProjection(bson.D{{Key: field, Value: 1}})).Decode(&doc)
+	if errors.Is(err, mongo.ErrNoDocuments) {
+		return nil
+	}
+	if err != nil {
+		return readError(c, desc, err)
+	}
+	other := "array element"
+	if v, err := doc.LookupErr(p.cursor...); err == nil {
+		other = typeName(v.Type)
+	}
+	return synclet.ConfigError(fmt.Errorf("stream %s: cursor field %q of collection %q holds %s and %s values (for example _id %s); "+
+		"MongoDB does not order them against each other, so an incremental read would skip documents: choose a cursor field with one type or use full refresh",
+		streamName(desc), field, desc.Name, typeName(ref.Type), other, docID(doc)))
 }

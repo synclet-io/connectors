@@ -15,6 +15,7 @@ type Config struct {
 	DiscoverSampleSize int            `json:"discover_sample_size"`
 	TLSCACertificate   string         `json:"tls_ca_certificate"`
 	TunnelMethod       TunnelMethod   `json:"tunnel_method"`
+	AllowMissingCursor bool           `json:"allow_missing_cursor"`
 }
 
 // DatabaseConfig names the cluster, the database and the login.

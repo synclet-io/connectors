@@ -211,17 +211,22 @@ func TestIncrementalResume(t *testing.T) {
 
 		changed := runRead(t, src, e.cfg, cat, stateFor(t, desc, streamState{CursorField: []string{"n"}, Cursor: json.RawMessage(`{"$numberInt":"3"}`)}))
 		require.Equal(t, []int{2, 3, 4, 1}, ns(t, changed, desc))
-		var warned bool
-		for _, l := range changed.Logs() {
-			warned = warned || (l.Level == synclet.LogLevelWarn && strings.Contains(l.Message, "cursor field changed"))
-		}
-		require.True(t, warned, "a WARN log about the changed cursor field")
+		requireWarn(t, changed, "cursor field changed")
 
 		_, err = coll.InsertOne(t.Context(), bson.D{{Key: "n", Value: int32(5)}})
 		require.NoError(t, err)
-		require.Equal(t, []int{5, 2, 3, 4, 1}, ns(t, runRead(t, src, e.cfg, cat, nil), desc), "a missing cursor sorts first")
-		require.Equal(t, []int{1}, ns(t, runRead(t, src, e.cfg, cat, stateFor(t, desc, lastState(t, resumed))), desc),
-			"a missing cursor only in the first read")
+		err = readConfigError(t, src, e.cfg, cat, nil)
+		require.ErrorContains(t, err, `1 documents of collection "events" have no value in cursor field "updated_at"`)
+		require.ErrorContains(t, readConfigError(t, src, e.cfg, cat, stateFor(t, desc, lastState(t, resumed))), "allow_missing_cursor")
+
+		allow := e.cfg
+		allow.AllowMissingCursor = true
+		skipped := runRead(t, src, allow, cat, nil)
+		require.Equal(t, []int{2, 3, 4, 1}, ns(t, skipped, desc), "a missing cursor is skipped in the first read too")
+		requireWarn(t, skipped, "skipping documents without a cursor value", "count=1")
+		again := runRead(t, src, allow, cat, stateFor(t, desc, lastState(t, resumed)))
+		require.Equal(t, []int{1}, ns(t, again, desc))
+		requireWarn(t, again, "skipping documents without a cursor value", "count=1")
 	})
 
 	t.Run("_id cursor", func(t *testing.T) {
@@ -242,6 +247,75 @@ func TestIncrementalResume(t *testing.T) {
 		require.NotEqual(t, string(saved.Cursor), string(lastState(t, resumed).Cursor))
 	})
 	reset(t)
+}
+
+// requireWarn asserts a WARN log whose message holds every one of parts.
+func requireWarn(t *testing.T, out *testkit.Output, parts ...string) {
+	t.Helper()
+	var logs []string
+	for _, l := range out.Logs() {
+		if l.Level != synclet.LogLevelWarn {
+			continue
+		}
+		logs = append(logs, l.Message)
+		match := true
+		for _, p := range parts {
+			match = match && strings.Contains(l.Message, p)
+		}
+		if match {
+			return
+		}
+	}
+	t.Fatalf("no WARN log with %q among %q", parts, logs)
+}
+
+// readConfigError runs a read that must fail with a config error.
+func readConfigError(t *testing.T, src Source, cfg Config, cat *synclet.ConfiguredCatalog, state json.RawMessage) error {
+	t.Helper()
+	out, err := testkit.RunSource(t.Context(), src, synclet.Request{
+		Command: synclet.CommandRead, Config: mustJSON(t, cfg), Catalog: mustJSON(t, cat), State: state,
+	})
+	require.NoError(t, err)
+	require.Error(t, out.Err)
+	traces := out.ErrorTraces()
+	require.Len(t, traces, 1)
+	require.Equal(t, synclet.FailureTypeConfigError, traces[0].FailureType)
+	return out.Err
+}
+
+func TestCursorTypes(t *testing.T) {
+	e := sharedMongo(t)
+	src := e.src()
+	coll := rootClient(t, e).Database(testDatabase).Collection("cursors")
+	dec, err := bson.ParseDecimal128("4")
+	require.NoError(t, err)
+	day := func(d int) bson.DateTime { return bson.NewDateTimeFromTime(time.Date(2024, 1, d, 0, 0, 0, 0, time.UTC)) }
+	_, err = coll.InsertMany(t.Context(), []any{
+		bson.D{{Key: "_id", Value: int32(1)}, {Key: "num", Value: int32(1)}, {Key: "when", Value: day(1)}},
+		bson.D{{Key: "_id", Value: int32(2)}, {Key: "num", Value: int64(2)}, {Key: "when", Value: day(2)}},
+		bson.D{{Key: "_id", Value: int32(3)}, {Key: "num", Value: 3.5}, {Key: "when", Value: "2024-01-03"}},
+		bson.D{{Key: "_id", Value: int32(4)}, {Key: "num", Value: dec}, {Key: "when", Value: day(4)}},
+	})
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = coll.Drop(t.Context()) })
+	stream := discoverStream(t, src, e.cfg, "cursors")
+	desc := stream.Descriptor()
+
+	t.Run("numeric types are one bracket", func(t *testing.T) {
+		cat := incrementalCatalog(stream, "num")
+		require.Len(t, runRead(t, src, e.cfg, cat, nil).Records(desc), 4)
+		saved := streamState{CursorField: []string{"num"}, Cursor: json.RawMessage(`{"$numberLong":"2"}`)}
+		require.Len(t, runRead(t, src, e.cfg, cat, stateFor(t, desc, saved)).Records(desc), 3, "int64 2, double 3.5 and decimal 4")
+	})
+	t.Run("string and date fail", func(t *testing.T) {
+		cat := incrementalCatalog(stream, "when")
+		err := readConfigError(t, src, e.cfg, cat, nil)
+		require.ErrorContains(t, err, `cursor field "when" of collection "cursors" holds string and date values`, "strings sort before dates")
+		require.ErrorContains(t, err, "full refresh")
+		saved := streamState{CursorField: []string{"when"}, Cursor: json.RawMessage(`{"$date":{"$numberLong":"0"}}`)}
+		err = readConfigError(t, src, e.cfg, cat, stateFor(t, desc, saved))
+		require.ErrorContains(t, err, `cursor field "when" of collection "cursors" holds date and string values`)
+	})
 }
 
 func TestIncrementalCheckpoints(t *testing.T) {
