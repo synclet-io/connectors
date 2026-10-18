@@ -67,13 +67,50 @@ Tests use no build tags. Tests that need Docker (testcontainers) call `t.Skip` u
 `go test -short ./...` runs everything else without Docker; `go test ./...` runs all of them. CI runs
 `go vet`, `golangci-lint` and `go test -race ./...` for every changed connector, with Docker available.
 Tests must not need real credentials: use testcontainers for databases, MinIO for S3 and recorded HTTP
-fixtures or a fake server for API sources.
+fixtures for API sources (see
+[Testing API sources with recorded HTTP](#testing-api-sources-with-recorded-http)).
 
 Each connector's `.gitignore` and `.dockerignore` list its built binary (`/source-acme`), so `go build` output
 stays out of git and the image context.
 
 The image must build for `linux/amd64` and `linux/arm64`. Avoid installing anything that needs network
 access at runtime, and keep `ENTRYPOINT` pointing at the connector binary.
+
+### Testing API sources with recorded HTTP
+
+API sources test against an `httptest` server that serves hand-written JSON from `testdata/`.
+`source-openexchangerates` is the reference; copy its `fixtures_test.go`.
+
+Why not go-vcr cassettes: recording needs a real account (often on a paid plan), every cassette needs
+scrubbing hooks for tokens and account data, cassettes go stale and have to be re-recorded when a
+request changes, they add a dependency, and the error responses worth testing (401, 403, a plan that
+lacks a route) cannot be recorded on purpose. The price of hand-written fixtures is that they can
+drift from the real API, so start them from the response examples in the API's documentation.
+
+- **Layout.** `testdata/` mirrors the API paths: `GET /api/latest.json` is answered by
+  `testdata/latest.json`, `GET /api/historical/2026-10-16.json` by `testdata/historical/2026-10-16.json`.
+  Error bodies go in `testdata/errors/`, named after the API's error code (`invalid_app_id.json`).
+- **Helper per connector.** Copy `fixtures_test.go` and adapt it to the API (path prefix, auth header,
+  pagination); there is no shared test package across connectors. It provides `fixtureServer(t,
+  overrides)`, which serves `testdata/`, answers a request with the wrong credentials with the API's
+  auth error, lets a test replace the status and file of one path, and records the paths requested,
+  so a test can assert exactly which requests a read made.
+- **Injection.** The connector's `Source` struct has unexported fields for the base URL, the clock,
+  the `*http.Client` and the retry delay. They are zero in `main`, where the connector uses the real
+  API, `time.Now`, its own client and real delays; tests set them to the fixture server, a fixed
+  time and a millisecond delay. Nothing is configurable from the connector's config for tests.
+- **Synthetic data.** Fixtures hold made-up values only: the documentation's examples, fake ids,
+  `example.com` emails, round or invented amounts. Tests use an obviously fake credential
+  (`test-app-id`) that the fixture server checks.
+- **Scrubbing.** When a fixture starts from a real response, keep only the body; drop headers and
+  replace tokens, account and user ids, names, emails and amounts. Before committing, grep
+  `testdata/` for the real key and the account's identifiers.
+- **No secret in a URL.** Send credentials in a header. The fixture server fails the test when a
+  request carries the credential as a query parameter, so it cannot leak into a logged URL or an
+  error message.
+- **Retries.** Retry and backoff live in the connector. Test them with an inline `httptest` handler
+  that fails first and then succeeds, and test that errors which must not be retried (auth, plan,
+  quota) are requested once.
 
 ## 2. Fill in meta.json
 
