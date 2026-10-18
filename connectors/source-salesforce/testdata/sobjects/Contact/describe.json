@@ -1,0 +1,120 @@
+{
+  "name": "Contact",
+  "queryable": true,
+  "fields": [
+    {
+      "name": "Id",
+      "type": "id",
+      "nillable": false,
+      "label": "Id"
+    },
+    {
+      "name": "IsDeleted",
+      "type": "boolean",
+      "nillable": false,
+      "label": "IsDeleted"
+    },
+    {
+      "name": "AccountId",
+      "type": "reference",
+      "nillable": true,
+      "label": "AccountId"
+    },
+    {
+      "name": "FirstName",
+      "type": "string",
+      "nillable": true,
+      "label": "FirstName"
+    },
+    {
+      "name": "LastName",
+      "type": "string",
+      "nillable": true,
+      "label": "LastName"
+    },
+    {
+      "name": "Email",
+      "type": "email",
+      "nillable": true,
+      "label": "Email"
+    },
+    {
+      "name": "Birthdate",
+      "type": "date",
+      "nillable": true,
+      "label": "Birthdate"
+    },
+    {
+      "name": "MailingAddress",
+      "type": "address",
+      "nillable": true,
+      "label": "MailingAddress"
+    },
+    {
+      "name": "Home_Location__c",
+      "type": "location",
+      "nillable": true,
+      "label": "Home_Location__c"
+    },
+    {
+      "name": "HasOptedOutOfEmail",
+      "type": "boolean",
+      "nillable": false,
+      "label": "HasOptedOutOfEmail"
+    },
+    {
+      "name": "Engagement_Score__c",
+      "type": "percent",
+      "nillable": true,
+      "label": "Engagement_Score__c"
+    },
+    {
+      "name": "Lifetime_Value__c",
+      "type": "double",
+      "nillable": true,
+      "label": "Lifetime_Value__c"
+    },
+    {
+      "name": "Visits__c",
+      "type": "long",
+      "nillable": true,
+      "label": "Visits__c"
+    },
+    {
+      "name": "Tax_Number__c",
+      "type": "encryptedstring",
+      "nillable": true,
+      "label": "Tax_Number__c"
+    },
+    {
+      "name": "Preferred_Channel__c",
+      "type": "combobox",
+      "nillable": true,
+      "label": "Preferred_Channel__c"
+    },
+    {
+      "name": "Best_Call_Time__c",
+      "type": "time",
+      "nillable": true,
+      "label": "Best_Call_Time__c"
+    },
+    {
+      "name": "Legacy_Value__c",
+      "type": "anyType",
+      "nillable": true,
+      "label": "Legacy_Value__c"
+    },
+    {
+      "name": "LastModifiedDate",
+      "type": "datetime",
+      "nillable": true,
+      "label": "LastModifiedDate"
+    },
+    {
+      "name": "SystemModstamp",
+      "type": "datetime",
+      "nillable": true,
+      "label": "SystemModstamp"
+    }
+  ]
+}

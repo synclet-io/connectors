@@ -1,0 +1,27 @@
+{
+  "totalSize": 3,
+  "done": false,
+  "records": [
+    {
+      "attributes": {
+        "type": "Region__mdt",
+        "url": "/services/data/v62.0/sobjects/Region__mdt/m00000000000001AAA"
+      },
+      "Id": "m00000000000001AAA",
+      "DeveloperName": "Region_1",
+      "Label": "Region 1",
+      "Quota__c": 1000.25
+    },
+    {
+      "attributes": {
+        "type": "Region__mdt",
+        "url": "/services/data/v62.0/sobjects/Region__mdt/m00000000000002AAA"
+      },
+      "Id": "m00000000000002AAA",
+      "DeveloperName": "Region_2",
+      "Label": "Region 2",
+      "Quota__c": 2000.25
+    }
+  ],
+  "nextRecordsUrl": "/services/data/v62.0/query/01gREG0000000001-2000"
+}

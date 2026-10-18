@@ -1,0 +1,19 @@
+{
+  "totalSize": 1,
+  "done": true,
+  "records": [
+    {
+      "attributes": {
+        "type": "Invoice__c",
+        "url": "/services/data/v62.0/sobjects/Invoice__c/a01000000000003AAA"
+      },
+      "Id": "a01000000000003AAA",
+      "Amount__c": 19.99,
+      "IsDeleted": false,
+      "LastModifiedDate": "2026-04-10T10:00:00.000+0000",
+      "Name": "INV-0003",
+      "Notes__c": "Synthetic invoice 3",
+      "Paid_On__c": null
+    }
+  ]
+}

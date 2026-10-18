@@ -1,0 +1,32 @@
+{
+  "totalSize": 2,
+  "done": true,
+  "records": [
+    {
+      "attributes": {
+        "type": "Invoice__c",
+        "url": "/services/data/v62.0/sobjects/Invoice__c/a01000000000001AAA"
+      },
+      "Id": "a01000000000001AAA",
+      "Amount__c": 100.00,
+      "IsDeleted": false,
+      "LastModifiedDate": "2026-02-10T10:00:00.000+0000",
+      "Name": "INV-0001",
+      "Notes__c": "Synthetic invoice 1",
+      "Paid_On__c": "2026-05-01"
+    },
+    {
+      "attributes": {
+        "type": "Invoice__c",
+        "url": "/services/data/v62.0/sobjects/Invoice__c/a01000000000002AAA"
+      },
+      "Id": "a01000000000002AAA",
+      "Amount__c": 250.5,
+      "IsDeleted": false,
+      "LastModifiedDate": "2026-03-10T10:00:00.000+0000",
+      "Name": "INV-0002",
+      "Notes__c": "Synthetic invoice 2",
+      "Paid_On__c": "2026-05-01"
+    }
+  ]
+}

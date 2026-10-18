@@ -1,0 +1,23 @@
+{
+  "$schema": "../../schema/meta.schema.json",
+  "name": "Salesforce",
+  "connector_type": "source",
+  "version": "0.1.0",
+  "release_stage": "alpha",
+  "support_level": "community",
+  "source_type": "api",
+  "license": "MIT",
+  "documentation_url": "https://github.com/synclet-io/connectors/tree/main/connectors/source-salesforce",
+  "icon_url": "",
+  "language": "go",
+  "tags": [
+    "api",
+    "crm"
+  ],
+  "allowed_hosts": [
+    "*.salesforce.com",
+    "*.force.com"
+  ],
+  "breaking_changes": {},
+  "external_documentation_urls": []
+}

@@ -1,0 +1,16 @@
+{
+  "totalSize": 3,
+  "done": true,
+  "records": [
+    {
+      "attributes": {
+        "type": "Region__mdt",
+        "url": "/services/data/v62.0/sobjects/Region__mdt/m00000000000003AAA"
+      },
+      "Id": "m00000000000003AAA",
+      "DeveloperName": "Region_3",
+      "Label": "Region 3",
+      "Quota__c": 3000.25
+    }
+  ]
+}

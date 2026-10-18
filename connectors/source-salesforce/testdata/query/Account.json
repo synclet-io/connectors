@@ -1,0 +1,71 @@
+{
+  "totalSize": 4,
+  "done": false,
+  "records": [
+    {
+      "attributes": {
+        "type": "Account",
+        "url": "/services/data/v62.0/sobjects/Account/001000000000001AAA"
+      },
+      "Id": "001000000000001AAA",
+      "IsDeleted": false,
+      "Name": "Example Corp",
+      "Type": "Customer",
+      "Industries__c": "Retail;Software",
+      "AnnualRevenue": 1250000.50,
+      "NumberOfEmployees": 120,
+      "BillingStreet": "1 Example Way",
+      "BillingCity": "Springfield",
+      "BillingAddress": {
+        "city": "Springfield",
+        "country": "US",
+        "geocodeAccuracy": null,
+        "latitude": null,
+        "longitude": null,
+        "postalCode": "12345",
+        "state": "IL",
+        "street": "1 Example Way"
+      },
+      "Phone": "+1 555 0101",
+      "Website": "https://account1.example.com",
+      "OwnerId": "005000000000001AAA",
+      "LastActivityDate": "2026-05-20",
+      "CreatedDate": "2026-01-05T09:00:00.000+0000",
+      "LastModifiedDate": "2026-03-01T08:00:00.000+0000",
+      "SystemModstamp": "2026-03-01T08:00:00.000+0000"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "url": "/services/data/v62.0/sobjects/Account/001000000000002AAA"
+      },
+      "Id": "001000000000002AAA",
+      "IsDeleted": true,
+      "Name": "Deleted Example Ltd",
+      "Type": "Customer",
+      "Industries__c": "Retail;Software",
+      "AnnualRevenue": null,
+      "NumberOfEmployees": null,
+      "BillingStreet": "2 Example Way",
+      "BillingCity": "Springfield",
+      "BillingAddress": {
+        "city": "Springfield",
+        "country": "US",
+        "geocodeAccuracy": null,
+        "latitude": null,
+        "longitude": null,
+        "postalCode": "12345",
+        "state": "IL",
+        "street": "2 Example Way"
+      },
+      "Phone": "+1 555 0102",
+      "Website": "https://account2.example.com",
+      "OwnerId": "005000000000001AAA",
+      "LastActivityDate": "2026-05-20",
+      "CreatedDate": "2026-01-05T09:00:00.000+0000",
+      "LastModifiedDate": "2026-04-15T10:30:00.000+0000",
+      "SystemModstamp": "2026-04-15T10:30:00.000+0000"
+    }
+  ],
+  "nextRecordsUrl": "/services/data/v62.0/query/01gACC0000000001-2000"
+}

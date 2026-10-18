@@ -1,0 +1,22 @@
+{
+  "totalSize": 2,
+  "done": true,
+  "records": [
+    {
+      "attributes": {
+        "type": "Invoice__c",
+        "url": "/services/data/v62.0/sobjects/Invoice__c/a01000000000001AAA"
+      },
+      "Id": "a01000000000001AAA",
+      "Status__c": "Paid"
+    },
+    {
+      "attributes": {
+        "type": "Invoice__c",
+        "url": "/services/data/v62.0/sobjects/Invoice__c/a01000000000002AAA"
+      },
+      "Id": "a01000000000002AAA",
+      "Status__c": "Paid"
+    }
+  ]
+}

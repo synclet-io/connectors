@@ -1,0 +1,14 @@
+{
+  "totalSize": 1,
+  "done": true,
+  "records": [
+    {
+      "attributes": {
+        "type": "Invoice__c",
+        "url": "/services/data/v62.0/sobjects/Invoice__c/a01000000000003AAA"
+      },
+      "Id": "a01000000000003AAA",
+      "Status__c": "Open"
+    }
+  ]
+}

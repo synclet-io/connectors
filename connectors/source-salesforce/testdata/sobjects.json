@@ -1,0 +1,12 @@
+{
+  "encoding": "UTF-8",
+  "maxBatchSize": 200,
+  "sobjects": [
+    {"name": "Account", "label": "Account", "custom": false, "queryable": true, "deprecatedAndHidden": false},
+    {"name": "AccountChangeEvent", "label": "Account Change Event", "custom": false, "queryable": false, "deprecatedAndHidden": false},
+    {"name": "Contact", "label": "Contact", "custom": false, "queryable": true, "deprecatedAndHidden": false},
+    {"name": "ContentDocumentLink", "label": "Content Document Link", "custom": false, "queryable": true, "deprecatedAndHidden": false},
+    {"name": "Invoice__c", "label": "Invoice", "custom": true, "queryable": true, "deprecatedAndHidden": false},
+    {"name": "Region__mdt", "label": "Region", "custom": true, "queryable": true, "deprecatedAndHidden": false}
+  ]
+}

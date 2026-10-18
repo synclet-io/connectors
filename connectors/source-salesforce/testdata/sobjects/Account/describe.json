@@ -1,0 +1,114 @@
+{
+  "name": "Account",
+  "queryable": true,
+  "fields": [
+    {
+      "name": "Id",
+      "type": "id",
+      "nillable": false,
+      "label": "Id"
+    },
+    {
+      "name": "IsDeleted",
+      "type": "boolean",
+      "nillable": false,
+      "label": "IsDeleted"
+    },
+    {
+      "name": "Name",
+      "type": "string",
+      "nillable": true,
+      "label": "Name"
+    },
+    {
+      "name": "Type",
+      "type": "picklist",
+      "nillable": true,
+      "label": "Type"
+    },
+    {
+      "name": "Industries__c",
+      "type": "multipicklist",
+      "nillable": true,
+      "label": "Industries__c"
+    },
+    {
+      "name": "AnnualRevenue",
+      "type": "currency",
+      "nillable": true,
+      "label": "AnnualRevenue"
+    },
+    {
+      "name": "NumberOfEmployees",
+      "type": "int",
+      "nillable": true,
+      "label": "NumberOfEmployees"
+    },
+    {
+      "name": "BillingStreet",
+      "type": "textarea",
+      "nillable": true,
+      "label": "BillingStreet"
+    },
+    {
+      "name": "BillingCity",
+      "type": "string",
+      "nillable": true,
+      "label": "BillingCity"
+    },
+    {
+      "name": "BillingAddress",
+      "type": "address",
+      "nillable": true,
+      "label": "BillingAddress"
+    },
+    {
+      "name": "Phone",
+      "type": "phone",
+      "nillable": true,
+      "label": "Phone"
+    },
+    {
+      "name": "Website",
+      "type": "url",
+      "nillable": true,
+      "label": "Website"
+    },
+    {
+      "name": "OwnerId",
+      "type": "reference",
+      "nillable": true,
+      "label": "OwnerId"
+    },
+    {
+      "name": "Logo__c",
+      "type": "base64",
+      "nillable": true,
+      "label": "Logo__c"
+    },
+    {
+      "name": "LastActivityDate",
+      "type": "date",
+      "nillable": true,
+      "label": "LastActivityDate"
+    },
+    {
+      "name": "CreatedDate",
+      "type": "datetime",
+      "nillable": true,
+      "label": "CreatedDate"
+    },
+    {
+      "name": "LastModifiedDate",
+      "type": "datetime",
+      "nillable": true,
+      "label": "LastModifiedDate"
+    },
+    {
+      "name": "SystemModstamp",
+      "type": "datetime",
+      "nillable": true,
+      "label": "SystemModstamp"
+    }
+  ]
+}

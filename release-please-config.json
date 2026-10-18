@@ -209,6 +209,16 @@
         }
       ]
     },
+    "connectors/source-salesforce": {
+      "component": "source-salesforce",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "meta.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
     "connectors/source-solidgate": {
       "component": "source-solidgate",
       "extra-files": [

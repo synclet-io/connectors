@@ -1,0 +1,54 @@
+{
+  "name": "Invoice__c",
+  "queryable": true,
+  "fields": [
+    {
+      "name": "Id",
+      "type": "id",
+      "nillable": false,
+      "label": "Id"
+    },
+    {
+      "name": "IsDeleted",
+      "type": "boolean",
+      "nillable": false,
+      "label": "IsDeleted"
+    },
+    {
+      "name": "Name",
+      "type": "string",
+      "nillable": true,
+      "label": "Name"
+    },
+    {
+      "name": "Amount__c",
+      "type": "currency",
+      "nillable": true,
+      "label": "Amount__c"
+    },
+    {
+      "name": "Status__c",
+      "type": "picklist",
+      "nillable": true,
+      "label": "Status__c"
+    },
+    {
+      "name": "Paid_On__c",
+      "type": "date",
+      "nillable": true,
+      "label": "Paid_On__c"
+    },
+    {
+      "name": "Notes__c",
+      "type": "textarea",
+      "nillable": true,
+      "label": "Notes__c"
+    },
+    {
+      "name": "LastModifiedDate",
+      "type": "datetime",
+      "nillable": true,
+      "label": "LastModifiedDate"
+    }
+  ]
+}

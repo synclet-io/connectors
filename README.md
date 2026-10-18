@@ -43,6 +43,7 @@ Taskfile.yml              local shortcuts
 | [source-openexchangerates](connectors/source-openexchangerates) | `ghcr.io/synclet-io/connectors/source-openexchangerates` |
 | [source-postgres](connectors/source-postgres) | `ghcr.io/synclet-io/connectors/source-postgres` |
 | [source-revenuecat](connectors/source-revenuecat) | `ghcr.io/synclet-io/connectors/source-revenuecat` |
+| [source-salesforce](connectors/source-salesforce) | `ghcr.io/synclet-io/connectors/source-salesforce` |
 | [source-s3](connectors/source-s3) | `ghcr.io/synclet-io/connectors/source-s3` |
 | [source-solidgate](connectors/source-solidgate) | `ghcr.io/synclet-io/connectors/source-solidgate` |
 | [source-tiktok-marketing](connectors/source-tiktok-marketing) | `ghcr.io/synclet-io/connectors/source-tiktok-marketing` |

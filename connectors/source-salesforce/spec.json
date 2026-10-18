@@ -1,0 +1,97 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Reads queryable Salesforce objects through SOQL with a connected app's OAuth refresh token.",
+    "properties": {
+      "api_usage_threshold_percent": {
+        "default": 90,
+        "description": "Share of the org's daily API request allocation, 1 to 100 percent, at which a read saves its state and stops.",
+        "order": 8,
+        "title": "API Usage Threshold",
+        "type": "integer"
+      },
+      "client_id": {
+        "description": "Consumer key of the connected app.",
+        "order": 0,
+        "title": "Client ID",
+        "type": "string"
+      },
+      "client_secret": {
+        "airbyte_secret": true,
+        "description": "Consumer secret of the connected app.",
+        "order": 1,
+        "title": "Client Secret",
+        "type": "string"
+      },
+      "instance_url": {
+        "description": "https URL of the org, as the token response's instance_url gives it.",
+        "examples": [
+          "https://acme.my.salesforce.com"
+        ],
+        "order": 3,
+        "title": "Instance URL",
+        "type": "string"
+      },
+      "is_sandbox": {
+        "default": false,
+        "description": "The org is a sandbox: tokens come from test.salesforce.com instead of login.salesforce.com.",
+        "order": 4,
+        "title": "Sandbox",
+        "type": "boolean"
+      },
+      "refresh_token": {
+        "airbyte_secret": true,
+        "description": "OAuth refresh token of the connected app for the integration user. Use a connected app whose refresh token policy is \"valid until revoked\", so the token does not rotate.",
+        "order": 2,
+        "title": "Refresh Token",
+        "type": "string"
+      },
+      "start_date": {
+        "description": "Earliest SystemModstamp (or LastModifiedDate) read: an RFC 3339 time or YYYY-MM-DD, in UTC. Empty reads every record.",
+        "examples": [
+          "2026-01-01",
+          "2026-01-01T00:00:00Z"
+        ],
+        "order": 5,
+        "title": "Start Date",
+        "type": "string"
+      },
+      "streams_exclude": {
+        "description": "Object name patterns (path.Match syntax) left out after streams_include.",
+        "items": {
+          "type": "string"
+        },
+        "order": 7,
+        "title": "Objects to exclude",
+        "type": "array"
+      },
+      "streams_include": {
+        "description": "Object name patterns (path.Match syntax, such as Account or *__c); empty includes every queryable object.",
+        "items": {
+          "type": "string"
+        },
+        "order": 6,
+        "title": "Objects to include",
+        "type": "array"
+      }
+    },
+    "required": [
+      "client_id",
+      "client_secret",
+      "refresh_token",
+      "instance_url"
+    ],
+    "title": "Salesforce Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-salesforce",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": true,
+  "supportsNormalization": false
+}

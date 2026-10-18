@@ -1,0 +1,70 @@
+{
+  "totalSize": 4,
+  "done": true,
+  "records": [
+    {
+      "attributes": {
+        "type": "Account",
+        "url": "/services/data/v62.0/sobjects/Account/001000000000003AAA"
+      },
+      "Id": "001000000000003AAA",
+      "IsDeleted": false,
+      "Name": "Sample Holdings",
+      "Type": "Customer",
+      "Industries__c": "Retail;Software",
+      "AnnualRevenue": 3.10,
+      "NumberOfEmployees": 7,
+      "BillingStreet": "3 Example Way",
+      "BillingCity": "Springfield",
+      "BillingAddress": {
+        "city": "Springfield",
+        "country": "US",
+        "geocodeAccuracy": null,
+        "latitude": null,
+        "longitude": null,
+        "postalCode": "12345",
+        "state": "IL",
+        "street": "3 Example Way"
+      },
+      "Phone": "+1 555 0103",
+      "Website": "https://account3.example.com",
+      "OwnerId": "005000000000001AAA",
+      "LastActivityDate": "2026-05-20",
+      "CreatedDate": "2026-01-05T09:00:00.000+0000",
+      "LastModifiedDate": "2026-06-01T00:00:00.000+0000",
+      "SystemModstamp": "2026-06-01T00:00:00.000+0000"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "url": "/services/data/v62.0/sobjects/Account/001000000000004AAA"
+      },
+      "Id": "001000000000004AAA",
+      "IsDeleted": false,
+      "Name": "Test Industries",
+      "Type": "Customer",
+      "Industries__c": "Retail;Software",
+      "AnnualRevenue": 0.001,
+      "NumberOfEmployees": 0,
+      "BillingStreet": "4 Example Way",
+      "BillingCity": "Springfield",
+      "BillingAddress": {
+        "city": "Springfield",
+        "country": "US",
+        "geocodeAccuracy": null,
+        "latitude": null,
+        "longitude": null,
+        "postalCode": "12345",
+        "state": "IL",
+        "street": "4 Example Way"
+      },
+      "Phone": "+1 555 0104",
+      "Website": "https://account4.example.com",
+      "OwnerId": "005000000000001AAA",
+      "LastActivityDate": "2026-05-20",
+      "CreatedDate": "2026-01-05T09:00:00.000+0000",
+      "LastModifiedDate": "2026-06-01T00:00:00.000+0000",
+      "SystemModstamp": "2026-06-01T00:00:00.000+0000"
+    }
+  ]
+}

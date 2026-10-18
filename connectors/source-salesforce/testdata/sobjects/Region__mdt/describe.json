@@ -1,0 +1,30 @@
+{
+  "name": "Region__mdt",
+  "queryable": true,
+  "fields": [
+    {
+      "name": "Id",
+      "type": "id",
+      "nillable": false,
+      "label": "Id"
+    },
+    {
+      "name": "DeveloperName",
+      "type": "string",
+      "nillable": true,
+      "label": "DeveloperName"
+    },
+    {
+      "name": "Label",
+      "type": "string",
+      "nillable": true,
+      "label": "Label"
+    },
+    {
+      "name": "Quota__c",
+      "type": "double",
+      "nillable": true,
+      "label": "Quota__c"
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "totalSize": 4,
+  "done": true,
+  "records": [
+    {
+      "attributes": {
+        "type": "Contact",
+        "url": "/services/data/v62.0/sobjects/Contact/003000000000003AAA"
+      },
+      "Id": "003000000000003AAA",
+      "IsDeleted": false,
+      "AccountId": "001000000000001AAA",
+      "FirstName": "Carol",
+      "LastName": "Example",
+      "Email": "carol@example.com",
+      "Birthdate": "1990-02-28",
+      "MailingAddress": {
+        "city": "Shelbyville",
+        "country": "US",
+        "geocodeAccuracy": null,
+        "latitude": null,
+        "longitude": null,
+        "postalCode": "54321",
+        "state": "IL",
+        "street": "3 Sample Street"
+      },
+      "Home_Location__c": {
+        "latitude": 41.8781,
+        "longitude": -87.6298
+      },
+      "HasOptedOutOfEmail": false,
+      "Engagement_Score__c": 87.50,
+      "Lifetime_Value__c": 1.10,
+      "Visits__c": 43,
+      "Tax_Number__c": "***-**-1234",
+      "Preferred_Channel__c": "Email",
+      "Best_Call_Time__c": "09:30:00.000Z",
+      "Legacy_Value__c": "legacy-3",
+      "LastModifiedDate": "2026-07-07T07:07:07.007+0000",
+      "SystemModstamp": "2026-07-07T07:07:07.007+0000"
+    },
+    {
+      "attributes": {
+        "type": "Contact",
+        "url": "/services/data/v62.0/sobjects/Contact/003000000000004AAA"
+      },
+      "Id": "003000000000004AAA",
+      "IsDeleted": true,
+      "AccountId": "001000000000001AAA",
+      "FirstName": "Dan",
+      "LastName": "Example",
+      "Email": "dan@example.com",
+      "Birthdate": "1990-02-28",
+      "MailingAddress": {
+        "city": "Shelbyville",
+        "country": "US",
+        "geocodeAccuracy": null,
+        "latitude": null,
+        "longitude": null,
+        "postalCode": "54321",
+        "state": "IL",
+        "street": "4 Sample Street"
+      },
+      "Home_Location__c": {
+        "latitude": 41.8781,
+        "longitude": -87.6298
+      },
+      "HasOptedOutOfEmail": true,
+      "Engagement_Score__c": 87.50,
+      "Lifetime_Value__c": 1.10,
+      "Visits__c": 44,
+      "Tax_Number__c": "***-**-1234",
+      "Preferred_Channel__c": "Email",
+      "Best_Call_Time__c": "09:30:00.000Z",
+      "Legacy_Value__c": "legacy-4",
+      "LastModifiedDate": "2026-08-08T08:08:08.000+0000",
+      "SystemModstamp": "2026-08-08T08:08:08.000+0000"
+    }
+  ]
+}

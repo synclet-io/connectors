@@ -1,0 +1,38 @@
+{
+  "totalSize": 1,
+  "done": true,
+  "records": [
+    {
+      "attributes": {
+        "type": "Account",
+        "url": "/services/data/v62.0/sobjects/Account/001000000000005AAA"
+      },
+      "Id": "001000000000005AAA",
+      "IsDeleted": false,
+      "Name": "Later Example Inc",
+      "Type": "Customer",
+      "Industries__c": "Retail;Software",
+      "AnnualRevenue": 99.99,
+      "NumberOfEmployees": 3,
+      "BillingStreet": "5 Example Way",
+      "BillingCity": "Springfield",
+      "BillingAddress": {
+        "city": "Springfield",
+        "country": "US",
+        "geocodeAccuracy": null,
+        "latitude": null,
+        "longitude": null,
+        "postalCode": "12345",
+        "state": "IL",
+        "street": "5 Example Way"
+      },
+      "Phone": "+1 555 0105",
+      "Website": "https://account5.example.com",
+      "OwnerId": "005000000000001AAA",
+      "LastActivityDate": "2026-05-20",
+      "CreatedDate": "2026-01-05T09:00:00.000+0000",
+      "LastModifiedDate": "2026-10-10T09:15:30.250+0000",
+      "SystemModstamp": "2026-10-10T09:15:30.250+0000"
+    }
+  ]
+}
