@@ -1,0 +1,10 @@
+{"type":"RECORD","record":{"stream":"events","data":{"id":1,"kind":"click"},"emitted_at":1700000000000}}
+{"type":"RECORD","record":{"stream":"events","data":{"id":2,"kind":"view"},"emitted_at":1700000000000}}
+{"type":"STATE","state":{"type":"STREAM","stream":{"stream_descriptor":{"name":"events"},"stream_state":{"id":2}}}}
+{"type":"RECORD","record":{"stream":"users","data":{"id":1,"name":"Ann","updated_at":"2024-01-01T00:00:00Z"},"emitted_at":1700000000000}}
+{"type":"RECORD","record":{"stream":"users","data":{"id":2,"name":"Bob","updated_at":"2024-01-01T00:00:00Z"},"emitted_at":1700000000000}}
+{"type":"RECORD","record":{"stream":"users","data":{"id":1,"name":"Ann B","updated_at":"2024-02-01T00:00:00Z"},"emitted_at":1700000000000}}
+{"type":"STATE","state":{"type":"STREAM","stream":{"stream_descriptor":{"name":"users"},"stream_state":{"updated_at":"2024-02-01T00:00:00Z"}}}}
+{"type":"RECORD","record":{"stream":"rates","data":{"code":"EUR","rate":0.912345678901234567890},"emitted_at":1700000000000}}
+{"type":"RECORD","record":{"stream":"rates","data":{"code":"UAH","rate":41.25},"emitted_at":1700000000000}}
+{"type":"STATE","state":{"type":"STREAM","stream":{"stream_descriptor":{"name":"rates"},"stream_state":{}}}}

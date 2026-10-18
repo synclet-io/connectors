@@ -29,6 +29,16 @@
         }
       ]
     },
+    "connectors/destination-postgres": {
+      "component": "destination-postgres",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "meta.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
     "connectors/source-airtable": {
       "component": "source-airtable",
       "extra-files": [
