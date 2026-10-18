@@ -568,6 +568,18 @@ func TestSSHTunnel(t *testing.T) {
 		require.NoError(t, Source{}.Check(t.Context(), pinned(authorizedKey+" bastion.example.com")))
 		require.NoError(t, Source{}.Check(t.Context(), pinned(knownhosts.Line([]string{knownhosts.Normalize(srv.addr)}, srv.hostKey))))
 	})
+	t.Run("server with two host keys", func(t *testing.T) {
+		ecdsaKey := strings.TrimSpace(string(ssh.MarshalAuthorizedKey(srv.ecdsaKey)))
+		require.NoError(t, Source{}.Check(t.Context(), pinned(authorizedKey)), "the Ed25519 key, which the client does not prefer")
+		require.NoError(t, Source{}.Check(t.Context(), pinned(ecdsaKey)))
+		addr := []string{knownhosts.Normalize(srv.addr)}
+		otherPub, _, err := ed25519.GenerateKey(rand.Reader)
+		require.NoError(t, err)
+		other, err := ssh.NewPublicKey(otherPub)
+		require.NoError(t, err)
+		keys := "# bastion\n" + knownhosts.Line(addr, other) + "\n\n" + knownhosts.Line(addr, srv.ecdsaKey) + "\n" + knownhosts.Line(addr, srv.hostKey) + "\n"
+		require.NoError(t, Source{}.Check(t.Context(), pinned(keys)), "a key on any line")
+	})
 	t.Run("mismatched host key", func(t *testing.T) {
 		otherPub, _, err := ed25519.GenerateKey(rand.Reader)
 		require.NoError(t, err)
@@ -575,6 +587,8 @@ func TestSSHTunnel(t *testing.T) {
 		require.NoError(t, err)
 		err = Source{}.Check(t.Context(), pinned(string(ssh.MarshalAuthorizedKey(other))))
 		require.ErrorContains(t, err, "host key mismatch")
+		err = Source{}.Check(t.Context(), pinned("@revoked "+knownhosts.Line([]string{knownhosts.Normalize(srv.addr)}, srv.hostKey)))
+		require.ErrorContains(t, err, "@revoked")
 	})
 	t.Run("unreachable tunnel host", func(t *testing.T) {
 		c := tunneled

@@ -115,7 +115,7 @@ func (c *Config) validate() error {
 			errs = append(errs, errors.New("tunnel_user_password is required for SSH_PASSWORD_AUTH"))
 		}
 		if t.TunnelHostKey != "" {
-			if _, err := parseHostKey(t.TunnelHostKey); err != nil {
+			if _, err := parseHostKeys(t.TunnelHostKey); err != nil {
 				errs = append(errs, err)
 			}
 		}

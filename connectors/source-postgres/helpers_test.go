@@ -220,11 +220,13 @@ func writeFile(t *testing.T, dir, name, content string) string {
 	return p
 }
 
-// sshServer is an in-process SSH server that serves direct-tcpip channels,
+// sshServer is an in-process SSH server with an Ed25519 and an ECDSA host
+// key that serves direct-tcpip channels,
 // dialing the address routes maps a requested address to.
 type sshServer struct {
 	addr     string
 	hostKey  ssh.PublicKey
+	ecdsaKey ssh.PublicKey
 	password string
 	key      ssh.PublicKey
 	routes   map[string]string
@@ -236,7 +238,11 @@ func startSSHServer(t *testing.T, password string, key ssh.PublicKey, routes map
 	require.NoError(t, err)
 	hostKey, err := ssh.NewSignerFromKey(hostPriv)
 	require.NoError(t, err)
-	s := &sshServer{hostKey: hostKey.PublicKey(), password: password, key: key, routes: routes}
+	ecdsaPriv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	require.NoError(t, err)
+	ecdsaHostKey, err := ssh.NewSignerFromKey(ecdsaPriv)
+	require.NoError(t, err)
+	s := &sshServer{hostKey: hostKey.PublicKey(), ecdsaKey: ecdsaHostKey.PublicKey(), password: password, key: key, routes: routes}
 	cfg := &ssh.ServerConfig{
 		PasswordCallback: func(_ ssh.ConnMetadata, p []byte) (*ssh.Permissions, error) {
 			if s.password != "" && string(p) == s.password {
@@ -252,6 +258,7 @@ func startSSHServer(t *testing.T, password string, key ssh.PublicKey, routes map
 		},
 	}
 	cfg.AddHostKey(hostKey)
+	cfg.AddHostKey(ecdsaHostKey)
 	l, err := net.Listen("tcp", "127.0.0.1:0")
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = l.Close() })

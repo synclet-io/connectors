@@ -37,6 +37,7 @@ func TestConfigValidate(t *testing.T) {
 		{"prefer with CA", `{"host":"db","database":"app","username":"u","ssl_mode":{"mode":"prefer","ca_certificate":"x"}}`, "ssl_mode prefer does not use ca_certificate"},
 		{"allow with CA", `{"host":"db","database":"app","username":"u","ssl_mode":{"mode":"allow","ca_certificate":"x"}}`, "ssl_mode allow does not use ca_certificate"},
 		{"invalid host key", `{"host":"db","database":"app","username":"u","tunnel_method":{"tunnel_method":"SSH_PASSWORD_AUTH","tunnel_host":"b","tunnel_user":"u","tunnel_user_password":"p","tunnel_host_key":"not a key"}}`, "tunnel_host_key"},
+		{"revoked host key", `{"host":"db","database":"app","username":"u","tunnel_method":{"tunnel_method":"SSH_PASSWORD_AUTH","tunnel_host":"b","tunnel_user":"u","tunnel_user_password":"p","tunnel_host_key":"@revoked * ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOh3Ju3W2PJkux6jpIr/IJC5DkhXQeY2T8stLjsYrslg"}}`, "@revoked"},
 		{"unknown tunnel", `{"host":"db","database":"app","username":"u","tunnel_method":{"tunnel_method":"VPN"}}`, `tunnel_method "VPN"`},
 		{"key tunnel without key", `{"host":"db","database":"app","username":"u","tunnel_method":{"tunnel_method":"SSH_KEY_AUTH","tunnel_host":"b","tunnel_user":"u"}}`, "ssh_key is required"},
 		{"password tunnel without host", `{"host":"db","database":"app","username":"u","tunnel_method":{"tunnel_method":"SSH_PASSWORD_AUTH","tunnel_user":"u","tunnel_user_password":"p"}}`, "tunnel_host is required"},

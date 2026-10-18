@@ -43,9 +43,11 @@ wrong user name or password, an unreachable host, a missing database or schema, 
 `CONNECT` or `USAGE` privilege.
 
 Through an SSH tunnel the database host is resolved and dialed by the jump server, so `host` can be a
-name only the jump server knows. Set `tunnel_host_key` to the jump server's public host key, in
-authorized_keys format (`ssh-ed25519 AAAA...`) or as a known_hosts line as `ssh-keyscan` prints it, and
-the tunnel is refused when the server presents another key. Without it the host key is not verified.
+name only the jump server knows. Set `tunnel_host_key` to the jump server's public host keys, one per
+line, each in authorized_keys format (`ssh-ed25519 AAAA...`) or as a known_hosts line; the whole output
+of `ssh-keyscan bastion.example.com` works. The connector asks the server for a key of a pinned type and
+refuses the tunnel when it presents none of the pinned keys. `@revoked` and `@cert-authority` lines are
+refused. Without `tunnel_host_key` the host key is not verified.
 
 Only the configuration reaches the Postgres driver: the `PG*` environment variables (`PGHOST`,
 `PGSSLMODE`, `PGOPTIONS`, ...) and `~/.pgpass` and `~/.postgresql` are ignored. One exception:
