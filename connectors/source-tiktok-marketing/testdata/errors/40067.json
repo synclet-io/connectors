@@ -1,0 +1,6 @@
+{
+  "code": 40067,
+  "message": "The date range of the report is too long.",
+  "request_id": "test-request",
+  "data": {}
+}

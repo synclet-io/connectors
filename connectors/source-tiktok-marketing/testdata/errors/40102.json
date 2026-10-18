@@ -1,0 +1,6 @@
+{
+  "code": 40102,
+  "message": "Access token has expired.",
+  "request_id": "test-request",
+  "data": {}
+}

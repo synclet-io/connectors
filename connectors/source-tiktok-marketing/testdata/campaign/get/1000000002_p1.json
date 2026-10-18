@@ -1,0 +1,29 @@
+{
+  "code": 0,
+  "message": "OK",
+  "request_id": "test-request",
+  "data": {
+    "list": [
+      {
+        "campaign_id": "1800000000000002",
+        "advertiser_id": "1000000002",
+        "campaign_name": "Example Campaign B",
+        "campaign_type": "REGULAR_CAMPAIGN",
+        "objective_type": "TRAFFIC",
+        "budget": 40.0,
+        "budget_mode": "BUDGET_MODE_DAY",
+        "operation_status": "ENABLE",
+        "secondary_status": "CAMPAIGN_STATUS_ENABLE",
+        "create_time": "2026-07-01 09:00:00",
+        "modify_time": "2026-09-01 10:30:00",
+        "is_new_structure": true
+      }
+    ],
+    "page_info": {
+      "page": 1,
+      "page_size": 1000,
+      "total_number": 1,
+      "total_page": 1
+    }
+  }
+}

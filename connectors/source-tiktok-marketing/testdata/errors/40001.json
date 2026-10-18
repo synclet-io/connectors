@@ -1,0 +1,6 @@
+{
+  "code": 40001,
+  "message": "No permission to operate advertiser 1000000003.",
+  "request_id": "test-request",
+  "data": {}
+}

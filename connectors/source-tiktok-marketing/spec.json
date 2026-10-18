@@ -1,0 +1,80 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Reads TikTok advertisers, campaigns, ad groups, ads and daily BASIC reports from the TikTok Business API.",
+    "properties": {
+      "access_token": {
+        "airbyte_secret": true,
+        "description": "Long-lived access token of a TikTok Business API app, or a sandbox token. It is sent in the Access-Token header.",
+        "order": 0,
+        "title": "Access Token",
+        "type": "string"
+      },
+      "advertiser_ids": {
+        "description": "Advertisers to read; each must be authorised for the access token.",
+        "examples": [
+          "1234567890123456789"
+        ],
+        "items": {
+          "pattern": "^[0-9]+$",
+          "type": "string"
+        },
+        "order": 1,
+        "title": "Advertiser IDs",
+        "type": "array"
+      },
+      "end_date": {
+        "description": "Last day, YYYY-MM-DD, whose reports are read; empty reads up to today (UTC).",
+        "format": "date",
+        "order": 3,
+        "title": "End Date",
+        "type": "string"
+      },
+      "environment": {
+        "default": "production",
+        "description": "production (business-api.tiktok.com) or sandbox (sandbox-ads.tiktok.com).",
+        "examples": [
+          "production",
+          "sandbox"
+        ],
+        "order": 5,
+        "title": "Environment",
+        "type": "string"
+      },
+      "lookback_days": {
+        "default": 3,
+        "description": "Days, 0 to 30, before the saved stat_time_day an incremental report read starts again, since TikTok still updates recent days.",
+        "order": 4,
+        "title": "Lookback Days",
+        "type": "integer"
+      },
+      "start_date": {
+        "description": "First day, YYYY-MM-DD, whose reports are read.",
+        "examples": [
+          "2026-01-01"
+        ],
+        "format": "date",
+        "order": 2,
+        "title": "Start Date",
+        "type": "string"
+      }
+    },
+    "required": [
+      "access_token",
+      "advertiser_ids",
+      "start_date"
+    ],
+    "title": "TikTok Marketing Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-tiktok-marketing",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": true,
+  "supportsNormalization": false
+}

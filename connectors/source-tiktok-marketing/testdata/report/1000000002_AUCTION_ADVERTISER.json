@@ -1,0 +1,230 @@
+[
+  {
+    "dimensions": {
+      "advertiser_id": "1000000002",
+      "stat_time_day": "2026-07-31 00:00:00"
+    },
+    "metrics": {
+      "spend": "10.00",
+      "impressions": "1000",
+      "clicks": "20",
+      "ctr": "2.00",
+      "cpc": "0.50",
+      "cpm": "10.00",
+      "reach": "800",
+      "frequency": "1.25",
+      "conversion": "0",
+      "cost_per_conversion": "-",
+      "conversion_rate": "0.00"
+    }
+  },
+  {
+    "dimensions": {
+      "advertiser_id": "1000000002",
+      "stat_time_day": "2026-08-01 00:00:00"
+    },
+    "metrics": {
+      "spend": "20.00",
+      "impressions": "2000",
+      "clicks": "40",
+      "ctr": "2.00",
+      "cpc": "0.50",
+      "cpm": "10.00",
+      "reach": "1600",
+      "frequency": "1.25",
+      "conversion": "1",
+      "cost_per_conversion": "20.00",
+      "conversion_rate": "2.50"
+    }
+  },
+  {
+    "dimensions": {
+      "advertiser_id": "1000000002",
+      "stat_time_day": "2026-08-15 00:00:00"
+    },
+    "metrics": {
+      "spend": "30.00",
+      "impressions": "3000",
+      "clicks": "60",
+      "ctr": "2.00",
+      "cpc": "0.50",
+      "cpm": "10.00",
+      "reach": "2400",
+      "frequency": "1.25",
+      "conversion": "2",
+      "cost_per_conversion": "15.00",
+      "conversion_rate": "3.33"
+    }
+  },
+  {
+    "dimensions": {
+      "advertiser_id": "1000000002",
+      "stat_time_day": "2026-08-30 00:00:00"
+    },
+    "metrics": {
+      "spend": "40.00",
+      "impressions": "4000",
+      "clicks": "80",
+      "ctr": "2.00",
+      "cpc": "0.50",
+      "cpm": "10.00",
+      "reach": "3200",
+      "frequency": "1.25",
+      "conversion": "0",
+      "cost_per_conversion": "-",
+      "conversion_rate": "0.00"
+    }
+  },
+  {
+    "dimensions": {
+      "advertiser_id": "1000000002",
+      "stat_time_day": "2026-08-31 00:00:00"
+    },
+    "metrics": {
+      "spend": "50.00",
+      "impressions": "5000",
+      "clicks": "100",
+      "ctr": "2.00",
+      "cpc": "0.50",
+      "cpm": "10.00",
+      "reach": "4000",
+      "frequency": "1.25",
+      "conversion": "1",
+      "cost_per_conversion": "50.00",
+      "conversion_rate": "1.00"
+    }
+  },
+  {
+    "dimensions": {
+      "advertiser_id": "1000000002",
+      "stat_time_day": "2026-09-15 00:00:00"
+    },
+    "metrics": {
+      "spend": "60.00",
+      "impressions": "6000",
+      "clicks": "120",
+      "ctr": "2.00",
+      "cpc": "0.50",
+      "cpm": "10.00",
+      "reach": "4800",
+      "frequency": "1.25",
+      "conversion": "2",
+      "cost_per_conversion": "30.00",
+      "conversion_rate": "1.67"
+    }
+  },
+  {
+    "dimensions": {
+      "advertiser_id": "1000000002",
+      "stat_time_day": "2026-09-29 00:00:00"
+    },
+    "metrics": {
+      "spend": "70.00",
+      "impressions": "7000",
+      "clicks": "140",
+      "ctr": "2.00",
+      "cpc": "0.50",
+      "cpm": "10.00",
+      "reach": "5600",
+      "frequency": "1.25",
+      "conversion": "0",
+      "cost_per_conversion": "-",
+      "conversion_rate": "0.00"
+    }
+  },
+  {
+    "dimensions": {
+      "advertiser_id": "1000000002",
+      "stat_time_day": "2026-09-30 00:00:00"
+    },
+    "metrics": {
+      "spend": "80.00",
+      "impressions": "8000",
+      "clicks": "160",
+      "ctr": "2.00",
+      "cpc": "0.50",
+      "cpm": "10.00",
+      "reach": "6400",
+      "frequency": "1.25",
+      "conversion": "1",
+      "cost_per_conversion": "80.00",
+      "conversion_rate": "0.62"
+    }
+  },
+  {
+    "dimensions": {
+      "advertiser_id": "1000000002",
+      "stat_time_day": "2026-10-07 00:00:00"
+    },
+    "metrics": {
+      "spend": "90.00",
+      "impressions": "9000",
+      "clicks": "180",
+      "ctr": "2.00",
+      "cpc": "0.50",
+      "cpm": "10.00",
+      "reach": "7200",
+      "frequency": "1.25",
+      "conversion": "2",
+      "cost_per_conversion": "45.00",
+      "conversion_rate": "1.11"
+    }
+  },
+  {
+    "dimensions": {
+      "advertiser_id": "1000000002",
+      "stat_time_day": "2026-10-10 00:00:00"
+    },
+    "metrics": {
+      "spend": "100.00",
+      "impressions": "10000",
+      "clicks": "200",
+      "ctr": "2.00",
+      "cpc": "0.50",
+      "cpm": "10.00",
+      "reach": "8000",
+      "frequency": "1.25",
+      "conversion": "0",
+      "cost_per_conversion": "-",
+      "conversion_rate": "0.00"
+    }
+  },
+  {
+    "dimensions": {
+      "advertiser_id": "1000000002",
+      "stat_time_day": "2026-10-16 00:00:00"
+    },
+    "metrics": {
+      "spend": "110.00",
+      "impressions": "11000",
+      "clicks": "220",
+      "ctr": "2.00",
+      "cpc": "0.50",
+      "cpm": "10.00",
+      "reach": "8800",
+      "frequency": "1.25",
+      "conversion": "1",
+      "cost_per_conversion": "110.00",
+      "conversion_rate": "0.45"
+    }
+  },
+  {
+    "dimensions": {
+      "advertiser_id": "1000000002",
+      "stat_time_day": "2026-10-17 00:00:00"
+    },
+    "metrics": {
+      "spend": "120.00",
+      "impressions": "12000",
+      "clicks": "240",
+      "ctr": "2.00",
+      "cpc": "0.50",
+      "cpm": "10.00",
+      "reach": "9600",
+      "frequency": "1.25",
+      "conversion": "2",
+      "cost_per_conversion": "60.00",
+      "conversion_rate": "0.83"
+    }
+  }
+]

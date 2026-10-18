@@ -1,0 +1,6 @@
+{
+  "code": 60001,
+  "message": "Downstream service error, please try again later.",
+  "request_id": "test-request",
+  "data": {}
+}

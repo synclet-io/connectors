@@ -1,0 +1,6 @@
+{
+  "code": 40133,
+  "message": "Too many requests: the advertiser QPS limit is exceeded.",
+  "request_id": "test-request",
+  "data": {}
+}

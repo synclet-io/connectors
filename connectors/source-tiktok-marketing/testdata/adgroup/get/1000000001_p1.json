@@ -1,0 +1,35 @@
+{
+  "code": 0,
+  "message": "OK",
+  "request_id": "test-request",
+  "data": {
+    "list": [
+      {
+        "adgroup_id": "1810000000000001",
+        "advertiser_id": "1000000001",
+        "campaign_id": "1800000000000001",
+        "adgroup_name": "Example Ad Group A",
+        "placement_type": "PLACEMENT_TYPE_AUTOMATIC",
+        "budget": 50.0,
+        "budget_mode": "BUDGET_MODE_DAY",
+        "bid_type": "BID_TYPE_NO_BID",
+        "bid_price": 0.0,
+        "optimization_goal": "CLICK",
+        "billing_event": "CPC",
+        "schedule_type": "SCHEDULE_FROM_NOW",
+        "schedule_start_time": "2026-07-01 00:00:00",
+        "schedule_end_time": "2027-07-01 00:00:00",
+        "operation_status": "ENABLE",
+        "secondary_status": "ADGROUP_STATUS_DELIVERY_OK",
+        "create_time": "2026-07-01 09:05:00",
+        "modify_time": "2026-09-02 11:00:00"
+      }
+    ],
+    "page_info": {
+      "page": 1,
+      "page_size": 1000,
+      "total_number": 1,
+      "total_page": 1
+    }
+  }
+}

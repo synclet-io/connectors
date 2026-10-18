@@ -1,0 +1,32 @@
+[
+  {
+    "advertiser_id": "1000000001",
+    "name": "Example Advertiser A",
+    "company": "Example Company A",
+    "status": "STATUS_ENABLE",
+    "role": "ROLE_ADVERTISER",
+    "currency": "USD",
+    "timezone": "Etc/GMT",
+    "display_timezone": "Etc/GMT",
+    "country": "US",
+    "industry": "290101",
+    "description": "Synthetic test advertiser",
+    "balance": 1000.0,
+    "create_time": 1767225600
+  },
+  {
+    "advertiser_id": "1000000002",
+    "name": "Example Advertiser B",
+    "company": "Example Company B",
+    "status": "STATUS_ENABLE",
+    "role": "ROLE_ADVERTISER",
+    "currency": "EUR",
+    "timezone": "Europe/Berlin",
+    "display_timezone": "Europe/Berlin",
+    "country": "DE",
+    "industry": "290102",
+    "description": "",
+    "balance": 250.5,
+    "create_time": 1767312000
+  }
+]

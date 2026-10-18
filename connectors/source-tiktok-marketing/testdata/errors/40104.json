@@ -1,0 +1,6 @@
+{
+  "code": 40104,
+  "message": "Access token is empty or malformed.",
+  "request_id": "test-request",
+  "data": {}
+}

@@ -1,0 +1,6 @@
+{
+  "code": 40100,
+  "message": "Too many requests: the QPS limit of the app is exceeded.",
+  "request_id": "test-request",
+  "data": {}
+}

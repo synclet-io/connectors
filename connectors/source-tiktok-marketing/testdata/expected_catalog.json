@@ -1,0 +1,614 @@
+{
+  "streams": [
+    {
+      "name": "advertisers",
+      "namespace": "tiktok_marketing",
+      "sync_modes": [
+        "full_refresh"
+      ],
+      "primary_key": [
+        [
+          "advertiser_id"
+        ]
+      ],
+      "cursor": [],
+      "properties": {
+        "advertiser_id": {
+          "type": "string"
+        },
+        "balance": {
+          "type": "number"
+        },
+        "company": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        },
+        "create_time": {
+          "type": "integer"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "display_timezone": {
+          "type": "string"
+        },
+        "industry": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "timezone": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "name": "campaigns",
+      "namespace": "tiktok_marketing",
+      "sync_modes": [
+        "full_refresh"
+      ],
+      "primary_key": [
+        [
+          "campaign_id"
+        ]
+      ],
+      "cursor": [],
+      "properties": {
+        "advertiser_id": {
+          "type": "string"
+        },
+        "budget": {
+          "type": "number"
+        },
+        "budget_mode": {
+          "type": "string"
+        },
+        "campaign_id": {
+          "type": "string"
+        },
+        "campaign_name": {
+          "type": "string"
+        },
+        "campaign_type": {
+          "type": "string"
+        },
+        "create_time": {
+          "type": "string"
+        },
+        "modify_time": {
+          "type": "string"
+        },
+        "objective_type": {
+          "type": "string"
+        },
+        "operation_status": {
+          "type": "string"
+        },
+        "secondary_status": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "name": "ad_groups",
+      "namespace": "tiktok_marketing",
+      "sync_modes": [
+        "full_refresh"
+      ],
+      "primary_key": [
+        [
+          "adgroup_id"
+        ]
+      ],
+      "cursor": [],
+      "properties": {
+        "adgroup_id": {
+          "type": "string"
+        },
+        "adgroup_name": {
+          "type": "string"
+        },
+        "advertiser_id": {
+          "type": "string"
+        },
+        "bid_price": {
+          "type": "number"
+        },
+        "bid_type": {
+          "type": "string"
+        },
+        "billing_event": {
+          "type": "string"
+        },
+        "budget": {
+          "type": "number"
+        },
+        "budget_mode": {
+          "type": "string"
+        },
+        "campaign_id": {
+          "type": "string"
+        },
+        "create_time": {
+          "type": "string"
+        },
+        "modify_time": {
+          "type": "string"
+        },
+        "operation_status": {
+          "type": "string"
+        },
+        "optimization_goal": {
+          "type": "string"
+        },
+        "placement_type": {
+          "type": "string"
+        },
+        "schedule_end_time": {
+          "type": "string"
+        },
+        "schedule_start_time": {
+          "type": "string"
+        },
+        "schedule_type": {
+          "type": "string"
+        },
+        "secondary_status": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "name": "ads",
+      "namespace": "tiktok_marketing",
+      "sync_modes": [
+        "full_refresh"
+      ],
+      "primary_key": [
+        [
+          "ad_id"
+        ]
+      ],
+      "cursor": [],
+      "properties": {
+        "ad_format": {
+          "type": "string"
+        },
+        "ad_id": {
+          "type": "string"
+        },
+        "ad_name": {
+          "type": "string"
+        },
+        "ad_text": {
+          "type": "string"
+        },
+        "adgroup_id": {
+          "type": "string"
+        },
+        "advertiser_id": {
+          "type": "string"
+        },
+        "call_to_action": {
+          "type": "string"
+        },
+        "campaign_id": {
+          "type": "string"
+        },
+        "create_time": {
+          "type": "string"
+        },
+        "landing_page_url": {
+          "type": "string"
+        },
+        "modify_time": {
+          "type": "string"
+        },
+        "operation_status": {
+          "type": "string"
+        },
+        "secondary_status": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "name": "ads_report_daily",
+      "namespace": "tiktok_marketing",
+      "sync_modes": [
+        "full_refresh",
+        "incremental"
+      ],
+      "primary_key": [
+        [
+          "ad_id"
+        ],
+        [
+          "stat_time_day"
+        ]
+      ],
+      "cursor": [
+        "stat_time_day"
+      ],
+      "properties": {
+        "ad_id": {
+          "type": "string"
+        },
+        "advertiser_id": {
+          "type": "string"
+        },
+        "clicks": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "conversion": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "conversion_rate": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "cost_per_conversion": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "cpc": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "cpm": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "ctr": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "frequency": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "impressions": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "reach": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "spend": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "stat_time_day": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
+    {
+      "name": "ad_groups_report_daily",
+      "namespace": "tiktok_marketing",
+      "sync_modes": [
+        "full_refresh",
+        "incremental"
+      ],
+      "primary_key": [
+        [
+          "adgroup_id"
+        ],
+        [
+          "stat_time_day"
+        ]
+      ],
+      "cursor": [
+        "stat_time_day"
+      ],
+      "properties": {
+        "adgroup_id": {
+          "type": "string"
+        },
+        "advertiser_id": {
+          "type": "string"
+        },
+        "clicks": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "conversion": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "conversion_rate": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "cost_per_conversion": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "cpc": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "cpm": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "ctr": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "frequency": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "impressions": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "reach": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "spend": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "stat_time_day": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
+    {
+      "name": "campaigns_report_daily",
+      "namespace": "tiktok_marketing",
+      "sync_modes": [
+        "full_refresh",
+        "incremental"
+      ],
+      "primary_key": [
+        [
+          "campaign_id"
+        ],
+        [
+          "stat_time_day"
+        ]
+      ],
+      "cursor": [
+        "stat_time_day"
+      ],
+      "properties": {
+        "advertiser_id": {
+          "type": "string"
+        },
+        "campaign_id": {
+          "type": "string"
+        },
+        "clicks": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "conversion": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "conversion_rate": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "cost_per_conversion": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "cpc": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "cpm": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "ctr": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "frequency": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "impressions": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "reach": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "spend": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "stat_time_day": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
+    {
+      "name": "advertisers_report_daily",
+      "namespace": "tiktok_marketing",
+      "sync_modes": [
+        "full_refresh",
+        "incremental"
+      ],
+      "primary_key": [
+        [
+          "advertiser_id"
+        ],
+        [
+          "stat_time_day"
+        ]
+      ],
+      "cursor": [
+        "stat_time_day"
+      ],
+      "properties": {
+        "advertiser_id": {
+          "type": "string"
+        },
+        "clicks": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "conversion": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "conversion_rate": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "cost_per_conversion": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "cpc": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "cpm": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "ctr": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "frequency": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "impressions": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "reach": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "spend": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "stat_time_day": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    }
+  ]
+}

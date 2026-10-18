@@ -1,0 +1,6 @@
+{
+  "code": 40016,
+  "message": "Too many requests: the request frequency is too high.",
+  "request_id": "test-request",
+  "data": {}
+}
