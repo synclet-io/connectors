@@ -10,8 +10,12 @@ import (
 	synclet "github.com/synclet-io/synclet-go-sdk"
 )
 
+// collation compares strings by code point and, unlike utf8mb4_bin, does not
+// ignore trailing spaces.
+const collation = "utf8mb4_0900_bin"
+
 // tableOptions are the options of every table the connector creates.
-const tableOptions = " ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin"
+const tableOptions = " ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=" + collation
 
 func columnDefs(cols []column) []string {
 	defs := make([]string, len(cols))

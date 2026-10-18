@@ -83,8 +83,11 @@ func driverConfig(cfg Config) (*mysql.Config, error) {
 	mc.Params = map[string]string{
 		"time_zone": "'+00:00'",
 		"sql_mode":  "'" + sqlMode + "'",
+		// utf8mb4_0900_bin has no id the handshake can carry, so it is set
+		// after SET NAMES.
+		"collation_connection": "'" + collation + "'",
 	}
-	if err := mc.Apply(mysql.Charset("utf8mb4", "utf8mb4_bin")); err != nil {
+	if err := mc.Apply(mysql.Charset("utf8mb4", "")); err != nil {
 		return nil, fmt.Errorf("build connection config: %w", err)
 	}
 	if err := setTLS(mc, cfg); err != nil {

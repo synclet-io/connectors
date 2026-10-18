@@ -160,9 +160,7 @@ func (w *writer) addRecord(ctx context.Context, r *synclet.RecordMessage) error 
 	return nil
 }
 
-// checkKeyText fails for a string key value VARCHAR(255) under utf8mb4_bin
-// cannot hold as given: longer than 255 characters, or ending in a space,
-// which the collation ignores when it compares keys.
+// checkKeyText fails for a string key value longer than VARCHAR(255) holds.
 func checkKeyText(c column, val any) error {
 	s, ok := val.(string)
 	if !c.key || !ok {
@@ -170,9 +168,6 @@ func checkKeyText(c column, val any) error {
 	}
 	if utf8.RuneCountInString(s) > maxKeyText {
 		return fmt.Errorf("value is longer than %d characters, which a %s key column holds", maxKeyText, keyTextType)
-	}
-	if strings.HasSuffix(s, " ") {
-		return fmt.Errorf("value %q ends with a space, which MySQL ignores when it compares keys", s)
 	}
 	return nil
 }

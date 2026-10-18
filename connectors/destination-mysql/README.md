@@ -55,7 +55,7 @@ and drops it. It names the cause of a failure: wrong user name or password, an u
 missing database, no access to the database, or the privilege a step lacks (`user "u" has no CREATE
 privilege on database "d"`). When a later step fails, the probe table is dropped if the user may.
 
-Sessions run with `time_zone = '+00:00'`, `utf8mb4` and
+Sessions run with `time_zone = '+00:00'`, `utf8mb4` with `collation_connection = 'utf8mb4_0900_bin'` and
 `sql_mode = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'`,
 so MySQL rejects a value that does not fit instead of storing a truncated or zero value. There is no
 SSH tunnel.
@@ -64,7 +64,8 @@ SSH tunnel.
 
 - One table per stream, named after the stream, in the configured `database`. The stream's namespace is
   ignored, so two streams that map to the same table fail the sync before anything is written.
-- Tables are `ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin`.
+- Tables are `ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin`: strings compare by code
+  point, case and accents count, and trailing spaces are not ignored (`'a'` and `'a '` differ).
 - Table and column names are used as given, in backticks, case and punctuation kept.
 - MySQL names hold at most 64 characters. A longer name becomes its first 55 characters, `_` and the
   first 8 hex digits of the SHA-256 of the full name: stable across syncs and unique for names that
@@ -126,10 +127,13 @@ Deduplication rules:
 - Among equal cursors the last arrival wins; a stored `NULL` cursor is replaced, an incoming `NULL`
   cursor does not replace a stored one.
 - A record whose primary key is `NULL` or missing fails the sync.
-- String key columns are `VARCHAR(255)` (binary collation, so `A` and `a` are different keys). A key
-  value over 255 characters fails the sync, and so does one ending in a space, which the collation
-  would ignore when it compares keys. At most 3 string key fields fit a MySQL key; more fail the sync.
-  An object, array or untyped key or cursor field fails the sync.
+- String key columns are `VARCHAR(255)`; `A`, `a` and `a ` are different keys, and string cursors
+  compare the same way. A key value over 255 characters fails the sync.
+- The key must fit InnoDB's 3,072-byte index key, counted as MySQL does: 1,020 bytes per string
+  field, 8 per integer or date-time, 30 per `number`, 29 per `big_integer`, 6 per time, 3 per date,
+  1 per boolean. Three string fields and one integer fit; three string fields and two integers, or
+  three and a `number`, fail the sync before anything is written. An object, array or untyped key or
+  cursor field fails the sync too.
 - An existing table without a primary key on exactly the stream's key fails the sync.
 - Primary key and cursor must be top-level properties.
 
@@ -153,7 +157,7 @@ stream, the record's position in the stream and the column:
   with too many digits, a date MySQL rejects (`2024-02-30`), a malformed date-time, a time zone in a
   `timestamp_without_timezone` or `time` value, a string that is not valid UTF-8 or holds a lone
   UTF-16 surrogate (`\ud800`), a JSON number a double cannot hold;
-- a `NULL` primary key, or a string key value that does not fit, in `append_dedup`;
+- a `NULL` primary key, or a string key value over 255 characters, in `append_dedup`;
 - a changed column type, a record of a stream that is not in the catalog.
 
 On failure the open batch is rolled back, no state is echoed for its records, and the shadow tables of

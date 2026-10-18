@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	synclet "github.com/synclet-io/synclet-go-sdk"
 )
 
 func TestTypesColumn(t *testing.T) {
@@ -156,6 +157,29 @@ func TestTypesKeyText(t *testing.T) {
 		long[i] = 'é'
 	}
 	require.ErrorContains(t, checkKeyText(key, string(long)), "longer than 255 characters")
-	require.ErrorContains(t, checkKeyText(key, "a "), "ends with a space")
-	require.NoError(t, checkKeyText(column{kind: kindText}, "a "))
+	require.NoError(t, checkKeyText(key, "a "))
+}
+
+func TestPlanKeyWidth(t *testing.T) {
+	assert.Equal(t, 16, decimalBytes(numberIntDigits))
+	assert.Equal(t, 14, decimalBytes(numberFracDigits))
+	assert.Equal(t, 29, decimalBytes(bigIntDigits))
+
+	props := `{"type":"object","properties":{"a":{"type":"string"},"b":{"type":"string"},"c":{"type":"string"},"d":{"type":"string"},` +
+		`"x":{"type":"integer"},"y":{"type":"integer"},"n":{"type":"number"},"ts":{"type":"string","format":"date-time"}}}`
+	plan := func(keys ...string) error {
+		pk := make([][]string, len(keys))
+		for i, k := range keys {
+			pk[i] = []string{k}
+		}
+		_, err := planStream(0, stream("s", props, synclet.DestinationSyncModeAppendDedup, pk, nil))
+		return err
+	}
+	require.NoError(t, plan("a", "b", "c", "x"), "3,060 + 8 bytes fit")
+	require.NoError(t, plan("a", "b", "c", "ts"), "3,060 + 8 bytes fit")
+	for _, keys := range [][]string{{"a", "b", "c", "x", "y"}, {"a", "b", "c", "n"}, {"a", "b", "c", "d"}} {
+		err := plan(keys...)
+		require.Error(t, err, "%v", keys)
+		assert.Contains(t, err.Error(), "more than the 3072 bytes of a MySQL key", "%v", keys)
+	}
 }

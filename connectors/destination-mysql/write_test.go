@@ -299,19 +299,37 @@ func TestWriteDedup(t *testing.T) {
 			synclet.DestinationSyncModeAppendDedup, [][]string{{"k"}, {"n"}}, nil)
 		for _, c := range []struct{ data, want string }{
 			{`{"k":"` + strings.Repeat("x", 256) + `","n":1}`, `primary key column "k": value is longer than 255 characters`},
-			{`{"k":"a ","n":1}`, `primary key column "k": value "a " ends with a space`},
 		} {
 			out := runWrite(t, NewDestination(), cfg, []synclet.ConfiguredStream{s}, rec("tags", c.data))
 			require.Error(t, out.Err)
 			assert.Contains(t, out.Err.Error(), c.want)
 		}
 	})
+	t.Run("trailing spaces make distinct keys and cursors", func(t *testing.T) {
+		s := stream("spaced", `{"type":"object","properties":{"k":{"type":"string"},"cur":{"type":"string"},"v":{"type":"string"}}}`,
+			synclet.DestinationSyncModeAppendDedup, [][]string{{"k"}}, []string{"cur"})
+		out := runWrite(t, NewDestination(), cfg, []synclet.ConfiguredStream{s},
+			rec("spaced", `{"k":"a","cur":"x","v":"plain"}`), rec("spaced", `{"k":"a ","cur":"x","v":"spaced"}`),
+			rec("spaced", `{"k":"b","cur":"x ","v":"stored"}`), rec("spaced", `{"k":"b","cur":"x","v":"lower cursor"}`))
+		require.NoError(t, out.Err)
+		assert.Equal(t, [][]string{{"a", "x", "plain"}, {"a ", "x", "spaced"}, {"b", "x ", "stored"}},
+			queryStrings(t, cfg, `SELECT k, cur, v FROM spaced ORDER BY k`))
+		assert.Equal(t, [][]string{{"utf8mb4_0900_bin", "utf8mb4_0900_bin"}},
+			queryStrings(t, cfg, `SELECT TABLE_COLLATION, @@collation_connection FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'spaced'`))
+	})
+	t.Run("the widest key that fits is created", func(t *testing.T) {
+		s := stream("wide", `{"type":"object","properties":{"a":{"type":"string"},"b":{"type":"string"},"c":{"type":"string"},"x":{"type":"integer"}}}`,
+			synclet.DestinationSyncModeAppendDedup, [][]string{{"a"}, {"b"}, {"c"}, {"x"}}, nil)
+		out := runWrite(t, NewDestination(), cfg, []synclet.ConfiguredStream{s}, rec("wide", `{"a":"1","b":"2","c":"3","x":4}`))
+		require.NoError(t, out.Err)
+		assert.Equal(t, 1, countRows(t, cfg, "wide"))
+	})
 	t.Run("keys MySQL cannot index fail the plan", func(t *testing.T) {
-		four := stream("four", `{"type":"object","properties":{"a":{"type":"string"},"b":{"type":"string"},"c":{"type":"string"},"d":{"type":"string"}}}`,
-			synclet.DestinationSyncModeAppendDedup, [][]string{{"a"}, {"b"}, {"c"}, {"d"}}, nil)
+		four := stream("four", `{"type":"object","properties":{"a":{"type":"string"},"b":{"type":"string"},"c":{"type":"string"},"x":{"type":"integer"},"y":{"type":"integer"}}}`,
+			synclet.DestinationSyncModeAppendDedup, [][]string{{"a"}, {"b"}, {"c"}, {"x"}, {"y"}}, nil)
 		out := runWrite(t, NewDestination(), cfg, []synclet.ConfiguredStream{four})
 		require.Error(t, out.Err)
-		assert.Contains(t, out.Err.Error(), "primary key has 4 string fields; at most 3")
+		assert.Contains(t, out.Err.Error(), "primary key needs 3076 bytes, more than the 3072 bytes of a MySQL key")
 		obj := stream("obj", `{"type":"object","properties":{"o":{"type":"object"}}}`, synclet.DestinationSyncModeAppendDedup, [][]string{{"o"}}, nil)
 		out = runWrite(t, NewDestination(), cfg, []synclet.ConfiguredStream{obj})
 		require.Error(t, out.Err)

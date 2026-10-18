@@ -15,9 +15,8 @@ const (
 	oldPrefix      = "_synclet_old_"
 	// rowAlias names the incoming row in ON DUPLICATE KEY UPDATE.
 	rowAlias = "_synclet_new"
-	// maxStringKeys is how many VARCHAR(255) key columns fit InnoDB's
-	// 3,072-byte index key.
-	maxStringKeys = 3
+	// maxKeyBytes is the most bytes an InnoDB index key may hold.
+	maxKeyBytes = 3072
 )
 
 // metaColumns are written to every table ahead of the catalog's columns.
@@ -153,7 +152,7 @@ func planStream(i int, cs synclet.ConfiguredStream) (*streamPlan, error) {
 	if len(cs.PrimaryKey) == 0 {
 		return nil, fmt.Errorf("append_dedup needs a primary key")
 	}
-	stringKeys := 0
+	keyBytes := 0
 	for _, path := range cs.PrimaryKey {
 		idx, err := p.topLevel("primary key", path)
 		if err != nil {
@@ -164,14 +163,14 @@ func planStream(i int, cs synclet.ConfiguredStream) (*streamPlan, error) {
 		case kindJSON:
 			return nil, fmt.Errorf("primary key field %q is an object, array or untyped value, which cannot be a MySQL key", c.name)
 		case kindText, kindTimeTZ:
-			stringKeys++
 			c.key = true
 			c.sqlType = keyTextType
 		}
+		keyBytes += keyWidth(*c)
 		p.pk = append(p.pk, idx)
 	}
-	if stringKeys > maxStringKeys {
-		return nil, fmt.Errorf("primary key has %d string fields; at most %d fit a MySQL key", stringKeys, maxStringKeys)
+	if keyBytes > maxKeyBytes {
+		return nil, fmt.Errorf("primary key needs %d bytes, more than the %d bytes of a MySQL key (a string field takes %d)", keyBytes, maxKeyBytes, keyTextBytes)
 	}
 	if len(cs.CursorField) > 0 {
 		idx, err := p.topLevel("cursor", cs.CursorField)
@@ -184,6 +183,39 @@ func planStream(i int, cs synclet.ConfiguredStream) (*streamPlan, error) {
 		p.cursor = idx
 	}
 	return p, nil
+}
+
+// keyTextBytes is the key width of a VARCHAR(255) utf8mb4 column: four
+// bytes per character.
+const keyTextBytes = maxKeyText * 4
+
+// keyWidth is the number of bytes a primary key column takes in an InnoDB
+// index key, as MySQL counts it against maxKeyBytes.
+func keyWidth(c column) int {
+	switch c.kind {
+	case kindBoolean:
+		return 1
+	case kindInteger:
+		return 8
+	case kindNumber:
+		return decimalBytes(numberIntDigits) + decimalBytes(numberFracDigits)
+	case kindBigInteger:
+		return decimalBytes(bigIntDigits)
+	case kindDate:
+		return 3
+	case kindTimestampTZ, kindTimestamp:
+		return 5 + 3
+	case kindTime:
+		return 3 + 3
+	default:
+		return keyTextBytes
+	}
+}
+
+// decimalBytes is the storage of one side of a DECIMAL's point: four bytes
+// per nine digits and up to four for the rest.
+func decimalBytes(digits int) int {
+	return digits/9*4 + [9]int{0, 1, 1, 2, 2, 3, 3, 4, 4}[digits%9]
 }
 
 // topLevel returns the column of a field path, which must name one top-level
