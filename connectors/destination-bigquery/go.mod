@@ -3,7 +3,7 @@ module github.com/synclet-io/connectors/connectors/destination-bigquery
 go 1.26.0
 
 require (
-	cloud.google.com/go/bigquery v1.79.0
+	cloud.google.com/go/bigquery v1.85.0
 	cloud.google.com/go/storage v1.62.3
 	github.com/google/uuid v1.6.0
 	github.com/stretchr/testify v1.11.1
