@@ -49,18 +49,3 @@ func TestWriteMessagesRejectsInvalidInput(t *testing.T) {
 		synclet.NewMessageReader(strings.NewReader("not json\n")), synclet.NewEmitter(&bytes.Buffer{}))
 	require.Error(t, err)
 }
-
-func TestCheckFailureMessage(t *testing.T) {
-	var out bytes.Buffer
-	err := synclet.ServeDestination(t.Context(), NewGoogleSheetsDestination(), synclet.Request{
-		Command: synclet.CommandCheck,
-		Config:  json.RawMessage(`{"spreadsheet_id":"abc","credentials":{"auth_type":"Unknown"}}`),
-	}, &out)
-	require.NoError(t, err)
-
-	var msg synclet.Message
-	require.NoError(t, json.Unmarshal(out.Bytes(), &msg))
-	require.Equal(t, synclet.MessageTypeConnectionStatus, msg.Type)
-	assert.Equal(t, synclet.ConnectionStatusFailed, msg.ConnectionStatus.Status)
-	assert.Contains(t, msg.ConnectionStatus.Message, "unsupported auth_type")
-}

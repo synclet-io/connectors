@@ -7,7 +7,7 @@ require (
 	cloud.google.com/go/storage v1.61.3
 	github.com/google/uuid v1.6.0
 	github.com/stretchr/testify v1.11.1
-	github.com/synclet-io/synclet-go-sdk v0.2.0
+	github.com/synclet-io/synclet-go-sdk v0.3.0
 	go.uber.org/multierr v1.11.0
 	golang.org/x/oauth2 v0.36.0
 	google.golang.org/api v0.272.0
@@ -44,6 +44,7 @@ require (
 	github.com/pierrec/lz4/v4 v4.1.18 // indirect
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
+	github.com/santhosh-tekuri/jsonschema/v6 v6.0.2 // indirect
 	github.com/spiffe/go-spiffe/v2 v2.6.0 // indirect
 	github.com/zeebo/xxh3 v1.0.2 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
