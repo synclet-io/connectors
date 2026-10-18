@@ -38,6 +38,7 @@ Taskfile.yml              local shortcuts
 | [source-tiktok-marketing](connectors/source-tiktok-marketing) | `ghcr.io/synclet-io/connectors/source-tiktok-marketing` |
 | [source-zendesk-support](connectors/source-zendesk-support) | `ghcr.io/synclet-io/connectors/source-zendesk-support` |
 | [destination-bigquery](connectors/destination-bigquery) | `ghcr.io/synclet-io/connectors/destination-bigquery` |
+| [destination-clickhouse](connectors/destination-clickhouse) | `ghcr.io/synclet-io/connectors/destination-clickhouse` |
 | [destination-google-sheets](connectors/destination-google-sheets) | `ghcr.io/synclet-io/connectors/destination-google-sheets` |
 | [destination-postgres](connectors/destination-postgres) | `ghcr.io/synclet-io/connectors/destination-postgres` |
 | [destination-s3](connectors/destination-s3) | `ghcr.io/synclet-io/connectors/destination-s3` |

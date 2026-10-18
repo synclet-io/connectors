@@ -1,0 +1,125 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Writes each stream into a typed MergeTree table of one database: overwrite, append or append_dedup.",
+    "properties": {
+      "database": {
+        "description": "Database every table is written to; it must exist.",
+        "order": 3,
+        "title": "Database",
+        "type": "string"
+      },
+      "host": {
+        "description": "Hostname of the ClickHouse server.",
+        "order": 0,
+        "title": "Host",
+        "type": "string"
+      },
+      "optimize_final": {
+        "default": false,
+        "description": "Run OPTIMIZE TABLE ... FINAL on every append_dedup table after the sync, so it holds one row per primary key without FINAL.",
+        "order": 7,
+        "title": "Optimize after sync",
+        "type": "boolean"
+      },
+      "password": {
+        "airbyte_secret": true,
+        "description": "Password of the user.",
+        "order": 5,
+        "title": "Password",
+        "type": "string"
+      },
+      "port": {
+        "description": "Port of the server; when unset 9000 (native), 9440 (native with TLS), 8123 (http) or 8443 (http with TLS).",
+        "examples": [
+          "9000",
+          "9440",
+          "8123",
+          "8443"
+        ],
+        "order": 1,
+        "title": "Port",
+        "type": "integer"
+      },
+      "protocol": {
+        "default": "native",
+        "description": "Native TCP protocol or HTTP interface.",
+        "oneOf": [
+          {
+            "const": "native",
+            "title": "Native"
+          },
+          {
+            "const": "http",
+            "title": "HTTP"
+          }
+        ],
+        "order": 2,
+        "title": "Protocol",
+        "type": "string"
+      },
+      "tls": {
+        "description": "Encrypts the connection and verifies the server certificate.",
+        "order": 6,
+        "properties": {
+          "ca_certificate": {
+            "airbyte_secret": true,
+            "description": "PEM certificate of the CA that signed the server certificate; the system roots when unset.",
+            "order": 1,
+            "title": "CA certificate",
+            "type": "string"
+          },
+          "client_certificate": {
+            "airbyte_secret": true,
+            "description": "PEM client certificate, when the server asks for one.",
+            "order": 2,
+            "title": "Client certificate",
+            "type": "string"
+          },
+          "client_key": {
+            "airbyte_secret": true,
+            "description": "PEM private key of the client certificate.",
+            "order": 3,
+            "title": "Client key",
+            "type": "string"
+          },
+          "enabled": {
+            "default": false,
+            "description": "Connect over TLS.",
+            "order": 0,
+            "title": "Enabled",
+            "type": "boolean"
+          }
+        },
+        "title": "TLS",
+        "type": "object"
+      },
+      "username": {
+        "description": "User to log in as.",
+        "examples": [
+          "default"
+        ],
+        "order": 4,
+        "title": "Username",
+        "type": "string"
+      }
+    },
+    "required": [
+      "host",
+      "database",
+      "username"
+    ],
+    "title": "ClickHouse Destination Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/destination-clickhouse",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": false,
+  "supportsNormalization": false
+}

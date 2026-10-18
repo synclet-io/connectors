@@ -19,6 +19,16 @@
         }
       ]
     },
+    "connectors/destination-clickhouse": {
+      "component": "destination-clickhouse",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "meta.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
     "connectors/destination-google-sheets": {
       "component": "destination-google-sheets",
       "extra-files": [
