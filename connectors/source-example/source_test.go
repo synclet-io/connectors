@@ -1,69 +1,82 @@
 package main
 
 import (
-	"os"
-	"path/filepath"
+	"encoding/json"
 	"testing"
 
 	synclet "github.com/synclet-io/synclet-go-sdk"
+	"github.com/synclet-io/synclet-go-sdk/testkit"
 )
 
-func writeConfig(t *testing.T, body string) string {
+func configJSON(t *testing.T, cfg Config) json.RawMessage {
 	t.Helper()
-
-	path := filepath.Join(t.TempDir(), "config.json")
-	if err := os.WriteFile(path, []byte(body), 0o600); err != nil {
+	b, err := json.Marshal(cfg)
+	if err != nil {
 		t.Fatal(err)
 	}
-
-	return path
+	return b
 }
 
-func noopLog(synclet.LogLevel, string) error { return nil }
+func numbersCatalog(t *testing.T) *synclet.ConfiguredCatalog {
+	t.Helper()
+	cat, err := Source{}.Discover(t.Context(), Config{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return &synclet.ConfiguredCatalog{Streams: []synclet.ConfiguredStream{{
+		Stream:              cat.Streams[0],
+		SyncMode:            synclet.SyncModeFullRefresh,
+		DestinationSyncMode: synclet.DestinationSyncModeOverwrite,
+	}}}
+}
+
+func TestConformance(t *testing.T) {
+	testkit.RunSourceSuite(t, Source{}, testkit.SourceSuite{
+		Config:       configJSON(t, Config{Count: 5}),
+		BrokenConfig: configJSON(t, Config{Count: -1}),
+		Catalog:      numbersCatalog(t),
+	})
+}
 
 func TestCheckRejectsOutOfRangeCount(t *testing.T) {
-	src := NewExampleSource()
-	logs := synclet.LogTracker{Log: noopLog}
-
-	if err := src.Check(writeConfig(t, `{"count": 5}`), logs); err != nil {
-		t.Fatalf("valid config rejected: %v", err)
+	for _, count := range []int{-1, maxCount + 1} {
+		if err := (Source{}).Check(t.Context(), Config{Count: count}); err == nil {
+			t.Errorf("count %d accepted", count)
+		}
 	}
-
-	if err := src.Check(writeConfig(t, `{"count": -1}`), logs); err == nil {
-		t.Fatal("negative count accepted")
+	if err := (Source{}).Check(t.Context(), Config{}); err != nil {
+		t.Errorf("default count rejected: %v", err)
 	}
 }
 
 func TestReadEmitsConfiguredRows(t *testing.T) {
-	src := NewExampleSource()
-
-	catalog, err := src.Discover("", synclet.LogTracker{Log: noopLog})
+	catalog, err := json.Marshal(numbersCatalog(t))
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	configured := &synclet.ConfiguredCatalog{Streams: []synclet.ConfiguredStream{{Stream: catalog.Streams[0]}}}
-
-	var ids []any
-
-	tracker := synclet.MessageTracker{
-		Log: noopLog,
-		Record: func(v any, stream, _ string) error {
-			if stream != streamName {
-				t.Fatalf("unexpected stream %q", stream)
-			}
-
-			ids = append(ids, v.(map[string]any)["id"])
-
-			return nil
-		},
-	}
-
-	if err := src.Read(writeConfig(t, `{"count": 3}`), "", configured, tracker); err != nil {
+	out, err := testkit.RunSource(t.Context(), Source{}, synclet.Request{
+		Command: synclet.CommandRead,
+		Config:  configJSON(t, Config{Count: 3}),
+		Catalog: catalog,
+	})
+	if err != nil {
 		t.Fatal(err)
 	}
-
-	if len(ids) != 3 || ids[0] != 1 || ids[2] != 3 {
-		t.Fatalf("unexpected records: %v", ids)
+	if out.Err != nil {
+		t.Fatal(out.Err)
+	}
+	recs := out.Records(synclet.StreamDescriptor{Name: streamName})
+	if len(recs) != 3 {
+		t.Fatalf("got %d records, want 3", len(recs))
+	}
+	var last struct {
+		ID    int    `json:"id"`
+		Label string `json:"label"`
+	}
+	if err := json.Unmarshal(recs[2].Data, &last); err != nil {
+		t.Fatal(err)
+	}
+	if last.ID != 3 || last.Label != "row 3" {
+		t.Fatalf("last record = %+v", last)
 	}
 }

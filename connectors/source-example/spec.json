@@ -1,5 +1,5 @@
 {
-  "changeLogUrl": "",
+  "changelogUrl": "",
   "connectionSpecification": {
     "description": "Generates a sequence of numbered rows",
     "properties": {
@@ -11,11 +11,11 @@
         "type": "integer"
       }
     },
-    "required": [],
     "title": "Example Source Spec",
     "type": "object"
   },
   "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-example",
+  "protocol_version": "0.5.2",
   "supported_destination_sync_modes": [
     "overwrite",
     "append"

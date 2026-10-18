@@ -1,16 +1,9 @@
+// Command source-example emits a fixed number of generated rows into one stream.
 package main
 
-import (
-	"log"
-	"os"
+import "github.com/synclet-io/synclet-go-sdk/cli"
 
-	synclet "github.com/synclet-io/synclet-go-sdk"
-)
+// Source is the example source connector.
+type Source struct{}
 
-func main() {
-	runner := synclet.NewSourceRunner(NewExampleSource(), os.Stdout)
-
-	if err := runner.Start(); err != nil {
-		log.Fatal(err)
-	}
-}
+func main() { cli.RunSource(Source{}) }
