@@ -87,6 +87,8 @@ jobs:
         with:
           version: v2.11.4
           working-directory: ${{ env.DIR }}
+          # config verify downloads the JSON schema from golangci-lint.run and times out.
+          verify: false
 
       # The runner's Docker daemon is available, so testcontainers-based tests run here.
       - name: Test
