@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"slices"
 	"strings"
 
@@ -40,6 +41,9 @@ func (s Source) Check(ctx context.Context, cfg Config) error {
 	m := newMetadata(c)
 	if len(cfg.BaseIDs) == 0 {
 		bases, err := m.listBases(ctx)
+		if statusOf(err) == http.StatusForbidden {
+			return synclet.ConfigError(fmt.Errorf("the token cannot list bases, most likely it lacks the scope schema.bases:read: %w", err))
+		}
 		if err != nil {
 			return err
 		}

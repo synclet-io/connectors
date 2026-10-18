@@ -63,6 +63,15 @@ func TestCheck(t *testing.T) {
 			requests: []string{"meta/whoami", "meta/bases/" + missingBase + "/tables"},
 		},
 		{
+			name: "bases refused without a scope list", cfg: testCfg,
+			override: map[string]fixture{
+				"meta/whoami": {status: http.StatusOK, file: "errors/whoami-no-scope-list.json"},
+				"meta/bases":  {status: http.StatusForbidden, file: "errors/forbidden.json"},
+			},
+			message:  "the token cannot list bases, most likely it lacks the scope schema.bases:read: GET /v0/meta/bases (HTTP 403): INVALID_PERMISSIONS_OR_MODEL_NOT_FOUND: Invalid permissions, or the requested model was not found. Check that both your user and your token have the required permissions, and that the model names and/or ids are correct.",
+			requests: []string{"meta/whoami", "meta/bases"},
+		},
+		{
 			name: "no base shared", cfg: testCfg,
 			override: map[string]fixture{"meta/bases": {status: http.StatusOK, file: "errors/bases-empty.json"}},
 			message:  "no base is shared with the token",

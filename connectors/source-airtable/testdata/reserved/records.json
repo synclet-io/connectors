@@ -1,0 +1,9 @@
+{
+  "records": [
+    {
+      "id": "recReserved00001",
+      "createdTime": "2026-10-01T00:00:00.000Z",
+      "fields": {"fldReservedName01": "one", "fldReservedId0001": "user-id-1", "fldReservedTime01": "yesterday"}
+    }
+  ]
+}

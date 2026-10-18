@@ -188,8 +188,8 @@ func TestReadIncremental(t *testing.T) {
 		src := testSource(srv)
 		out := runRead(t, src, catalogOf(t, src, synclet.SyncModeIncremental, tasksStream), streamState(tasksStream, `{"cursor":"2026-10-05T10:00:00Z"}`))
 		require.NoError(t, out.Err)
-		formula := "OR(DATETIME_DIFF({Last Modified}, DATETIME_PARSE('2026-10-05T10:00:00Z'), 'milliseconds') >= 0, " +
-			"AND({Last Modified} = BLANK(), DATETIME_DIFF(CREATED_TIME(), DATETIME_PARSE('2026-10-05T10:00:00Z'), 'milliseconds') >= 0))"
+		formula := "IF({Last Modified}, DATETIME_DIFF({Last Modified}, DATETIME_PARSE('2026-10-05T10:00:00Z'), 'milliseconds') >= 0, " +
+			"DATETIME_DIFF(CREATED_TIME(), DATETIME_PARSE('2026-10-05T10:00:00Z'), 'milliseconds') >= 0)"
 		assert.Equal(t, []url.Values{with("filterByFormula", formula)}, recordHits(t, h, tasksPath))
 		recs := records(t, out, tasksStream)
 		assert.Equal(t, []string{"recTask000000003", "recTask000000002", "recTask000000004"}, ids(recs), "the record at the saved value and the blank-cursor record are emitted")
@@ -244,8 +244,8 @@ func TestReadIncremental(t *testing.T) {
 
 func TestSinceFormulaEscapesFieldName(t *testing.T) {
 	f := sinceFormula("Edited {at}", testNow)
-	assert.Equal(t, "OR(DATETIME_DIFF({Edited {at\\}}, DATETIME_PARSE('2026-10-18T12:00:00Z'), 'milliseconds') >= 0, "+
-		"AND({Edited {at\\}} = BLANK(), DATETIME_DIFF(CREATED_TIME(), DATETIME_PARSE('2026-10-18T12:00:00Z'), 'milliseconds') >= 0))", f)
+	assert.Equal(t, "IF({Edited {at\\}}, DATETIME_DIFF({Edited {at\\}}, DATETIME_PARSE('2026-10-18T12:00:00Z'), 'milliseconds') >= 0, "+
+		"DATETIME_DIFF(CREATED_TIME(), DATETIME_PARSE('2026-10-18T12:00:00Z'), 'milliseconds') >= 0)", f)
 }
 
 func TestReadFieldIDs(t *testing.T) {
@@ -310,4 +310,34 @@ func TestReadAllTypes(t *testing.T) {
 	assert.Equal(t, []any{float64(5), nil}, recs[0]["Linked Scores"])
 	assert.Equal(t, map[string]any{"anything": []any{float64(1), "x"}}, recs[0]["Broken Formula"], "a formula without a result type passes its value through")
 	assert.Len(t, recordHits(t, h, allTypesPath), 1)
+}
+
+func TestReadReservedFieldNames(t *testing.T) {
+	srv, _ := fixtureServer(t, map[string]fixture{
+		"meta/bases":                      {status: 200, file: "reserved/bases.json"},
+		"meta/bases/" + base1 + "/tables": {status: 200, file: "reserved/tables.json"},
+		base1 + "/tblReserved00001":       {status: 200, file: "reserved/records.json"},
+	})
+	src := testSource(srv)
+	streams := discoverStreams(t, src)
+	stream, ok := streams["Projects/Reserved"]
+	require.True(t, ok)
+	var s schemaOf
+	require.NoError(t, json.Unmarshal(stream.JSONSchema, &s))
+	assert.ElementsMatch(t, []string{"_airtable_id", "_airtable_created_time", "_airtable_id (fldReservedId0001)", "_airtable_created_time (fldReservedTime01)", "Name"}, keys(s.Properties))
+	assert.JSONEq(t, `{"type":"string"}`, string(s.Properties["_airtable_id"]))
+
+	want := map[string]any{
+		"_airtable_id": "recReserved00001", "_airtable_created_time": "2026-10-01T00:00:00.000Z",
+		"_airtable_id (fldReservedId0001)": "user-id-1", "_airtable_created_time (fldReservedTime01)": "yesterday", "Name": "one",
+	}
+	cat := &synclet.ConfiguredCatalog{Streams: []synclet.ConfiguredStream{{Stream: stream, SyncMode: synclet.SyncModeFullRefresh, DestinationSyncMode: synclet.DestinationSyncModeOverwrite}}}
+	out := runRead(t, src, cat, nil)
+	require.NoError(t, out.Err)
+	assert.Equal(t, []map[string]any{want}, records(t, out, "Projects/Reserved"))
+
+	cat.Streams[0].Stream.JSONSchema = json.RawMessage(`{"type":"object","properties":{"_airtable_id":{"type":"string"},"_airtable_id (fldReservedId0001)":{},"_airtable_created_time (fldReservedTime01)":{},"Name":{}}}`)
+	out = runRead(t, src, cat, nil)
+	require.NoError(t, out.Err)
+	assert.Equal(t, []map[string]any{want}, records(t, out, "Projects/Reserved"), "a schema without hints matches renamed fields too")
 }

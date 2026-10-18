@@ -127,7 +127,7 @@ func (m *metadata) tableRead(ctx context.Context, cfg Config, cs synclet.Configu
 	byName := map[string]field{}
 	for _, f := range t.Fields {
 		byID[f.ID] = f
-		byName[f.Name] = f
+		byName[propertyName(f)] = f
 	}
 	r := &tableRead{
 		desc: desc, baseID: baseID, tableID: t.ID,
@@ -246,12 +246,12 @@ func (r *tableRead) cursorOf(raw json.RawMessage, createdTime string) (time.Time
 }
 
 // sinceFormula is the filterByFormula of an incremental read from saved:
-// the cursor field at or after saved, or blank with the created time at or
-// after saved.
+// the cursor field at or after saved when it has a value, else the created
+// time at or after saved. IF keeps a blank cursor out of DATETIME_DIFF.
 func sinceFormula(name string, saved time.Time) string {
 	ref := "{" + strings.ReplaceAll(name, "}", `\}`) + "}"
 	ts := "DATETIME_PARSE('" + saved.UTC().Format(time.RFC3339Nano) + "')"
-	return fmt.Sprintf("OR(DATETIME_DIFF(%[1]s, %[2]s, 'milliseconds') >= 0, AND(%[1]s = BLANK(), DATETIME_DIFF(CREATED_TIME(), %[2]s, 'milliseconds') >= 0))", ref, ts)
+	return fmt.Sprintf("IF(%[1]s, DATETIME_DIFF(%[1]s, %[2]s, 'milliseconds') >= 0, DATETIME_DIFF(CREATED_TIME(), %[2]s, 'milliseconds') >= 0)", ref, ts)
 }
 
 // value returns a field value as emitted. The error values of formula,

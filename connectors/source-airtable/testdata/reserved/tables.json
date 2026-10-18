@@ -1,0 +1,14 @@
+{
+  "tables": [
+    {
+      "id": "tblReserved00001",
+      "name": "Reserved",
+      "primaryFieldId": "fldReservedName01",
+      "fields": [
+        {"id": "fldReservedName01", "name": "Name", "type": "singleLineText"},
+        {"id": "fldReservedId0001", "name": "_airtable_id", "type": "singleLineText"},
+        {"id": "fldReservedTime01", "name": "_airtable_created_time", "type": "singleLineText"}
+      ]
+    }
+  ]
+}

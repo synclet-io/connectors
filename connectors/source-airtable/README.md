@@ -40,6 +40,7 @@ base, or `GET /v0/meta/bases` when none is configured, and fails with:
 | The token is wrong, expired or revoked (401) | `invalid personal access token` |
 | The token lacks a scope (whoami lists the token's scopes) | `token lacks scope(s) data.records:read, schema.bases:read` (the missing ones) |
 | A configured base is not shared with the token or does not exist (403 or 404) | `base <baseId> is not shared with the token or does not exist` |
+| No base is configured and listing bases is refused (403), most likely because the token lacks `schema.bases:read` | `the token cannot list bases, most likely it lacks the scope schema.bases:read` |
 | No base is configured and the token sees none | `no base is shared with the token` |
 
 ## Streams
@@ -55,7 +56,7 @@ A record holds:
 |---|---|
 | `_airtable_id` | Record id (`rec...`), the primary key |
 | `_airtable_created_time` | Record creation time |
-| one per field, under the field's name | The field's value; a field without a value is absent |
+| one per field, under the field's name | The field's value; a field without a value is absent. A field named `_airtable_id` or `_airtable_created_time` is emitted as `<name> (<field id>)`, such as `_airtable_id (fldAbCdEfGhIjKlMn)` |
 
 The schema carries the ids it was built from: `x-airtable-base-id` and `x-airtable-table-id` at its top
 level and `x-airtable-field-id` on each field property. Read requests records with
@@ -101,9 +102,13 @@ time" field fails the read with a configuration error.
 An incremental read sorts by the cursor field and, once a state is saved, requests
 
 ```
-OR(DATETIME_DIFF({<cursor field>}, DATETIME_PARSE('<saved>'), 'milliseconds') >= 0,
-   AND({<cursor field>} = BLANK(), DATETIME_DIFF(CREATED_TIME(), DATETIME_PARSE('<saved>'), 'milliseconds') >= 0))
+IF({<cursor field>},
+   DATETIME_DIFF({<cursor field>}, DATETIME_PARSE('<saved>'), 'milliseconds') >= 0,
+   DATETIME_DIFF(CREATED_TIME(), DATETIME_PARSE('<saved>'), 'milliseconds') >= 0)
 ```
+
+The `IF` compares a blank cursor field by the record's creation time and never passes it to
+`DATETIME_DIFF`, so a blank value cannot turn the formula into an error that would exclude the record.
 
 - The filter uses `>=`, so the records at exactly the saved value are read again; deduplicate on
   `_airtable_id`.

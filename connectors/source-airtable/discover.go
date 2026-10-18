@@ -201,7 +201,7 @@ func (ts tableStream) stream() synclet.Stream {
 	for _, f := range ts.table.Fields {
 		if f.Type == lastModifiedTime {
 			s.SupportedSyncModes = append(s.SupportedSyncModes, synclet.SyncModeIncremental)
-			s.DefaultCursorField = []string{f.Name}
+			s.DefaultCursorField = []string{propertyName(f)}
 			break
 		}
 	}
@@ -219,7 +219,7 @@ func tableSchema(baseID string, t table) json.RawMessage {
 	for _, f := range t.Fields {
 		p := fieldSchema(f.Type, f.Options)
 		p[hintField] = f.ID
-		props[f.Name] = p
+		props[propertyName(f)] = p
 	}
 	b, err := json.Marshal(map[string]any{
 		"type":       "object",
@@ -231,6 +231,16 @@ func tableSchema(baseID string, t table) json.RawMessage {
 		panic(fmt.Sprintf("marshal schema of %s: %v", t.ID, err))
 	}
 	return b
+}
+
+// propertyName returns the record property of a field: its name, or
+// "<name> (<field id>)" for a field named like a record property of its
+// own.
+func propertyName(f field) string {
+	if f.Name == idProperty || f.Name == createdTimeProperty {
+		return f.Name + " (" + f.ID + ")"
+	}
+	return f.Name
 }
 
 func nullable(t string) map[string]any { return map[string]any{"type": []string{t, "null"}} }
