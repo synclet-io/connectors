@@ -29,26 +29,26 @@ func emittedStates(t *testing.T, out *bytes.Buffer) []synclet.StateMessage {
 func TestEmitStreamState(t *testing.T) {
 	var out bytes.Buffer
 	state := &IncrementalState{Phase: "incremental", CursorField: "updated_at", CursorValue: "2026-01-01T00:00:00Z", SnapshotDone: true}
-	require.NoError(t, emitStreamState(synclet.NewEmitter(&out), "users", state))
+	require.NoError(t, emitStreamState(synclet.NewEmitter(&out), streamDescriptor("shop", "users"), state))
 
 	states := emittedStates(t, &out)
 	require.Len(t, states, 1)
 	assert.Equal(t, synclet.StateTypeStream, states[0].Type)
-	assert.Equal(t, synclet.StreamDescriptor{Name: "users"}, states[0].Stream.StreamDescriptor)
+	assert.Equal(t, synclet.StreamDescriptor{Name: "users", Namespace: "shop"}, states[0].Stream.StreamDescriptor)
 	assert.JSONEq(t, `{"phase":"incremental","cursor_field":"updated_at","cursor_value":"2026-01-01T00:00:00Z","snapshot_done":true}`,
 		string(states[0].Stream.StreamState))
 }
 
 func TestStreamStateRoundTrip(t *testing.T) {
 	var out bytes.Buffer
-	require.NoError(t, emitStreamState(synclet.NewEmitter(&out), "users", &FullRefreshState{LastPKVals: map[string]any{"id": float64(7)}}))
+	require.NoError(t, emitStreamState(synclet.NewEmitter(&out), streamDescriptor("shop", "users"), &FullRefreshState{LastPKVals: map[string]any{"id": float64(7)}}))
 	states := emittedStates(t, &out)
 	saved, err := json.Marshal(states)
 	require.NoError(t, err)
 
 	prev, err := synclet.ParseInputState(saved)
 	require.NoError(t, err)
-	raw := prev.Stream(streamDescriptor("users"))
+	raw := savedStreamState(prev, streamDescriptor("shop", "users"))
 	require.NotNil(t, raw)
 
 	var got FullRefreshState
@@ -110,7 +110,7 @@ func TestEmitCDCState_IsGlobal(t *testing.T) {
 			"orders": {LastPKVals: map[string]any{"id": float64(42)}},
 		},
 	}
-	require.NoError(t, emitCDCState(synclet.NewEmitter(&out), state))
+	require.NoError(t, emitCDCState(synclet.NewEmitter(&out), "shop", state))
 
 	states := emittedStates(t, &out)
 	require.Len(t, states, 1)
@@ -119,9 +119,9 @@ func TestEmitCDCState_IsGlobal(t *testing.T) {
 	assert.JSONEq(t, `{"binlog_file":"mysql-bin.000007","binlog_pos":1234,"gtid_set":"uuid:1-5","snapshot_done":false}`,
 		string(states[0].Global.SharedState))
 	require.Len(t, states[0].Global.StreamStates, 2)
-	assert.Equal(t, streamDescriptor("orders"), states[0].Global.StreamStates[0].StreamDescriptor)
+	assert.Equal(t, streamDescriptor("shop", "orders"), states[0].Global.StreamStates[0].StreamDescriptor)
 	assert.JSONEq(t, `{"last_pk_vals":{"id":42},"done":false}`, string(states[0].Global.StreamStates[0].StreamState))
-	assert.Equal(t, streamDescriptor("users"), states[0].Global.StreamStates[1].StreamDescriptor)
+	assert.Equal(t, streamDescriptor("shop", "users"), states[0].Global.StreamStates[1].StreamDescriptor)
 	assert.JSONEq(t, `{"done":true}`, string(states[0].Global.StreamStates[1].StreamState))
 }
 
@@ -135,7 +135,7 @@ func TestCDCStateGlobalRoundTrip(t *testing.T) {
 			"users": {Done: true},
 		},
 	}
-	require.NoError(t, emitCDCState(synclet.NewEmitter(&out), want))
+	require.NoError(t, emitCDCState(synclet.NewEmitter(&out), "shop", want))
 	saved, err := json.Marshal(emittedStates(t, &out))
 	require.NoError(t, err)
 
@@ -146,4 +146,12 @@ func TestCDCStateGlobalRoundTrip(t *testing.T) {
 	got, err := loadCDCState(prev)
 	require.NoError(t, err)
 	assert.Equal(t, want, got)
+}
+
+func TestSavedStreamState_ReadsStateWithoutNamespace(t *testing.T) {
+	prev, err := synclet.ParseInputState([]byte(`[{"type":"STREAM","stream":{"stream_descriptor":{"name":"users"},"stream_state":{"done":true}}}]`))
+	require.NoError(t, err)
+
+	assert.JSONEq(t, `{"done":true}`, string(savedStreamState(prev, streamDescriptor("shop", "users"))))
+	assert.Nil(t, savedStreamState(prev, streamDescriptor("shop", "orders")))
 }

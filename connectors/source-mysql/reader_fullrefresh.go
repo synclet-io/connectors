@@ -53,7 +53,7 @@ func (r *FullRefreshReader) readWithoutPK(ctx context.Context, table TableInfo, 
 			return fmt.Errorf("scanning row: %w", err)
 		}
 
-		if err := r.em.Record(streamDescriptor(streamName), record); err != nil {
+		if err := r.em.Record(streamDescriptor(table.Schema, streamName), record); err != nil {
 			return fmt.Errorf("emitting record: %w", err)
 		}
 	}
@@ -104,7 +104,7 @@ func (r *FullRefreshReader) readWithPK(ctx context.Context, table TableInfo, col
 				return fmt.Errorf("scanning row: %w", err)
 			}
 
-			if err := r.em.Record(streamDescriptor(streamName), record); err != nil {
+			if err := r.em.Record(streamDescriptor(table.Schema, streamName), record); err != nil {
 				_ = rows.Close()
 				return fmt.Errorf("emitting record: %w", err)
 			}
@@ -122,7 +122,7 @@ func (r *FullRefreshReader) readWithPK(ctx context.Context, table TableInfo, col
 
 		if count == 0 {
 			// No more rows, emit final state
-			if err := emitStreamState(r.em, streamName, &FullRefreshState{Done: true}); err != nil {
+			if err := emitStreamState(r.em, streamDescriptor(table.Schema, streamName), &FullRefreshState{Done: true}); err != nil {
 				return fmt.Errorf("emitting final state: %w", err)
 			}
 			break
@@ -135,7 +135,7 @@ func (r *FullRefreshReader) readWithPK(ctx context.Context, table TableInfo, col
 		}
 
 		state := &FullRefreshState{LastPKVals: pkVals}
-		if err := emitStreamState(r.em, streamName, state); err != nil {
+		if err := emitStreamState(r.em, streamDescriptor(table.Schema, streamName), state); err != nil {
 			return fmt.Errorf("emitting state: %w", err)
 		}
 
@@ -147,7 +147,7 @@ func (r *FullRefreshReader) readWithPK(ctx context.Context, table TableInfo, col
 
 		if count < DefaultChunkSize {
 			// Last chunk
-			if err := emitStreamState(r.em, streamName, &FullRefreshState{Done: true}); err != nil {
+			if err := emitStreamState(r.em, streamDescriptor(table.Schema, streamName), &FullRefreshState{Done: true}); err != nil {
 				return fmt.Errorf("emitting final state: %w", err)
 			}
 			break

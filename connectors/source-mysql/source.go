@@ -274,7 +274,7 @@ func (s *MySQLSource) Read(
 				}
 			} else {
 				var prevFRState *FullRefreshState
-				if raw := prevState.Stream(streamDescriptor(streamName)); raw != nil {
+				if raw := savedStreamState(prevState, streamDescriptor(table.Schema, streamName)); raw != nil {
 					prevFRState = &FullRefreshState{}
 					parseStreamState(ctx, streamName, raw, prevFRState)
 				}
@@ -294,7 +294,7 @@ func (s *MySQLSource) Read(
 			}
 
 			var prevIncState *IncrementalState
-			if raw := prevState.Stream(streamDescriptor(streamName)); raw != nil {
+			if raw := savedStreamState(prevState, streamDescriptor(table.Schema, streamName)); raw != nil {
 				prevIncState = &IncrementalState{}
 				parseStreamState(ctx, streamName, raw, prevIncState)
 			}

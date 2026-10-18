@@ -91,7 +91,7 @@ func (r *PartitionedReader) readPartition(
 			return fmt.Errorf("scanning row: %w", err)
 		}
 
-		if err := r.em.Record(streamDescriptor(streamName), record); err != nil {
+		if err := r.em.Record(streamDescriptor(schema, streamName), record); err != nil {
 			return fmt.Errorf("emitting record: %w", err)
 		}
 	}

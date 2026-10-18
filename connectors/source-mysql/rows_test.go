@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"math"
 	"testing"
 	"time"
@@ -53,6 +54,8 @@ func TestConvertCDCValue(t *testing.T) {
 		{"bytes binary", []byte{0x01, 0x02, 0x03}, "blob", base64.StdEncoding.EncodeToString([]byte{0x01, 0x02, 0x03})},
 		{"time", time.Date(2024, 6, 15, 14, 30, 0, 0, time.UTC), "datetime", "2024-06-15T14:30:00Z"},
 		{"bool", true, "tinyint", true},
+		{"decimal", decimalString("50000.50"), "decimal", json.Number("50000.50")},
+		{"other type", decimalString("x"), "geometry", "x"},
 	}
 
 	for _, tt := range tests {
@@ -62,3 +65,8 @@ func TestConvertCDCValue(t *testing.T) {
 		})
 	}
 }
+
+// decimalString stands in for the decimal.Decimal values canal returns.
+type decimalString string
+
+func (d decimalString) String() string { return string(d) }

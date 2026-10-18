@@ -3,8 +3,10 @@ package main
 import (
 	"database/sql"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"math"
+	"strings"
 	"time"
 )
 
@@ -19,9 +21,17 @@ func scanRow(rows *sql.Rows, columns []string) (map[string]interface{}, error) {
 	if err := rows.Scan(ptrs...); err != nil {
 		return nil, fmt.Errorf("scanning row: %w", err)
 	}
+	types, err := rows.ColumnTypes()
+	if err != nil {
+		return nil, fmt.Errorf("reading column types: %w", err)
+	}
 
 	record := make(map[string]interface{}, len(columns))
 	for i, col := range columns {
+		if b, ok := values[i].([]byte); ok && i < len(types) && isDecimalType(types[i].DatabaseTypeName()) {
+			record[col] = json.Number(b)
+			continue
+		}
 		record[col] = convertSQLValue(values[i])
 	}
 	return record, nil
@@ -105,7 +115,20 @@ func convertCDCValue(v interface{}, dataType string) interface{} {
 	case string:
 		return val
 	default:
-		// decimal.Decimal and other types — use string representation.
+		if isDecimalType(dataType) {
+			return json.Number(fmt.Sprintf("%v", val))
+		}
 		return fmt.Sprintf("%v", val)
+	}
+}
+
+// isDecimalType reports whether a MySQL type name is DECIMAL or NUMERIC, whose
+// values are emitted as exact JSON numbers to match their number schema.
+func isDecimalType(typeName string) bool {
+	switch strings.ToLower(typeName) {
+	case "decimal", "numeric":
+		return true
+	default:
+		return false
 	}
 }

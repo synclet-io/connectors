@@ -39,10 +39,19 @@ type CDCStreamSnapshotState struct {
 	Done       bool                   `json:"done"`
 }
 
-// streamDescriptor identifies a table's stream in records and state messages:
-// the table name, without the database as namespace.
-func streamDescriptor(table string) synclet.StreamDescriptor {
-	return synclet.StreamDescriptor{Name: table}
+// streamDescriptor identifies a table's stream in records and state
+// messages: the table name, with its database as namespace.
+func streamDescriptor(database, table string) synclet.StreamDescriptor {
+	return synclet.StreamDescriptor{Name: table, Namespace: database}
+}
+
+// savedStreamState returns the saved state of a stream, falling back to an
+// entry without namespace as written by 0.1.x of this connector.
+func savedStreamState(prev *synclet.InputState, desc synclet.StreamDescriptor) json.RawMessage {
+	if raw := prev.Stream(desc); raw != nil {
+		return raw
+	}
+	return prev.Stream(synclet.StreamDescriptor{Name: desc.Name})
 }
 
 // parseStreamState decodes a stream's saved state into target. A state that
@@ -101,16 +110,17 @@ func loadCDCState(prev *synclet.InputState) (*CDCState, error) {
 }
 
 // emitStreamState emits a per-stream state checkpoint.
-func emitStreamState(em *synclet.Emitter, streamName string, state any) error {
-	return em.StreamState(streamDescriptor(streamName), state)
+func emitStreamState(em *synclet.Emitter, desc synclet.StreamDescriptor, state any) error {
+	return em.StreamState(desc, state)
 }
 
 // emitCDCState emits a GLOBAL CDC state checkpoint: the binlog position as
-// shared state and each stream's snapshot progress as its stream state.
-func emitCDCState(em *synclet.Emitter, state *CDCState) error {
+// shared state and the snapshot progress of each stream of database as its
+// stream state.
+func emitCDCState(em *synclet.Emitter, database string, state *CDCState) error {
 	streams := make(map[synclet.StreamDescriptor]any, len(state.SnapshotStreams))
 	for name, ss := range state.SnapshotStreams {
-		streams[streamDescriptor(name)] = ss
+		streams[streamDescriptor(database, name)] = ss
 	}
 	return em.GlobalState(cdcSharedState{
 		BinlogFile:   state.BinlogFile,

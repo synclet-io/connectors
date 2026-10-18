@@ -6,7 +6,7 @@ require (
 	github.com/go-mysql-org/go-mysql v1.14.0
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/stretchr/testify v1.11.1
-	github.com/synclet-io/synclet-go-sdk v0.2.0
+	github.com/synclet-io/synclet-go-sdk v0.3.0
 	github.com/testcontainers/testcontainers-go/modules/mysql v0.44.0
 	go.uber.org/multierr v1.11.0
 	golang.org/x/crypto v0.54.0
@@ -57,6 +57,7 @@ require (
 	github.com/pingcap/tidb/pkg/parser v0.0.0-20260219190905-9b9281fa8d6d // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55 // indirect
+	github.com/santhosh-tekuri/jsonschema/v6 v6.0.2 // indirect
 	github.com/shirou/gopsutil/v4 v4.26.6 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/sirupsen/logrus v1.9.4 // indirect

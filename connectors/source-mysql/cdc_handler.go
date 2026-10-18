@@ -16,6 +16,7 @@ type cdcHandler struct {
 	canal.DummyEventHandler
 
 	em                 *synclet.Emitter
+	namespace          string // database of every stream
 	state              *CDCState
 	streams            map[string]TableInfo // stream name -> table info
 	checkpointInterval time.Duration
@@ -25,9 +26,10 @@ type cdcHandler struct {
 }
 
 // newCDCHandler creates a new CDC event handler.
-func newCDCHandler(em *synclet.Emitter, state *CDCState, streams map[string]TableInfo, checkpointInterval time.Duration) *cdcHandler {
+func newCDCHandler(em *synclet.Emitter, namespace string, state *CDCState, streams map[string]TableInfo, checkpointInterval time.Duration) *cdcHandler {
 	return &cdcHandler{
 		em:                 em,
+		namespace:          namespace,
 		state:              state,
 		streams:            streams,
 		checkpointInterval: checkpointInterval,
@@ -55,7 +57,7 @@ func (h *cdcHandler) OnRow(e *canal.RowsEvent) error {
 			record["_ab_cdc_log_file"] = h.state.BinlogFile
 			record["_ab_cdc_log_pos"] = h.state.BinlogPos
 
-			if err := h.em.Record(streamDescriptor(tableName), record); err != nil {
+			if err := h.em.Record(streamDescriptor(tableInfo.Schema, tableName), record); err != nil {
 				return fmt.Errorf("emitting insert record: %w", err)
 			}
 		}
@@ -70,7 +72,7 @@ func (h *cdcHandler) OnRow(e *canal.RowsEvent) error {
 			record["_ab_cdc_log_file"] = h.state.BinlogFile
 			record["_ab_cdc_log_pos"] = h.state.BinlogPos
 
-			if err := h.em.Record(streamDescriptor(tableName), record); err != nil {
+			if err := h.em.Record(streamDescriptor(tableInfo.Schema, tableName), record); err != nil {
 				return fmt.Errorf("emitting update record: %w", err)
 			}
 		}
@@ -83,7 +85,7 @@ func (h *cdcHandler) OnRow(e *canal.RowsEvent) error {
 			record["_ab_cdc_log_file"] = h.state.BinlogFile
 			record["_ab_cdc_log_pos"] = h.state.BinlogPos
 
-			if err := h.em.Record(streamDescriptor(tableName), record); err != nil {
+			if err := h.em.Record(streamDescriptor(tableInfo.Schema, tableName), record); err != nil {
 				return fmt.Errorf("emitting delete record: %w", err)
 			}
 		}
@@ -106,7 +108,7 @@ func (h *cdcHandler) OnPosSynced(header *replication.EventHeader, pos mysql.Posi
 
 	if force || time.Since(h.lastCheckpoint) >= h.checkpointInterval {
 		h.lastCheckpoint = time.Now()
-		return emitCDCState(h.em, h.state)
+		return emitCDCState(h.em, h.namespace, h.state)
 	}
 
 	return nil

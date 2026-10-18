@@ -100,7 +100,7 @@ func (r *IncrementalReader) runSnapshot(ctx context.Context, table TableInfo, co
 				return fmt.Errorf("scanning row: %w", err)
 			}
 
-			if err := r.em.Record(streamDescriptor(streamName), record); err != nil {
+			if err := r.em.Record(streamDescriptor(table.Schema, streamName), record); err != nil {
 				_ = rows.Close()
 
 				return fmt.Errorf("emitting record: %w", err)
@@ -129,7 +129,7 @@ func (r *IncrementalReader) runSnapshot(ctx context.Context, table TableInfo, co
 		}
 		state.SnapshotLastPK = pkVals
 
-		if err := emitStreamState(r.em, streamName, state); err != nil {
+		if err := emitStreamState(r.em, streamDescriptor(table.Schema, streamName), state); err != nil {
 			return fmt.Errorf("emitting snapshot state: %w", err)
 		}
 
@@ -144,7 +144,7 @@ func (r *IncrementalReader) runSnapshot(ctx context.Context, table TableInfo, co
 	state.CursorValue = state.MaxCursorValue
 	state.SnapshotLastPK = nil
 
-	if err := emitStreamState(r.em, streamName, state); err != nil {
+	if err := emitStreamState(r.em, streamDescriptor(table.Schema, streamName), state); err != nil {
 		return fmt.Errorf("emitting cursor state: %w", err)
 	}
 
@@ -175,7 +175,7 @@ func (r *IncrementalReader) readCursorPhase(ctx context.Context, table TableInfo
 				return fmt.Errorf("scanning row: %w", err)
 			}
 
-			if err := r.em.Record(streamDescriptor(streamName), record); err != nil {
+			if err := r.em.Record(streamDescriptor(table.Schema, streamName), record); err != nil {
 				_ = rows.Close()
 				return fmt.Errorf("emitting record: %w", err)
 			}
@@ -204,7 +204,7 @@ func (r *IncrementalReader) readCursorPhase(ctx context.Context, table TableInfo
 			SnapshotDone: true,
 		}
 
-		if err := emitStreamState(r.em, streamName, state); err != nil {
+		if err := emitStreamState(r.em, streamDescriptor(table.Schema, streamName), state); err != nil {
 			return fmt.Errorf("emitting cursor state: %w", err)
 		}
 

@@ -291,12 +291,14 @@ func TestIntegrationFullRefreshRead(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	assert.Equal(t, []string{"Alice", "Bob", "Charlie"}, names(records(t, msgs)))
+	recs := records(t, msgs)
+	assert.Equal(t, []string{"Alice", "Bob", "Charlie"}, names(recs))
+	assert.Equal(t, float64(50000.50), recs[0]["salary"], "DECIMAL is a JSON number")
 	sts := states(msgs)
 	require.NotEmpty(t, sts)
 	last := sts[len(sts)-1]
 	assert.Equal(t, synclet.StateTypeStream, last.Type)
-	assert.Equal(t, streamDescriptor("fr_users"), last.Stream.StreamDescriptor)
+	assert.Equal(t, streamDescriptor(testDB, "fr_users"), last.Stream.StreamDescriptor)
 	assert.JSONEq(t, `{"done":true}`, string(last.Stream.StreamState))
 }
 
@@ -419,7 +421,7 @@ func TestIntegrationCDCRead(t *testing.T) {
 	for _, st := range sts {
 		require.Equal(t, synclet.StateTypeGlobal, st.Type)
 		require.Len(t, st.Global.StreamStates, 1)
-		assert.Equal(t, streamDescriptor("cdc_users"), st.Global.StreamStates[0].StreamDescriptor)
+		assert.Equal(t, streamDescriptor(testDB, "cdc_users"), st.Global.StreamStates[0].StreamDescriptor)
 	}
 	var shared cdcSharedState
 	require.NoError(t, json.Unmarshal(sts[len(sts)-1].Global.SharedState, &shared))

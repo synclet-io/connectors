@@ -84,13 +84,13 @@ func (r *CDCReader) runInitialSnapshot(ctx context.Context, tables []TableInfo, 
 		}
 
 		ss.Done = true
-		if err := emitCDCState(r.em, state); err != nil {
+		if err := emitCDCState(r.em, r.cfg.Database, state); err != nil {
 			return fmt.Errorf("emitting state after table snapshot: %w", err)
 		}
 	}
 
 	state.SnapshotDone = true
-	return emitCDCState(r.em, state)
+	return emitCDCState(r.em, r.cfg.Database, state)
 }
 
 // snapshotTable reads all rows from a table for the CDC initial snapshot.
@@ -140,7 +140,7 @@ func (r *CDCReader) snapshotTable(ctx context.Context, table TableInfo, ss *CDCS
 			record["_ab_cdc_log_file"] = cdcState.BinlogFile
 			record["_ab_cdc_log_pos"] = cdcState.BinlogPos
 
-			if err := r.em.Record(streamDescriptor(streamName), record); err != nil {
+			if err := r.em.Record(streamDescriptor(table.Schema, streamName), record); err != nil {
 				_ = rows.Close()
 				return fmt.Errorf("emitting record: %w", err)
 			}
@@ -167,7 +167,7 @@ func (r *CDCReader) snapshotTable(ctx context.Context, table TableInfo, ss *CDCS
 		}
 		ss.LastPKVals = pkVals
 
-		if err := emitCDCState(r.em, cdcState); err != nil {
+		if err := emitCDCState(r.em, r.cfg.Database, cdcState); err != nil {
 			return fmt.Errorf("emitting state: %w", err)
 		}
 
@@ -213,7 +213,7 @@ func (r *CDCReader) streamBinlog(ctx context.Context, streams map[string]TableIn
 		checkpointInterval = DefaultCheckpointInterval
 	}
 
-	handler := newCDCHandler(r.em, state, streams, checkpointInterval)
+	handler := newCDCHandler(r.em, r.cfg.Database, state, streams, checkpointInterval)
 	c.SetEventHandler(handler)
 
 	// Start canal in a goroutine and watch for context cancellation
@@ -233,7 +233,7 @@ func (r *CDCReader) streamBinlog(ctx context.Context, streams map[string]TableIn
 		// Drain the error channel
 		<-errCh
 		// Emit final state checkpoint
-		return emitCDCState(r.em, state)
+		return emitCDCState(r.em, r.cfg.Database, state)
 	case err := <-errCh:
 		if err != nil {
 			return fmt.Errorf("canal error: %w", err)
