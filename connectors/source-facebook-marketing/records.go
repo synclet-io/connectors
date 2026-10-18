@@ -82,14 +82,43 @@ func numberText(v any) (string, bool) {
 	return "", false
 }
 
-// parseAmount reads a formatted money amount such as "1,234.50", "1234,50"
-// or "1 234,50" as a decimal number.
+// parseAmount reads a formatted money amount such as "1,234.50", "1234,50",
+// "1.234,50" or "1 234,50" as a decimal number. With both separators the
+// last one is the decimal point; a lone comma followed by exactly three
+// digits, or a separator that repeats, groups thousands, and every group
+// after the first must then have three digits.
 func parseAmount(s string) (json.Number, bool) {
-	s = strings.NewReplacer(" ", "", " ", "").Replace(strings.TrimSpace(s))
-	if strings.Contains(s, ".") {
-		s = strings.ReplaceAll(s, ",", "")
-	} else {
-		s = strings.ReplaceAll(s, ",", ".")
+	s = strings.NewReplacer(" ", "", "\u00a0", "").Replace(strings.TrimSpace(s))
+	comma, dot := strings.LastIndex(s, ","), strings.LastIndex(s, ".")
+	var group, decimal string
+	switch {
+	case comma >= 0 && dot >= 0 && comma > dot:
+		group, decimal = ".", ","
+	case comma >= 0 && dot >= 0:
+		group, decimal = ",", "."
+	case comma >= 0 && (strings.Count(s, ",") > 1 || len(s)-comma-1 == 3):
+		group = ","
+	case comma >= 0:
+		decimal = ","
+	case strings.Count(s, ".") > 1:
+		group = "."
+	}
+	whole, frac, hasFrac := s, "", false
+	if decimal != "" {
+		whole, frac, hasFrac = strings.Cut(s, decimal)
+	}
+	if group != "" && strings.Contains(whole, group) {
+		parts := strings.Split(whole, group)
+		for i, p := range parts {
+			if p == "" || len(p) > 3 || (i > 0 && len(p) != 3) {
+				return "", false
+			}
+		}
+		whole = strings.Join(parts, "")
+	}
+	s = whole
+	if hasFrac {
+		s += "." + frac
 	}
 	if _, err := strconv.ParseFloat(s, 64); err != nil || s == "" {
 		return "", false

@@ -35,8 +35,10 @@ every few months and retires each about two years later; bump the constant and r
 `missing ads_read permission` unless `ads_read` is granted) and every ad account (fails with
 `ad account act_<id> not accessible` for an unknown account or one the token cannot read).
 
-A proxy host in `graph_api_base_url` is not in the image's `allowed_hosts` (`graph.facebook.com`); a
-platform that enforces it must allow the proxy host.
+`meta.json` lists only `graph.facebook.com` in `allowed_hosts`: the field takes literal host names
+and has no way to name a host taken from the configuration, so a proxy in `graph_api_base_url` is not
+in it. Synclet records the list but does not enforce it; a platform that does must allow the proxy
+host itself.
 
 ## Streams
 
@@ -67,7 +69,7 @@ arrays `actions`, `cost_per_thruplay`, `unique_outbound_clicks` and the video wa
 Numbers the API sends as strings are emitted as JSON numbers, and Graph times
 (`2026-10-01T08:30:00+0000`) as RFC 3339. `business_extended_credits` flattens each amount
 (`balance`, `credit_available`, `online_max_balance`, `max_balance`, `allocated_amount`) into
-`<name>_amount` (a number; a comma decimal separator is accepted), `<name>_currency`,
+`<name>_amount` (a number; `1,234.50`, `1.234,50`, `1234,50` and `1 234,50` are all read), `<name>_currency`,
 `<name>_amount_in_hundredths` and `<name>_offsetted_amount`; `date_created` is the time of the read.
 Lists are paged 500 at a time by `paging.cursors.after`. The entity streams read everything on each
 sync: filtering by `updated_time` would miss deleted objects.

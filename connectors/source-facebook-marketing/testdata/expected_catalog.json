@@ -662,93 +662,123 @@
       ],
       "properties": {
         "allocated_amount_amount": {
+          "description": "Credit granted from this line to other businesses, as a decimal number.",
           "type": "number"
         },
         "allocated_amount_amount_in_hundredths": {
+          "description": "Credit granted from this line to other businesses, in hundredths of the currency unit.",
           "type": "string"
         },
         "allocated_amount_currency": {
+          "description": "Credit granted from this line to other businesses: ISO 4217 currency code.",
           "type": "string"
         },
         "allocated_amount_offsetted_amount": {
+          "description": "Credit granted from this line to other businesses, in the currency's smallest unit.",
           "type": "string"
         },
         "balance_amount": {
+          "description": "Amount spent on the credit line by the business and its child ad accounts, as a decimal number.",
           "type": "number"
         },
         "balance_amount_in_hundredths": {
+          "description": "Amount spent on the credit line by the business and its child ad accounts, in hundredths of the currency unit.",
           "type": "string"
         },
         "balance_currency": {
+          "description": "Amount spent on the credit line by the business and its child ad accounts: ISO 4217 currency code.",
           "type": "string"
         },
         "balance_offsetted_amount": {
+          "description": "Amount spent on the credit line by the business and its child ad accounts, in the currency's smallest unit.",
           "type": "string"
         },
         "credit_available_amount": {
+          "description": "Credit still available to the business, as a decimal number.",
           "type": "number"
         },
         "credit_available_amount_in_hundredths": {
+          "description": "Credit still available to the business, in hundredths of the currency unit.",
           "type": "string"
         },
         "credit_available_currency": {
+          "description": "Credit still available to the business: ISO 4217 currency code.",
           "type": "string"
         },
         "credit_available_offsetted_amount": {
+          "description": "Credit still available to the business, in the currency's smallest unit.",
           "type": "string"
         },
         "credit_type": {
+          "description": "Kind of extended credit, such as ADS_BUSINESS or ADS_SEQUENTIAL.",
           "type": "string"
         },
         "date_created": {
+          "description": "Time of the read that emitted the record, RFC 3339.",
           "type": "string"
         },
         "id": {
+          "description": "ID of the extended credit line.",
           "type": "string"
         },
         "is_access_revoked": {
+          "description": "Whether the owner revoked access to a credit line shared earlier.",
           "type": "boolean"
         },
         "is_automated_experience": {
+          "description": "Whether the credit line uses the fully automated experience.",
           "type": "boolean"
         },
         "legal_entity_name": {
+          "description": "Legal entity that owns the credit line.",
           "type": "string"
         },
         "liable_biz_name": {
+          "description": "Business liable for payment when the line is the payment method.",
           "type": "string"
         },
         "max_balance_amount": {
+          "description": "Credit limit available to this business, as a decimal number.",
           "type": "number"
         },
         "max_balance_amount_in_hundredths": {
+          "description": "Credit limit available to this business, in hundredths of the currency unit.",
           "type": "string"
         },
         "max_balance_currency": {
+          "description": "Credit limit available to this business: ISO 4217 currency code.",
           "type": "string"
         },
         "max_balance_offsetted_amount": {
+          "description": "Credit limit available to this business, in the currency's smallest unit.",
           "type": "string"
         },
         "online_max_balance_amount": {
+          "description": "Raw credit limit of the whole business, as a decimal number.",
           "type": "number"
         },
         "online_max_balance_amount_in_hundredths": {
+          "description": "Raw credit limit of the whole business, in hundredths of the currency unit.",
           "type": "string"
         },
         "online_max_balance_currency": {
+          "description": "Raw credit limit of the whole business: ISO 4217 currency code.",
           "type": "string"
         },
         "online_max_balance_offsetted_amount": {
+          "description": "Raw credit limit of the whole business, in the currency's smallest unit.",
           "type": "string"
         },
         "owner_business_id": {
+          "description": "ID of the business responsible for paying the credit line.",
           "type": "string"
         },
         "owner_business_name": {
+          "description": "Name of the business responsible for paying the credit line.",
           "type": "string"
         },
         "send_bill_to_biz_name": {
+          "description": "Business billed when the line is the payment method.",
           "type": "string"
         }
       },

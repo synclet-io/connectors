@@ -118,6 +118,7 @@ func TestReadBusinessCredits(t *testing.T) {
 func TestParseAmount(t *testing.T) {
 	for in, want := range map[string]string{
 		"1,500.00": "1500.00", "3500,00": "3500.00", "5 000,00": "5000.00", "5 000,00": "5000.00", "12": "12",
+		"1,234": "1234", "1,234,567.89": "1234567.89", "1.234,56": "1234.56", "1,5": "1.5",
 	} {
 		got, ok := parseAmount(in)
 		assert.True(t, ok, in)

@@ -43,6 +43,7 @@ type field struct {
 	name   string
 	typ    synclet.PropType
 	format synclet.FormatType
+	desc   string
 }
 
 // streamDef describes one stream and how it is read.
@@ -76,7 +77,7 @@ func (d streamDef) requestFields() []string {
 func (d streamDef) stream() synclet.Stream {
 	props := map[synclet.PropertyName]synclet.PropertySpec{}
 	for _, f := range d.fields {
-		props[synclet.PropertyName(f.name)] = synclet.PropertySpec{PropertyType: typed(f.typ), Format: f.format}
+		props[synclet.PropertyName(f.name)] = synclet.PropertySpec{Description: f.desc, PropertyType: typed(f.typ), Format: f.format}
 	}
 	s := synclet.Stream{
 		Name:                    d.name,
@@ -140,15 +141,51 @@ func adInsights(name string, breakdowns ...string) streamDef {
 // each becomes four flat fields.
 var creditAmountPrefixes = []string{"balance", "credit_available", "online_max_balance", "max_balance", "allocated_amount"}
 
+// creditAmountMeanings say what each CurrencyAmount of an extended credit is.
+var creditAmountMeanings = map[string]string{
+	"balance":            "Amount spent on the credit line by the business and its child ad accounts",
+	"credit_available":   "Credit still available to the business",
+	"online_max_balance": "Raw credit limit of the whole business",
+	"max_balance":        "Credit limit available to this business",
+	"allocated_amount":   "Credit granted from this line to other businesses",
+}
+
+// creditFieldDescriptions describe the flat fields of an extended credit
+// that are not amounts.
+var creditFieldDescriptions = map[string]string{
+	"id":                      "ID of the extended credit line.",
+	"credit_type":             "Kind of extended credit, such as ADS_BUSINESS or ADS_SEQUENTIAL.",
+	"legal_entity_name":       "Legal entity that owns the credit line.",
+	"liable_biz_name":         "Business liable for payment when the line is the payment method.",
+	"owner_business_id":       "ID of the business responsible for paying the credit line.",
+	"owner_business_name":     "Name of the business responsible for paying the credit line.",
+	"send_bill_to_biz_name":   "Business billed when the line is the payment method.",
+	"date_created":            "Time of the read that emitted the record, RFC 3339.",
+	"is_automated_experience": "Whether the credit line uses the fully automated experience.",
+	"is_access_revoked":       "Whether the owner revoked access to a credit line shared earlier.",
+}
+
 func creditFields() []field {
 	var fs []field
 	for _, p := range creditAmountPrefixes {
-		fs = append(fs, field{name: p + "_amount", typ: synclet.Number})
-		fs = append(fs, fields(synclet.String, p+"_currency", p+"_amount_in_hundredths", p+"_offsetted_amount")...)
+		m := creditAmountMeanings[p]
+		fs = append(fs,
+			field{name: p + "_amount", typ: synclet.Number, desc: m + ", as a decimal number."},
+			field{name: p + "_currency", typ: synclet.String, desc: m + ": ISO 4217 currency code."},
+			field{name: p + "_amount_in_hundredths", typ: synclet.String, desc: m + ", in hundredths of the currency unit."},
+			field{name: p + "_offsetted_amount", typ: synclet.String, desc: m + ", in the currency's smallest unit."},
+		)
 	}
-	fs = append(fs, fields(synclet.String, "credit_type", "legal_entity_name", "liable_biz_name", "owner_business_id",
-		"owner_business_name", "send_bill_to_biz_name", "id", "date_created")...)
-	return append(fs, fields(boolean, "is_automated_experience", "is_access_revoked")...)
+	plain := concat(
+		fields(synclet.String, "credit_type", "legal_entity_name", "liable_biz_name", "owner_business_id",
+			"owner_business_name", "send_bill_to_biz_name", "id", "date_created"),
+		fields(boolean, "is_automated_experience", "is_access_revoked"),
+	)
+	for _, f := range plain {
+		f.desc = creditFieldDescriptions[f.name]
+		fs = append(fs, f)
+	}
+	return fs
 }
 
 func edge(name, edge string, fs ...[]field) streamDef {

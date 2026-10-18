@@ -22,8 +22,9 @@ type parityStream struct {
 }
 
 type parityProp struct {
-	Type   string `json:"type"`
-	Format string `json:"format,omitempty"`
+	Type        string `json:"type"`
+	Format      string `json:"format,omitempty"`
+	Description string `json:"description,omitempty"`
 }
 
 func toParity(t *testing.T, s synclet.Stream) parityStream {
