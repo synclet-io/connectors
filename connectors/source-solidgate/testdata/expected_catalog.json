@@ -18,6 +18,7 @@
       "cursor": [
         "updated_at"
       ],
+      "additional_properties": null,
       "properties": {
         "id": {
           "type": "string"
@@ -133,6 +134,7 @@
       "cursor": [
         "updated_at"
       ],
+      "additional_properties": null,
       "properties": {
         "id": {
           "type": "string"
@@ -178,7 +180,80 @@
           "type": [
             "null",
             "array"
-          ]
+          ],
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "status": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "created_at": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "processed_at": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "amount": {
+                "type": [
+                  "null",
+                  "integer"
+                ]
+              },
+              "operation": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "retry_attempt": {
+                "type": [
+                  "null",
+                  "integer"
+                ]
+              },
+              "payment_details": {
+                "type": [
+                  "null",
+                  "object"
+                ],
+                "properties": {
+                  "invoice_id": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "payer_email": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "retry_attempt": {
+                    "type": [
+                      "null",
+                      "integer"
+                    ]
+                  }
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -197,6 +272,7 @@
         ]
       ],
       "cursor": [],
+      "additional_properties": null,
       "properties": {
         "id": {
           "type": "string"
@@ -277,6 +353,7 @@
       "cursor": [
         "updated_at"
       ],
+      "additional_properties": null,
       "properties": {
         "id": {
           "type": "string"
@@ -395,19 +472,219 @@
           "type": [
             "null",
             "object"
-          ]
+          ],
+          "properties": {
+            "cascade_steps": {
+              "type": [
+                "null",
+                "array"
+              ],
+              "items": {
+                "type": "object",
+                "properties": {
+                  "mid": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "mid_descriptor": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "route_id": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "cascade_number": {
+                    "type": [
+                      "null",
+                      "integer"
+                    ]
+                  },
+                  "segment_id": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "connector_account_id": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  }
+                }
+              }
+            }
+          }
         },
         "transactions": {
           "type": [
             "null",
             "array"
-          ]
+          ],
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "created_at": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "updated_at": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "amount": {
+                "type": [
+                  "null",
+                  "integer"
+                ]
+              },
+              "currency": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "operation": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "status": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "authorization_type": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "original_payment_method": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "descriptor": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "refund_reason": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "refund_reason_code": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "card": {
+                "type": [
+                  "null",
+                  "object"
+                ],
+                "properties": {
+                  "bank": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "bin": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "brand": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "card_exp_month": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "card_exp_year": {
+                    "type": [
+                      "null",
+                      "integer"
+                    ]
+                  },
+                  "card_holder": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "card_type": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "card_id": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "country": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "number": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  }
+                }
+              }
+            }
+          }
         },
         "order_metadata": {
           "type": [
             "null",
             "object"
-          ]
+          ],
+          "additionalProperties": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
         }
       }
     },
@@ -429,6 +706,7 @@
       "cursor": [
         "updated_at"
       ],
+      "additional_properties": null,
       "properties": {
         "id": {
           "type": "string"
@@ -502,13 +780,78 @@
           "type": [
             "null",
             "array"
-          ]
+          ],
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "psp_transaction_id": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "created_at": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "updated_at": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "method": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "amount": {
+                "type": [
+                  "null",
+                  "integer"
+                ]
+              },
+              "currency": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "status": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "type": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              }
+            }
+          }
         },
         "order_metadata": {
           "type": [
             "null",
             "object"
-          ]
+          ],
+          "additionalProperties": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
         }
       }
     },
@@ -530,6 +873,7 @@
       "cursor": [
         "updated_at"
       ],
+      "additional_properties": null,
       "properties": {
         "id": {
           "type": "string"
@@ -599,7 +943,90 @@
           "type": [
             "null",
             "array"
-          ]
+          ],
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "date": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "created_at": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "updated_at": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "settlement_date": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "deadline_date": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "amount": {
+                "type": [
+                  "null",
+                  "integer"
+                ]
+              },
+              "dispute_amount": {
+                "type": [
+                  "null",
+                  "integer"
+                ]
+              },
+              "currency": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "type": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "status": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "represented_by": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "arn_code": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              }
+            }
+          }
         }
       }
     },
@@ -621,6 +1048,7 @@
       "cursor": [
         "updated_at"
       ],
+      "additional_properties": null,
       "properties": {
         "id": {
           "type": "string"
@@ -725,6 +1153,7 @@
       "cursor": [
         "updated_at"
       ],
+      "additional_properties": null,
       "properties": {
         "id": {
           "type": [
@@ -815,6 +1244,7 @@
       "cursor": [
         "created_at"
       ],
+      "additional_properties": true,
       "properties": {
         "id": {
           "type": [

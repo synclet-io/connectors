@@ -130,7 +130,7 @@ connector sends at most 10 per second per account.
 ## Differences from the earlier private connector
 
 This connector replaces an earlier private Airbyte connector; its stream names, keys, cursors, fields
-and their types are kept (`TestCatalogParity` pins them against `testdata/expected_catalog.json`). It
+and their schemas are kept (`TestCatalogParity` pins them against `testdata/expected_catalog.json`). It
 differs in:
 
 - configuration: `accounts[]` with `name`, `public_key` and `secret_key`; `start_date` is optional
@@ -138,13 +138,17 @@ differs in:
 - `lookback_days` (default 2) replaces `sync_last_days`: an incremental read restarts from the
   saved cursor minus the lookback;
 - state is the greatest cursor per account, not the set of handled days;
-- report timestamps carry `+00:00` (their schema is `format: date-time` without an airbyte_type,
-  which JSON Schema and the SDK conformance suite read as a timestamp with a zone); the
-  `financial_entries` timestamps are emitted as before;
-- `financial_entries` emits schema columns only;
+- report-stream timestamp values gain an explicit UTC offset (`2026-10-16T10:00:00+00:00` where the
+  earlier connector emitted `2026-10-16T10:00:00`); their schema is unchanged (`format: date-time`,
+  no airbyte_type), and the `financial_entries` timestamps are emitted as before;
+- `financial_entries` emits schema columns only; CSV columns the schema does not list are dropped,
+  although its schema keeps `additionalProperties: true`;
+- `subscription_invoices` can emit invoices whose `updated_at` is older than the saved cursor, as the
+  earlier connector did; the conformance test declares this with a `Lookback` without a lower bound
+  for that stream (see [Incremental sync](#incremental-sync));
 - report requests send `filter: updated_at` explicitly;
 - the auth headers are lowercase `merchant` and `signature`;
-- field descriptions are left out of the stream schemas.
+- field descriptions are left out of the stream schemas, nested ones included.
 
 ## Tests
 

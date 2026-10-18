@@ -11,8 +11,12 @@ import (
 	synclet "github.com/synclet-io/synclet-go-sdk"
 )
 
-// productsPageSize is the page size of the products list.
-const productsPageSize = 100
+const (
+	// productsPageSize is the page size of the products list.
+	productsPageSize = 100
+	// maxProductPages stops a products listing that never comes back empty.
+	maxProductPages = 1000
+)
 
 func (s Source) clock() time.Time {
 	if s.now != nil {
@@ -68,11 +72,17 @@ func (s Source) Read(ctx context.Context, cfg Config, catalog *synclet.Configure
 
 // readProducts lists the products of every account page by page until a
 // page comes back empty; the offset advances by the products received, so a
-// smaller page size enforced by the API skips nothing.
+// smaller page size enforced by the API skips nothing. A page that repeats
+// the ids of the page before it, or more than maxProductPages pages, fails
+// the read: the API then ignores the offset and the listing would not end.
 func (s Source) readProducts(ctx context.Context, cfg Config, d streamDef, desc synclet.StreamDescriptor, em *synclet.Emitter) error {
 	for _, a := range cfg.Accounts {
 		c := s.apiClient(a)
-		for offset := 0; ; {
+		var prevIDs string
+		for offset, pages := 0, 0; ; pages++ {
+			if pages == maxProductPages {
+				return fmt.Errorf("%s: account %q: still listing after %d pages", d.name, a.Name, maxProductPages)
+			}
 			q := url.Values{}
 			q.Set("pagination[limit]", strconv.Itoa(productsPageSize))
 			q.Set("pagination[offset]", strconv.Itoa(offset))
@@ -86,6 +96,11 @@ func (s Source) readProducts(ctx context.Context, cfg Config, d streamDef, desc 
 			if err != nil {
 				return fmt.Errorf("%s: account %q: %w", d.name, a.Name, err)
 			}
+			ids := fmt.Sprint(lookupAll(objs, "id"))
+			if len(objs) > 0 && ids == prevIDs {
+				return fmt.Errorf("%s: account %q: the page at offset %d repeats the previous page; the API ignores pagination[offset]", d.name, a.Name, offset)
+			}
+			prevIDs = ids
 			for _, obj := range objs {
 				rec, err := record(d.fields, obj, a.Name)
 				if err != nil {
@@ -102,4 +117,13 @@ func (s Source) readProducts(ctx context.Context, cfg Config, d streamDef, desc 
 		}
 	}
 	return nil
+}
+
+// lookupAll returns the value at path of every object.
+func lookupAll(objs []map[string]any, path string) []any {
+	vals := make([]any, len(objs))
+	for i, o := range objs {
+		vals[i] = lookup(o, path)
+	}
+	return vals
 }

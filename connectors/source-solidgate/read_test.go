@@ -2,6 +2,9 @@ package main
 
 import (
 	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"sync/atomic"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -169,6 +172,33 @@ func TestReadProductsPaging(t *testing.T) {
 	src := testSource(srv)
 	runRead(t, src, configured(t, src, synclet.SyncModeFullRefresh, streamProducts), nil)
 	assert.Equal(t, []string{"products 0", "products 2"}, h.list())
+}
+
+func TestReadProductsStopsOnRepeatedPage(t *testing.T) {
+	srv, h := fixtureServer(t, map[string][]fixture{"products 2": {{status: 200, file: "products/offset_0.json"}}})
+	src := testSource(srv)
+	out := runReadConfig(t, src, testConfig, configured(t, src, synclet.SyncModeFullRefresh, streamProducts), nil)
+	require.ErrorContains(t, out.Err, `products: account "acme_test": the page at offset 2 repeats the previous page; the API ignores pagination[offset]`)
+	assert.Equal(t, []string{"products 0", "products 2"}, h.list())
+	assert.Len(t, out.Records(synclet.StreamDescriptor{Name: streamProducts}), 2, "the repeated page is not emitted")
+}
+
+func TestReadProductsPageCap(t *testing.T) {
+	var calls atomic.Int32
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls.Add(1)
+		_, _ = w.Write([]byte(`{"data":[{"id":"prod-` + r.URL.Query().Get("pagination[offset]") + `"}]}`))
+	}))
+	t.Cleanup(srv.Close)
+	src := testSource(srv)
+	products, ok := streamDefByName(streamProducts)
+	require.True(t, ok)
+	cat := &synclet.ConfiguredCatalog{Streams: []synclet.ConfiguredStream{{
+		Stream: products.stream(), SyncMode: synclet.SyncModeFullRefresh, DestinationSyncMode: synclet.DestinationSyncModeOverwrite,
+	}}}
+	out := runReadConfig(t, src, testConfig, cat, nil)
+	require.ErrorContains(t, out.Err, `products: account "acme_test": still listing after 1000 pages`)
+	assert.Equal(t, int32(maxProductPages), calls.Load())
 }
 
 func TestReadTagsEveryAccount(t *testing.T) {

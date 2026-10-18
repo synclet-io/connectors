@@ -44,29 +44,30 @@ func configured(t *testing.T, src Source, mode synclet.SyncMode, names ...string
 }
 
 // parityStream is the part of a stream testdata/expected_catalog.json pins:
-// the streams of the earlier private connector this one replaces.
+// the streams of the earlier private connector this one replaces, with each
+// property's whole schema (nested items and properties included, descriptions
+// left out) and the stream's additionalProperties.
 type parityStream struct {
-	Name       string                `json:"name"`
-	Namespace  string                `json:"namespace"`
-	SyncModes  []string              `json:"sync_modes"`
-	PrimaryKey [][]string            `json:"primary_key"`
-	Cursor     []string              `json:"cursor"`
-	Properties map[string]parityProp `json:"properties"`
-}
-
-type parityProp struct {
-	Type        synclet.PropTypes `json:"type"`
-	Format      string            `json:"format,omitempty"`
-	AirbyteType string            `json:"airbyte_type,omitempty"`
+	Name                 string         `json:"name"`
+	Namespace            string         `json:"namespace"`
+	SyncModes            []string       `json:"sync_modes"`
+	PrimaryKey           [][]string     `json:"primary_key"`
+	Cursor               []string       `json:"cursor"`
+	AdditionalProperties any            `json:"additional_properties"`
+	Properties           map[string]any `json:"properties"`
 }
 
 func toParity(t *testing.T, s synclet.Stream) parityStream {
 	t.Helper()
 	var schema struct {
-		Properties map[string]parityProp `json:"properties"`
+		AdditionalProperties any            `json:"additionalProperties"`
+		Properties           map[string]any `json:"properties"`
 	}
 	require.NoError(t, json.Unmarshal(s.JSONSchema, &schema))
-	p := parityStream{Name: s.Name, Namespace: s.Namespace, PrimaryKey: s.SourceDefinedPrimaryKey, Cursor: s.DefaultCursorField, Properties: schema.Properties}
+	p := parityStream{
+		Name: s.Name, Namespace: s.Namespace, PrimaryKey: s.SourceDefinedPrimaryKey, Cursor: s.DefaultCursorField,
+		AdditionalProperties: schema.AdditionalProperties, Properties: schema.Properties,
+	}
 	if p.Cursor == nil {
 		p.Cursor = []string{}
 	}

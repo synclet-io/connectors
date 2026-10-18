@@ -43,8 +43,7 @@ const (
 	kBooleanNull               // boolean or null
 	kDateTime                  // date-time string from an API timestamp
 	kDateTimeNull              // date-time string or null
-	kArrayNull                 // array of objects or null, passed through
-	kObjectNull                // object or null, passed through
+	kNested                    // array or object of the field's nested schema, passed through
 	kLocalTimeNull             // CSV timestamp without a zone, or null; no date-time format, which needs an offset
 	kUTCTimeNull               // CSV timestamp in UTC, emitted with +00:00, or null
 	kDateNull                  // CSV date, or null
@@ -53,44 +52,76 @@ const (
 // field is one record field: its name and the dotted path of its value in
 // the API object.
 type field struct {
-	name string
-	path string
-	kind kind
+	name   string
+	path   string
+	kind   kind
+	nested jsonSchema
 }
 
 func f(name string, k kind) field          { return field{name: name, path: name, kind: k} }
 func from(name, path string, k kind) field { return field{name: name, path: path, kind: k} }
 
-func (fd field) schema() synclet.PropertySpec {
+// nested is a field whose array or object value is passed through as the API
+// sends it, described by schema.
+func nested(name string, schema jsonSchema) field {
+	return field{name: name, path: name, kind: kNested, nested: schema}
+}
+
+// jsonSchema is a JSON schema object.
+type jsonSchema = map[string]any
+
+// typeOf is the "type" keyword: a plain string for one type, a list for
+// several.
+func typeOf(types ...string) any {
+	if len(types) == 1 {
+		return types[0]
+	}
+	return types
+}
+
+func nullable(t string) jsonSchema { return jsonSchema{"type": typeOf("null", t)} }
+
+// objectOf is a non-null object with props.
+func objectOf(props jsonSchema) jsonSchema { return jsonSchema{"type": "object", "properties": props} }
+
+// nullableObject is an object with props, or null.
+func nullableObject(props jsonSchema) jsonSchema {
+	return jsonSchema{"type": typeOf("null", "object"), "properties": props}
+}
+
+// nullableArrayOf is an array of objects with props, or null.
+func nullableArrayOf(props jsonSchema) jsonSchema {
+	return jsonSchema{"type": typeOf("null", "array"), "items": objectOf(props)}
+}
+
+func (fd field) schema() jsonSchema {
 	switch fd.kind {
 	case kString:
-		return synclet.PropertySpec{PropertyType: typed(synclet.String)}
+		return jsonSchema{"type": "string"}
 	case kStringNull:
-		return synclet.PropertySpec{PropertyType: typed(synclet.Null, synclet.String)}
+		return nullable("string")
 	case kInteger:
-		return synclet.PropertySpec{PropertyType: typed(synclet.Integer)}
+		return jsonSchema{"type": "integer"}
 	case kIntegerNull:
-		return synclet.PropertySpec{PropertyType: typed(synclet.Null, synclet.Integer)}
+		return nullable("integer")
 	case kNumber:
-		return synclet.PropertySpec{PropertyType: typed(synclet.Number)}
+		return jsonSchema{"type": "number"}
 	case kBoolean:
-		return synclet.PropertySpec{PropertyType: typed("boolean")}
+		return jsonSchema{"type": "boolean"}
 	case kBooleanNull:
-		return synclet.PropertySpec{PropertyType: typed(synclet.Null, "boolean")}
+		return nullable("boolean")
 	case kDateTime:
-		return synclet.PropertySpec{PropertyType: typed(synclet.String), Format: synclet.DateTime}
+		return jsonSchema{"type": "string", "format": "date-time"}
 	case kDateTimeNull:
-		return synclet.PropertySpec{PropertyType: typed(synclet.Null, synclet.String), Format: synclet.DateTime}
-	case kArrayNull:
-		return synclet.PropertySpec{PropertyType: typed(synclet.Null, synclet.Array), Items: map[string]any{"type": "object"}}
-	case kObjectNull:
-		return synclet.PropertySpec{PropertyType: typed(synclet.Null, synclet.Object)}
+		return jsonSchema{"type": typeOf("null", "string"), "format": "date-time"}
+	case kNested:
+		return fd.nested
 	case kLocalTimeNull:
-		return synclet.PropertySpec{PropertyType: synclet.PropertyType{Type: synclet.PropTypes{synclet.Null, synclet.String}, AirbyteType: synclet.TimestampWOTZ}, Format: synclet.DateTime}
+		return jsonSchema{"type": typeOf("null", "string"), "format": "date-time", "airbyte_type": string(synclet.TimestampWOTZ)}
 	case kUTCTimeNull:
-		return synclet.PropertySpec{PropertyType: synclet.PropertyType{Type: synclet.PropTypes{synclet.Null, synclet.String}, AirbyteType: synclet.TimestampWithTZ}, Format: synclet.DateTime}
+		return jsonSchema{"type": typeOf("null", "string"), "format": "date-time", "airbyte_type": string(synclet.TimestampWithTZ)}
 	case kDateNull:
-		return synclet.PropertySpec{PropertyType: typed(synclet.Null, synclet.String), Format: synclet.Date}
+		return jsonSchema{"type": typeOf("null", "string"), "format": "date"}
 	}
 	panic(fmt.Sprintf("field %s: unknown kind %d", fd.name, fd.kind))
 }
@@ -192,7 +223,56 @@ type streamDef struct {
 	// report is the reports API path and the extraction of its objects; nil
 	// for products and financial_entries.
 	report *report
+	// additional sets additionalProperties: true on the stream schema.
+	additional bool
 }
+
+var (
+	nullString  = nullable("string")
+	nullInteger = nullable("integer")
+
+	// orderMetadataSchema is the merchant's key-value metadata of an order.
+	orderMetadataSchema = jsonSchema{"type": typeOf("null", "object"), "additionalProperties": nullString}
+
+	routingSchema = nullableObject(jsonSchema{
+		"cascade_steps": nullableArrayOf(jsonSchema{
+			"mid": nullString, "mid_descriptor": nullString, "route_id": nullString,
+			"cascade_number": nullInteger, "segment_id": nullString, "connector_account_id": nullString,
+		}),
+	})
+
+	cardTransactionsSchema = nullableArrayOf(jsonSchema{
+		"id": nullString, "created_at": nullString, "updated_at": nullString, "amount": nullInteger,
+		"currency": nullString, "operation": nullString, "status": nullString, "authorization_type": nullString,
+		"original_payment_method": nullString, "descriptor": nullString, "refund_reason": nullString,
+		"refund_reason_code": nullString,
+		"card": nullableObject(jsonSchema{
+			"bank": nullString, "bin": nullString, "brand": nullString, "card_exp_month": nullString,
+			"card_exp_year": nullInteger, "card_holder": nullString, "card_type": nullString,
+			"card_id": nullString, "country": nullString, "number": nullString,
+		}),
+	})
+
+	apmTransactionsSchema = nullableArrayOf(jsonSchema{
+		"id": nullString, "psp_transaction_id": nullString, "created_at": nullString, "updated_at": nullString,
+		"method": nullString, "amount": nullInteger, "currency": nullString, "status": nullString, "type": nullString,
+	})
+
+	chargebackFlowsSchema = nullableArrayOf(jsonSchema{
+		"id": nullString, "date": nullString, "created_at": nullString, "updated_at": nullString,
+		"settlement_date": nullString, "deadline_date": nullString, "amount": nullInteger,
+		"dispute_amount": nullInteger, "currency": nullString, "type": nullString, "status": nullString,
+		"represented_by": nullString, "arn_code": nullString,
+	})
+
+	invoiceOrdersSchema = nullableArrayOf(jsonSchema{
+		"id": nullString, "status": nullString, "created_at": nullString, "processed_at": nullString,
+		"amount": nullInteger, "operation": nullString, "retry_attempt": nullInteger,
+		"payment_details": nullableObject(jsonSchema{
+			"invoice_id": nullString, "payer_email": nullString, "retry_attempt": nullInteger,
+		}),
+	})
+)
 
 var subscriptionFields = []field{
 	f("id", kString), f(accountField, kString), f("status", kString), f("updated_at", kDateTime),
@@ -212,7 +292,7 @@ var subscriptionInvoiceFields = []field{
 	f("id", kString), f(accountField, kString), f("subscription_id", kString), f("status", kString),
 	f("created_at", kDateTime), f("updated_at", kDateTime), f("amount", kNumber),
 	f("billing_period_started_at", kDateTimeNull), f("billing_period_ended_at", kDateTimeNull),
-	f("subscription_term_number", kInteger), f("orders", kArrayNull),
+	f("subscription_term_number", kInteger), nested("orders", invoiceOrdersSchema),
 }
 
 var productFields = []field{
@@ -233,7 +313,7 @@ var cardOrderFields = []field{
 	f("customer_account_id", kStringNull), f("customer_email", kString),
 	f("customer_first_name", kStringNull), f("customer_last_name", kStringNull), f("ip_address", kStringNull),
 	f("mid", kStringNull), f("platform", kStringNull), f("geo_country", kStringNull), f("error_code", kStringNull),
-	f("routing", kObjectNull), f("transactions", kArrayNull), f("order_metadata", kObjectNull),
+	nested("routing", routingSchema), nested("transactions", cardTransactionsSchema), nested("order_metadata", orderMetadataSchema),
 }
 
 var apmOrderFields = []field{
@@ -242,7 +322,7 @@ var apmOrderFields = []field{
 	f("amount", kInteger), f("currency", kString), f("processing_amount", kIntegerNull),
 	f("processing_currency", kStringNull), f("status", kString), f("customer_account_id", kStringNull),
 	f("customer_email", kString), f("ip_address", kStringNull), f("geo_country", kStringNull),
-	f("error_code", kStringNull), f("transactions", kArrayNull), f("order_metadata", kObjectNull),
+	f("error_code", kStringNull), nested("transactions", apmTransactionsSchema), nested("order_metadata", orderMetadataSchema),
 }
 
 var chargebackFields = []field{
@@ -250,7 +330,7 @@ var chargebackFields = []field{
 	f("created_at", kDateTime), f("updated_at", kDateTime), f("dispute_date", kDateTime),
 	f("settlement_date", kDateTimeNull), f("amount", kInteger), f("currency", kString),
 	f("type", kStringNull), f("status", kStringNull), f("reason_group", kStringNull),
-	f("reason_code", kStringNull), f("reason_description", kStringNull), f("flows", kArrayNull),
+	f("reason_code", kStringNull), f("reason_description", kStringNull), nested("flows", chargebackFlowsSchema),
 }
 
 var paypalDisputeFields = []field{
@@ -287,7 +367,7 @@ var streamDefs = []streamDef{
 		report: &report{path: "apm-orders/paypal-disputes", objects: listObjects("disputes")}},
 	{name: streamCardFraudAlerts, fields: cardFraudAlertFields, pk: [][]string{{"order_id"}, {"created_at"}, {accountField}}, cursor: "updated_at",
 		report: &report{path: "card-orders/fraud-alerts", objects: listObjects("alerts")}},
-	{name: streamFinancialEntries, fields: financialEntryFields, pk: idAccountKey(), cursor: "created_at"},
+	{name: streamFinancialEntries, fields: financialEntryFields, pk: idAccountKey(), cursor: "created_at", additional: true},
 }
 
 func streamDefByName(name string) (streamDef, bool) {
@@ -300,13 +380,21 @@ func streamDefByName(name string) (streamDef, bool) {
 }
 
 func (d streamDef) stream() synclet.Stream {
-	props := make(map[synclet.PropertyName]synclet.PropertySpec, len(d.fields))
+	props := make(jsonSchema, len(d.fields))
 	for _, fd := range d.fields {
-		props[synclet.PropertyName(fd.name)] = fd.schema()
+		props[fd.name] = fd.schema()
+	}
+	schema := objectOf(props)
+	if d.additional {
+		schema["additionalProperties"] = true
+	}
+	raw, err := json.Marshal(schema)
+	if err != nil {
+		panic(fmt.Sprintf("stream %s: schema: %v", d.name, err))
 	}
 	s := synclet.Stream{
 		Name:                    d.name,
-		JSONSchema:              synclet.ObjectSchema(props),
+		JSONSchema:              raw,
 		SupportedSyncModes:      []synclet.SyncMode{synclet.SyncModeFullRefresh},
 		SourceDefinedPrimaryKey: d.pk,
 	}
