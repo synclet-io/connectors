@@ -9,7 +9,7 @@ require (
 	github.com/stretchr/testify v1.11.1
 	github.com/synclet-io/synclet-go-sdk v0.3.0
 	go.uber.org/multierr v1.11.0
-	golang.org/x/oauth2 v0.36.0
+	golang.org/x/oauth2 v0.37.0
 	google.golang.org/api v0.272.0
 )
 
