@@ -94,7 +94,7 @@ type gqlBody struct {
 }
 
 var (
-	windowPattern = regexp.MustCompile(`updated_at:>='([^']+)' AND updated_at:<'([^']+)'`)
+	windowPattern = regexp.MustCompile(`updated_at:>='([^']+)'(?: AND updated_at:<'([^']+)')?`)
 	keyLayout     = "20060102T150405Z"
 )
 
@@ -103,13 +103,18 @@ var (
 func bulkStream(t *testing.T, q string) string {
 	var w *window
 	if m := windowPattern.FindStringSubmatch(q); m != nil {
-		from, err1 := time.Parse(filterLayout, m[1])
-		to, err2 := time.Parse(filterLayout, m[2])
-		if err1 != nil || err2 != nil {
+		w = &window{}
+		var err error
+		if w.from, err = time.Parse(filterLayout, m[1]); err != nil {
 			t.Errorf("bulk query window %q", m[0])
 			return ""
 		}
-		w = &window{from: from, to: to}
+		if m[2] != "" {
+			if w.to, err = time.Parse(filterLayout, m[2]); err != nil {
+				t.Errorf("bulk query window %q", m[0])
+				return ""
+			}
+		}
 	}
 	for _, st := range streams {
 		if st.bulk && st.bulkQuery(w) == q {

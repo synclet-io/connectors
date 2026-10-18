@@ -23,7 +23,7 @@ func runCheck(t *testing.T, src Source, cfg Config) (*synclet.ConnectionStatus, 
 }
 
 func scopesBody(handles ...string) string {
-	body := `{"data":{"shop":{"name":"Example Store"},"currentAppInstallation":{"accessScopes":[`
+	body := `{"data":{"shop":{"name":"Example Store","createdAt":"2026-09-20T08:15:30Z"},"currentAppInstallation":{"accessScopes":[`
 	for i, h := range handles {
 		if i > 0 {
 			body += ","

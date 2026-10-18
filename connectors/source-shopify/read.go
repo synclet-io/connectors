@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"slices"
 	"time"
 
 	synclet "github.com/synclet-io/synclet-go-sdk"
@@ -28,6 +29,7 @@ type reader struct {
 	cfg     Config
 	em      *synclet.Emitter
 	created time.Time
+	scopes  scopeSet
 }
 
 // Read emits every configured stream in catalog order.
@@ -114,18 +116,30 @@ func (r streamRead) read(ctx context.Context, incremental bool, saved json.RawMe
 			from = from.UTC()
 		}
 	}
+	if err := r.needAllOrders(ctx, from); err != nil {
+		return err
+	}
 	end := r.c.now().Add(-lag).UTC().Truncate(time.Second)
-	if !from.Before(end) {
-		if incremental {
-			return r.em.StreamState(r.desc, cursorState{Cursor: from.Format(time.RFC3339)})
+	if incremental && !from.Before(end) {
+		return r.em.StreamState(r.desc, cursorState{Cursor: from.Format(time.RFC3339)})
+	}
+	if r.st.bulk {
+		if err := r.probeSearch(ctx, window{from: from, to: end}); err != nil {
+			return err
 		}
-		return nil
 	}
 	size := r.cfg.window()
-	for w := (window{from: from}); w.from.Before(end); w.from = w.to {
+	for w := (window{from: from}); ; w.from = w.to {
 		w.to = w.from.Add(size)
-		if w.to.After(end) {
+		last := !w.to.Before(end)
+		if last {
+			// A full refresh leaves its last window open, so an object of a
+			// window not read yet whose update moves it past end is still
+			// read; an incremental read saves end and reads the rest next.
 			w.to = end
+			if !incremental {
+				w.to = time.Time{}
+			}
 		}
 		if err := r.window(ctx, &w); err != nil {
 			return err
@@ -135,8 +149,46 @@ func (r streamRead) read(ctx context.Context, incremental bool, saved json.RawMe
 				return err
 			}
 		}
+		if last {
+			return nil
+		}
+	}
+}
+
+// probeSearch sends the window filter of a bulk stream in an ordinary query
+// of its root connection, whose response reports search warnings that a
+// bulk operation does not, and fails when Shopify did not apply the filter.
+func (r streamRead) probeSearch(ctx context.Context, w window) error {
+	doc := fmt.Sprintf("query SearchProbe($query: String) { probe: %s(first: 1, query: $query) { nodes { id } } }", r.st.root)
+	var res map[string]json.RawMessage
+	if err := r.c.query(ctx, "SearchProbe", doc, map[string]any{"query": w.filter()}, &res); err != nil {
+		return fmt.Errorf("probe the updated_at filter: %w", err)
 	}
 	return nil
+}
+
+// ordersHistory is how far back Shopify returns orders to an app without
+// read_all_orders.
+const ordersHistory = 60 * 24 * time.Hour
+
+// needAllOrders fails a stream of orders that starts more than
+// ordersHistory back when the app lacks read_all_orders, since Shopify
+// would silently return only the recent orders.
+func (r streamRead) needAllOrders(ctx context.Context, from time.Time) error {
+	if !slices.Contains(r.st.scopes, "read_orders") || !from.Before(r.c.now().Add(-ordersHistory)) {
+		return nil
+	}
+	if r.scopes == nil {
+		granted, err := accessScopes(ctx, r.c)
+		if err != nil {
+			return err
+		}
+		r.scopes = granted
+	}
+	if r.scopes.has(allOrders) {
+		return nil
+	}
+	return synclet.ConfigError(allOrdersError(from))
 }
 
 // window emits the records updated in w, or all records when w is nil.

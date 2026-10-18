@@ -1,0 +1,17 @@
+{
+  "data": {
+    "probe": {
+      "nodes": []
+    }
+  },
+  "extensions": {
+    "search": [
+      {
+        "path": ["probe"],
+        "query": "updated_at:>='2026-10-01T00:00:00Z' AND updated_at:<'2026-10-18T11:59:00Z'",
+        "parsed": {"field": "updated_at", "range_gte": "2026-10-01T00:00:00Z", "range_lt": "2026-10-18T11:59:00Z"},
+        "warnings": []
+      }
+    ]
+  }
+}

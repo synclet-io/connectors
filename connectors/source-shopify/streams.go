@@ -239,17 +239,24 @@ func (s stream) schema() map[synclet.PropertyName]synclet.PropertySpec {
 	return properties(s.recordFields())
 }
 
-// window is a range [from, to) of update times.
+// window is a range [from, to) of update times; to is zero for a window
+// without an upper bound.
 type window struct{ from, to time.Time }
 
 const filterLayout = "2006-01-02T15:04:05Z"
 
 func (w window) String() string {
+	if w.to.IsZero() {
+		return "[" + w.from.Format(filterLayout) + ", now]"
+	}
 	return "[" + w.from.Format(filterLayout) + ", " + w.to.Format(filterLayout) + ")"
 }
 
 // filter is the search query of the updates in w.
 func (w window) filter() string {
+	if w.to.IsZero() {
+		return fmt.Sprintf("updated_at:>='%s'", w.from.Format(filterLayout))
+	}
 	return fmt.Sprintf("updated_at:>='%s' AND updated_at:<'%s'", w.from.Format(filterLayout), w.to.Format(filterLayout))
 }
 

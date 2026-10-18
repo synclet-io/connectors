@@ -180,10 +180,12 @@ func (e retryable) Error() string { return e.err.Error() }
 func (e retryable) Unwrap() error { return e.err }
 
 // limited is a THROTTLED error or a 429: the request may be repeated after
-// wait, or once the bucket has restored when wait is zero.
+// wait, or once the bucket has restored when costed. A THROTTLED error
+// without a cost waits a doubling delay.
 type limited struct {
-	err  error
-	wait time.Duration
+	err    error
+	wait   time.Duration
+	costed bool
 }
 
 func (e limited) Error() string { return e.err.Error() }
@@ -203,6 +205,7 @@ type gqlResponse struct {
 				RestoreRate        float64 `json:"restoreRate"`
 			} `json:"throttleStatus"`
 		} `json:"cost"`
+		Search []searchInfo `json:"search"`
 	} `json:"extensions"`
 }
 
@@ -221,7 +224,7 @@ func (c *apiClient) query(ctx context.Context, op, doc string, vars map[string]a
 	if err != nil {
 		return fmt.Errorf("%s: encode request: %w", op, err)
 	}
-	delay := c.retryDelay
+	delay, throttleDelay := c.retryDelay, c.retryDelay
 	var failures, throttles int
 	refetched := false
 	for {
@@ -244,8 +247,9 @@ func (c *apiClient) query(ctx context.Context, op, doc string, vars map[string]a
 				return fmt.Errorf("%w; gave up after %d waits", err, limitRetries)
 			}
 			throttles++
-			if lim.wait == 0 && c.bucket.restore <= 0 {
-				lim.wait = c.retryDelay
+			if lim.wait == 0 && !lim.costed {
+				lim.wait = throttleDelay
+				throttleDelay *= 2
 			}
 			if lim.wait > 0 {
 				if err := c.wait(ctx, lim.wait); err != nil {
@@ -342,7 +346,15 @@ func (c *apiClient) do(ctx context.Context, op string, body []byte, out any) (re
 		}
 	}
 	if len(gr.Errors) > 0 && string(gr.Errors) != "null" {
-		return c.graphqlError(op, gr.Errors)
+		err := c.graphqlError(op, gr.Errors)
+		if lim, ok := err.(limited); ok {
+			lim.costed = gr.Extensions.Cost != nil
+			return lim
+		}
+		return err
+	}
+	if err := searchWarnings(op, gr.Extensions.Search); err != nil {
+		return err
 	}
 	if len(gr.Data) == 0 || string(gr.Data) == "null" {
 		return fmt.Errorf("%s: response without data", op)
@@ -351,6 +363,32 @@ func (c *apiClient) do(ctx context.Context, op string, body []byte, out any) (re
 		return fmt.Errorf("%s: decode data: %w", op, err)
 	}
 	return nil
+}
+
+// searchInfo is how Shopify parsed the search query of a connection.
+type searchInfo struct {
+	Path     []any  `json:"path"`
+	Query    string `json:"query"`
+	Warnings []struct {
+		Field   string `json:"field"`
+		Message string `json:"message"`
+	} `json:"warnings"`
+}
+
+// searchWarnings fails a response whose search query Shopify did not fully
+// apply, such as a filter on a field the connection cannot search: its
+// result may be unfiltered or empty.
+func searchWarnings(op string, infos []searchInfo) error {
+	var msgs []string
+	for _, si := range infos {
+		for _, w := range si.Warnings {
+			msgs = append(msgs, fmt.Sprintf("search query %q: %s: %s", si.Query, w.Field, w.Message))
+		}
+	}
+	if len(msgs) == 0 {
+		return nil
+	}
+	return fmt.Errorf("%s: Shopify did not apply the filter: %s", op, strings.Join(msgs, "; "))
 }
 
 // graphqlError classifies the errors of a 200 response.

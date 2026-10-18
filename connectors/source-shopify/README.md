@@ -55,7 +55,7 @@ OAuth consent (public apps) is not supported.
 | `read_products` | `products`, `product_variants`, `collections` |
 | `read_customers` | `customers`, `companies`, `company_locations` |
 | `read_orders` | `orders`, `refunds`, `fulfillments`, `transactions` |
-| `read_all_orders` | without it Shopify returns only the orders of the last 60 days |
+| `read_all_orders` | needed when the read of an order stream starts more than 60 days back; without it Shopify returns only the orders of the last 60 days |
 | `read_inventory` | `inventory_items`, `inventory_levels` |
 | `read_locations` | `inventory_levels`, `locations` |
 
@@ -75,7 +75,11 @@ the app's access scopes. It fails with:
 | Frozen shop (402) | `shop <shop>.myshopify.com is frozen (unpaid)` |
 | Locked shop (423) | `shop <shop>.myshopify.com is locked` |
 
-A missing `read_all_orders` passes the check with a WARN log.
+Without `read_all_orders` the check fails when the start (`start_date`, or the shop's creation) is more than 60
+days back, with `the app lacks read_all_orders, so Shopify returns only the orders of the last 60 days, but the
+read starts at <start>`, and passes with a WARN otherwise. A read of `orders`, `refunds`, `fulfillments` or
+`transactions` whose window starts more than 60 days back fails with the same error instead of reading 60
+days only.
 
 ## Streams
 
@@ -104,8 +108,9 @@ Decimal and money amounts (`price`, `amount` of `MoneyV2` and `MoneyBag`) arrive
 numbers with exactly the same digits, never rounded through a float; a value that is not a decimal number
 fails the read.
 
-`companies` and `company_locations` exist on stores with B2B (Shopify Plus). `discover` leaves them out when
-the companies query fails with a GraphQL error.
+`companies` and `company_locations` exist on stores with B2B (Shopify Plus). `discover` reads
+`shop.plan.shopifyPlus` and leaves them out, with a WARN log, when it is false; any error of that query fails
+`discover`.
 
 ### Windows and state
 
@@ -113,7 +118,13 @@ A windowed stream reads `[from, to)` windows of `window_days`, from the saved cu
 (`start_date`, or the shop's creation) up to one minute before now, each with the search filter
 `updated_at:>='<from>' AND updated_at:<'<to>'`. An incremental read emits
 `{"cursor": "<to>"}` after all records of a window, so a failed sync resumes at the first unfinished
-window. A full refresh reads the same windows and saves no state.
+window; an object updated during the sync past its end is read by the next sync. A full refresh reads the same
+windows but leaves the last one open (`updated_at:>='<from>'`), so an object updated during the sync is
+still read, and saves no state.
+
+Shopify ignores a search filter it cannot apply and reports it in `extensions.search[].warnings`. A response
+with such warnings fails the stream. A bulk operation does not report them, so before its first window a bulk
+stream sends its filter in an ordinary query of the same connection (`SearchProbe`) and fails on warnings.
 
 Deleted objects are not visible to the GraphQL query API: an incremental sync never sees a delete. Run a full
 refresh (overwrite) to drop deleted rows.
@@ -140,7 +151,7 @@ connector sends `bulkOperationCancel` for it.
 
 The connector paces by the query cost Shopify reports in `extensions.cost`: before a request it waits until
 the bucket, restoring at `restoreRate`, holds the cost of the last query. A `THROTTLED` error waits the same
-way and is retried up to 10 times; a 429 waits its `Retry-After`; a 5xx, a transport error or an
+way, or a doubling delay from 1 second when it reports no cost, and is retried up to 10 times; a 429 waits its `Retry-After`; a 5xx, a transport error or an
 `INTERNAL_SERVER_ERROR` is retried 3 times with a doubling delay. `ACCESS_DENIED` fails the stream naming the
 scope Shopify requires.
 

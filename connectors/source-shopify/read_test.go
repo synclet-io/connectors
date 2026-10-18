@@ -42,14 +42,14 @@ func TestReadRecords(t *testing.T) {
 	assert.Empty(t, states(out), "a full refresh saves no state")
 
 	assert.Equal(t, []string{
-		"ProbeCompanies",
+		"ShopPlan",
 		"Shop",
-		"BulkRun-orders-20261001T000000Z", "BulkPoll-1004",
-		"BulkRun-refunds-20261001T000000Z", "BulkPoll-1005",
-		"BulkRun-transactions-20261001T000000Z", "BulkPoll-1007",
+		"SearchProbe", "BulkRun-orders-20261001T000000Z", "BulkPoll-1004",
+		"SearchProbe", "BulkRun-refunds-20261001T000000Z", "BulkPoll-1005",
+		"SearchProbe", "BulkRun-transactions-20261001T000000Z", "BulkPoll-1007",
 		"BulkRun-inventory_levels", "BulkPoll-1009",
 		"Collections", "Collections-cursor-collections-2",
-		"BulkRun-product_variants-20261001T000000Z", "BulkPoll-1002",
+		"SearchProbe", "BulkRun-product_variants-20261001T000000Z", "BulkPoll-1002",
 	}, h.keys())
 }
 
@@ -61,7 +61,7 @@ func TestReadStartFromShop(t *testing.T) {
 	cfg := `{"shop":"example.myshopify.com","access_token":"` + testToken + `"}`
 	out := readWith(t, src, cfg, catalogOf(t, src, synclet.SyncModeIncremental, "companies"), nil)
 	require.NoError(t, out.Err)
-	assert.Equal(t, []string{"ProbeCompanies", "ShopCreatedAt", "Companies"}, h.keys())
+	assert.Equal(t, []string{"ShopPlan", "ShopCreatedAt", "Companies"}, h.keys())
 	assert.Equal(t, "updated_at:>='2026-09-20T08:15:30Z' AND updated_at:<'2026-10-18T11:59:00Z'", h.ops("Companies")[0].vars["query"])
 	assert.Equal(t, []string{`{"cursor":"2026-10-18T11:59:00Z"}`}, states(out))
 }
