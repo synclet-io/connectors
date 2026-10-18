@@ -1,0 +1,5 @@
+dist/
+_site/
+.DS_Store
+go.work
+go.work.sum

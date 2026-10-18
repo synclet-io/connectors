@@ -1,0 +1,14 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+  - package-ecosystem: gomod
+    directories: ["/", "/connectors/*"]
+    schedule:
+      interval: weekly
+  - package-ecosystem: docker
+    directories: ["/connectors/*"]
+    schedule:
+      interval: weekly

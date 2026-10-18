@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://synclet.io/schemas/connector-meta.schema.json",
+  "title": "Synclet connector metadata",
+  "description": "connectors/<name>/meta.json. Every field maps onto one field of the Airbyte-format registry entry that Synclet reads.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["name", "connector_type", "version", "release_stage", "support_level", "license"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "name": {
+      "description": "Display name shown in Synclet (registry: name).",
+      "type": "string",
+      "minLength": 1
+    },
+    "connector_type": {
+      "description": "Must match the directory prefix (source-* or destination-*). Decides whether the entry lands in sources or destinations.",
+      "enum": ["source", "destination"]
+    },
+    "version": {
+      "description": "Released image tag (registry: dockerImageTag). Bump it to release; CI tags the commit as <dir>-v<version>.",
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(-[0-9A-Za-z.-]+)?$"
+    },
+    "release_stage": {
+      "description": "registry: releaseStage.",
+      "enum": ["alpha", "beta", "generally_available", "custom"]
+    },
+    "support_level": {
+      "description": "registry: supportLevel.",
+      "enum": ["community", "certified"]
+    },
+    "source_type": {
+      "description": "registry: sourceType. Sources only; leave empty for destinations.",
+      "enum": ["", "api", "database", "file"]
+    },
+    "license": {
+      "description": "SPDX identifier of the connector's own license (registry: license). Synclet hides entries licensed \"Airbyte Enterprise\".",
+      "type": "string",
+      "minLength": 1,
+      "not": { "const": "Airbyte Enterprise" }
+    },
+    "documentation_url": { "$ref": "#/$defs/optionalUrl", "description": "registry: documentationUrl." },
+    "icon_url": { "$ref": "#/$defs/optionalUrl", "description": "registry: iconUrl. SVG or PNG." },
+    "erd_url": { "$ref": "#/$defs/optionalUrl", "description": "registry: erdUrl." },
+    "tombstone": {
+      "description": "Keep the entry but hide it in Synclet (registry: tombstone).",
+      "type": "boolean"
+    },
+    "language": { "description": "registry: language.", "type": "string" },
+    "release_date": { "description": "registry: releaseDate.", "type": "string", "format": "date" },
+    "tags": { "description": "registry: tags.", "type": "array", "items": { "type": "string" } },
+    "breaking_changes": {
+      "description": "Keyed by the version that introduced the break (registry: releases.breakingChanges).",
+      "type": "object",
+      "propertyNames": { "pattern": "^\\d+\\.\\d+\\.\\d+" },
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["message"],
+        "properties": {
+          "message": { "type": "string", "minLength": 1 },
+          "migration_documentation_url": { "$ref": "#/$defs/optionalUrl" },
+          "upgrade_deadline": { "type": "string", "format": "date" }
+        }
+      }
+    },
+    "migration_documentation_url": { "$ref": "#/$defs/optionalUrl", "description": "registry: releases.migrationDocumentationUrl." },
+    "external_documentation_urls": {
+      "description": "registry: externalDocumentationUrls.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["title", "url"],
+        "properties": {
+          "title": { "type": "string", "minLength": 1 },
+          "type": { "type": "string" },
+          "url": { "type": "string", "pattern": "^https?://" }
+        }
+      }
+    },
+    "allowed_hosts": { "description": "registry: allowedHosts.hosts.", "type": "array", "items": { "type": "string" } },
+    "suggested_streams": { "description": "registry: suggestedStreams.streams.", "type": "array", "items": { "type": "string" } },
+    "max_seconds_between_messages": { "description": "registry: maxSecondsBetweenMessages.", "type": "integer", "minimum": 1 },
+    "supports_refreshes": { "description": "registry: supportsRefreshes.", "type": "boolean" },
+    "supports_file_transfer": { "description": "registry: supportsFileTransfer.", "type": "boolean" },
+    "supports_data_activation": { "description": "registry: supportsDataActivation.", "type": "boolean" },
+    "resource_requirements": {
+      "description": "registry: resourceRequirements.jobSpecific.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["job_type"],
+        "properties": {
+          "job_type": { "enum": ["get_spec", "check_connection", "discover_schema", "sync"] },
+          "memory_request": { "type": "string" },
+          "memory_limit": { "type": "string" },
+          "cpu_request": { "type": "string" },
+          "cpu_limit": { "type": "string" }
+        }
+      }
+    }
+  },
+  "if": { "properties": { "connector_type": { "const": "destination" } } },
+  "then": { "properties": { "source_type": { "const": "" } } },
+  "$defs": {
+    "optionalUrl": { "type": "string", "pattern": "^(https?://\\S+)?$" }
+  }
+}

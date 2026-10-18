@@ -1,0 +1,26 @@
+{
+  "changeLogUrl": "",
+  "connectionSpecification": {
+    "description": "Generates a sequence of numbered rows",
+    "properties": {
+      "count": {
+        "default": 10,
+        "description": "Number of rows to emit (1-1000000)",
+        "order": 0,
+        "title": "Row count",
+        "type": "integer"
+      }
+    },
+    "required": [],
+    "title": "Example Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-example",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": false,
+  "supportsNormalization": false
+}

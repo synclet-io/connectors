@@ -1,0 +1,92 @@
+version: '3'
+
+vars:
+  IMAGE_PREFIX: '{{.IMAGE_PREFIX | default "ghcr.io/synclet-io/connectors"}}'
+  # Path to a local synclet-go-sdk checkout. When set, images build against it
+  # (docker --build-context sdk=...) instead of the published module.
+  SDK_DIR: '{{.SDK_DIR | default ""}}'
+  SDK_CONTEXT: '{{if .SDK_DIR}}--build-context sdk={{.SDK_DIR}}{{end}}'
+
+tasks:
+  validate:
+    desc: Validate every connectors/*/meta.json and spec.json against schema/meta.schema.json
+    cmds:
+      - go run ./scripts validate
+
+  sdk:local:
+    desc: Write connectors/go.work so Go commands use a local synclet-go-sdk checkout (SDK_DIR=../synclet-go-sdk)
+    requires:
+      vars: [SDK_DIR]
+    cmds:
+      - |
+        sdk=$(cd "{{.SDK_DIR}}" && pwd)
+        {
+          echo 'go 1.26.0'
+          echo
+          echo 'use ('
+          for mod in connectors/*/go.mod; do echo "	./$(basename "$(dirname "$mod")")"; done
+          echo "	$sdk"
+          echo ')'
+        } > connectors/go.work
+        cat connectors/go.work
+
+  build:
+    desc: Build one connector image for the local platform (CONNECTOR=source-example [SDK_DIR=../synclet-go-sdk])
+    requires:
+      vars: [CONNECTOR]
+    cmds:
+      - docker build {{.SDK_CONTEXT}} -t {{.IMAGE_PREFIX}}/{{.CONNECTOR}}:dev connectors/{{.CONNECTOR}}
+
+  test:
+    desc: Run a connector's go vet and tests (CONNECTOR=source-example)
+    requires:
+      vars: [CONNECTOR]
+    dir: connectors/{{.CONNECTOR}}
+    cmds:
+      - go vet ./...
+      - go test ./... -count=1
+
+  lint:
+    desc: Run golangci-lint on one connector (CONNECTOR=source-example)
+    requires:
+      vars: [CONNECTOR]
+    dir: connectors/{{.CONNECTOR}}
+    cmds:
+      - golangci-lint run ./...
+
+  spec:
+    desc: Build a connector and write the output of its `spec` command to spec.json
+    requires:
+      vars: [CONNECTOR]
+    deps:
+      - task: build
+        vars: { CONNECTOR: '{{.CONNECTOR}}', SDK_DIR: '{{.SDK_DIR}}' }
+    cmds:
+      - >-
+        docker run --rm --network none {{.IMAGE_PREFIX}}/{{.CONNECTOR}}:dev spec
+        | jq -S 'select(.type == "SPEC") | .spec' > connectors/{{.CONNECTOR}}/spec.json
+      - jq -e .connectionSpecification connectors/{{.CONNECTOR}}/spec.json > /dev/null
+
+  spec:check:
+    desc: Fail if spec.json differs from what the connector image reports
+    requires:
+      vars: [CONNECTOR]
+    deps:
+      - task: build
+        vars: { CONNECTOR: '{{.CONNECTOR}}', SDK_DIR: '{{.SDK_DIR}}' }
+    cmds:
+      - >-
+        diff -u <(jq -S . connectors/{{.CONNECTOR}}/spec.json)
+        <(docker run --rm --network none {{.IMAGE_PREFIX}}/{{.CONNECTOR}}:dev spec | jq -S 'select(.type == "SPEC") | .spec')
+
+  entry:
+    desc: Print a connector's registry entry as the release sends it (CONNECTOR=source-example)
+    requires:
+      vars: [CONNECTOR]
+    cmds:
+      - go run ./scripts entry --connector {{.CONNECTOR}} --image-prefix {{.IMAGE_PREFIX}}
+
+  registry:
+    desc: Generate dist/registry.json from every connector (dry run of the entries releases publish)
+    cmds:
+      - go run ./scripts registry --image-prefix {{.IMAGE_PREFIX}} --out dist/registry.json
