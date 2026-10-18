@@ -30,7 +30,7 @@ func TestDiscover(t *testing.T) {
 	}
 	slices.Sort(names)
 	assert.Equal(t, []string{
-		"associations_companies_deals", "associations_contacts_cars", "associations_contacts_companies",
+		"associations_companies_companies", "associations_companies_deals", "associations_contacts_cars", "associations_contacts_companies",
 		"cars", "companies", "contacts", "deal_pipelines", "deals", "line_items", "owners", "products",
 		"ticket_pipelines", "tickets",
 	}, names, "the archived custom object boats is left out")
@@ -87,5 +87,6 @@ func TestDiscover(t *testing.T) {
 	assert.Contains(t, lines, "GET crm/v3/properties/2-1001")
 	assert.Contains(t, lines, "GET crm/v4/associations/contacts/2-1001/labels")
 	assert.Contains(t, lines, "GET crm/v4/associations/tickets/products/labels", "pairs without labels are probed and left out")
+	assert.Contains(t, lines, "GET crm/v4/associations/contacts/contacts/labels", "same-object pairs are probed too")
 	assert.NotContains(t, lines, "GET crm/v3/properties/2-1002")
 }

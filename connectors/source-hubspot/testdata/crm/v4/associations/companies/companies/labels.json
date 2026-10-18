@@ -1,0 +1,14 @@
+{
+  "results": [
+    {
+      "category": "HUBSPOT_DEFINED",
+      "typeId": 13,
+      "label": "Parent Company"
+    },
+    {
+      "category": "HUBSPOT_DEFINED",
+      "typeId": 14,
+      "label": "Child Company"
+    }
+  ]
+}

@@ -4,7 +4,7 @@
 [synclet-go-sdk](https://github.com/synclet-io/synclet-go-sdk). Reads contacts, companies, deals, tickets,
 line items, products and custom objects with every property, full refresh or incrementally through the CRM
 search API; owners and the deal and ticket pipelines; and the associations between any two objects,
-standard or custom, with their labels.
+standard or custom, or between records of one object, with their labels.
 
 ```bash
 task test CONNECTOR=source-hubspot     # no network, no credentials
@@ -90,9 +90,9 @@ value is dropped or nulled to make a record pass.
 
 ### Associations
 
-Associations are separate streams, one per unordered pair of objects (standard or custom) for which
-`GET /crm/v4/associations/<a>/<b>/labels` answers 200; pairs it answers 400 or 404 for are left out. A
-row is one association type between two records:
+Associations are separate streams, one per unordered pair of objects (standard or custom), and one per
+object with itself, for which `GET /crm/v4/associations/<a>/<b>/labels` answers 200; pairs it answers 400 or
+404 for are left out. A row is one association type between two records:
 
 | Field | Meaning |
 |---|---|
@@ -107,6 +107,12 @@ Why rows and not id arrays on the object records: a pair of records can carry se
 association does not reliably move a record's modification date, so arrays on incremental records would go
 stale without anyone noticing. Association streams are full refresh: use `overwrite` to drop removed
 associations.
+
+Same-object streams such as `associations_companies_companies` carry associations between records of one
+object, which the [v4 associations API](https://developers.hubspot.com/docs/api-reference/crm-associations-v4/guide)
+supports: company parent/child (type 13 parent to child, 14 child to parent) and the unlabeled or custom
+same-object labels. Each association is read from both of its records, so a parent/child link gives two rows,
+one per direction, told apart by `type_id`.
 
 The read lists the ids of `a`, sends each page of 100 to the v4 batch read, and follows a record's
 `paging.next.after` through `GET /crm/v4/objects/<a>/<id>/associations/<b>`. A 207 error with
@@ -130,7 +136,8 @@ follow each other by the last id, never by the `after` offset, so records with t
 are neither skipped nor repeated.
 
 `from` is the saved cursor, or `start_date`; `to` is one minute before now, since the search index trails
-writes. One search query returns at most 10,000 results: when the first page of a window reports a `total`
+writes. Now is the connector host's clock: a host clock more than a minute ahead of HubSpot's moves `to` past
+records not yet indexed, and the next read starts after them, so keep the host clock synchronized (NTP). One search query returns at most 10,000 results: when the first page of a window reports a `total`
 above that, the window is halved and each half is read in turn, the earlier first. A window of one
 millisecond that still holds more than 10,000 records fails the read, naming the stream and the window. After
 each window the connector saves its end:

@@ -103,6 +103,16 @@ func TestIncremental(t *testing.T) {
 		assert.Equal(t, []string{`{"cursor":"2026-10-09T17:59:30.000Z"}`, `{"cursor":"2026-10-18T11:59:00.000Z"}`}, states(out))
 	})
 
+	t.Run("total exactly at the cap reads the window whole", func(t *testing.T) {
+		srv, h := fixtureServer(t, map[string]http.HandlerFunc{
+			"crm/v3/objects/deals/search/" + startMS + "-0.json": searchResult(10000, dealRecord("301", "2026-10-02T00:00:00Z")),
+		})
+		src := testSource(srv)
+		out := runRead(t, src, catalogOf(t, src, synclet.SyncModeIncremental, "deals"), nil)
+		assert.Equal(t, []string{"301"}, recordIDs(t, out, "deals"))
+		assert.Len(t, searches(t, h, "crm/v3/objects/deals/search"), 1)
+	})
+
 	t.Run("1 ms window over the cap fails", func(t *testing.T) {
 		srv, _ := fixtureServer(t, map[string]http.HandlerFunc{
 			"crm/v3/objects/deals/search/1792324739999-0.json": searchResult(10001, dealRecord("301", "2026-10-18T11:58:59.999Z")),

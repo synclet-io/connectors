@@ -94,12 +94,12 @@ type pair struct{ a, b object }
 
 func (p pair) name() string { return "associations_" + p.a.name + "_" + p.b.name }
 
-// pairs returns one pair per unordered pair of distinct objects, a before
-// b in objs order.
+// pairs returns one pair per unordered pair of objects, a before b in objs
+// order, and one pair of each object with itself.
 func pairs(objs []object) []pair {
 	var out []pair
 	for i, a := range objs {
-		for _, b := range objs[i+1:] {
+		for _, b := range objs[i:] {
 			out = append(out, pair{a: a, b: b})
 		}
 	}

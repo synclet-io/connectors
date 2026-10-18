@@ -39,6 +39,19 @@ func TestAssociations(t *testing.T) {
 		}, h.lines()[h0:])
 	})
 
+	t.Run("same-object pairs read both directions", func(t *testing.T) {
+		srv, h := fixtureServer(t, nil)
+		src := testSource(srv)
+		cat := catalogOf(t, src, synclet.SyncModeFullRefresh, "associations_companies_companies")
+		h0 := len(h.list())
+		out := runRead(t, src, cat, nil)
+		assert.Equal(t, []map[string]any{
+			{"from_id": "201", "to_id": "202", "type_id": float64(13), "category": "HUBSPOT_DEFINED", "label": "Parent Company"},
+			{"from_id": "202", "to_id": "201", "type_id": float64(14), "category": "HUBSPOT_DEFINED", "label": "Child Company"},
+		}, records(t, out, "associations_companies_companies"))
+		assert.Contains(t, h.lines()[h0:], "POST crm/v4/associations/companies/companies/batch/read")
+	})
+
 	t.Run("an unknown batch error fails the read", func(t *testing.T) {
 		srv, _ := fixtureServer(t, map[string]http.HandlerFunc{
 			"crm/v4/associations/contacts/companies/batch/read/103.json": respond(t, http.StatusMultiStatus, "errors/association_batch_error.json"),

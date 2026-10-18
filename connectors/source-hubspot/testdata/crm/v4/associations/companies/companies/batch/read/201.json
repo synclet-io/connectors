@@ -1,0 +1,39 @@
+{
+  "status": "COMPLETE",
+  "results": [
+    {
+      "from": {
+        "id": "201"
+      },
+      "to": [
+        {
+          "toObjectId": 202,
+          "associationTypes": [
+            {
+              "category": "HUBSPOT_DEFINED",
+              "typeId": 13,
+              "label": "Parent Company"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "from": {
+        "id": "202"
+      },
+      "to": [
+        {
+          "toObjectId": 201,
+          "associationTypes": [
+            {
+              "category": "HUBSPOT_DEFINED",
+              "typeId": 14,
+              "label": "Child Company"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
