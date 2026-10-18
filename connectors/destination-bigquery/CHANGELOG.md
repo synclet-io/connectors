@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.1 (2026-10-18)
+
+### Bug Fixes
+
+* NUMERIC values are rounded to 9 decimal places before the range check, so a value that rounds to 10^29 or beyond is rejected for its column instead of failing the load job.
+
 ## 0.2.0 (2026-10-18)
 
 ### Changes

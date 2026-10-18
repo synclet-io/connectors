@@ -127,16 +127,18 @@ func coerceIntegerNumber(fieldName string, v json.Number) (interface{}, *validat
 var numericLimit = new(big.Rat).SetInt(new(big.Int).Exp(big.NewInt(10), big.NewInt(29), nil))
 
 // coerceNumericNumber rounds an exact JSON number to NUMERIC(38,9)'s 9
-// decimal places, halves away from zero, without passing through float64.
+// decimal places, halves away from zero, without passing through float64, and
+// rejects a rounded value outside NUMERIC's range.
 func coerceNumericNumber(fieldName string, v json.Number) (interface{}, *validationError) {
 	r, ok := new(big.Rat).SetString(string(v))
 	if !ok {
 		return nil, &validationError{field: fieldName, reason: reasonSerializationError}
 	}
-	if new(big.Rat).Abs(r).Cmp(numericLimit) >= 0 {
+	rounded := r.FloatString(9)
+	if rr, _ := new(big.Rat).SetString(rounded); rr.Abs(rr).Cmp(numericLimit) >= 0 {
 		return nil, &validationError{field: fieldName, reason: reasonFieldSizeLimitation}
 	}
-	s := strings.TrimRight(r.FloatString(9), "0")
+	s := strings.TrimRight(rounded, "0")
 	s = strings.TrimSuffix(s, ".")
 	if s == "-0" {
 		s = "0"
@@ -153,16 +155,13 @@ func coerceNumeric(fieldName string, value interface{}) (interface{}, *validatio
 		return value, nil
 	}
 
-	// Check NUMERIC(38,9) range: absolute value must be < 10^29.
-	if math.Abs(v) >= 1e29 {
+	rounded := math.Round(v*1e9) / 1e9
+	if math.Abs(rounded) >= 1e29 {
 		return nil, &validationError{
 			field:  fieldName,
 			reason: reasonFieldSizeLimitation,
 		}
 	}
-
-	// Round to 9 decimal places if needed.
-	rounded := math.Round(v*1e9) / 1e9
 	return rounded, nil
 }
 

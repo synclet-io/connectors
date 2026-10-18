@@ -181,6 +181,14 @@ func TestValidationError(t *testing.T) {
 	assert.Contains(t, err.Error(), reasonFieldSizeLimitation)
 }
 
+func TestCoerceNumericRoundedOutOfRangeNamesColumn(t *testing.T) {
+	got, vErr := validateAndCoerce("amount", json.Number("99999999999999999999999999999.9999999999"), bigquery.NumericFieldType)
+	require.NotNil(t, vErr)
+	assert.Nil(t, got)
+	assert.Contains(t, vErr.Error(), "amount")
+	assert.Contains(t, vErr.Error(), reasonFieldSizeLimitation)
+}
+
 func TestCoerceExactNumbers(t *testing.T) {
 	tests := []struct {
 		name   string
@@ -195,6 +203,8 @@ func TestCoerceExactNumbers(t *testing.T) {
 		{"numeric rounds half away from zero", "-0.0000000005", bigquery.NumericFieldType, json.Number("-0.000000001"), ""},
 		{"numeric exponent", "1.5e3", bigquery.NumericFieldType, json.Number("1500"), ""},
 		{"numeric out of range", "100000000000000000000000000000", bigquery.NumericFieldType, nil, reasonFieldSizeLimitation},
+		{"numeric rounds out of range", "99999999999999999999999999999.9999999995", bigquery.NumericFieldType, nil, reasonFieldSizeLimitation},
+		{"numeric rounds down into range", "-99999999999999999999999999999.9999999994", bigquery.NumericFieldType, json.Number("-99999999999999999999999999999.999999999"), ""},
 		{"integer keeps digits", "9007199254740993", bigquery.IntegerFieldType, int64(9007199254740993), ""},
 		{"integer max", "9223372036854775807", bigquery.IntegerFieldType, int64(math.MaxInt64), ""},
 		{"integer out of range", "18446744073709551616", bigquery.IntegerFieldType, nil, reasonFieldSizeLimitation},
