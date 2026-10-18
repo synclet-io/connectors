@@ -175,7 +175,7 @@ func planStream(ctx context.Context, c *client, cs synclet.ConfiguredStream, sta
 	}
 	for _, f := range field {
 		if f == "" || strings.HasPrefix(f, "$") {
-			return streamPlan{}, synclet.ConfigError(fmt.Errorf("stream %s: cursor field %q is not a field path", streamName(desc), strings.Join(cs.CursorField, ".")))
+			return streamPlan{}, synclet.ConfigError(fmt.Errorf("stream %s: cursor field %q is not a field path", streamName(desc), strings.Join(field, ".")))
 		}
 	}
 	p.cursor = field

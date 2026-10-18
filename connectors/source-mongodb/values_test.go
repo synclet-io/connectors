@@ -186,3 +186,32 @@ func TestCursorExtJSON(t *testing.T) {
 		require.True(t, rv.Equal(back), "%s round-trips", raw)
 	}
 }
+
+func TestInferDateTimeFormat(t *testing.T) {
+	cases := map[string]bool{
+		"2024-01-02T03:04:05Z":          true,
+		"2024-01-02T03:04:05.123+02:00": true,
+		"2024-01-02T03:04:05,123Z":      false,
+		"2024-01-02 03:04:05Z":          false,
+	}
+	for value, isDate := range cases {
+		t.Run(value, func(t *testing.T) {
+			doc := mustRaw(t, bson.D{{Key: "a", Value: value}})
+			sh := &shape{}
+			require.NoError(t, sh.addDocument(doc))
+			schema := sh.streamSchema()
+			record, err := appendDocument(nil, doc)
+			require.NoError(t, err)
+			validate(t, schema, record)
+			var got struct {
+				Properties map[string]map[string]any `json:"properties"`
+			}
+			require.NoError(t, json.Unmarshal(schema, &got))
+			if isDate {
+				require.Equal(t, "date-time", got.Properties["a"]["format"])
+			} else {
+				require.NotContains(t, got.Properties["a"], "format")
+			}
+		})
+	}
+}

@@ -141,8 +141,10 @@ func (s Source) clientOptions(cfg Config) (*options.ClientOptions, error) {
 			cred = *opts.Auth
 		}
 		cred.Username = d.Username
-		cred.Password = d.Password
-		cred.PasswordSet = d.Password != ""
+		if d.Password != "" {
+			cred.Password = d.Password
+			cred.PasswordSet = true
+		}
 		opts.SetAuth(cred)
 	}
 	if opts.Auth != nil {

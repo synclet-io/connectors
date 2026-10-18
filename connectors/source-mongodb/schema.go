@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"regexp"
 	"time"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
@@ -78,7 +79,15 @@ func (s *shape) add(v bson.RawValue) error {
 	return nil
 }
 
+// rfc3339 is the syntax of an RFC 3339 date-time, which time.Parse is more
+// lenient about (it also takes a comma before the fraction).
+var rfc3339 = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}[Tt]\d{2}:\d{2}:\d{2}(\.\d+)?([Zz]|[+-]\d{2}:\d{2})$`)
+
+// isDateTime reports whether s is a date-time of the JSON schema format.
 func isDateTime(s string) bool {
+	if !rfc3339.MatchString(s) {
+		return false
+	}
 	_, err := time.Parse(time.RFC3339Nano, s)
 	return err == nil
 }

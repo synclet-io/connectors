@@ -92,6 +92,15 @@ func TestClientOptions(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, "admin2", opts.Auth.AuthSource)
 	})
+	t.Run("password of the URI when the config has none", func(t *testing.T) {
+		c := validConfig()
+		c.DatabaseConfig.ConnectionString = "mongodb://reader:uri-pw@h1/"
+		c.DatabaseConfig.Password = ""
+		opts, err := Source{}.clientOptions(c)
+		require.NoError(t, err)
+		require.Equal(t, "reader", opts.Auth.Username)
+		require.Equal(t, "uri-pw", opts.Auth.Password)
+	})
 	t.Run("no user, no credential", func(t *testing.T) {
 		c := validConfig()
 		c.DatabaseConfig.Username, c.DatabaseConfig.Password = "", ""
