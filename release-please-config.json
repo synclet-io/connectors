@@ -189,6 +189,16 @@
         }
       ]
     },
+    "connectors/source-notion": {
+      "component": "source-notion",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "meta.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
     "connectors/source-openexchangerates": {
       "component": "source-openexchangerates",
       "extra-files": [

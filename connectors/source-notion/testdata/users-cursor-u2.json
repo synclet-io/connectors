@@ -1,0 +1,20 @@
+{
+  "object": "list",
+  "results": [
+    {
+      "object": "user",
+      "id": "00000000-0000-4000-8000-000000000002",
+      "name": "Bo Example",
+      "avatar_url": null,
+      "type": "person",
+      "person": {
+        "email": "bo@example.com"
+      }
+    }
+  ],
+  "next_cursor": null,
+  "has_more": false,
+  "type": "user",
+  "user": {},
+  "request_id": "00000000-0000-4000-8000-0000000000ff"
+}

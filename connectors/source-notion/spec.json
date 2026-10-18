@@ -1,0 +1,51 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Reads the users, databases, pages and blocks shared with a Notion internal integration.",
+    "properties": {
+      "access_token": {
+        "airbyte_secret": true,
+        "description": "Secret of a Notion internal integration (https://www.notion.so/profile/integrations) with the capability \"Read content\", and \"Read user information including email addresses\" for the users stream. Pages and databases are visible to it once shared with it under ⋯ → Connections. It is sent in the Authorization header.",
+        "order": 0,
+        "title": "Internal Integration Token",
+        "type": "string"
+      },
+      "lookback_minutes": {
+        "default": 5,
+        "description": "An incremental read starts this many minutes before the saved last_edited_time, because Notion rounds last_edited_time to the minute and its search index lags behind edits. 0 or more.",
+        "order": 1,
+        "title": "Lookback Window (minutes)",
+        "type": "integer"
+      },
+      "max_block_depth": {
+        "default": 16,
+        "description": "How deep blocks are read under a page. Between 1 and 100. A page with blocks nested deeper fails the read.",
+        "order": 2,
+        "title": "Maximum Block Depth",
+        "type": "integer"
+      },
+      "max_blocks_per_page": {
+        "default": 10000,
+        "description": "How many blocks are read under one page. 1 or more. A page with more fails the read.",
+        "order": 3,
+        "title": "Maximum Blocks per Page",
+        "type": "integer"
+      }
+    },
+    "required": [
+      "access_token"
+    ],
+    "title": "Notion Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-notion",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": true,
+  "supportsNormalization": false
+}

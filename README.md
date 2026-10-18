@@ -41,6 +41,7 @@ Taskfile.yml              local shortcuts
 | [source-mongodb](connectors/source-mongodb) | `ghcr.io/synclet-io/connectors/source-mongodb` |
 | [source-mssql](connectors/source-mssql) | `ghcr.io/synclet-io/connectors/source-mssql` |
 | [source-mysql](connectors/source-mysql) | `ghcr.io/synclet-io/connectors/source-mysql` |
+| [source-notion](connectors/source-notion) | `ghcr.io/synclet-io/connectors/source-notion` |
 | [source-openexchangerates](connectors/source-openexchangerates) | `ghcr.io/synclet-io/connectors/source-openexchangerates` |
 | [source-postgres](connectors/source-postgres) | `ghcr.io/synclet-io/connectors/source-postgres` |
 | [source-revenuecat](connectors/source-revenuecat) | `ghcr.io/synclet-io/connectors/source-revenuecat` |
