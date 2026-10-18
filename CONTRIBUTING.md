@@ -20,17 +20,57 @@ The image must implement the [Airbyte protocol](https://docs.airbyte.com/underst
 `spec`, `check --config` and `write --config --catalog` (records on stdin) for destinations. Messages go to
 stdout as JSON lines.
 
-Copy `source-example`, which is built on [synclet-go-sdk](https://github.com/synclet-io/synclet-go-sdk):
+Copy `source-example`, which is built on [synclet-go-sdk](https://github.com/synclet-io/synclet-go-sdk)
+v0.3.0:
 
 ```bash
 cp -r connectors/source-example connectors/source-acme
-# edit go.mod (module name), source.go, meta.json, README.md
+# edit go.mod (module name), main.go, source.go, .gitignore, .dockerignore, meta.json, README.md
 ```
 
 Connectors in this repository are written in Go on synclet-go-sdk and use ordinary Go libraries for
-everything else (HTTP clients, database drivers). CI runs `go vet`, `golangci-lint` and `go test` for every
-changed connector. Tests must not need real credentials: use testcontainers for databases (Docker is
-available in CI), MinIO for S3 and recorded HTTP fixtures for API sources.
+everything else (HTTP clients, database drivers). For a larger example, read `source-postgres`.
+
+### The SDK API
+
+A connector is a type with methods, and `main` hands it to the SDK:
+
+```go
+type Source struct{}
+
+func main() { cli.RunSource(Source{}) }
+```
+
+- `cli.RunSource` and `cli.RunDestination` parse the command line, read the config, catalog and state files,
+  run the command and exit: 0 on success, 1 on failure.
+- A source implements `synclet.Source[C]`: `Spec(ctx)`, `Check(ctx, cfg)`, `Discover(ctx, cfg)` and
+  `Read(ctx, cfg, catalog, state, em)`. A destination implements `synclet.Destination[C]`: `Spec`, `Check`
+  and `Write(ctx, cfg, catalog, in, em)`, which echoes each STATE through `em` once the records before it are
+  committed.
+- `C` is your configuration struct. The SDK decodes the configuration JSON into it before every call, so
+  methods take a typed `cfg`, never a file path.
+- `ctx` is cancelled on SIGTERM. Pass it to every network and database call and check `ctx.Err()` in loops
+  that do no I/O, so a cancelled sync stops promptly.
+- A non-nil error from `Check` becomes a FAILED `CONNECTION_STATUS` whose message is the error text.
+- Messages go out through the `*synclet.Emitter`: `em.Record`, `em.StreamState`, `em.GlobalState`,
+  `em.Log`. `synclet.Logger(ctx)` returns a `slog.Logger` whose records become LOG messages.
+
+### Tests
+
+`testkit.RunSource` and `testkit.RunDestination` run one command in-process and return its parsed messages.
+Every source runs the conformance suite, `testkit.RunSourceSuite`, with a working config, a config `check`
+must reject and a configured catalog. It checks spec, check, discover and read against the protocol: record
+schemas, state order, incremental resume and that a read stops once its context is cancelled. See
+`source-example/source_test.go` and `TestConformance` in `source-postgres`.
+
+Tests use no build tags. Tests that need Docker (testcontainers) call `t.Skip` under `testing.Short()`, so
+`go test -short ./...` runs everything else without Docker; `go test ./...` runs all of them. CI runs
+`go vet`, `golangci-lint` and `go test -race ./...` for every changed connector, with Docker available.
+Tests must not need real credentials: use testcontainers for databases, MinIO for S3 and recorded HTTP
+fixtures or a fake server for API sources.
+
+Each connector's `.gitignore` and `.dockerignore` list its built binary (`/source-acme`), so `go build` output
+stays out of git and the image context.
 
 The image must build for `linux/amd64` and `linux/arm64`. Avoid installing anything that needs network
 access at runtime, and keep `ENTRYPOINT` pointing at the connector binary.
