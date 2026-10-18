@@ -1,0 +1,36 @@
+{
+  "status": "COMPLETE",
+  "results": [
+    {
+      "from": {
+        "id": "201"
+      },
+      "to": [
+        {
+          "toObjectId": 301,
+          "associationTypes": [
+            {
+              "category": "HUBSPOT_DEFINED",
+              "typeId": 6,
+              "label": null
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "numErrors": 1,
+  "errors": [
+    {
+      "status": "error",
+      "category": "VALIDATION_ERROR",
+      "subCategory": "crm.associations.NO_ASSOCIATIONS_FOUND",
+      "context": {
+        "fromObjectId": [
+          "202"
+        ]
+      },
+      "message": "No deal is associated with company 202."
+    }
+  ]
+}

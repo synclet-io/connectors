@@ -1,0 +1,14 @@
+{
+  "results": [
+    {
+      "toObjectId": 202,
+      "associationTypes": [
+        {
+          "category": "USER_DEFINED",
+          "typeId": 28,
+          "label": "Billing contact"
+        }
+      ]
+    }
+  ]
+}

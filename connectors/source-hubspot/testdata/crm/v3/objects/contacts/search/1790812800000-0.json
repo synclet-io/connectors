@@ -1,0 +1,52 @@
+{
+  "total": 3,
+  "results": [
+    {
+      "id": "101",
+      "properties": {
+        "email": "ada@example.com",
+        "firstname": "Ada",
+        "phone": "+1 555 0101",
+        "lifecyclestage": "lead",
+        "hs_tags": "alpha;beta",
+        "hs_custom_json": "{\"tier\":1}",
+        "hs_geo": "",
+        "num_notes": "3",
+        "hs_is_unworked": "true",
+        "createdate": "2026-09-01T08:00:00.000Z",
+        "lastmodifieddate": "2026-10-02T09:00:00.000Z",
+        "date_of_birth": "1990-05-17",
+        "hs_future_field": "x"
+      },
+      "createdAt": "2026-09-01T08:00:00.000Z",
+      "updatedAt": "2026-10-02T09:00:00.000Z",
+      "archived": false
+    },
+    {
+      "id": "102",
+      "properties": {
+        "email": "grace@example.com",
+        "firstname": "Grace",
+        "phone": "",
+        "lifecyclestage": "customer",
+        "hs_tags": "",
+        "hs_custom_json": null,
+        "hs_geo": null,
+        "num_notes": "0.5",
+        "hs_is_unworked": "false",
+        "createdate": "2026-09-02T08:00:00.000Z",
+        "lastmodifieddate": "2026-10-03T09:00:00.000Z",
+        "date_of_birth": "1985-12-09T00:00:00.000Z",
+        "hs_future_field": null
+      },
+      "createdAt": "2026-09-02T08:00:00.000Z",
+      "updatedAt": "2026-10-03T09:00:00.000Z",
+      "archived": false
+    }
+  ],
+  "paging": {
+    "next": {
+      "after": "2"
+    }
+  }
+}

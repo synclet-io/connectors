@@ -1,0 +1,44 @@
+{
+  "results": [
+    {
+      "name": "dealname",
+      "label": "Dealname",
+      "type": "string",
+      "fieldType": "text",
+      "groupName": "info",
+      "hidden": false
+    },
+    {
+      "name": "amount",
+      "label": "Amount",
+      "type": "number",
+      "fieldType": "number",
+      "groupName": "info",
+      "hidden": false
+    },
+    {
+      "name": "dealstage",
+      "label": "Dealstage",
+      "type": "enumeration",
+      "fieldType": "radio",
+      "groupName": "info",
+      "hidden": false
+    },
+    {
+      "name": "closedate",
+      "label": "Closedate",
+      "type": "datetime",
+      "fieldType": "date",
+      "groupName": "info",
+      "hidden": false
+    },
+    {
+      "name": "hs_lastmodifieddate",
+      "label": "Hs Lastmodifieddate",
+      "type": "datetime",
+      "fieldType": "date",
+      "groupName": "info",
+      "hidden": false
+    }
+  ]
+}

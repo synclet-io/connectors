@@ -1,0 +1,28 @@
+{
+  "results": [
+    {
+      "id": "101",
+      "properties": {
+        "hs_object_id": "101"
+      },
+      "createdAt": "2026-09-01T00:00:00Z",
+      "updatedAt": "2026-10-01T00:00:00Z",
+      "archived": false
+    },
+    {
+      "id": "102",
+      "properties": {
+        "hs_object_id": "102"
+      },
+      "createdAt": "2026-09-01T00:00:00Z",
+      "updatedAt": "2026-10-01T00:00:00Z",
+      "archived": false
+    }
+  ],
+  "paging": {
+    "next": {
+      "after": "102",
+      "link": "https://api.hubapi.com/crm/v3/objects?after=102"
+    }
+  }
+}

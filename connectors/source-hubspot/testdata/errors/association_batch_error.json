@@ -1,0 +1,14 @@
+{
+  "status": "COMPLETE",
+  "results": [],
+  "numErrors": 1,
+  "errors": [
+    {
+      "status": "error",
+      "category": "RATE_LIMITS",
+      "subCategory": "crm.associations.READ_LIMIT_EXCEEDED",
+      "context": {"fromObjectId": ["103"]},
+      "message": "Too many associations requested."
+    }
+  ]
+}

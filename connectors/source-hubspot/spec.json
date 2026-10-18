@@ -1,0 +1,40 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Reads HubSpot CRM objects, custom objects, owners, pipelines and associations with a private app access token.",
+    "properties": {
+      "access_token": {
+        "airbyte_secret": true,
+        "description": "Access token of a HubSpot private app (Settings > Integrations > Private Apps) with the read scopes of the streams to sync. It is sent in the Authorization header.",
+        "order": 0,
+        "title": "Private App Access Token",
+        "type": "string"
+      },
+      "start_date": {
+        "description": "Earliest last modification the first incremental sync of CRM objects reads: an RFC 3339 time or YYYY-MM-DD, in UTC. Empty reads everything.",
+        "examples": [
+          "2026-01-01",
+          "2026-01-01T00:00:00Z"
+        ],
+        "order": 1,
+        "title": "Start Date",
+        "type": "string"
+      }
+    },
+    "required": [
+      "access_token"
+    ],
+    "title": "HubSpot Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-hubspot",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": true,
+  "supportsNormalization": false
+}

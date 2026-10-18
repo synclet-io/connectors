@@ -1,0 +1,17 @@
+{
+  "total": 1,
+  "results": [
+    {
+      "id": "501",
+      "properties": {
+        "name": "Seat",
+        "quantity": "10",
+        "price": "25",
+        "hs_lastmodifieddate": "2026-10-09T10:00:00Z"
+      },
+      "createdAt": "2026-09-12T00:00:00Z",
+      "updatedAt": "2026-10-09T10:00:00Z",
+      "archived": false
+    }
+  ]
+}

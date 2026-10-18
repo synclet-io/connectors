@@ -1,0 +1,28 @@
+{
+  "results": [
+    {
+      "name": "subject",
+      "label": "Subject",
+      "type": "string",
+      "fieldType": "text",
+      "groupName": "info",
+      "hidden": false
+    },
+    {
+      "name": "hs_pipeline_stage",
+      "label": "Hs Pipeline Stage",
+      "type": "enumeration",
+      "fieldType": "select",
+      "groupName": "info",
+      "hidden": false
+    },
+    {
+      "name": "hs_lastmodifieddate",
+      "label": "Hs Lastmodifieddate",
+      "type": "datetime",
+      "fieldType": "date",
+      "groupName": "info",
+      "hidden": false
+    }
+  ]
+}

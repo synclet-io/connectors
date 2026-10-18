@@ -1,0 +1,108 @@
+{
+  "results": [
+    {
+      "name": "email",
+      "label": "Email",
+      "type": "string",
+      "fieldType": "text",
+      "groupName": "info",
+      "hidden": false
+    },
+    {
+      "name": "firstname",
+      "label": "Firstname",
+      "type": "string",
+      "fieldType": "text",
+      "groupName": "info",
+      "hidden": false
+    },
+    {
+      "name": "phone",
+      "label": "Phone",
+      "type": "phone_number",
+      "fieldType": "phonenumber",
+      "groupName": "info",
+      "hidden": false
+    },
+    {
+      "name": "lifecyclestage",
+      "label": "Lifecyclestage",
+      "type": "enumeration",
+      "fieldType": "radio",
+      "groupName": "info",
+      "hidden": false
+    },
+    {
+      "name": "hs_tags",
+      "label": "Hs Tags",
+      "type": "enumeration",
+      "fieldType": "checkbox",
+      "groupName": "info",
+      "hidden": false
+    },
+    {
+      "name": "hs_custom_json",
+      "label": "Hs Custom Json",
+      "type": "json",
+      "fieldType": "text",
+      "groupName": "info",
+      "hidden": false
+    },
+    {
+      "name": "hs_geo",
+      "label": "Hs Geo",
+      "type": "object_coordinates",
+      "fieldType": "text",
+      "groupName": "info",
+      "hidden": false
+    },
+    {
+      "name": "num_notes",
+      "label": "Num Notes",
+      "type": "number",
+      "fieldType": "number",
+      "groupName": "info",
+      "hidden": false
+    },
+    {
+      "name": "hs_is_unworked",
+      "label": "Hs Is Unworked",
+      "type": "bool",
+      "fieldType": "booleancheckbox",
+      "groupName": "info",
+      "hidden": false
+    },
+    {
+      "name": "createdate",
+      "label": "Createdate",
+      "type": "datetime",
+      "fieldType": "date",
+      "groupName": "info",
+      "hidden": false
+    },
+    {
+      "name": "lastmodifieddate",
+      "label": "Lastmodifieddate",
+      "type": "datetime",
+      "fieldType": "date",
+      "groupName": "info",
+      "hidden": false
+    },
+    {
+      "name": "date_of_birth",
+      "label": "Date Of Birth",
+      "type": "date",
+      "fieldType": "date",
+      "groupName": "info",
+      "hidden": false
+    },
+    {
+      "name": "hs_future_field",
+      "label": "Hs Future Field",
+      "type": "unknown",
+      "fieldType": "text",
+      "groupName": "info",
+      "hidden": false
+    }
+  ]
+}

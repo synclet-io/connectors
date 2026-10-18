@@ -1,0 +1,35 @@
+{
+  "results": [
+    {
+      "id": "7001",
+      "email": "owner.one@example.com",
+      "type": "PERSON",
+      "firstName": "Owen",
+      "lastName": "One",
+      "userId": 8001,
+      "userIdIncludingInactive": 8001,
+      "createdAt": "2026-01-01T00:00:00Z",
+      "updatedAt": "2026-06-01T00:00:00Z",
+      "archived": false,
+      "teams": [
+        {
+          "id": "1",
+          "name": "Sales",
+          "primary": true
+        }
+      ]
+    },
+    {
+      "id": "7002",
+      "email": "owner.two@example.com",
+      "type": "PERSON",
+      "firstName": "Olga",
+      "lastName": "Two",
+      "userId": null,
+      "userIdIncludingInactive": 8002,
+      "createdAt": "2026-01-02T00:00:00Z",
+      "updatedAt": "2026-06-02T00:00:00Z",
+      "archived": false
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "results": [
+    {
+      "name": "name",
+      "label": "Name",
+      "type": "string",
+      "fieldType": "text",
+      "groupName": "info",
+      "hidden": false
+    },
+    {
+      "name": "domain",
+      "label": "Domain",
+      "type": "string",
+      "fieldType": "text",
+      "groupName": "info",
+      "hidden": false
+    },
+    {
+      "name": "annualrevenue",
+      "label": "Annualrevenue",
+      "type": "number",
+      "fieldType": "number",
+      "groupName": "info",
+      "hidden": false
+    },
+    {
+      "name": "hs_lastmodifieddate",
+      "label": "Hs Lastmodifieddate",
+      "type": "datetime",
+      "fieldType": "date",
+      "groupName": "info",
+      "hidden": false
+    }
+  ]
+}

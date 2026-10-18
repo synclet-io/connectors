@@ -1,0 +1,14 @@
+{
+  "results": [
+    {
+      "category": "HUBSPOT_DEFINED",
+      "typeId": 1,
+      "label": null
+    },
+    {
+      "category": "USER_DEFINED",
+      "typeId": 28,
+      "label": "Billing contact"
+    }
+  ]
+}

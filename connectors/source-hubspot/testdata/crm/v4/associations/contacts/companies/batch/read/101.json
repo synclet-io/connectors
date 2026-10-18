@@ -1,0 +1,50 @@
+{
+  "status": "COMPLETE",
+  "results": [
+    {
+      "from": {
+        "id": "101"
+      },
+      "to": [
+        {
+          "toObjectId": 201,
+          "associationTypes": [
+            {
+              "category": "HUBSPOT_DEFINED",
+              "typeId": 1,
+              "label": null
+            },
+            {
+              "category": "USER_DEFINED",
+              "typeId": 28,
+              "label": "Billing contact"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "from": {
+        "id": "102"
+      },
+      "to": [
+        {
+          "toObjectId": 201,
+          "associationTypes": [
+            {
+              "category": "HUBSPOT_DEFINED",
+              "typeId": 1,
+              "label": null
+            }
+          ]
+        }
+      ],
+      "paging": {
+        "next": {
+          "after": "MjAx",
+          "link": "?after=MjAx"
+        }
+      }
+    }
+  ]
+}

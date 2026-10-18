@@ -1,0 +1,22 @@
+{
+  "results": [
+    {
+      "id": "201",
+      "properties": {
+        "hs_object_id": "201"
+      },
+      "createdAt": "2026-09-01T00:00:00Z",
+      "updatedAt": "2026-10-01T00:00:00Z",
+      "archived": false
+    },
+    {
+      "id": "202",
+      "properties": {
+        "hs_object_id": "202"
+      },
+      "createdAt": "2026-09-01T00:00:00Z",
+      "updatedAt": "2026-10-01T00:00:00Z",
+      "archived": false
+    }
+  ]
+}

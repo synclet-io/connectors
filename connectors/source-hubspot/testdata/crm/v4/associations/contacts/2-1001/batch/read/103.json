@@ -1,0 +1,18 @@
+{
+  "status": "COMPLETE",
+  "results": [],
+  "numErrors": 1,
+  "errors": [
+    {
+      "status": "error",
+      "category": "VALIDATION_ERROR",
+      "subCategory": "crm.associations.NO_ASSOCIATIONS_FOUND",
+      "context": {
+        "fromObjectId": [
+          "103"
+        ]
+      },
+      "message": "No car is associated with contact 103."
+    }
+  ]
+}

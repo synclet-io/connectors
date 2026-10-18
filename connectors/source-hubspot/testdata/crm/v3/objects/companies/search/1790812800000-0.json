@@ -1,0 +1,29 @@
+{
+  "total": 2,
+  "results": [
+    {
+      "id": "201",
+      "properties": {
+        "name": "Example Inc",
+        "domain": "example.com",
+        "annualrevenue": "1200000",
+        "hs_lastmodifieddate": "2026-10-05T10:00:00Z"
+      },
+      "createdAt": "2026-08-01T00:00:00Z",
+      "updatedAt": "2026-10-05T10:00:00Z",
+      "archived": false
+    },
+    {
+      "id": "202",
+      "properties": {
+        "name": "Sample LLC",
+        "domain": "sample.example.com",
+        "annualrevenue": null,
+        "hs_lastmodifieddate": "2026-10-06T10:00:00Z"
+      },
+      "createdAt": "2026-08-02T00:00:00Z",
+      "updatedAt": "2026-10-06T10:00:00Z",
+      "archived": false
+    }
+  ]
+}

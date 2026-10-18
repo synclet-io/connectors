@@ -1,0 +1,36 @@
+{
+  "status": "COMPLETE",
+  "results": [
+    {
+      "from": {
+        "id": "101"
+      },
+      "to": [
+        {
+          "toObjectId": 9001,
+          "associationTypes": [
+            {
+              "category": "USER_DEFINED",
+              "typeId": 55,
+              "label": "Owner"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "numErrors": 1,
+  "errors": [
+    {
+      "status": "error",
+      "category": "VALIDATION_ERROR",
+      "subCategory": "crm.associations.NO_ASSOCIATIONS_FOUND",
+      "context": {
+        "fromObjectId": [
+          "102"
+        ]
+      },
+      "message": "No car is associated with contact 102."
+    }
+  ]
+}

@@ -36,6 +36,7 @@ Taskfile.yml              local shortcuts
 | [source-facebook-marketing](connectors/source-facebook-marketing) | `ghcr.io/synclet-io/connectors/source-facebook-marketing` |
 | [source-google-ads](connectors/source-google-ads) | `ghcr.io/synclet-io/connectors/source-google-ads` |
 | [source-google-sheets](connectors/source-google-sheets) | `ghcr.io/synclet-io/connectors/source-google-sheets` |
+| [source-hubspot](connectors/source-hubspot) | `ghcr.io/synclet-io/connectors/source-hubspot` |
 | [source-mssql](connectors/source-mssql) | `ghcr.io/synclet-io/connectors/source-mssql` |
 | [source-mysql](connectors/source-mysql) | `ghcr.io/synclet-io/connectors/source-mysql` |
 | [source-openexchangerates](connectors/source-openexchangerates) | `ghcr.io/synclet-io/connectors/source-openexchangerates` |

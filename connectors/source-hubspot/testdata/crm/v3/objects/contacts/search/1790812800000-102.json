@@ -1,0 +1,26 @@
+{
+  "total": 1,
+  "results": [
+    {
+      "id": "103",
+      "properties": {
+        "email": "linus@example.com",
+        "firstname": "",
+        "phone": null,
+        "lifecyclestage": null,
+        "hs_tags": null,
+        "hs_custom_json": null,
+        "hs_geo": null,
+        "num_notes": "",
+        "hs_is_unworked": "",
+        "createdate": "1788429600000",
+        "lastmodifieddate": "2026-10-04T09:00:00.000Z",
+        "date_of_birth": "471484800000",
+        "hs_future_field": null
+      },
+      "createdAt": "2026-09-03T08:00:00.000Z",
+      "updatedAt": "2026-10-04T09:00:00.000Z",
+      "archived": false
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "total": 1,
+  "results": [
+    {
+      "id": "401",
+      "properties": {
+        "subject": "Cannot log in",
+        "hs_pipeline_stage": "1",
+        "hs_lastmodifieddate": "2026-10-08T10:00:00Z"
+      },
+      "createdAt": "2026-09-11T00:00:00Z",
+      "updatedAt": "2026-10-08T10:00:00Z",
+      "archived": false
+    }
+  ]
+}

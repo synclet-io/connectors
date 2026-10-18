@@ -1,0 +1,26 @@
+{
+  "results": [
+    {
+      "id": "1001",
+      "name": "cars",
+      "objectTypeId": "2-1001",
+      "fullyQualifiedName": "p100_cars",
+      "labels": {
+        "singular": "Car",
+        "plural": "Cars"
+      },
+      "archived": false
+    },
+    {
+      "id": "1002",
+      "name": "boats",
+      "objectTypeId": "2-1002",
+      "fullyQualifiedName": "p100_boats",
+      "labels": {
+        "singular": "Boat",
+        "plural": "Boats"
+      },
+      "archived": true
+    }
+  ]
+}

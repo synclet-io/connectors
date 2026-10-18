@@ -1,0 +1,28 @@
+{
+  "results": [
+    {
+      "name": "name",
+      "label": "Name",
+      "type": "string",
+      "fieldType": "text",
+      "groupName": "info",
+      "hidden": false
+    },
+    {
+      "name": "price",
+      "label": "Price",
+      "type": "number",
+      "fieldType": "number",
+      "groupName": "info",
+      "hidden": false
+    },
+    {
+      "name": "hs_lastmodifieddate",
+      "label": "Hs Lastmodifieddate",
+      "type": "datetime",
+      "fieldType": "date",
+      "groupName": "info",
+      "hidden": false
+    }
+  ]
+}
