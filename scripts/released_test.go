@@ -98,6 +98,10 @@ func TestCheckReleasePlease(t *testing.T) {
 		{"manifest behind meta.json", `{"packages": {` + pkg + `}}`, `{"connectors/source-acme": "0.1.0"}`, `has version 0.2.0`},
 		{"missing package", `{"packages": {}}`, `{"connectors/source-acme": "0.2.0"}`, `no package "connectors/source-acme"`},
 		{"meta.json not bumped", `{"packages": {"connectors/source-acme": {"component": "source-acme"}}}`, `{"connectors/source-acme": "0.2.0"}`, `extra-files`},
+		{"unreleased at initial-version", `{"initial-version": "0.2.0", "packages": {` + pkg + `}}`, `{}`, ""},
+		{"unreleased at package initial-version", `{"initial-version": "0.1.0", "packages": {"connectors/source-acme": {"component": "source-acme", "initial-version": "0.2.0", "extra-files": [{"type": "json", "path": "meta.json", "jsonpath": "$.version"}]}}}`, `{}`, ""},
+		{"unreleased past initial-version", `{"initial-version": "0.1.0", "packages": {` + pkg + `}}`, `{}`, `must have the initial-version 0.1.0, not 0.2.0`},
+		{"unreleased without initial-version", `{"packages": {` + pkg + `}}`, `{}`, `sets no initial-version`},
 		{"stale package", `{"packages": {` + pkg + `, "connectors/gone": {"component": "gone"}}}`, `{"connectors/source-acme": "0.2.0"}`, `"connectors/gone" is not a connector`},
 	}
 

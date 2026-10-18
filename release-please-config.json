@@ -6,7 +6,8 @@
   "include-v-in-tag": true,
   "tag-separator": "-",
   "separate-pull-requests": true,
-  "pull-request-title-pattern": "chore(${component}): release ${version}",
+  "pull-request-title-pattern": "chore: release${component} ${version}",
+  "initial-version": "0.1.0",
   "packages": {
     "connectors/destination-bigquery": {
       "component": "destination-bigquery",

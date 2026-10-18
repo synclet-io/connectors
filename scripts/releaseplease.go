@@ -14,8 +14,9 @@ const (
 )
 
 type releasePleasePackage struct {
-	Component  string `json:"component"`
-	ExtraFiles []struct {
+	Component      string `json:"component"`
+	InitialVersion string `json:"initial-version"`
+	ExtraFiles     []struct {
 		Type     string `json:"type"`
 		Path     string `json:"path"`
 		JSONPath string `json:"jsonpath"`
@@ -24,10 +25,13 @@ type releasePleasePackage struct {
 
 // checkReleasePlease requires one release-please package per connector,
 // released under the tag <dir>-v<version> with its meta.json version bumped,
-// and a manifest whose versions equal the meta.json versions.
+// and a manifest whose versions equal the meta.json versions. A connector
+// missing from the manifest is not released yet: release-please opens its
+// first release at initial-version, so meta.json must declare that version.
 func checkReleasePlease(root string, connectors []Connector) error {
 	var config struct {
-		Packages map[string]releasePleasePackage `json:"packages"`
+		InitialVersion string                          `json:"initial-version"`
+		Packages       map[string]releasePleasePackage `json:"packages"`
 	}
 	if err := readJSON(filepath.Join(root, releasePleaseConfig), &config); err != nil {
 		return err
@@ -69,8 +73,22 @@ func checkReleasePlease(root string, connectors []Connector) error {
 			errs = append(errs, fmt.Errorf("%s: package %q must list meta.json ($.version) in extra-files", releasePleaseConfig, path))
 		}
 
-		if v := manifest[path]; v != c.Meta.Version {
+		v, released := manifest[path]
+
+		switch {
+		case released && v != c.Meta.Version:
 			errs = append(errs, fmt.Errorf("%s: %q is %q but %s/meta.json has version %s", releasePleaseManifest, path, v, path, c.Meta.Version))
+		case !released:
+			initial := pkg.InitialVersion
+			if initial == "" {
+				initial = config.InitialVersion
+			}
+
+			if initial == "" {
+				errs = append(errs, fmt.Errorf("%s: %q is not released and %s sets no initial-version", releasePleaseManifest, path, releasePleaseConfig))
+			} else if initial != c.Meta.Version {
+				errs = append(errs, fmt.Errorf("%s: %q is not released, so %s/meta.json must have the initial-version %s, not %s", releasePleaseManifest, path, path, initial, c.Meta.Version))
+			}
 		}
 	}
 
