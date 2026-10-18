@@ -99,6 +99,16 @@
         }
       ]
     },
+    "connectors/source-mssql": {
+      "component": "source-mssql",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "meta.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
     "connectors/source-mysql": {
       "component": "source-mysql",
       "extra-files": [
