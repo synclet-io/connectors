@@ -1,0 +1,8 @@
+{
+  "error": {
+    "code": "1.01",
+    "messages": [
+      "Authentication failed"
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "disputes": [
+    {
+      "dispute_id": "PP-D-0002",
+      "order_id": "apm-0002",
+      "subscription_product_id": null,
+      "subscription_service_id": null,
+      "created_at": "2026-10-17 08:00:00",
+      "updated_at": "2026-10-17 16:00:00",
+      "seller_response_due_date": "2026-10-30 00:00:00",
+      "dispute_amount": 500,
+      "dispute_currency": "EUR",
+      "dispute_life_cycle_stage": "inquiry",
+      "dispute_channel": "internal",
+      "dispute_create_time": "2026-10-17 07:59:00",
+      "dispute_update_time": "2026-10-17 15:59:00",
+      "dispute_outcome": null,
+      "reason": "merchandise_or_service_not_received",
+      "status": "open",
+      "customer_account_id": null,
+      "customer_email": "payer2@example.com"
+    }
+  ],
+  "metadata": {
+    "next_page_iterator": null
+  }
+}

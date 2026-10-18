@@ -99,6 +99,16 @@
         }
       ]
     },
+    "connectors/source-solidgate": {
+      "component": "source-solidgate",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "meta.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
     "connectors/source-zendesk-support": {
       "component": "source-zendesk-support",
       "extra-files": [

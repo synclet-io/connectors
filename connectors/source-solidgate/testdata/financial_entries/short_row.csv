@@ -1,0 +1,3 @@
+id,order_id,external_psp_order_id,transaction_id,chargeback_id,order_description,created_at,transaction_datetime_provider,transaction_datetime_utc,accounting_date,amount,amount_in_major_units,currency,currency_minor_units,payout_amount,payout_amount_in_major_units,payout_currency,payout_currency_minor_units,record_type_key,provider,payment_method,card_brand,geo_country,issuing_country,legal_entity,product_id,product_name,unlisted_column
+fe-0006,ord-0006,,txn-0006,,Premium plan,2026-10-16 10:00:00,2026-10-16 10:00:00,2026-10-16 10:00:00,2026-10-16,1000,10.00,USD,2,970,9.70,USD,2,sale,acquirer-test,card,VISA,USA,USA,Example Ltd,prod-0001,Premium monthly,dropped
+fe-0007,ord-0007

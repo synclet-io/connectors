@@ -1,0 +1,20 @@
+{
+  "alerts": [
+    {
+      "id": 1,
+      "order_id": "ord-0001",
+      "created_at": "2026-10-16 04:00:00",
+      "updated_at": "2026-10-16 04:30:00",
+      "fraud_amount": 1000,
+      "fraud_currency": "USD",
+      "fraud_amount_usd": 1000,
+      "fraud_report_date": "2026-10-16 00:00:00",
+      "fraud_type": "counterfeit",
+      "card_scheme": "VISA",
+      "reason_code_description": "Counterfeit card"
+    }
+  ],
+  "metadata": {
+    "next_page_iterator": null
+  }
+}

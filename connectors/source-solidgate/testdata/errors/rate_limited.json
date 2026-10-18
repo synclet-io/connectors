@@ -1,0 +1,8 @@
+{
+  "error": {
+    "code": "5.07",
+    "messages": [
+      "Too many requests"
+    ]
+  }
+}

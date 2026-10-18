@@ -1,0 +1,35 @@
+{
+  "orders": [
+    {
+      "order_id": "apm-0002",
+      "order_description": "Premium plan",
+      "created_at": "2026-10-17 09:00:00",
+      "updated_at": "2026-10-17 07:45:00",
+      "method": "paypal-vault",
+      "amount": 1000,
+      "currency": "EUR",
+      "processing_amount": null,
+      "processing_currency": null,
+      "status": "approved",
+      "customer_account_id": null,
+      "customer_email": "payer2@example.com",
+      "ip_address": "192.0.2.20",
+      "geo_country": "DEU",
+      "error_code": null,
+      "transactions": [
+        {
+          "id": "apm-txn-0002",
+          "method": "paypal-vault",
+          "amount": 1000,
+          "currency": "EUR",
+          "status": "success",
+          "type": "pay"
+        }
+      ],
+      "order_metadata": null
+    }
+  ],
+  "metadata": {
+    "next_page_iterator": null
+  }
+}

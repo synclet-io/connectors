@@ -1,0 +1,992 @@
+{
+  "streams": [
+    {
+      "name": "subscriptions",
+      "namespace": "",
+      "sync_modes": [
+        "full_refresh",
+        "incremental"
+      ],
+      "primary_key": [
+        [
+          "id"
+        ],
+        [
+          "solid_account"
+        ]
+      ],
+      "cursor": [
+        "updated_at"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "solid_account": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "started_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expired_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "next_charge_at": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "format": "date-time"
+        },
+        "payment_type": {
+          "type": "string"
+        },
+        "trial": {
+          "type": "boolean"
+        },
+        "cancelled_at": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "format": "date-time"
+        },
+        "cancel_code": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "cancel_message": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "customer_account_id": {
+          "type": "string"
+        },
+        "customer_email": {
+          "type": "string"
+        },
+        "product_id": {
+          "type": "string"
+        },
+        "product_name": {
+          "type": "string"
+        },
+        "product_payment_action": {
+          "type": "string"
+        },
+        "product_amount": {
+          "type": "number"
+        },
+        "product_currency": {
+          "type": "string"
+        },
+        "product_trial": {
+          "type": "boolean"
+        },
+        "product_trial_period": {
+          "type": "integer"
+        },
+        "pause_from_date": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "format": "date-time"
+        },
+        "pause_to_date": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "format": "date-time"
+        }
+      }
+    },
+    {
+      "name": "subscription_invoices",
+      "namespace": "",
+      "sync_modes": [
+        "full_refresh",
+        "incremental"
+      ],
+      "primary_key": [
+        [
+          "id"
+        ],
+        [
+          "solid_account"
+        ]
+      ],
+      "cursor": [
+        "updated_at"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "solid_account": {
+          "type": "string"
+        },
+        "subscription_id": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "amount": {
+          "type": "number"
+        },
+        "billing_period_started_at": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "format": "date-time"
+        },
+        "billing_period_ended_at": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "format": "date-time"
+        },
+        "subscription_term_number": {
+          "type": "integer"
+        },
+        "orders": {
+          "type": [
+            "null",
+            "array"
+          ]
+        }
+      }
+    },
+    {
+      "name": "products",
+      "namespace": "",
+      "sync_modes": [
+        "full_refresh"
+      ],
+      "primary_key": [
+        [
+          "id"
+        ],
+        [
+          "solid_account"
+        ]
+      ],
+      "cursor": [],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "solid_account": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "public_description": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "status": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "payment_action": {
+          "type": "string"
+        },
+        "settle_interval": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
+        "tax_profile_id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "tax_category_id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "tax_is_included": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        }
+      }
+    },
+    {
+      "name": "card_orders",
+      "namespace": "",
+      "sync_modes": [
+        "full_refresh",
+        "incremental"
+      ],
+      "primary_key": [
+        [
+          "id"
+        ],
+        [
+          "solid_account"
+        ]
+      ],
+      "cursor": [
+        "updated_at"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "solid_account": {
+          "type": "string"
+        },
+        "order_description": {
+          "type": "string"
+        },
+        "psp_order_id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "provider_payment_id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "amount": {
+          "type": "integer"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "processing_amount": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
+        "processing_currency": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "status": {
+          "type": "string"
+        },
+        "payment_type": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "type": {
+          "type": "string"
+        },
+        "is_secured": {
+          "type": "boolean"
+        },
+        "customer_account_id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "customer_email": {
+          "type": "string"
+        },
+        "customer_first_name": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "customer_last_name": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "ip_address": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "mid": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "platform": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "geo_country": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "error_code": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "routing": {
+          "type": [
+            "null",
+            "object"
+          ]
+        },
+        "transactions": {
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "order_metadata": {
+          "type": [
+            "null",
+            "object"
+          ]
+        }
+      }
+    },
+    {
+      "name": "apm_orders",
+      "namespace": "",
+      "sync_modes": [
+        "full_refresh",
+        "incremental"
+      ],
+      "primary_key": [
+        [
+          "id"
+        ],
+        [
+          "solid_account"
+        ]
+      ],
+      "cursor": [
+        "updated_at"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "solid_account": {
+          "type": "string"
+        },
+        "order_description": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "method": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "integer"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "processing_amount": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
+        "processing_currency": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "status": {
+          "type": "string"
+        },
+        "customer_account_id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "customer_email": {
+          "type": "string"
+        },
+        "ip_address": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "geo_country": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "error_code": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "transactions": {
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "order_metadata": {
+          "type": [
+            "null",
+            "object"
+          ]
+        }
+      }
+    },
+    {
+      "name": "chargebacks",
+      "namespace": "",
+      "sync_modes": [
+        "full_refresh",
+        "incremental"
+      ],
+      "primary_key": [
+        [
+          "id"
+        ],
+        [
+          "solid_account"
+        ]
+      ],
+      "cursor": [
+        "updated_at"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "solid_account": {
+          "type": "string"
+        },
+        "order_id": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "dispute_date": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "settlement_date": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "format": "date-time"
+        },
+        "amount": {
+          "type": "integer"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "type": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "status": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "reason_group": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "reason_code": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "reason_description": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "flows": {
+          "type": [
+            "null",
+            "array"
+          ]
+        }
+      }
+    },
+    {
+      "name": "paypal_disputes",
+      "namespace": "",
+      "sync_modes": [
+        "full_refresh",
+        "incremental"
+      ],
+      "primary_key": [
+        [
+          "id"
+        ],
+        [
+          "solid_account"
+        ]
+      ],
+      "cursor": [
+        "updated_at"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "solid_account": {
+          "type": "string"
+        },
+        "order_id": {
+          "type": "string"
+        },
+        "subscription_product_id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "subscription_service_id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "seller_response_due_date": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "format": "date-time"
+        },
+        "dispute_amount": {
+          "type": "integer"
+        },
+        "dispute_currency": {
+          "type": "string"
+        },
+        "dispute_life_cycle_stage": {
+          "type": "string"
+        },
+        "dispute_channel": {
+          "type": "string"
+        },
+        "dispute_create_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "dispute_update_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "dispute_outcome": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "reason": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "customer_account_id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "customer_email": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      }
+    },
+    {
+      "name": "card_fraud_alerts",
+      "namespace": "",
+      "sync_modes": [
+        "full_refresh",
+        "incremental"
+      ],
+      "primary_key": [
+        [
+          "order_id"
+        ],
+        [
+          "created_at"
+        ],
+        [
+          "solid_account"
+        ]
+      ],
+      "cursor": [
+        "updated_at"
+      ],
+      "properties": {
+        "id": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
+        "order_id": {
+          "type": "string"
+        },
+        "solid_account": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "format": "date-time"
+        },
+        "fraud_amount": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
+        "fraud_currency": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "fraud_amount_usd": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
+        "fraud_report_date": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "format": "date-time"
+        },
+        "fraud_type": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "card_scheme": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "reason_code_description": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      }
+    },
+    {
+      "name": "financial_entries",
+      "namespace": "",
+      "sync_modes": [
+        "full_refresh",
+        "incremental"
+      ],
+      "primary_key": [
+        [
+          "id"
+        ],
+        [
+          "solid_account"
+        ]
+      ],
+      "cursor": [
+        "created_at"
+      ],
+      "properties": {
+        "id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "solid_account": {
+          "type": "string"
+        },
+        "order_id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "external_psp_order_id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "transaction_id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "chargeback_id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "order_description": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "created_at": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "airbyte_type": "timestamp_without_timezone"
+        },
+        "transaction_datetime_provider": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "airbyte_type": "timestamp_without_timezone"
+        },
+        "transaction_datetime_utc": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "format": "date-time",
+          "airbyte_type": "timestamp_with_timezone"
+        },
+        "accounting_date": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "format": "date"
+        },
+        "amount": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "amount_in_major_units": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "currency": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "currency_minor_units": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "payout_amount": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "payout_amount_in_major_units": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "payout_currency": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "payout_currency_minor_units": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "record_type_key": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "provider": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "payment_method": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "card_brand": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "geo_country": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "issuing_country": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "legal_entity": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "product_id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "product_name": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      }
+    }
+  ]
+}

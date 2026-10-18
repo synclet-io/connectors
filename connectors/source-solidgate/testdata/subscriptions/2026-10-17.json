@@ -1,0 +1,67 @@
+{
+  "subscriptions": {
+    "sub-0003": {
+      "id": "sub-0003",
+      "status": "active",
+      "updated_at": "2026-10-17 12:00:00",
+      "started_at": "2026-10-17 09:00:00",
+      "expired_at": "2026-11-16 09:00:00",
+      "next_charge_at": "2026-11-16 09:00:00",
+      "payment_type": "card",
+      "trial": false,
+      "cancelled_at": null,
+      "cancel_code": null,
+      "cancel_message": null,
+      "customer": {
+        "customer_account_id": "cust-0003",
+        "customer_email": "customer3@example.com"
+      },
+      "product": {
+        "id": "prod-0001",
+        "name": "Premium monthly",
+        "payment_action": "auth_settle",
+        "amount": 9.99,
+        "currency": "USD",
+        "trial": true,
+        "trial_period": 7
+      },
+      "pause": null,
+      "invoices": {
+        "inv-0003-b": {
+          "id": "inv-0003-b",
+          "status": "paid",
+          "created_at": "2026-10-17 09:00:00",
+          "updated_at": "2026-10-17 12:00:00",
+          "amount": 9.99,
+          "billing_period_started_at": "2026-10-17 09:00:00",
+          "billing_period_ended_at": "2026-11-16 09:00:00",
+          "subscription_term_number": 2,
+          "orders": {
+            "ord-0003": {
+              "id": "ord-0003",
+              "status": "success",
+              "created_at": "2026-10-17 09:00:00",
+              "processed_at": "2026-10-17 09:00:05",
+              "amount": 999,
+              "operation": "recurring"
+            }
+          }
+        },
+        "inv-0003-a": {
+          "id": "inv-0003-a",
+          "status": "paid",
+          "created_at": "2026-10-17 09:00:00",
+          "updated_at": "2026-10-17 09:01:00",
+          "amount": 0,
+          "billing_period_started_at": null,
+          "billing_period_ended_at": null,
+          "subscription_term_number": 1,
+          "orders": {}
+        }
+      }
+    }
+  },
+  "metadata": {
+    "next_page_iterator": null
+  }
+}
