@@ -1,0 +1,37 @@
+{
+  "data": {
+    "shop": {
+      "id": "gid://shopify/Shop/1",
+      "name": "Example Store",
+      "email": "owner@example.com",
+      "contactEmail": "support@example.com",
+      "myshopifyDomain": "example.myshopify.com",
+      "primaryDomain": {
+        "host": "example.myshopify.com",
+        "url": "https://example.myshopify.com"
+      },
+      "currencyCode": "USD",
+      "ianaTimezone": "America/Toronto",
+      "weightUnit": "KILOGRAMS",
+      "taxesIncluded": false,
+      "plan": {
+        "publicDisplayName": "Development",
+        "partnerDevelopment": true,
+        "shopifyPlus": false
+      },
+      "createdAt": "2026-09-20T08:15:30Z",
+      "updatedAt": "2026-10-01T08:00:00Z"
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 10,
+      "actualQueryCost": 10,
+      "throttleStatus": {
+        "maximumAvailable": 2000.0,
+        "currentlyAvailable": 1990,
+        "restoreRate": 100.0
+      }
+    }
+  }
+}

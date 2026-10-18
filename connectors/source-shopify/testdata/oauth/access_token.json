@@ -1,0 +1,5 @@
+{
+  "access_token": "test-shopify-admin-token",
+  "scope": "read_products,read_customers,read_orders,read_all_orders,read_inventory,read_locations",
+  "expires_in": 86399
+}

@@ -1,0 +1,2 @@
+{"id":"gid://shopify/Order/6001","updatedAt":"2026-10-02T09:00:00Z","refunds":[{"id":"gid://shopify/Refund/8001","note":"Damaged","createdAt":"2026-10-02T08:00:00Z","updatedAt":"2026-10-02T08:00:00Z","totalRefundedSet":{"shopMoney":{"amount":"12.60","currencyCode":"USD"},"presentmentMoney":{"amount":"12.60","currencyCode":"USD"}}}]}
+{"id":"gid://shopify/Order/6002","updatedAt":"2026-10-07T09:00:00Z","refunds":[]}

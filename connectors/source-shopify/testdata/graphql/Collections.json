@@ -1,0 +1,36 @@
+{
+  "data": {
+    "collections": {
+      "pageInfo": {
+        "hasNextPage": true,
+        "endCursor": "cursor-collections-2"
+      },
+      "nodes": [
+        {
+          "id": "gid://shopify/Collection/9301",
+          "legacyResourceId": "9301",
+          "title": "Collection 9301",
+          "handle": "collection-9301",
+          "descriptionHtml": "",
+          "sortOrder": "BEST_SELLING",
+          "ruleSet": null,
+          "productsCount": {
+            "count": 2
+          },
+          "updatedAt": "2026-10-02T10:00:00Z"
+        }
+      ]
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 10,
+      "actualQueryCost": 10,
+      "throttleStatus": {
+        "maximumAvailable": 2000.0,
+        "currentlyAvailable": 1990,
+        "restoreRate": 100.0
+      }
+    }
+  }
+}

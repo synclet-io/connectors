@@ -1,0 +1,18 @@
+{
+  "data": {
+    "shop": {
+      "createdAt": "2026-09-20T08:15:30Z"
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 10,
+      "actualQueryCost": 10,
+      "throttleStatus": {
+        "maximumAvailable": 2000.0,
+        "currentlyAvailable": 1990,
+        "restoreRate": 100.0
+      }
+    }
+  }
+}

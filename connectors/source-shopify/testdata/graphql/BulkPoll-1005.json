@@ -1,0 +1,24 @@
+{
+  "data": {
+    "bulkOperation": {
+      "id": "gid://shopify/BulkOperation/1005",
+      "status": "COMPLETED",
+      "errorCode": null,
+      "objectCount": "2",
+      "rootObjectCount": "2",
+      "url": "{{base_url}}/bulk/refunds.jsonl",
+      "partialDataUrl": null
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 10,
+      "actualQueryCost": 10,
+      "throttleStatus": {
+        "maximumAvailable": 2000.0,
+        "currentlyAvailable": 1990,
+        "restoreRate": 100.0
+      }
+    }
+  }
+}

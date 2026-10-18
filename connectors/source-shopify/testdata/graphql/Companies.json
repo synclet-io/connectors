@@ -1,0 +1,48 @@
+{
+  "data": {
+    "companies": {
+      "pageInfo": {
+        "hasNextPage": false,
+        "endCursor": null
+      },
+      "nodes": [
+        {
+          "id": "gid://shopify/Company/9501",
+          "name": "Example Wholesale",
+          "externalId": "EXT-1",
+          "note": null,
+          "customerSince": "2026-09-25T00:00:00Z",
+          "mainContact": {
+            "id": "gid://shopify/CompanyContact/9601"
+          },
+          "contactsCount": {
+            "count": 1
+          },
+          "locationsCount": {
+            "count": 1
+          },
+          "ordersCount": {
+            "count": 0
+          },
+          "totalSpent": {
+            "amount": "1000.00",
+            "currencyCode": "USD"
+          },
+          "createdAt": "2026-09-25T00:00:00Z",
+          "updatedAt": "2026-10-03T00:00:00Z"
+        }
+      ]
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 10,
+      "actualQueryCost": 10,
+      "throttleStatus": {
+        "maximumAvailable": 2000.0,
+        "currentlyAvailable": 1990,
+        "restoreRate": 100.0
+      }
+    }
+  }
+}

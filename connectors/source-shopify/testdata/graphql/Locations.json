@@ -1,0 +1,67 @@
+{
+  "data": {
+    "locations": {
+      "pageInfo": {
+        "hasNextPage": false,
+        "endCursor": null
+      },
+      "nodes": [
+        {
+          "id": "gid://shopify/Location/9001",
+          "legacyResourceId": "9001",
+          "name": "Warehouse 9001",
+          "isActive": true,
+          "fulfillsOnlineOrders": true,
+          "hasActiveInventory": true,
+          "shipsInventory": true,
+          "address": {
+            "address1": "1 Example Street",
+            "address2": null,
+            "city": "Toronto",
+            "province": "Ontario",
+            "provinceCode": "ON",
+            "country": "Canada",
+            "countryCode": "CA",
+            "zip": "A1A 1A1",
+            "phone": null
+          },
+          "createdAt": "2026-09-20T09:00:00Z",
+          "updatedAt": "2026-09-21T09:00:00Z"
+        },
+        {
+          "id": "gid://shopify/Location/9002",
+          "legacyResourceId": "9002",
+          "name": "Warehouse 9002",
+          "isActive": false,
+          "fulfillsOnlineOrders": false,
+          "hasActiveInventory": false,
+          "shipsInventory": false,
+          "address": {
+            "address1": "1 Example Street",
+            "address2": null,
+            "city": "Toronto",
+            "province": "Ontario",
+            "provinceCode": "ON",
+            "country": "Canada",
+            "countryCode": "CA",
+            "zip": "A1A 1A1",
+            "phone": null
+          },
+          "createdAt": "2026-09-20T09:00:00Z",
+          "updatedAt": "2026-09-21T09:00:00Z"
+        }
+      ]
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 10,
+      "actualQueryCost": 10,
+      "throttleStatus": {
+        "maximumAvailable": 2000.0,
+        "currentlyAvailable": 1990,
+        "restoreRate": 100.0
+      }
+    }
+  }
+}

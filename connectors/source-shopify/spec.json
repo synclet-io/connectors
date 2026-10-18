@@ -1,0 +1,70 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Reads a Shopify store through the Admin GraphQL API with the access token of a custom app, or the client credentials of a Dev Dashboard app installed on the store.",
+    "properties": {
+      "access_token": {
+        "airbyte_secret": true,
+        "description": "Admin API access token of a custom app installed on the store, sent in the X-Shopify-Access-Token header. Leave empty when using client_id and client_secret.",
+        "order": 1,
+        "title": "Admin API Access Token",
+        "type": "string"
+      },
+      "client_id": {
+        "description": "Client ID of a Dev Dashboard app installed on the store. The connector exchanges it with client_secret for an access token (client credentials grant). Leave empty when using access_token.",
+        "order": 2,
+        "title": "Client ID",
+        "type": "string"
+      },
+      "client_secret": {
+        "airbyte_secret": true,
+        "description": "Client secret of the Dev Dashboard app of client_id.",
+        "order": 3,
+        "title": "Client Secret",
+        "type": "string"
+      },
+      "shop": {
+        "description": "The store name or its myshopify.com domain. Custom domains are not accepted.",
+        "examples": [
+          "example",
+          "example.myshopify.com"
+        ],
+        "order": 0,
+        "title": "Shop",
+        "type": "string"
+      },
+      "start_date": {
+        "description": "Earliest update time read: an RFC 3339 time or YYYY-MM-DD, in UTC. Empty reads from the shop's creation.",
+        "examples": [
+          "2026-01-01",
+          "2026-01-01T00:00:00Z"
+        ],
+        "order": 4,
+        "title": "Start Date",
+        "type": "string"
+      },
+      "window_days": {
+        "default": 30,
+        "description": "Days of updates one query reads; an incremental sync saves its state after each window. 1 to 365, default 30.",
+        "order": 5,
+        "title": "Window Days",
+        "type": "integer"
+      }
+    },
+    "required": [
+      "shop"
+    ],
+    "title": "Shopify Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-shopify",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": true,
+  "supportsNormalization": false
+}

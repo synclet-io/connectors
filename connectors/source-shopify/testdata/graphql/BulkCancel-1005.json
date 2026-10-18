@@ -1,0 +1,11 @@
+{
+  "data": {
+    "bulkOperationCancel": {
+      "bulkOperation": {
+        "id": "gid://shopify/BulkOperation/1005",
+        "status": "CANCELING"
+      },
+      "userErrors": []
+    }
+  }
+}

@@ -1,0 +1,3 @@
+{"id":"gid://shopify/Location/9001"}
+{"id":"gid://shopify/InventoryLevel/9101?inventory_item_id=5001","item":{"id":"gid://shopify/InventoryItem/5001"},"quantities":[{"name":"available","quantity":21},{"name":"on_hand","quantity":26}],"createdAt":"2026-09-01T10:00:00Z","updatedAt":"2026-10-03T10:00:00Z","__parentId":"gid://shopify/Location/9001"}
+{"id":"gid://shopify/InventoryLevel/9102?inventory_item_id=5002","item":{"id":"gid://shopify/InventoryItem/5002"},"quantities":[{"name":"available","quantity":22},{"name":"on_hand","quantity":27}],"createdAt":"2026-09-01T10:00:00Z","updatedAt":"2026-10-03T10:00:00Z","__parentId":"gid://shopify/Location/9001"}

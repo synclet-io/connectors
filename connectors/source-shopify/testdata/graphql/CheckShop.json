@@ -1,0 +1,40 @@
+{
+  "data": {
+    "shop": {
+      "name": "Example Store"
+    },
+    "currentAppInstallation": {
+      "accessScopes": [
+        {
+          "handle": "read_products"
+        },
+        {
+          "handle": "read_customers"
+        },
+        {
+          "handle": "read_orders"
+        },
+        {
+          "handle": "read_all_orders"
+        },
+        {
+          "handle": "read_inventory"
+        },
+        {
+          "handle": "read_locations"
+        }
+      ]
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 10,
+      "actualQueryCost": 10,
+      "throttleStatus": {
+        "maximumAvailable": 2000.0,
+        "currentlyAvailable": 1990,
+        "restoreRate": 100.0
+      }
+    }
+  }
+}
