@@ -1,19 +1,19 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 
-	airbyte "github.com/saturn4er/airbyte-go-sdk"
+	synclet "github.com/synclet-io/synclet-go-sdk"
 	"google.golang.org/api/sheets/v4"
 )
 
 const spreadsheetsScope = "https://www.googleapis.com/auth/spreadsheets"
 
-// GoogleSheetsDestination implements airbyte.Destination for Google Sheets.
+// GoogleSheetsDestination implements synclet.Destination for Google Sheets.
 type GoogleSheetsDestination struct{}
 
 // NewGoogleSheetsDestination creates a new Google Sheets destination connector.
@@ -22,25 +22,25 @@ func NewGoogleSheetsDestination() *GoogleSheetsDestination {
 }
 
 // Spec returns the connector specification defining config fields.
-func (d *GoogleSheetsDestination) Spec(_ airbyte.LogTracker) (*airbyte.ConnectorSpecification, error) {
-	return &airbyte.ConnectorSpecification{
+func (d *GoogleSheetsDestination) Spec(_ context.Context) (*synclet.ConnectorSpecification, error) {
+	return &synclet.ConnectorSpecification{
 		DocumentationURL: "https://docs.google.com/spreadsheets",
-		SupportedDestinationSyncModes: []airbyte.DestinationSyncMode{
-			airbyte.DestinationSyncModeOverwrite,
-			airbyte.DestinationSyncModeAppend,
+		SupportedDestinationSyncModes: []synclet.DestinationSyncMode{
+			synclet.DestinationSyncModeOverwrite,
+			synclet.DestinationSyncModeAppend,
 		},
-		ConnectionSpecification: airbyte.ConnectionSpecification{
+		ConnectionSpecification: synclet.ConnectionSpecification{
 			Title:       "Google Sheets Destination Spec",
 			Description: "Writes data to a Google Sheets spreadsheet",
 			Type:        "object",
-			Required:    []airbyte.PropertyName{"spreadsheet_id", "credentials"},
-			Properties: airbyte.Properties{
-				Properties: map[airbyte.PropertyName]airbyte.PropertySpec{
+			Required:    []synclet.PropertyName{"spreadsheet_id", "credentials"},
+			Properties: synclet.Properties{
+				Properties: map[synclet.PropertyName]synclet.PropertySpec{
 					"spreadsheet_id": {
 						Title:       "Spreadsheet Link",
 						Description: "The ID or full URL of the Google Sheets spreadsheet",
-						PropertyType: airbyte.PropertyType{
-							Type: []airbyte.PropType{airbyte.String},
+						PropertyType: synclet.PropertyType{
+							Type: []synclet.PropType{synclet.String},
 						},
 					},
 					"credentials": credentialsSpec(),
@@ -51,18 +51,13 @@ func (d *GoogleSheetsDestination) Spec(_ airbyte.LogTracker) (*airbyte.Connector
 }
 
 // Check validates the configuration by attempting to access the spreadsheet.
-func (d *GoogleSheetsDestination) Check(dstCfgPath string, logTracker airbyte.LogTracker) error {
-	var config Config
-	if err := airbyte.UnmarshalFromPath(dstCfgPath, &config); err != nil {
-		return fmt.Errorf("failed to load configuration: %w", err)
-	}
-
-	opt, err := createClientOption(config.Credentials, spreadsheetsScope)
+func (d *GoogleSheetsDestination) Check(ctx context.Context, config Config) error {
+	opt, err := createClientOption(ctx, config.Credentials, spreadsheetsScope)
 	if err != nil {
 		return fmt.Errorf("failed to create auth: %w", err)
 	}
 
-	srv, err := sheets.NewService(context.Background(), opt)
+	srv, err := sheets.NewService(ctx, opt)
 	if err != nil {
 		return fmt.Errorf("failed to create sheets service: %w", err)
 	}
@@ -70,114 +65,89 @@ func (d *GoogleSheetsDestination) Check(dstCfgPath string, logTracker airbyte.Lo
 	_, err = srv.Spreadsheets.Get(config.SpreadsheetID).
 		IncludeGridData(false).
 		Fields("spreadsheetId").
+		Context(ctx).
 		Do()
 	if err != nil {
 		return fmt.Errorf("failed to access spreadsheet: %w", err)
 	}
 
-	logTracker.Log(airbyte.LogLevelInfo, "Successfully connected to spreadsheet")
+	synclet.Logger(ctx).Info("Successfully connected to spreadsheet")
 
 	return nil
 }
 
-// Write receives Airbyte RECORD and STATE messages from inputReader and writes records to Google Sheets.
-func (d *GoogleSheetsDestination) Write(dstCfgPath string, catalogPath string, inputReader io.Reader, tracker airbyte.MessageTracker) error {
-	var config Config
-	if err := airbyte.UnmarshalFromPath(dstCfgPath, &config); err != nil {
-		return fmt.Errorf("failed to load configuration: %w", err)
-	}
-
-	// Parse configured catalog to get stream -> destination_sync_mode mapping
-	var catalog airbyte.ConfiguredCatalog
-	if err := airbyte.UnmarshalFromPath(catalogPath, &catalog); err != nil {
-		return fmt.Errorf("failed to load catalog: %w", err)
-	}
-
+// Write reads RECORD and STATE messages from in and writes records to Google Sheets.
+func (d *GoogleSheetsDestination) Write(
+	ctx context.Context,
+	config Config,
+	catalog *synclet.ConfiguredCatalog,
+	in *synclet.MessageReader,
+	em *synclet.Emitter,
+) error {
 	syncModes := make(map[string]string)
 	for _, cs := range catalog.Streams {
 		mode := "append"
-		if cs.DestinationSyncMode == airbyte.DestinationSyncModeOverwrite {
+		if cs.DestinationSyncMode == synclet.DestinationSyncModeOverwrite {
 			mode = "overwrite"
 		}
 		syncModes[cs.Stream.Name] = mode
 	}
 
-	opt, err := createClientOption(config.Credentials, spreadsheetsScope)
+	opt, err := createClientOption(ctx, config.Credentials, spreadsheetsScope)
 	if err != nil {
 		return fmt.Errorf("failed to create auth: %w", err)
 	}
 
-	srv, err := sheets.NewService(context.Background(), opt)
+	srv, err := sheets.NewService(ctx, opt)
 	if err != nil {
 		return fmt.Errorf("failed to create sheets service: %w", err)
 	}
 
-	writer := NewSheetWriter(srv, config.SpreadsheetID)
+	return writeMessages(ctx, NewSheetWriter(srv, config.SpreadsheetID), syncModes, in, em)
+}
 
-	scanner := bufio.NewScanner(inputReader)
-	scanner.Buffer(make([]byte, 0, 1024*1024), 1024*1024) // 1MB buffer
-
-	for scanner.Scan() {
-		line := scanner.Bytes()
-
-		var msg struct {
-			Type   string          `json:"type"`
-			Record json.RawMessage `json:"record,omitempty"`
-			State  json.RawMessage `json:"state,omitempty"`
+// writeMessages adds every record of in to writer and echoes STREAM states;
+// it flushes the remaining buffered rows at the end of the input.
+func writeMessages(ctx context.Context, writer *SheetWriter, syncModes map[string]string, in *synclet.MessageReader, em *synclet.Emitter) error {
+	for {
+		msg, err := in.Next()
+		if errors.Is(err, io.EOF) {
+			break
 		}
-		if err := json.Unmarshal(line, &msg); err != nil {
-			continue
+		if err != nil {
+			return fmt.Errorf("reading input: %w", err)
 		}
 
 		switch msg.Type {
-		case "RECORD":
-			var rec struct {
-				Stream string                 `json:"stream"`
-				Data   map[string]interface{} `json:"data"`
+		case synclet.MessageTypeRecord:
+			if msg.Record == nil {
+				continue
 			}
-			if err := json.Unmarshal(msg.Record, &rec); err != nil {
+			var data map[string]interface{}
+			if err := json.Unmarshal(msg.Record.Data, &data); err != nil {
 				continue
 			}
 
-			syncMode := syncModes[rec.Stream]
+			syncMode := syncModes[msg.Record.Stream]
 			if syncMode == "" {
 				syncMode = "append"
 			}
 
-			if err := writer.AddRecord(rec.Stream, rec.Data, syncMode); err != nil {
-				return fmt.Errorf("adding record for stream %q: %w", rec.Stream, err)
+			if err := writer.AddRecord(ctx, msg.Record.Stream, data, syncMode); err != nil {
+				return fmt.Errorf("adding record for stream %q: %w", msg.Record.Stream, err)
 			}
 
-		case "STATE":
-			// Re-emit state to confirm committed records
-			var stateMsg struct {
-				Type   string          `json:"type"`
-				Stream json.RawMessage `json:"stream,omitempty"`
-				Global json.RawMessage `json:"global,omitempty"`
-				Data   json.RawMessage `json:"data,omitempty"`
-			}
-			if err := json.Unmarshal(msg.State, &stateMsg); err != nil {
+		case synclet.MessageTypeState:
+			if msg.State == nil || msg.State.Type != synclet.StateTypeStream || msg.State.Stream == nil {
 				continue
 			}
-
-			if stateMsg.Type == "STREAM" && stateMsg.Stream != nil {
-				var streamState airbyte.StreamState
-				if err := json.Unmarshal(stateMsg.Stream, &streamState); err != nil {
-					continue
-				}
-				if err := tracker.State(airbyte.StateTypeStream, &streamState); err != nil {
-					return fmt.Errorf("emitting state confirmation: %w", err)
-				}
+			if err := em.State(synclet.StateMessage{Type: synclet.StateTypeStream, Stream: msg.State.Stream}); err != nil {
+				return fmt.Errorf("emitting state confirmation: %w", err)
 			}
 		}
 	}
 
-	if err := scanner.Err(); err != nil {
-		return fmt.Errorf("reading input: %w", err)
-	}
-
-	// Flush remaining buffered rows
-	if err := writer.FlushAll(); err != nil {
+	if err := writer.FlushAll(ctx); err != nil {
 		return fmt.Errorf("flushing remaining records: %w", err)
 	}
 

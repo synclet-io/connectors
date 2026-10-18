@@ -35,10 +35,10 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/rogpeppe/go-internal v1.14.1 h1:UQB4HGPB6osV0SQTLymcB4TgvyWu6ZyliaW0tI/otEQ=
 github.com/rogpeppe/go-internal v1.14.1/go.mod h1:MaRKkUm5W0goXpeCfT7UZI6fk/L7L7so1lCWt35ZSgc=
-github.com/saturn4er/airbyte-go-sdk v0.1.5 h1:ve3KRQh9mftVy7SQWVjucKXyca7pWMzdhSOE66a5eLE=
-github.com/saturn4er/airbyte-go-sdk v0.1.5/go.mod h1:idu/0x8iYqKbKvZG1IlhoyctFerzwqoXinBnl16ap4Y=
 github.com/stretchr/testify v1.11.1 h1:7s2iGBzp5EwR7/aIZr8ao5+dra3wiQyKjjFuvgVKu7U=
 github.com/stretchr/testify v1.11.1/go.mod h1:wZwfW3scLgRK+23gO65QZefKpKQRnfz6sD981Nm4B6U=
+github.com/synclet-io/synclet-go-sdk v0.2.0 h1:lUin82BLBLJBmVkYBa+IaOoseqWVFm3eiCOwZEp+WS8=
+github.com/synclet-io/synclet-go-sdk v0.2.0/go.mod h1:1O+K3hB+xpJFatNfBIWJDsZL5TdnYrR3mz0bFmjQOcs=
 go.opentelemetry.io/auto/sdk v1.2.1 h1:jXsnJ4Lmnqd11kwkBV2LgLoFMZKizbCi5fNZ/ipaZ64=
 go.opentelemetry.io/auto/sdk v1.2.1/go.mod h1:KRTj+aOaElaLi+wW1kO/DZRXwkF4C5xPbEe3ZiIhN7Y=
 go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.61.0 h1:F7Jx+6hwnZ41NSFTO5q4LYDtJRXBf2PD0rNBkeB/lus=

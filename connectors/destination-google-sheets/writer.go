@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"sort"
 
@@ -11,9 +12,9 @@ const defaultBatchSize = 1000
 
 // sheetOps abstracts Sheets API operations for testability.
 type sheetOps interface {
-	ensureSheet(sheetTitle string) error
-	clearSheet(sheetTitle string) error
-	appendRows(sheetTitle string, rows [][]interface{}) error
+	ensureSheet(ctx context.Context, sheetTitle string) error
+	clearSheet(ctx context.Context, sheetTitle string) error
+	appendRows(ctx context.Context, sheetTitle string, rows [][]interface{}) error
 }
 
 // SheetWriter handles per-stream record buffering and flushing to Google Sheets.
@@ -52,7 +53,7 @@ func newSheetWriterWithOps(ops sheetOps, batchSize int) *SheetWriter {
 }
 
 // AddRecord buffers a record for the given stream. Auto-flushes when buffer reaches batchSize.
-func (w *SheetWriter) AddRecord(streamName string, data map[string]interface{}, syncMode string) error {
+func (w *SheetWriter) AddRecord(ctx context.Context, streamName string, data map[string]interface{}, syncMode string) error {
 	buf, ok := w.buffers[streamName]
 	if !ok {
 		// First record for this stream: establish column order from keys (sorted alphabetically)
@@ -79,7 +80,7 @@ func (w *SheetWriter) AddRecord(streamName string, data map[string]interface{}, 
 
 	// Auto-flush if buffer reaches threshold
 	if len(buf.rows) >= w.batchSize {
-		if err := w.flushStream(streamName, buf); err != nil {
+		if err := w.flushStream(ctx, streamName, buf); err != nil {
 			return fmt.Errorf("auto-flush stream %q: %w", streamName, err)
 		}
 	}
@@ -88,10 +89,10 @@ func (w *SheetWriter) AddRecord(streamName string, data map[string]interface{}, 
 }
 
 // FlushAll flushes all remaining stream buffers.
-func (w *SheetWriter) FlushAll() error {
+func (w *SheetWriter) FlushAll(ctx context.Context) error {
 	for name, buf := range w.buffers {
 		if len(buf.rows) > 0 {
-			if err := w.flushStream(name, buf); err != nil {
+			if err := w.flushStream(ctx, name, buf); err != nil {
 				return fmt.Errorf("flushing stream %q: %w", name, err)
 			}
 		}
@@ -100,15 +101,15 @@ func (w *SheetWriter) FlushAll() error {
 }
 
 // flushStream writes buffered rows to the sheet and clears the buffer.
-func (w *SheetWriter) flushStream(streamName string, buf *streamBuffer) error {
+func (w *SheetWriter) flushStream(ctx context.Context, streamName string, buf *streamBuffer) error {
 	// Ensure the sheet tab exists
-	if err := w.ops.ensureSheet(streamName); err != nil {
+	if err := w.ops.ensureSheet(ctx, streamName); err != nil {
 		return fmt.Errorf("ensuring sheet %q: %w", streamName, err)
 	}
 
 	if buf.syncMode == "overwrite" && !buf.synced {
 		// First flush in overwrite mode: clear sheet, write header, then data
-		if err := w.ops.clearSheet(streamName); err != nil {
+		if err := w.ops.clearSheet(ctx, streamName); err != nil {
 			return fmt.Errorf("clearing sheet %q: %w", streamName, err)
 		}
 
@@ -117,7 +118,7 @@ func (w *SheetWriter) flushStream(streamName string, buf *streamBuffer) error {
 		for i, h := range buf.headers {
 			headerRow[i] = h
 		}
-		if err := w.ops.appendRows(streamName, [][]interface{}{headerRow}); err != nil {
+		if err := w.ops.appendRows(ctx, streamName, [][]interface{}{headerRow}); err != nil {
 			return fmt.Errorf("writing header for %q: %w", streamName, err)
 		}
 
@@ -128,7 +129,7 @@ func (w *SheetWriter) flushStream(streamName string, buf *streamBuffer) error {
 		for i, h := range buf.headers {
 			headerRow[i] = h
 		}
-		if err := w.ops.appendRows(streamName, [][]interface{}{headerRow}); err != nil {
+		if err := w.ops.appendRows(ctx, streamName, [][]interface{}{headerRow}); err != nil {
 			return fmt.Errorf("writing header for %q: %w", streamName, err)
 		}
 
@@ -136,7 +137,7 @@ func (w *SheetWriter) flushStream(streamName string, buf *streamBuffer) error {
 	}
 
 	// Append data rows
-	if err := w.ops.appendRows(streamName, buf.rows); err != nil {
+	if err := w.ops.appendRows(ctx, streamName, buf.rows); err != nil {
 		return fmt.Errorf("appending rows for %q: %w", streamName, err)
 	}
 
@@ -152,10 +153,11 @@ type sheetsAPIops struct {
 	spreadsheetID string
 }
 
-func (o *sheetsAPIops) ensureSheet(sheetTitle string) error {
+func (o *sheetsAPIops) ensureSheet(ctx context.Context, sheetTitle string) error {
 	resp, err := o.srv.Spreadsheets.Get(o.spreadsheetID).
 		IncludeGridData(false).
 		Fields("sheets.properties.title").
+		Context(ctx).
 		Do()
 	if err != nil {
 		return fmt.Errorf("getting spreadsheet: %w", err)
@@ -179,7 +181,7 @@ func (o *sheetsAPIops) ensureSheet(sheetTitle string) error {
 			},
 		},
 	}
-	_, err = o.srv.Spreadsheets.BatchUpdate(o.spreadsheetID, req).Do()
+	_, err = o.srv.Spreadsheets.BatchUpdate(o.spreadsheetID, req).Context(ctx).Do()
 	if err != nil {
 		return fmt.Errorf("creating sheet %q: %w", sheetTitle, err)
 	}
@@ -187,19 +189,20 @@ func (o *sheetsAPIops) ensureSheet(sheetTitle string) error {
 	return nil
 }
 
-func (o *sheetsAPIops) clearSheet(sheetTitle string) error {
+func (o *sheetsAPIops) clearSheet(ctx context.Context, sheetTitle string) error {
 	rangeStr := fmt.Sprintf("'%s'!A:ZZ", sheetTitle)
 	_, err := o.srv.Spreadsheets.Values.Clear(o.spreadsheetID, rangeStr,
-		&sheets.ClearValuesRequest{}).Do()
+		&sheets.ClearValuesRequest{}).Context(ctx).Do()
 	return err
 }
 
-func (o *sheetsAPIops) appendRows(sheetTitle string, rows [][]interface{}) error {
+func (o *sheetsAPIops) appendRows(ctx context.Context, sheetTitle string, rows [][]interface{}) error {
 	rangeStr := fmt.Sprintf("'%s'!A1", sheetTitle)
 	_, err := o.srv.Spreadsheets.Values.Append(o.spreadsheetID, rangeStr,
 		&sheets.ValueRange{Values: rows}).
 		ValueInputOption("RAW").
 		InsertDataOption("INSERT_ROWS").
+		Context(ctx).
 		Do()
 	return err
 }

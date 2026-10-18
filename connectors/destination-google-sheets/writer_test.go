@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -19,17 +20,17 @@ type appendCall struct {
 	rows       [][]interface{}
 }
 
-func (m *mockSheetOps) ensureSheet(sheetTitle string) error {
+func (m *mockSheetOps) ensureSheet(_ context.Context, sheetTitle string) error {
 	m.ensuredSheets = append(m.ensuredSheets, sheetTitle)
 	return nil
 }
 
-func (m *mockSheetOps) clearSheet(sheetTitle string) error {
+func (m *mockSheetOps) clearSheet(_ context.Context, sheetTitle string) error {
 	m.clearedSheets = append(m.clearedSheets, sheetTitle)
 	return nil
 }
 
-func (m *mockSheetOps) appendRows(sheetTitle string, rows [][]interface{}) error {
+func (m *mockSheetOps) appendRows(_ context.Context, sheetTitle string, rows [][]interface{}) error {
 	m.appendedCalls = append(m.appendedCalls, appendCall{sheetTitle: sheetTitle, rows: rows})
 	return nil
 }
@@ -38,7 +39,7 @@ func TestSheetWriter_HeadersFromFirstRecord(t *testing.T) {
 	mock := &mockSheetOps{}
 	w := newSheetWriterWithOps(mock, 100)
 
-	err := w.AddRecord("stream1", map[string]interface{}{
+	err := w.AddRecord(t.Context(), "stream1", map[string]interface{}{
 		"name": "Alice",
 		"age":  "30",
 		"city": "NYC",
@@ -56,7 +57,7 @@ func TestSheetWriter_ColumnOrderConsistency(t *testing.T) {
 	w := newSheetWriterWithOps(mock, 100)
 
 	// First record establishes order
-	err := w.AddRecord("stream1", map[string]interface{}{
+	err := w.AddRecord(t.Context(), "stream1", map[string]interface{}{
 		"z_col": "1",
 		"a_col": "2",
 		"m_col": "3",
@@ -64,7 +65,7 @@ func TestSheetWriter_ColumnOrderConsistency(t *testing.T) {
 	require.NoError(t, err)
 
 	// Second record uses same order
-	err = w.AddRecord("stream1", map[string]interface{}{
+	err = w.AddRecord(t.Context(), "stream1", map[string]interface{}{
 		"a_col": "x",
 		"z_col": "y",
 		"m_col": "z",
@@ -84,7 +85,7 @@ func TestSheetWriter_BufferFlushThreshold(t *testing.T) {
 
 	// Add exactly batchSize records to trigger auto-flush
 	for i := 0; i < batchSize; i++ {
-		err := w.AddRecord("stream1", map[string]interface{}{
+		err := w.AddRecord(t.Context(), "stream1", map[string]interface{}{
 			"val": i,
 		}, "append")
 		require.NoError(t, err)
@@ -96,7 +97,7 @@ func TestSheetWriter_BufferFlushThreshold(t *testing.T) {
 	assert.Empty(t, w.buffers["stream1"].rows)
 
 	// Add one more record (below threshold, no auto-flush)
-	err := w.AddRecord("stream1", map[string]interface{}{
+	err := w.AddRecord(t.Context(), "stream1", map[string]interface{}{
 		"val": 999,
 	}, "append")
 	require.NoError(t, err)
@@ -110,12 +111,12 @@ func TestSheetWriter_FlushAll(t *testing.T) {
 	mock := &mockSheetOps{}
 	w := newSheetWriterWithOps(mock, 100)
 
-	err := w.AddRecord("stream1", map[string]interface{}{"col": "val1"}, "append")
+	err := w.AddRecord(t.Context(), "stream1", map[string]interface{}{"col": "val1"}, "append")
 	require.NoError(t, err)
-	err = w.AddRecord("stream2", map[string]interface{}{"col": "val2"}, "append")
+	err = w.AddRecord(t.Context(), "stream2", map[string]interface{}{"col": "val2"}, "append")
 	require.NoError(t, err)
 
-	err = w.FlushAll()
+	err = w.FlushAll(t.Context())
 	require.NoError(t, err)
 
 	// Both streams should have been flushed (header + data each)
@@ -129,7 +130,7 @@ func TestSheetWriter_OverwriteMode_ClearOnFirstFlush(t *testing.T) {
 
 	// Add 3 records (reaches batchSize, triggers auto-flush)
 	for i := 0; i < 3; i++ {
-		err := w.AddRecord("stream1", map[string]interface{}{
+		err := w.AddRecord(t.Context(), "stream1", map[string]interface{}{
 			"col": i,
 		}, "overwrite")
 		require.NoError(t, err)
@@ -152,7 +153,7 @@ func TestSheetWriter_OverwriteMode_NoClearOnSecondFlush(t *testing.T) {
 
 	// First batch (triggers flush at 2 records)
 	for i := 0; i < 2; i++ {
-		err := w.AddRecord("stream1", map[string]interface{}{
+		err := w.AddRecord(t.Context(), "stream1", map[string]interface{}{
 			"col": i,
 		}, "overwrite")
 		require.NoError(t, err)
@@ -164,7 +165,7 @@ func TestSheetWriter_OverwriteMode_NoClearOnSecondFlush(t *testing.T) {
 
 	// Second batch (triggers another flush)
 	for i := 0; i < 2; i++ {
-		err := w.AddRecord("stream1", map[string]interface{}{
+		err := w.AddRecord(t.Context(), "stream1", map[string]interface{}{
 			"col": i + 10,
 		}, "overwrite")
 		require.NoError(t, err)
@@ -182,7 +183,7 @@ func TestSheetWriter_AppendMode_NeverClears(t *testing.T) {
 
 	// First batch
 	for i := 0; i < 2; i++ {
-		err := w.AddRecord("stream1", map[string]interface{}{
+		err := w.AddRecord(t.Context(), "stream1", map[string]interface{}{
 			"col": i,
 		}, "append")
 		require.NoError(t, err)
@@ -193,7 +194,7 @@ func TestSheetWriter_AppendMode_NeverClears(t *testing.T) {
 
 	// Second batch
 	for i := 0; i < 2; i++ {
-		err := w.AddRecord("stream1", map[string]interface{}{
+		err := w.AddRecord(t.Context(), "stream1", map[string]interface{}{
 			"col": i + 10,
 		}, "append")
 		require.NoError(t, err)
