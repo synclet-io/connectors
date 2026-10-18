@@ -114,7 +114,9 @@ the record's position in the stream and the column:
 
 - a record that is not a JSON object or not valid JSON;
 - a value that does not fit its column: a non-numeric number, an integer outside `bigint`, a date or
-  time Postgres cannot parse, `\u0000` in a `text`, date/time or `jsonb` value;
+  time Postgres cannot parse, a time zone (`Z`, an offset or a zone name) in a `timestamp` or `time`
+  value, which Postgres would drop, `\u0000` in a `text`, date/time or `jsonb` value, a string that is
+  not valid UTF-8 or holds a lone UTF-16 surrogate (`\ud800`);
 - a `NULL` primary key in `append_dedup`;
 - a changed column type, a record of a stream that is not in the catalog.
 

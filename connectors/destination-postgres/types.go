@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 )
 
 // colType is a column type as Postgres' format_type prints it, so a type
@@ -134,6 +135,9 @@ func encodeValue(t colType, raw json.RawMessage) (val string, null bool, err err
 		if err := json.Unmarshal(raw, &str); err != nil {
 			return "", false, fmt.Errorf("invalid JSON string: %w", err)
 		}
+		if replacedChars(raw, str) {
+			return "", false, errors.New("value is not valid UTF-8 (invalid bytes or a lone UTF-16 surrogate)")
+		}
 	}
 	switch t {
 	case colJSONB:
@@ -190,8 +194,48 @@ func encodeValue(t colType, raw json.RawMessage) (val string, null bool, err err
 		if strings.ContainsRune(str, 0) {
 			return "", false, fmt.Errorf(`value contains \u0000, which %s cannot hold`, t)
 		}
+		if (t == colTimestamp || t == colTime) && hasTimeZone(t, str) {
+			return "", false, fmt.Errorf("value %s carries a time zone, which %s cannot hold", raw, t)
+		}
 		return str, false, nil
 	}
+}
+
+// replacedChars reports whether decoding the JSON string raw into str
+// replaced invalid UTF-8 or a lone surrogate escape with U+FFFD: str holds
+// more U+FFFD than raw spells out, literally or as \ufffd.
+func replacedChars(raw json.RawMessage, str string) bool {
+	decoded := strings.Count(str, string(utf8.RuneError))
+	if decoded == 0 {
+		return false
+	}
+	lower := bytes.ToLower(raw)
+	spelled := bytes.Count(raw, []byte(string(utf8.RuneError))) + bytes.Count(lower, []byte(`\ufffd`)) - bytes.Count(lower, []byte(`\\ufffd`))
+	return decoded > spelled
+}
+
+// hasTimeZone reports whether a date/time string for a column without a time
+// zone names one: Z, a numeric offset or a zone name in its time part (AM,
+// PM and BC are not zones).
+// Postgres would drop it silently. The time part of a timestamp starts after
+// the "T" or space that ends the date; a lone date has none.
+func hasTimeZone(t colType, s string) bool {
+	timePart := s
+	if t == colTimestamp {
+		i := strings.IndexAny(s, "T ")
+		if i < 0 {
+			return false
+		}
+		timePart = s[i+1:]
+	}
+	timePart = strings.ToLower(timePart)
+	timePart = strings.NewReplacer("am", "", "pm", "", "bc", "").Replace(timePart)
+	for _, c := range timePart {
+		if c == '+' || c == '-' || (c >= 'a' && c <= 'z') {
+			return true
+		}
+	}
+	return false
 }
 
 // containsNUL reports whether a JSON value holds a string with a NUL

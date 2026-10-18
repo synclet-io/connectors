@@ -318,3 +318,50 @@ func TestFailMidBatch(t *testing.T) {
 	require.Len(t, traces, 1)
 	assert.Contains(t, traces[0].Message, `stream "orders": record 3: column "placed_on"`)
 }
+
+// stateKinds lists the echoed states in order: the stream_state of a STREAM
+// state, "global" and "legacy" for the others.
+func stateKinds(out *testkit.Output) []string {
+	var kinds []string
+	for _, st := range out.States() {
+		switch st.Type {
+		case synclet.StateTypeStream:
+			kinds = append(kinds, string(st.Stream.StreamState))
+		case synclet.StateTypeGlobal:
+			kinds = append(kinds, "global")
+		default:
+			kinds = append(kinds, "legacy")
+		}
+	}
+	return kinds
+}
+
+func TestWriteGlobalStateWaitsForSwap(t *testing.T) {
+	cfg := sharedPostgres(t, "global_state")
+	streams := []synclet.ConfiguredStream{
+		stream("rates", `{"type":"object","properties":{"code":{"type":"string"}}}`, synclet.DestinationSyncModeOverwrite, nil, nil),
+		stream("logs", `{"type":"object","properties":{"day":{"type":"string","format":"date"}}}`, synclet.DestinationSyncModeAppend, nil, nil),
+	}
+	global := `{"type":"STATE","state":{"type":"GLOBAL","global":{"shared_state":{"lsn":1},"stream_states":[]}}}`
+	legacy := `{"type":"STATE","state":{"type":"LEGACY","data":{"lsn":2}}}`
+	write := func(lines ...string) *testkit.Output {
+		return runWrite(t, testDestination(2), cfg, streams, lines...)
+	}
+
+	out := write(
+		rec("rates", `{"code":"a"}`), rec("rates", `{"code":"b"}`), global,
+		rec("logs", `{"day":"2024-01-01"}`), rec("logs", `{"day":"2024-01-02"}`), legacy, state("logs", `1`),
+	)
+	require.NoError(t, out.Err)
+	assert.Equal(t, []string{"1", "global", "legacy"}, stateKinds(out))
+	assert.Equal(t, 2, countRows(t, cfg, "rates"))
+
+	out = write(
+		rec("rates", `{"code":"c"}`), rec("rates", `{"code":"d"}`), global,
+		rec("logs", `{"day":"2024-01-03"}`), rec("logs", `{"day":"2024-01-04"}`), legacy, state("logs", `2`),
+		rec("logs", `{"day":"not-a-date"}`),
+	)
+	require.Error(t, out.Err)
+	assert.Equal(t, []string{"2"}, stateKinds(out))
+	assert.Equal(t, [][]string{{"a"}, {"b"}}, queryStrings(t, cfg, `SELECT code FROM global_state.rates ORDER BY code`))
+}

@@ -62,6 +62,15 @@ func TestTypesEncode(t *testing.T) {
 		{colText, `"tab\there"`, "tab\there"},
 		{colText, `42.10`, `42.10`},
 		{colDate, `"2024-01-31"`, `2024-01-31`},
+		{colDate, `"-0044-03-15"`, `-0044-03-15`},
+		{colTimestamp, `"2024-01-01T10:00:00.5"`, `2024-01-01T10:00:00.5`},
+		{colTimestamp, `"2024-01-01 10:00:00 PM"`, `2024-01-01 10:00:00 PM`},
+		{colTimestamp, `"2024-01-01"`, `2024-01-01`},
+		{colTime, `"10:00:00.123"`, `10:00:00.123`},
+		{colTimestamp, `"0044-03-15 10:00:00 BC"`, `0044-03-15 10:00:00 BC`},
+		{colTimestamptz, `"2024-01-01T10:00:00+05:00"`, `2024-01-01T10:00:00+05:00`},
+		{colTimetz, `"10:00:00+05:00"`, `10:00:00+05:00`},
+		{colText, `"real \ufffd and � kept"`, "real \ufffd and \ufffd kept"},
 		{colJSONB, `{"a": [1, 2.50]}`, `{"a": [1, 2.50]}`},
 		{colJSONB, `"plain"`, `"plain"`},
 	}
@@ -89,6 +98,14 @@ func TestTypesEncode(t *testing.T) {
 		{colText, `"a\u0000b"`, `\u0000`},
 		{colJSONB, `{"a":"x\u0000"}`, `\u0000`},
 		{colDate, `20240131`, "not a string"},
+		{colTimestamp, `"2024-01-01T10:00:00+05:00"`, "time zone"},
+		{colTimestamp, `"2024-01-01T10:00:00Z"`, "time zone"},
+		{colTimestamp, `"2024-01-01 10:00:00-03"`, "time zone"},
+		{colTime, `"10:00:00+05:00"`, "time zone"},
+		{colTime, `"10:00:00Z"`, "time zone"},
+		{colText, `"lone \ud800 surrogate"`, "not valid UTF-8"},
+		{colText, "\"bad \xff byte\"", "not valid UTF-8"},
+		{colDate, `"\udc00"`, "not valid UTF-8"},
 	}
 	for _, c := range bad {
 		_, _, err := encodeValue(c.typ, json.RawMessage(c.raw))
