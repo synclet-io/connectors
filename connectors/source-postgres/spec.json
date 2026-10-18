@@ -1,0 +1,334 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Reads tables and views of a Postgres database: full refresh, or incremental by a cursor column.",
+    "properties": {
+      "database": {
+        "description": "Name of the database.",
+        "order": 2,
+        "title": "Database Name",
+        "type": "string"
+      },
+      "host": {
+        "description": "Hostname of the database.",
+        "order": 0,
+        "title": "Host",
+        "type": "string"
+      },
+      "password": {
+        "airbyte_secret": true,
+        "description": "Password associated with the username.",
+        "order": 5,
+        "title": "Password",
+        "type": "string"
+      },
+      "port": {
+        "default": 5432,
+        "description": "Port of the database.",
+        "examples": [
+          "5432"
+        ],
+        "order": 1,
+        "title": "Port",
+        "type": "integer"
+      },
+      "schemas": {
+        "default": [
+          "public"
+        ],
+        "description": "The list of schemas to sync from.",
+        "items": {
+          "type": "string"
+        },
+        "order": 3,
+        "title": "Schemas",
+        "type": "array"
+      },
+      "ssl_mode": {
+        "description": "How the connection is encrypted and which server certificates are trusted; the modes behave like libpq's sslmode.",
+        "oneOf": [
+          {
+            "description": "Disables encryption of communication between the connector and the source database.",
+            "properties": {
+              "mode": {
+                "const": "disable",
+                "order": 0,
+                "type": "string"
+              }
+            },
+            "required": [
+              "mode"
+            ],
+            "title": "disable",
+            "type": "object"
+          },
+          {
+            "description": "Connects without encryption, and with encryption when the server requires it.",
+            "properties": {
+              "mode": {
+                "const": "allow",
+                "order": 0,
+                "type": "string"
+              }
+            },
+            "required": [
+              "mode"
+            ],
+            "title": "allow",
+            "type": "object"
+          },
+          {
+            "description": "Connects with encryption when the server supports it, without otherwise.",
+            "properties": {
+              "mode": {
+                "const": "prefer",
+                "order": 0,
+                "type": "string"
+              }
+            },
+            "required": [
+              "mode"
+            ],
+            "title": "prefer",
+            "type": "object"
+          },
+          {
+            "description": "Always encrypts; the server certificate is not verified.",
+            "properties": {
+              "mode": {
+                "const": "require",
+                "order": 0,
+                "type": "string"
+              }
+            },
+            "required": [
+              "mode"
+            ],
+            "title": "require",
+            "type": "object"
+          },
+          {
+            "description": "Always encrypts and verifies that the server certificate is signed by the given CA.",
+            "properties": {
+              "ca_certificate": {
+                "airbyte_secret": true,
+                "description": "PEM certificate of the CA that signed the server certificate.",
+                "order": 1,
+                "title": "CA certificate",
+                "type": "string"
+              },
+              "client_certificate": {
+                "airbyte_secret": true,
+                "description": "PEM client certificate, when the server asks for one.",
+                "order": 2,
+                "title": "Client certificate",
+                "type": "string"
+              },
+              "client_key": {
+                "airbyte_secret": true,
+                "description": "PEM private key of the client certificate.",
+                "order": 3,
+                "title": "Client key",
+                "type": "string"
+              },
+              "mode": {
+                "const": "verify-ca",
+                "order": 0,
+                "type": "string"
+              }
+            },
+            "required": [
+              "mode",
+              "ca_certificate"
+            ],
+            "title": "verify-ca",
+            "type": "object"
+          },
+          {
+            "description": "Always encrypts and verifies the server certificate's CA and its hostname.",
+            "properties": {
+              "ca_certificate": {
+                "airbyte_secret": true,
+                "description": "PEM certificate of the CA that signed the server certificate.",
+                "order": 1,
+                "title": "CA certificate",
+                "type": "string"
+              },
+              "client_certificate": {
+                "airbyte_secret": true,
+                "description": "PEM client certificate, when the server asks for one.",
+                "order": 2,
+                "title": "Client certificate",
+                "type": "string"
+              },
+              "client_key": {
+                "airbyte_secret": true,
+                "description": "PEM private key of the client certificate.",
+                "order": 3,
+                "title": "Client key",
+                "type": "string"
+              },
+              "mode": {
+                "const": "verify-full",
+                "order": 0,
+                "type": "string"
+              }
+            },
+            "required": [
+              "mode",
+              "ca_certificate"
+            ],
+            "title": "verify-full",
+            "type": "object"
+          }
+        ],
+        "order": 6,
+        "title": "SSL Modes",
+        "type": "object"
+      },
+      "tunnel_method": {
+        "description": "Whether to initiate an SSH tunnel before connecting to the database, and if so, which kind of authentication to use.",
+        "oneOf": [
+          {
+            "properties": {
+              "tunnel_method": {
+                "const": "NO_TUNNEL",
+                "description": "No ssh tunnel needed to connect to database",
+                "order": 0,
+                "type": "string"
+              }
+            },
+            "required": [
+              "tunnel_method"
+            ],
+            "title": "No Tunnel",
+            "type": "object"
+          },
+          {
+            "properties": {
+              "ssh_key": {
+                "airbyte_secret": true,
+                "description": "OS-level user account ssh key credentials in PEM or OpenSSH format (RSA, ECDSA or Ed25519)",
+                "order": 4,
+                "title": "SSH Private Key",
+                "type": "string"
+              },
+              "tunnel_host": {
+                "description": "Hostname of the jump server host that allows inbound ssh tunnel.",
+                "order": 1,
+                "title": "SSH Tunnel Jump Server Host",
+                "type": "string"
+              },
+              "tunnel_method": {
+                "const": "SSH_KEY_AUTH",
+                "description": "Connect through a jump server tunnel host using username and ssh key",
+                "order": 0,
+                "type": "string"
+              },
+              "tunnel_port": {
+                "default": 22,
+                "description": "Port on the proxy/jump server that accepts inbound ssh connections.",
+                "examples": [
+                  "22"
+                ],
+                "order": 2,
+                "title": "SSH Connection Port",
+                "type": "integer"
+              },
+              "tunnel_user": {
+                "description": "OS-level username for logging into the jump server host.",
+                "order": 3,
+                "title": "SSH Login Username",
+                "type": "string"
+              }
+            },
+            "required": [
+              "tunnel_method",
+              "tunnel_host",
+              "tunnel_port",
+              "tunnel_user",
+              "ssh_key"
+            ],
+            "title": "SSH Key Authentication",
+            "type": "object"
+          },
+          {
+            "properties": {
+              "tunnel_host": {
+                "description": "Hostname of the jump server host that allows inbound ssh tunnel.",
+                "order": 1,
+                "title": "SSH Tunnel Jump Server Host",
+                "type": "string"
+              },
+              "tunnel_method": {
+                "const": "SSH_PASSWORD_AUTH",
+                "description": "Connect through a jump server tunnel host using username and password authentication",
+                "order": 0,
+                "type": "string"
+              },
+              "tunnel_port": {
+                "default": 22,
+                "description": "Port on the proxy/jump server that accepts inbound ssh connections.",
+                "examples": [
+                  "22"
+                ],
+                "order": 2,
+                "title": "SSH Connection Port",
+                "type": "integer"
+              },
+              "tunnel_user": {
+                "description": "OS-level username for logging into the jump server host.",
+                "order": 3,
+                "title": "SSH Login Username",
+                "type": "string"
+              },
+              "tunnel_user_password": {
+                "airbyte_secret": true,
+                "description": "OS-level password for logging into the jump server host",
+                "order": 4,
+                "title": "Password",
+                "type": "string"
+              }
+            },
+            "required": [
+              "tunnel_method",
+              "tunnel_host",
+              "tunnel_port",
+              "tunnel_user",
+              "tunnel_user_password"
+            ],
+            "title": "Password Authentication",
+            "type": "object"
+          }
+        ],
+        "order": 7,
+        "title": "SSH Tunnel Method",
+        "type": "object"
+      },
+      "username": {
+        "description": "Username to access the database.",
+        "order": 4,
+        "title": "Username",
+        "type": "string"
+      }
+    },
+    "required": [
+      "host",
+      "port",
+      "database",
+      "username"
+    ],
+    "title": "Postgres Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-postgres",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": true,
+  "supportsNormalization": false
+}
