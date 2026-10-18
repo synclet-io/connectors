@@ -28,7 +28,7 @@ SELECT SCHEMA_ID(@p1),
        CASE WHEN HAS_PERMS_BY_NAME(QUOTENAME(@p1), N'SCHEMA', N'SELECT') = 1 OR EXISTS (
          SELECT 1 FROM sys.objects o JOIN sys.columns c ON c.object_id = o.object_id
          WHERE o.schema_id = SCHEMA_ID(@p1) AND o.type IN ('U', 'V') AND o.is_ms_shipped = 0
-           AND HAS_PERMS_BY_NAME(QUOTENAME(@p1) + N'.' + QUOTENAME(o.name), N'OBJECT', N'SELECT', c.name, N'COLUMN') = 1
+           AND HAS_PERMS_BY_NAME(QUOTENAME(@p1) + N'.' + QUOTENAME(o.name), N'OBJECT', N'SELECT', QUOTENAME(c.name), N'COLUMN') = 1
        ) THEN CAST(1 AS bit) ELSE CAST(0 AS bit) END`, s).Scan(&id, &readable)
 		switch {
 		case err != nil:

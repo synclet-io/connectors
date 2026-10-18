@@ -23,6 +23,8 @@ CREATE SCHEMA colgrants;
 GO
 CREATE SCHEMA empty;
 GO
+CREATE SCHEMA oddnames;
+GO
 CREATE TYPE dbo.positive_int FROM int NOT NULL;
 GO
 CREATE TABLE dbo.users (
@@ -58,6 +60,9 @@ INSERT INTO colgrants.partial VALUES (1, N'shown', N'hidden');
 CREATE TABLE colgrants.pk_hidden (id int PRIMARY KEY, name nvarchar(20));
 INSERT INTO colgrants.pk_hidden VALUES (1, N'shown');
 CREATE TABLE colgrants.none (id int);
+CREATE TABLE oddnames.weird ([a.b] int, [a]]b] int, [[x]]] int);
+INSERT INTO oddnames.weird VALUES (1, 2, 3);
+GRANT SELECT ON oddnames.weird ([a.b]) TO colonly;
 GRANT SELECT ON colgrants.partial (id, visible) TO colonly;
 GRANT SELECT ON colgrants.pk_hidden (name) TO colonly;
 CREATE TABLE dbo.types (

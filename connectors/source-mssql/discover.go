@@ -62,7 +62,7 @@ WHERE o.type IN ('U', 'V')
   AND o.is_ms_shipped = 0
   AND `+cond+`
   AND (@p1 = N'' OR o.name = @p1)
-  AND HAS_PERMS_BY_NAME(QUOTENAME(s.name) + N'.' + QUOTENAME(o.name), N'OBJECT', N'SELECT', c.name, N'COLUMN') = 1
+  AND HAS_PERMS_BY_NAME(QUOTENAME(s.name) + N'.' + QUOTENAME(o.name), N'OBJECT', N'SELECT', QUOTENAME(c.name), N'COLUMN') = 1
 ORDER BY s.name, o.name, c.column_id`, args...)
 	if err != nil {
 		return nil, fmt.Errorf("list tables: %w", err)

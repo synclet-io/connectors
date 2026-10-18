@@ -105,6 +105,29 @@ func TestDiscover(t *testing.T) {
 	require.Equal(t, "hidden", cat.Streams[0].Name)
 }
 
+func TestColumnNamesNeedingQuotes(t *testing.T) {
+	cfg := sharedMSSQL(t)
+	cfg.Schemas = []string{"oddnames"}
+	t.Run("column grant only", func(t *testing.T) {
+		c := cfg
+		c.Username, c.Password = "colonly", "ColOnly-Test1!"
+		require.NoError(t, Source{}.Check(t.Context(), c), "a grant on column [a.b] makes the schema readable")
+		granted := discoverStream(t, c, "oddnames", "weird")
+		require.JSONEq(t, `{"type":"object","properties":{"a.b":{"type":["integer","null"]}}}`, string(granted.JSONSchema))
+	})
+
+	require.NoError(t, Source{}.Check(t.Context(), cfg), "a schema whose columns all need quoting is readable")
+
+	stream := discoverStream(t, cfg, "oddnames", "weird")
+	require.JSONEq(t, `{"type":"object","properties":{
+		"a.b":{"type":["integer","null"]},
+		"a]b":{"type":["integer","null"]},
+		"[x]":{"type":["integer","null"]}}}`, string(stream.JSONSchema))
+	recs := runRead(t, cfg, fullRefresh(stream), nil).Records(stream.Descriptor())
+	require.Len(t, recs, 1)
+	require.JSONEq(t, `{"a.b":1,"a]b":2,"[x]":3}`, string(recs[0].Data))
+}
+
 func fullRefresh(streams ...synclet.Stream) *synclet.ConfiguredCatalog {
 	cat := &synclet.ConfiguredCatalog{}
 	for _, s := range streams {
