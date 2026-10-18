@@ -5,12 +5,17 @@ import (
 	"fmt"
 
 	synclet "github.com/synclet-io/synclet-go-sdk"
+	"google.golang.org/api/option"
 )
 
 const spreadsheetsReadonlyScope = "https://www.googleapis.com/auth/spreadsheets.readonly"
 
 // GoogleSheetsSource implements synclet.Source for Google Sheets.
-type GoogleSheetsSource struct{}
+type GoogleSheetsSource struct {
+	// clientOptions returns the options of the Sheets API client for the
+	// configured credentials; nil authenticates against Google.
+	clientOptions func(ctx context.Context, creds CredentialsConfig, scope string) ([]option.ClientOption, error)
+}
 
 // NewGoogleSheetsSource creates a new Google Sheets source connector.
 func NewGoogleSheetsSource() *GoogleSheetsSource {
@@ -65,7 +70,7 @@ func (s *GoogleSheetsSource) Spec(_ context.Context) (*synclet.ConnectorSpecific
 func (s *GoogleSheetsSource) Check(ctx context.Context, config Config) error {
 	config.SpreadsheetID = parseSpreadsheetID(config.SpreadsheetID)
 
-	client, err := NewSheetsClient(ctx, config.Credentials, spreadsheetsReadonlyScope)
+	client, err := s.newClient(ctx, config.Credentials)
 	if err != nil {
 		return fmt.Errorf("failed to create sheets client: %w", err)
 	}
@@ -84,7 +89,7 @@ func (s *GoogleSheetsSource) Discover(ctx context.Context, config Config) (*sync
 	config.SpreadsheetID = parseSpreadsheetID(config.SpreadsheetID)
 	log := synclet.Logger(ctx)
 
-	client, err := NewSheetsClient(ctx, config.Credentials, spreadsheetsReadonlyScope)
+	client, err := s.newClient(ctx, config.Credentials)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create sheets client: %w", err)
 	}
@@ -142,7 +147,7 @@ func (s *GoogleSheetsSource) Read(
 	config.SpreadsheetID = parseSpreadsheetID(config.SpreadsheetID)
 	log := synclet.Logger(ctx)
 
-	client, err := NewSheetsClient(ctx, config.Credentials, spreadsheetsReadonlyScope)
+	client, err := s.newClient(ctx, config.Credentials)
 	if err != nil {
 		return fmt.Errorf("failed to create sheets client: %w", err)
 	}
@@ -224,6 +229,24 @@ func (s *GoogleSheetsSource) readStream(
 	}
 
 	return nil
+}
+
+// newClient creates the Sheets API client for creds.
+func (s *GoogleSheetsSource) newClient(ctx context.Context, creds CredentialsConfig) (*SheetsClient, error) {
+	var opts []option.ClientOption
+	if s.clientOptions != nil {
+		var err error
+		if opts, err = s.clientOptions(ctx, creds, spreadsheetsReadonlyScope); err != nil {
+			return nil, fmt.Errorf("creating auth option: %w", err)
+		}
+	} else {
+		opt, err := createClientOption(ctx, creds, spreadsheetsReadonlyScope)
+		if err != nil {
+			return nil, fmt.Errorf("creating auth option: %w", err)
+		}
+		opts = []option.ClientOption{opt}
+	}
+	return NewSheetsClient(ctx, opts...)
 }
 
 // mapRowToRecord maps a data row's values to header names.

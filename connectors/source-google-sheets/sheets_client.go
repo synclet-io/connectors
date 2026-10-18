@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"google.golang.org/api/option"
 	"google.golang.org/api/sheets/v4"
 )
 
@@ -12,14 +13,10 @@ type SheetsClient struct {
 	srv *sheets.Service
 }
 
-// NewSheetsClient creates an authenticated Google Sheets API client.
-func NewSheetsClient(ctx context.Context, creds CredentialsConfig, scope string) (*SheetsClient, error) {
-	opt, err := createClientOption(ctx, creds, scope)
-	if err != nil {
-		return nil, fmt.Errorf("creating auth option: %w", err)
-	}
-
-	srv, err := sheets.NewService(ctx, opt)
+// NewSheetsClient creates a Google Sheets API client; opts carry its
+// authentication.
+func NewSheetsClient(ctx context.Context, opts ...option.ClientOption) (*SheetsClient, error) {
+	srv, err := sheets.NewService(ctx, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("creating sheets service: %w", err)
 	}
