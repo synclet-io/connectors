@@ -1,0 +1,16 @@
+{
+  "results": [
+    {
+      "customer": {
+        "resourceName": "customers/1234567890",
+        "id": "1234567890",
+        "descriptiveName": "Example Shop A",
+        "currencyCode": "USD",
+        "timeZone": "Etc/UTC",
+        "status": "ENABLED"
+      }
+    }
+  ],
+  "fieldMask": "",
+  "requestId": "test-request-id"
+}

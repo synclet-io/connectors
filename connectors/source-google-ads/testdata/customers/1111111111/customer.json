@@ -1,0 +1,17 @@
+{
+  "results": [
+    {
+      "customer": {
+        "resourceName": "customers/1111111111",
+        "id": "1111111111",
+        "descriptiveName": "Example Manager",
+        "currencyCode": "USD",
+        "timeZone": "Etc/UTC",
+        "manager": true,
+        "status": "ENABLED"
+      }
+    }
+  ],
+  "fieldMask": "",
+  "requestId": "test-request-id"
+}

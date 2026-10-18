@@ -1,0 +1,134 @@
+{
+  "results": [
+    {
+      "customer": {
+        "resourceName": "customers/1234567890",
+        "id": "1234567890"
+      },
+      "campaign": {
+        "resourceName": "customers/1234567890/campaigns/100001",
+        "id": "100001"
+      },
+      "adGroup": {
+        "resourceName": "customers/1234567890/adGroups/300001",
+        "id": "300001"
+      },
+      "geographicView": {
+        "resourceName": "customers/1234567890/geographicViews/2840~LOCATION_OF_PRESENCE",
+        "countryCriterionId": "2840",
+        "locationType": "LOCATION_OF_PRESENCE"
+      },
+      "segments": {
+        "date": "2026-09-30"
+      },
+      "metrics": {
+        "impressions": "9000",
+        "clicks": "450",
+        "costMicros": "111060000",
+        "conversions": 18.0,
+        "conversionsValue": 904.5,
+        "allConversions": 22.5,
+        "ctr": 0.05,
+        "averageCpc": 246800.0
+      }
+    },
+    {
+      "customer": {
+        "resourceName": "customers/1234567890",
+        "id": "1234567890"
+      },
+      "campaign": {
+        "resourceName": "customers/1234567890/campaigns/100001",
+        "id": "100001"
+      },
+      "adGroup": {
+        "resourceName": "customers/1234567890/adGroups/300001",
+        "id": "300001"
+      },
+      "geographicView": {
+        "resourceName": "customers/1234567890/geographicViews/2840~LOCATION_OF_PRESENCE",
+        "countryCriterionId": "2840",
+        "locationType": "LOCATION_OF_PRESENCE"
+      },
+      "segments": {
+        "date": "2026-10-01"
+      },
+      "metrics": {
+        "impressions": "1000",
+        "clicks": "50",
+        "costMicros": "12340000",
+        "conversions": 2.0,
+        "conversionsValue": 100.5,
+        "allConversions": 2.5,
+        "ctr": 0.05,
+        "averageCpc": 246800.0
+      }
+    },
+    {
+      "customer": {
+        "resourceName": "customers/1234567890",
+        "id": "1234567890"
+      },
+      "campaign": {
+        "resourceName": "customers/1234567890/campaigns/100001",
+        "id": "100001"
+      },
+      "adGroup": {
+        "resourceName": "customers/1234567890/adGroups/300001",
+        "id": "300001"
+      },
+      "geographicView": {
+        "resourceName": "customers/1234567890/geographicViews/2840~LOCATION_OF_PRESENCE",
+        "countryCriterionId": "2840",
+        "locationType": "LOCATION_OF_PRESENCE"
+      },
+      "segments": {
+        "date": "2026-10-16"
+      },
+      "metrics": {
+        "impressions": "2000",
+        "clicks": "100",
+        "costMicros": "24680000",
+        "conversions": 4.0,
+        "conversionsValue": 201.0,
+        "allConversions": 5.0,
+        "ctr": 0.05,
+        "averageCpc": 246800.0
+      }
+    },
+    {
+      "customer": {
+        "resourceName": "customers/1234567890",
+        "id": "1234567890"
+      },
+      "campaign": {
+        "resourceName": "customers/1234567890/campaigns/100001",
+        "id": "100001"
+      },
+      "adGroup": {
+        "resourceName": "customers/1234567890/adGroups/300001",
+        "id": "300001"
+      },
+      "geographicView": {
+        "resourceName": "customers/1234567890/geographicViews/2840~LOCATION_OF_PRESENCE",
+        "countryCriterionId": "2840",
+        "locationType": "LOCATION_OF_PRESENCE"
+      },
+      "segments": {
+        "date": "2026-10-17"
+      },
+      "metrics": {
+        "impressions": "3000",
+        "clicks": "150",
+        "costMicros": "37020000",
+        "conversions": 6.0,
+        "conversionsValue": 301.5,
+        "allConversions": 7.5,
+        "ctr": 0.05,
+        "averageCpc": 246800.0
+      }
+    }
+  ],
+  "fieldMask": "",
+  "requestId": "test-request-id"
+}

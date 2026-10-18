@@ -1,0 +1,74 @@
+{
+  "results": [
+    {
+      "customer": {
+        "resourceName": "customers/2345678901",
+        "id": "2345678901"
+      },
+      "campaign": {
+        "resourceName": "customers/2345678901/campaigns/200001",
+        "id": "200001"
+      },
+      "adGroup": {
+        "resourceName": "customers/2345678901/adGroups/400001",
+        "id": "400001"
+      },
+      "adGroupAd": {
+        "resourceName": "customers/2345678901/adGroupAds/400001~600001",
+        "ad": {
+          "resourceName": "customers/2345678901/ads/600001",
+          "id": "600001"
+        }
+      },
+      "segments": {
+        "date": "2026-10-16"
+      },
+      "metrics": {
+        "impressions": "2000",
+        "clicks": "100",
+        "costMicros": "24680000",
+        "conversions": 4.0,
+        "conversionsValue": 201.0,
+        "allConversions": 5.0,
+        "ctr": 0.05,
+        "averageCpc": 246800.0
+      }
+    },
+    {
+      "customer": {
+        "resourceName": "customers/2345678901",
+        "id": "2345678901"
+      },
+      "campaign": {
+        "resourceName": "customers/2345678901/campaigns/200001",
+        "id": "200001"
+      },
+      "adGroup": {
+        "resourceName": "customers/2345678901/adGroups/400001",
+        "id": "400001"
+      },
+      "adGroupAd": {
+        "resourceName": "customers/2345678901/adGroupAds/400001~600001",
+        "ad": {
+          "resourceName": "customers/2345678901/ads/600001",
+          "id": "600001"
+        }
+      },
+      "segments": {
+        "date": "2026-10-17"
+      },
+      "metrics": {
+        "impressions": "3000",
+        "clicks": "150",
+        "costMicros": "37020000",
+        "conversions": 6.0,
+        "conversionsValue": 301.5,
+        "allConversions": 7.5,
+        "ctr": 0.05,
+        "averageCpc": 246800.0
+      }
+    }
+  ],
+  "fieldMask": "",
+  "requestId": "test-request-id"
+}

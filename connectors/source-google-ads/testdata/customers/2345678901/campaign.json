@@ -1,0 +1,21 @@
+{
+  "results": [
+    {
+      "customer": {
+        "resourceName": "customers/2345678901",
+        "id": "2345678901"
+      },
+      "campaign": {
+        "resourceName": "customers/2345678901/campaigns/200001",
+        "id": "200001",
+        "name": "Example Search Campaign B",
+        "status": "ENABLED",
+        "advertisingChannelType": "SEARCH",
+        "biddingStrategyType": "MANUAL_CPC",
+        "campaignBudget": "customers/2345678901/campaignBudgets/9200001"
+      }
+    }
+  ],
+  "fieldMask": "",
+  "requestId": "test-request-id"
+}

@@ -1,0 +1,32 @@
+{
+  "results": [
+    {
+      "customer": {
+        "resourceName": "customers/1234567890",
+        "id": "1234567890"
+      },
+      "campaign": {
+        "resourceName": "customers/1234567890/campaigns/100001",
+        "id": "100001"
+      },
+      "adGroup": {
+        "resourceName": "customers/1234567890/adGroups/300001",
+        "id": "300001"
+      },
+      "adGroupAd": {
+        "resourceName": "customers/1234567890/adGroupAds/300001~500001",
+        "status": "ENABLED",
+        "ad": {
+          "resourceName": "customers/1234567890/ads/500001",
+          "id": "500001",
+          "type": "RESPONSIVE_SEARCH_AD",
+          "finalUrls": [
+            "https://example.com/shop"
+          ]
+        }
+      }
+    }
+  ],
+  "fieldMask": "",
+  "requestId": "test-request-id"
+}

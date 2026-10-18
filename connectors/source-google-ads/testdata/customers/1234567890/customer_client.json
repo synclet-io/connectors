@@ -1,0 +1,23 @@
+{
+  "results": [
+    {
+      "customer": {
+        "resourceName": "customers/1234567890",
+        "id": "1234567890"
+      },
+      "customerClient": {
+        "resourceName": "customers/1234567890/customerClients/1234567890",
+        "clientCustomer": "customers/1234567890",
+        "level": "0",
+        "status": "ENABLED",
+        "timeZone": "Etc/UTC",
+        "currencyCode": "USD",
+        "descriptiveName": "Example Shop A",
+        "id": "1234567890",
+        "testAccount": false
+      }
+    }
+  ],
+  "fieldMask": "",
+  "requestId": "test-request-id"
+}

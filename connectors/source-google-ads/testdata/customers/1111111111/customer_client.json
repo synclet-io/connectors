@@ -1,0 +1,93 @@
+{
+  "results": [
+    {
+      "customer": {
+        "resourceName": "customers/1111111111",
+        "id": "1111111111"
+      },
+      "customerClient": {
+        "resourceName": "customers/1111111111/customerClients/1111111111",
+        "clientCustomer": "customers/1111111111",
+        "level": "0",
+        "status": "ENABLED",
+        "timeZone": "Etc/UTC",
+        "currencyCode": "USD",
+        "descriptiveName": "Example Manager",
+        "id": "1111111111",
+        "testAccount": false,
+        "manager": true
+      }
+    },
+    {
+      "customer": {
+        "resourceName": "customers/1111111111",
+        "id": "1111111111"
+      },
+      "customerClient": {
+        "resourceName": "customers/1111111111/customerClients/1234567890",
+        "clientCustomer": "customers/1234567890",
+        "level": "1",
+        "status": "ENABLED",
+        "timeZone": "Etc/UTC",
+        "currencyCode": "USD",
+        "descriptiveName": "Example Shop A",
+        "id": "1234567890",
+        "testAccount": false
+      }
+    },
+    {
+      "customer": {
+        "resourceName": "customers/1111111111",
+        "id": "1111111111"
+      },
+      "customerClient": {
+        "resourceName": "customers/1111111111/customerClients/2345678901",
+        "clientCustomer": "customers/2345678901",
+        "level": "1",
+        "status": "ENABLED",
+        "timeZone": "Etc/UTC",
+        "currencyCode": "USD",
+        "descriptiveName": "Example Shop B",
+        "id": "2345678901",
+        "testAccount": false
+      }
+    },
+    {
+      "customer": {
+        "resourceName": "customers/1111111111",
+        "id": "1111111111"
+      },
+      "customerClient": {
+        "resourceName": "customers/1111111111/customerClients/3333333333",
+        "clientCustomer": "customers/3333333333",
+        "level": "1",
+        "status": "ENABLED",
+        "timeZone": "Etc/UTC",
+        "currencyCode": "USD",
+        "descriptiveName": "Example Sub-Manager",
+        "id": "3333333333",
+        "testAccount": false,
+        "manager": true
+      }
+    },
+    {
+      "customer": {
+        "resourceName": "customers/1111111111",
+        "id": "1111111111"
+      },
+      "customerClient": {
+        "resourceName": "customers/1111111111/customerClients/4444444444",
+        "clientCustomer": "customers/4444444444",
+        "level": "2",
+        "status": "CANCELED",
+        "timeZone": "Etc/UTC",
+        "currencyCode": "USD",
+        "descriptiveName": "Example Closed Shop",
+        "id": "4444444444",
+        "testAccount": false
+      }
+    }
+  ],
+  "fieldMask": "",
+  "requestId": "test-request-id"
+}

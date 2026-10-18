@@ -59,6 +59,16 @@
         }
       ]
     },
+    "connectors/source-google-ads": {
+      "component": "source-google-ads",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "meta.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
     "connectors/source-google-sheets": {
       "component": "source-google-sheets",
       "extra-files": [

@@ -1,0 +1,54 @@
+{
+  "results": [
+    {
+      "customer": {
+        "resourceName": "customers/2345678901",
+        "id": "2345678901"
+      },
+      "adGroup": {
+        "resourceName": "customers/2345678901/adGroups/400001",
+        "id": "400001"
+      },
+      "adGroupCriterion": {
+        "resourceName": "customers/2345678901/adGroupCriteria/400001~700001",
+        "keyword": {
+          "text": "example shoes",
+          "matchType": "PHRASE"
+        }
+      },
+      "segments": {
+        "date": "2026-10-16"
+      },
+      "metrics": {
+        "clicks": "20",
+        "costMicros": "5000000"
+      }
+    },
+    {
+      "customer": {
+        "resourceName": "customers/2345678901",
+        "id": "2345678901"
+      },
+      "adGroup": {
+        "resourceName": "customers/2345678901/adGroups/400001",
+        "id": "400001"
+      },
+      "adGroupCriterion": {
+        "resourceName": "customers/2345678901/adGroupCriteria/400001~700001",
+        "keyword": {
+          "text": "example shoes",
+          "matchType": "PHRASE"
+        }
+      },
+      "segments": {
+        "date": "2026-10-17"
+      },
+      "metrics": {
+        "clicks": "30",
+        "costMicros": "7500000"
+      }
+    }
+  ],
+  "fieldMask": "",
+  "requestId": "test-request-id"
+}

@@ -1,0 +1,21 @@
+{
+  "error": {
+    "code": 403,
+    "message": "Developer token is not allowed with project sending this request.",
+    "status": "PERMISSION_DENIED",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.ads.googleads.v26.errors.GoogleAdsFailure",
+        "errors": [
+          {
+            "errorCode": {
+              "authorizationError": "DEVELOPER_TOKEN_PROHIBITED"
+            },
+            "message": "Developer token is not allowed with project sending this request."
+          }
+        ],
+        "requestId": "test-request-id"
+      }
+    ]
+  }
+}

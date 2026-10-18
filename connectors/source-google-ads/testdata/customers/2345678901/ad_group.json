@@ -1,0 +1,24 @@
+{
+  "results": [
+    {
+      "customer": {
+        "resourceName": "customers/2345678901",
+        "id": "2345678901"
+      },
+      "campaign": {
+        "resourceName": "customers/2345678901/campaigns/200001",
+        "id": "200001"
+      },
+      "adGroup": {
+        "resourceName": "customers/2345678901/adGroups/400001",
+        "id": "400001",
+        "name": "Example Ad Group B",
+        "status": "ENABLED",
+        "type": "SEARCH_STANDARD",
+        "cpcBidMicros": "1500000"
+      }
+    }
+  ],
+  "fieldMask": "",
+  "requestId": "test-request-id"
+}

@@ -1,0 +1,17 @@
+{
+  "results": [
+    {
+      "resourceName": "googleAdsFields/ad_group_criterion.keyword.text",
+      "name": "ad_group_criterion.keyword.text",
+      "dataType": "STRING",
+      "isRepeated": false
+    },
+    {
+      "resourceName": "googleAdsFields/ad_group_criterion.keyword.match_type",
+      "name": "ad_group_criterion.keyword.match_type",
+      "dataType": "ENUM",
+      "isRepeated": false
+    }
+  ],
+  "totalResultsCount": "2"
+}

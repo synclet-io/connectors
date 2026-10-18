@@ -1,0 +1,21 @@
+{
+  "results": [
+    {
+      "customer": {
+        "resourceName": "customers/1234567890",
+        "id": "1234567890"
+      },
+      "campaign": {
+        "resourceName": "customers/1234567890/campaigns/100002",
+        "id": "100002",
+        "name": "Example Brand Campaign",
+        "status": "PAUSED",
+        "advertisingChannelType": "SEARCH",
+        "biddingStrategyType": "MANUAL_CPC",
+        "campaignBudget": "customers/1234567890/campaignBudgets/9100002"
+      }
+    }
+  ],
+  "fieldMask": "",
+  "requestId": "test-request-id"
+}

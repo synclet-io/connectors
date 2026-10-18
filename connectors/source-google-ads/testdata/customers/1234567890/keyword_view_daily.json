@@ -1,0 +1,102 @@
+{
+  "results": [
+    {
+      "customer": {
+        "resourceName": "customers/1234567890",
+        "id": "1234567890"
+      },
+      "adGroup": {
+        "resourceName": "customers/1234567890/adGroups/300001",
+        "id": "300001"
+      },
+      "adGroupCriterion": {
+        "resourceName": "customers/1234567890/adGroupCriteria/300001~700001",
+        "keyword": {
+          "text": "example shoes",
+          "matchType": "PHRASE"
+        }
+      },
+      "segments": {
+        "date": "2026-09-30"
+      },
+      "metrics": {
+        "clicks": "90",
+        "costMicros": "22500000"
+      }
+    },
+    {
+      "customer": {
+        "resourceName": "customers/1234567890",
+        "id": "1234567890"
+      },
+      "adGroup": {
+        "resourceName": "customers/1234567890/adGroups/300001",
+        "id": "300001"
+      },
+      "adGroupCriterion": {
+        "resourceName": "customers/1234567890/adGroupCriteria/300001~700001",
+        "keyword": {
+          "text": "example shoes",
+          "matchType": "PHRASE"
+        }
+      },
+      "segments": {
+        "date": "2026-10-01"
+      },
+      "metrics": {
+        "clicks": "10",
+        "costMicros": "2500000"
+      }
+    },
+    {
+      "customer": {
+        "resourceName": "customers/1234567890",
+        "id": "1234567890"
+      },
+      "adGroup": {
+        "resourceName": "customers/1234567890/adGroups/300001",
+        "id": "300001"
+      },
+      "adGroupCriterion": {
+        "resourceName": "customers/1234567890/adGroupCriteria/300001~700001",
+        "keyword": {
+          "text": "example shoes",
+          "matchType": "PHRASE"
+        }
+      },
+      "segments": {
+        "date": "2026-10-16"
+      },
+      "metrics": {
+        "clicks": "20",
+        "costMicros": "5000000"
+      }
+    },
+    {
+      "customer": {
+        "resourceName": "customers/1234567890",
+        "id": "1234567890"
+      },
+      "adGroup": {
+        "resourceName": "customers/1234567890/adGroups/300001",
+        "id": "300001"
+      },
+      "adGroupCriterion": {
+        "resourceName": "customers/1234567890/adGroupCriteria/300001~700001",
+        "keyword": {
+          "text": "example shoes",
+          "matchType": "PHRASE"
+        }
+      },
+      "segments": {
+        "date": "2026-10-17"
+      },
+      "metrics": {
+        "clicks": "30",
+        "costMicros": "7500000"
+      }
+    }
+  ],
+  "fieldMask": "",
+  "requestId": "test-request-id"
+}

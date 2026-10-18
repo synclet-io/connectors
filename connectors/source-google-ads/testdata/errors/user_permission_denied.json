@@ -1,0 +1,21 @@
+{
+  "error": {
+    "code": 403,
+    "message": "User doesn't have permission to access customer. Note: If you're accessing a client customer, the manager's customer id must be set in the 'login-customer-id' header.",
+    "status": "PERMISSION_DENIED",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.ads.googleads.v26.errors.GoogleAdsFailure",
+        "errors": [
+          {
+            "errorCode": {
+              "authorizationError": "USER_PERMISSION_DENIED"
+            },
+            "message": "User doesn't have permission to access customer. Note: If you're accessing a client customer, the manager's customer id must be set in the 'login-customer-id' header."
+          }
+        ],
+        "requestId": "test-request-id"
+      }
+    ]
+  }
+}

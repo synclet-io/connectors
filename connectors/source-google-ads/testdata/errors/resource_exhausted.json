@@ -1,0 +1,21 @@
+{
+  "error": {
+    "code": 429,
+    "message": "Too many requests. Retry in 86400 seconds.",
+    "status": "RESOURCE_EXHAUSTED",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.ads.googleads.v26.errors.GoogleAdsFailure",
+        "errors": [
+          {
+            "errorCode": {
+              "quotaError": "RESOURCE_EXHAUSTED"
+            },
+            "message": "Too many requests. Retry in 86400 seconds."
+          }
+        ],
+        "requestId": "test-request-id"
+      }
+    ]
+  }
+}
