@@ -212,11 +212,11 @@ func TestOverwriteRemovesPreviousObjectsAfterSuccess(t *testing.T) {
 
 	ms := testStart.UnixMilli()
 	assert.Equal(t, []string{
-		"p/orders/2026_10_18/" + fmt.Sprint(ms) + "_0.jsonl",
+		"p/orders/2026_10_18/" + fmt.Sprint(ms) + "_RUN_0.jsonl",
 		"p/orders_archive/2026_10_01/keep.jsonl",
 		"p/users/2026_10_01/old.jsonl",
-		"p/users/2026_10_18/" + fmt.Sprint(ms) + "_1.jsonl",
-	}, store.keys())
+		"p/users/2026_10_18/" + fmt.Sprint(ms) + "_RUN_1.jsonl",
+	}, withoutRunID(store.keys()))
 	events := store.log.events
 	cleanup := slices.Index(events, "delete p/orders/2026_10_01/old.jsonl")
 	require.GreaterOrEqual(t, cleanup, 0)
@@ -408,4 +408,15 @@ func TestWriteParquetFilesReadBack(t *testing.T) {
 	got, _ := readParquet(t, fixtureColumns(t), defaultDecimalScale, store.objects[keys[0]])
 	assert.Equal(t, expectedRecords(t), got)
 	assert.True(t, bytes.HasPrefix(store.objects[keys[0]], []byte("PAR1")))
+}
+
+func TestSyncsStartingInSameMillisecondWriteDistinctKeys(t *testing.T) {
+	store := newMemStore()
+	cfg := testConfig(t, "")
+	catalog := fixtureCatalog(t, fixtureStream("orders", "", synclet.DestinationSyncModeAppend))
+	require.NoError(t, runMemWrite(t, store, cfg, catalog, []string{recordMessage("orders", "", idRecord(1, "UA"))}, nil))
+	require.NoError(t, runMemWrite(t, store, cfg, catalog, []string{recordMessage("orders", "", idRecord(2, "UA"))}, nil))
+	keys := store.keys()
+	require.Len(t, keys, 2)
+	assert.NotEqual(t, keys[0], keys[1])
 }

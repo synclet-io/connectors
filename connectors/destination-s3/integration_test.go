@@ -100,7 +100,7 @@ func TestReadBackFromMinio(t *testing.T) {
 			keys, content := m.objects(t, bucket)
 			require.Len(t, keys, 1)
 			key := keys[0]
-			assert.Equal(t, fmt.Sprintf("sync/shop/orders/2026_10_18/%d_0%s", testStart.UnixMilli(), cfg.Format.extension()), key)
+			assert.Equal(t, fmt.Sprintf("sync/shop/orders/2026_10_18/%d_RUN_0%s", testStart.UnixMilli(), cfg.Format.extension()), withoutRunID(keys)[0])
 			b := content[key]
 			if strings.HasSuffix(key, ".gz") {
 				b = gunzip(t, b)
@@ -134,10 +134,10 @@ func TestPathTemplateKeysInMinio(t *testing.T) {
 	keys, content := m.objects(t, bucket)
 	ms := testStart.UnixMilli()
 	assert.Equal(t, []string{
-		fmt.Sprintf("sync/shop/orders/country=PL/2026/10/18/%d_1.parquet", ms),
-		fmt.Sprintf("sync/shop/orders/country=UA/2026/10/18/%d_0.parquet", ms),
-		fmt.Sprintf("sync/shop/orders/country=__null__/2026/10/18/%d_2.parquet", ms),
-	}, keys)
+		fmt.Sprintf("sync/shop/orders/country=PL/2026/10/18/%d_RUN_1.parquet", ms),
+		fmt.Sprintf("sync/shop/orders/country=UA/2026/10/18/%d_RUN_0.parquet", ms),
+		fmt.Sprintf("sync/shop/orders/country=__null__/2026/10/18/%d_RUN_2.parquet", ms),
+	}, withoutRunID(keys))
 	got, _ := readParquet(t, fixtureColumns(t), defaultDecimalScale, content[keys[1]])
 	require.Len(t, got, 1)
 	assert.Equal(t, "UA", got[0]["country"])
@@ -183,9 +183,9 @@ func TestOverwriteInMinio(t *testing.T) {
 	require.NoError(t, err)
 	keys, _ = m.objects(t, bucket)
 	assert.Equal(t, []string{
-		fmt.Sprintf("sync/orders/2026_10_18/%d_0.jsonl", start.UnixMilli()),
+		fmt.Sprintf("sync/orders/2026_10_18/%d_RUN_0.jsonl", start.UnixMilli()),
 		"sync/orders2/2026_01_01/other.jsonl",
-	}, keys)
+	}, withoutRunID(keys))
 }
 
 func TestRotationByRecordCountInMinio(t *testing.T) {

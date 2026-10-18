@@ -62,7 +62,7 @@ The key of a file is `<bucket_path>/<rendered path_template><extension>`. Tokens
 | `{namespace}`, `{stream}` | The stream's namespace and name |
 | `{yyyy}`, `{mm}`, `{dd}`, `{hh}` | The sync's start time, UTC |
 | `{field:<name>}` | A top-level field of the record: `__null__` when it is null or missing, `__empty__` for an empty string; an object or array fails the sync |
-| `{part}` | `<sync start in ms>_<sequence>`, unique within the sync; required in the last segment |
+| `{part}` | `<sync start in ms>_<random sync id>_<sequence>`, so two syncs starting in the same millisecond never share a key; required once, in the last segment |
 
 Values are path-escaped, so a value is always one segment. A segment that renders empty, such as
 `{namespace}` of a stream without one, is dropped. `{stream}` is required in a directory segment, and only
@@ -145,3 +145,4 @@ successful overwrite of that stream deletes them.
 - No Avro output.
 - No schema evolution: each file follows the catalog of the sync that wrote it.
 - No CDC deletes: a source's delete markers are written as ordinary records.
+- Memory: a Parquet file buffers up to 16 MiB of records before it flushes a row group, and a sync keeps up to 64 files open, so a sync writing many partitions at once can hold close to 1 GiB.

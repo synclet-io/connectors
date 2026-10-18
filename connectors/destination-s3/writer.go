@@ -47,6 +47,7 @@ type syncWriter struct {
 	tmpl       *pathTemplate
 	keyPrefix  string
 	start      time.Time
+	runID      string
 	maxBytes   int64
 	maxRecords int
 	maxOpen    int
@@ -69,6 +70,7 @@ func newSyncWriter(cfg Config, catalog *synclet.ConfiguredCatalog, store objectS
 		tmpl:       tmpl,
 		keyPrefix:  cfg.keyPrefix(),
 		start:      start,
+		runID:      strings.ReplaceAll(uuid.NewString(), "-", "")[:12],
 		maxBytes:   int64(cfg.FileSizeMB) << 20,
 		maxRecords: cfg.MaxRecordsPerFile,
 		maxOpen:    maxOpenFilesPerWrite,
@@ -199,7 +201,7 @@ func (w *syncWriter) file(ctx context.Context, target *streamTarget, group strin
 	if err != nil {
 		return nil, multierr.Combine(fmt.Errorf("stream %q: %w", target.desc.Name, err), tmp.Close(), os.Remove(tmp.Name()))
 	}
-	part := strconv.FormatInt(w.start.UnixMilli(), 10) + "_" + strconv.Itoa(w.seq)
+	part := strconv.FormatInt(w.start.UnixMilli(), 10) + "_" + w.runID + "_" + strconv.Itoa(w.seq)
 	w.seq++
 	f := &openFile{
 		target:   target,

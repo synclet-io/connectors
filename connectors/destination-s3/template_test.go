@@ -60,6 +60,7 @@ func TestPathTemplateRejected(t *testing.T) {
 		"{namespace}/{part}":                "{stream} is required",
 		"{stream}/{yyyy}":                   "{part} is required",
 		"{stream}/{part}/x":                 "{part} must be in the last segment",
+		"{stream}/{part}_{part}":            "{part} may appear only once",
 		"{stream}_{part}":                   "must be in a directory segment",
 		"{stream}/{stream}/{part}":          "only once",
 		"{stream}/{bogus}/{part}":           "unknown token {bogus}",

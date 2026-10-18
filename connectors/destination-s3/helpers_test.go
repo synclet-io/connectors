@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"regexp"
 	"sort"
 	"strings"
 	"sync"
@@ -181,4 +182,15 @@ func (m *minioServer) putObject(t *testing.T, bucket, key string) {
 		Bucket: aws.String(bucket), Key: aws.String(key), Body: strings.NewReader("old"),
 	})
 	require.NoError(t, err)
+}
+
+var runIDPattern = regexp.MustCompile(`_[0-9a-f]{12}_(\d+)\.`)
+
+// withoutRunID replaces the random sync id in part names with RUN.
+func withoutRunID(keys []string) []string {
+	out := make([]string, len(keys))
+	for i, k := range keys {
+		out[i] = runIDPattern.ReplaceAllString(k, "_RUN_$1.")
+	}
+	return out
 }

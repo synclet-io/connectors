@@ -49,6 +49,7 @@ func parsePathTemplate(s string) (*pathTemplate, error) {
 		return nil, errors.New("template is empty")
 	}
 	t := &pathTemplate{streamSegment: -1}
+	hasPart := false
 	rawSegments := strings.Split(s, "/")
 	for i, raw := range rawSegments {
 		parts, err := parseSegment(raw)
@@ -66,6 +67,10 @@ func parsePathTemplate(s string) (*pathTemplate, error) {
 				if i != len(rawSegments)-1 {
 					return nil, errors.New("{part} must be in the last segment")
 				}
+				if hasPart {
+					return nil, errors.New("{part} may appear only once")
+				}
+				hasPart = true
 			case strings.HasPrefix(p.token, tokenField):
 				t.fields = append(t.fields, strings.TrimPrefix(p.token, tokenField))
 			}
@@ -78,7 +83,7 @@ func parsePathTemplate(s string) (*pathTemplate, error) {
 	if t.streamSegment == len(t.segments)-1 {
 		return nil, errors.New("{stream} must be in a directory segment, not in the file name segment")
 	}
-	if !t.hasPart() {
+	if !hasPart {
 		return nil, errors.New("{part} is required in the last segment")
 	}
 	for i := 0; i <= t.streamSegment; i++ {
@@ -89,15 +94,6 @@ func parsePathTemplate(s string) (*pathTemplate, error) {
 		}
 	}
 	return t, nil
-}
-
-func (t *pathTemplate) hasPart() bool {
-	for _, p := range t.segments[len(t.segments)-1] {
-		if p.token == tokenPart {
-			return true
-		}
-	}
-	return false
 }
 
 func parseSegment(raw string) ([]templatePart, error) {
