@@ -28,6 +28,16 @@
         }
       ]
     },
+    "connectors/source-bigquery": {
+      "component": "source-bigquery",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "meta.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
     "connectors/source-example": {
       "component": "source-example",
       "extra-files": [
