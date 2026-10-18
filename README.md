@@ -52,6 +52,7 @@ Taskfile.yml              local shortcuts
 | [destination-bigquery](connectors/destination-bigquery) | `ghcr.io/synclet-io/connectors/destination-bigquery` |
 | [destination-clickhouse](connectors/destination-clickhouse) | `ghcr.io/synclet-io/connectors/destination-clickhouse` |
 | [destination-google-sheets](connectors/destination-google-sheets) | `ghcr.io/synclet-io/connectors/destination-google-sheets` |
+| [destination-mysql](connectors/destination-mysql) | `ghcr.io/synclet-io/connectors/destination-mysql` |
 | [destination-postgres](connectors/destination-postgres) | `ghcr.io/synclet-io/connectors/destination-postgres` |
 | [destination-s3](connectors/destination-s3) | `ghcr.io/synclet-io/connectors/destination-s3` |
 

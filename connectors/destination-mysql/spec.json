@@ -1,0 +1,188 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Writes each stream into a typed table of one MySQL 8.0.19+ database: overwrite, append or append_dedup.",
+    "properties": {
+      "database": {
+        "description": "Database every table is written to; it must exist.",
+        "order": 2,
+        "title": "Database",
+        "type": "string"
+      },
+      "host": {
+        "description": "Hostname of the database.",
+        "order": 0,
+        "title": "Host",
+        "type": "string"
+      },
+      "password": {
+        "airbyte_secret": true,
+        "description": "Password associated with the username.",
+        "order": 4,
+        "title": "Password",
+        "type": "string"
+      },
+      "port": {
+        "default": 3306,
+        "description": "Port of the database.",
+        "examples": [
+          "3306"
+        ],
+        "order": 1,
+        "title": "Port",
+        "type": "integer"
+      },
+      "ssl_mode": {
+        "description": "How the connection is encrypted and which server certificates are trusted.",
+        "oneOf": [
+          {
+            "description": "Disables encryption of communication between the connector and the database.",
+            "properties": {
+              "mode": {
+                "const": "disabled",
+                "order": 0,
+                "type": "string"
+              }
+            },
+            "required": [
+              "mode"
+            ],
+            "title": "disabled",
+            "type": "object"
+          },
+          {
+            "description": "Connects with encryption when the server supports it, without otherwise.",
+            "properties": {
+              "mode": {
+                "const": "preferred",
+                "order": 0,
+                "type": "string"
+              }
+            },
+            "required": [
+              "mode"
+            ],
+            "title": "preferred",
+            "type": "object"
+          },
+          {
+            "description": "Always encrypts; the server certificate is not verified.",
+            "properties": {
+              "mode": {
+                "const": "required",
+                "order": 0,
+                "type": "string"
+              }
+            },
+            "required": [
+              "mode"
+            ],
+            "title": "required",
+            "type": "object"
+          },
+          {
+            "description": "Always encrypts and verifies that the server certificate is signed by the given CA.",
+            "properties": {
+              "ca_certificate": {
+                "airbyte_secret": true,
+                "description": "PEM certificate of the CA that signed the server certificate.",
+                "order": 1,
+                "title": "CA certificate",
+                "type": "string"
+              },
+              "client_certificate": {
+                "airbyte_secret": true,
+                "description": "PEM client certificate, when the server asks for one.",
+                "order": 2,
+                "title": "Client certificate",
+                "type": "string"
+              },
+              "client_key": {
+                "airbyte_secret": true,
+                "description": "PEM private key of the client certificate.",
+                "order": 3,
+                "title": "Client key",
+                "type": "string"
+              },
+              "mode": {
+                "const": "verify_ca",
+                "order": 0,
+                "type": "string"
+              }
+            },
+            "required": [
+              "mode",
+              "ca_certificate"
+            ],
+            "title": "verify_ca",
+            "type": "object"
+          },
+          {
+            "description": "Always encrypts and verifies the server certificate's CA and its hostname.",
+            "properties": {
+              "ca_certificate": {
+                "airbyte_secret": true,
+                "description": "PEM certificate of the CA that signed the server certificate.",
+                "order": 1,
+                "title": "CA certificate",
+                "type": "string"
+              },
+              "client_certificate": {
+                "airbyte_secret": true,
+                "description": "PEM client certificate, when the server asks for one.",
+                "order": 2,
+                "title": "Client certificate",
+                "type": "string"
+              },
+              "client_key": {
+                "airbyte_secret": true,
+                "description": "PEM private key of the client certificate.",
+                "order": 3,
+                "title": "Client key",
+                "type": "string"
+              },
+              "mode": {
+                "const": "verify_identity",
+                "order": 0,
+                "type": "string"
+              }
+            },
+            "required": [
+              "mode",
+              "ca_certificate"
+            ],
+            "title": "verify_identity",
+            "type": "object"
+          }
+        ],
+        "order": 5,
+        "title": "SSL Modes",
+        "type": "object"
+      },
+      "username": {
+        "description": "Username to access the database.",
+        "order": 3,
+        "title": "Username",
+        "type": "string"
+      }
+    },
+    "required": [
+      "host",
+      "port",
+      "database",
+      "username"
+    ],
+    "title": "MySQL Destination Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/destination-mysql",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": false,
+  "supportsNormalization": false
+}
