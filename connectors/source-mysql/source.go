@@ -243,7 +243,7 @@ func (s *MySQLSource) Read(
 			}
 		}
 
-		prevCDCState, err := loadCDCState(prevState)
+		prevCDCState, err := loadCDCState(prevState, streamNames(tables))
 		if err != nil {
 			log.Warn(fmt.Sprintf("Failed to load CDC state, starting fresh: %v", err))
 		}
@@ -312,4 +312,13 @@ func (s *MySQLSource) Read(
 	}
 
 	return nil
+}
+
+// streamNames returns the names of tables.
+func streamNames(tables []TableInfo) []string {
+	names := make([]string, len(tables))
+	for i, t := range tables {
+		names[i] = t.Name
+	}
+	return names
 }

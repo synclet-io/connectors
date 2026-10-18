@@ -53,7 +53,7 @@ func TestStreamStateRoundTrip(t *testing.T) {
 
 	var got FullRefreshState
 	parseStreamState(t.Context(), "users", raw, &got)
-	assert.Equal(t, map[string]any{"id": float64(7)}, got.LastPKVals)
+	assert.Equal(t, map[string]any{"id": json.Number("7")}, got.LastPKVals)
 	assert.False(t, got.Done)
 }
 
@@ -64,7 +64,7 @@ func TestParseStreamState_KeepsPartialStateOnError(t *testing.T) {
 }
 
 func TestLoadCDCState_EmptyState(t *testing.T) {
-	state, err := loadCDCState(&synclet.InputState{})
+	state, err := loadCDCState(&synclet.InputState{}, nil)
 	require.NoError(t, err)
 	assert.Nil(t, state)
 }
@@ -73,7 +73,7 @@ func TestLoadCDCState_ReturnsNilForStreamState(t *testing.T) {
 	prev, err := synclet.ParseInputState([]byte(`[{"type":"STREAM","stream":{"stream_descriptor":{"name":"users"},"stream_state":{"phase":"incremental"}}}]`))
 	require.NoError(t, err)
 
-	state, err := loadCDCState(prev)
+	state, err := loadCDCState(prev, []string{"users"})
 	require.NoError(t, err)
 	assert.Nil(t, state)
 }
@@ -87,7 +87,7 @@ func TestLoadCDCState_ParsesLegacyState(t *testing.T) {
 			prev, err := synclet.ParseInputState([]byte(saved))
 			require.NoError(t, err)
 
-			state, err := loadCDCState(prev)
+			state, err := loadCDCState(prev, []string{"users"})
 			require.NoError(t, err)
 			require.NotNil(t, state)
 			assert.Equal(t, "mysql-bin.000123", state.BinlogFile)
@@ -143,7 +143,7 @@ func TestCDCStateGlobalRoundTrip(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, synclet.StateTypeGlobal, prev.Type)
 
-	got, err := loadCDCState(prev)
+	got, err := loadCDCState(prev, []string{"users"})
 	require.NoError(t, err)
 	assert.Equal(t, want, got)
 }
@@ -154,4 +154,50 @@ func TestSavedStreamState_ReadsStateWithoutNamespace(t *testing.T) {
 
 	assert.JSONEq(t, `{"done":true}`, string(savedStreamState(prev, streamDescriptor("shop", "users"))))
 	assert.Nil(t, savedStreamState(prev, streamDescriptor("shop", "orders")))
+}
+
+func TestParseStreamState_KeepsNumbersExact(t *testing.T) {
+	var got IncrementalState
+	parseStreamState(t.Context(), "users", json.RawMessage(`{"phase":"incremental","cursor_field":"amount",
+		"cursor_value":12345678901234567.89,"max_cursor_value":9007199254740993,"snapshot_last_pk":{"id":9007199254740993}}`), &got)
+
+	assert.Equal(t, json.Number("12345678901234567.89"), got.CursorValue)
+	assert.Equal(t, json.Number("9007199254740993"), got.MaxCursorValue)
+	assert.Equal(t, json.Number("9007199254740993"), got.SnapshotLastPK["id"])
+}
+
+func TestLoadCDCState_KeepsPrimaryKeysExact(t *testing.T) {
+	for name, saved := range map[string]string{
+		"global": `[{"type":"GLOBAL","global":{"shared_state":{"binlog_file":"b.1","binlog_pos":4},"stream_states":[{"stream_descriptor":{"name":"users"},"stream_state":{"last_pk_vals":{"id":9007199254740993}}}]}}]`,
+		"legacy": `{"binlog_file":"b.1","binlog_pos":4,"snapshot_streams":{"users":{"last_pk_vals":{"id":9007199254740993}}}}`,
+	} {
+		t.Run(name, func(t *testing.T) {
+			prev, err := synclet.ParseInputState([]byte(saved))
+			require.NoError(t, err)
+
+			state, err := loadCDCState(prev, []string{"users"})
+			require.NoError(t, err)
+			assert.Equal(t, json.Number("9007199254740993"), state.SnapshotStreams["users"].LastPKVals["id"])
+		})
+	}
+}
+
+func TestLoadCDCState_DropsStreamsOutsideCatalog(t *testing.T) {
+	for name, saved := range map[string]string{
+		"global": `[{"type":"GLOBAL","global":{"shared_state":{"binlog_file":"b.1","binlog_pos":4},"stream_states":[
+			{"stream_descriptor":{"name":"users","namespace":"shop"},"stream_state":{"done":true}},
+			{"stream_descriptor":{"name":"p_users","namespace":"p_shop"},"stream_state":{"done":true}},
+			{"stream_descriptor":{"name":"p_p_users"},"stream_state":{"done":true}}]}}]`,
+		"legacy": `{"binlog_file":"b.1","binlog_pos":4,"snapshot_streams":{"users":{"done":true},"p_users":{"done":true}}}`,
+	} {
+		t.Run(name, func(t *testing.T) {
+			prev, err := synclet.ParseInputState([]byte(saved))
+			require.NoError(t, err)
+
+			state, err := loadCDCState(prev, []string{"users", "orders"})
+			require.NoError(t, err)
+			assert.Equal(t, map[string]*CDCStreamSnapshotState{"users": {Done: true}}, state.SnapshotStreams)
+			assert.Equal(t, "b.1", state.BinlogFile)
+		})
+	}
 }

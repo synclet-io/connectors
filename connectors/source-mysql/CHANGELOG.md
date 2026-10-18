@@ -11,6 +11,8 @@
 * Records and stream states carry the database as namespace, as the discovered streams do. A stream state saved by 0.1.x without namespace is still read.
 * DECIMAL and NUMERIC values are JSON numbers, as their stream schema declares, instead of strings.
 * The integration tests run on a MySQL testcontainer instead of docker-compose on port 3307; they include the synclet-go-sdk conformance suite.
+* Cursor and primary key values in saved state are decoded exactly, so an incremental cursor on a DECIMAL or BIGINT column resumes from its exact value.
+* CDC snapshot progress is kept only for streams of the configured catalog; entries of other streams in the saved state are dropped.
 * Minor version bump: the SDK move is a breaking change of the connector's code and protocol output. Configuration and saved state stay compatible.
 
 ## [0.1.2](https://github.com/synclet-io/synclet/compare/source-mysql-v0.1.1...source-mysql-v0.1.2) (2026-04-01)

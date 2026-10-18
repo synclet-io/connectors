@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"slices"
 
 	synclet "github.com/synclet-io/synclet-go-sdk"
 )
@@ -54,10 +56,18 @@ func savedStreamState(prev *synclet.InputState, desc synclet.StreamDescriptor) j
 	return prev.Stream(synclet.StreamDescriptor{Name: desc.Name})
 }
 
+// decodeState decodes saved state into target, keeping numbers as
+// json.Number so cursor and primary key values stay exact.
+func decodeState(raw json.RawMessage, target any) error {
+	dec := json.NewDecoder(bytes.NewReader(raw))
+	dec.UseNumber()
+	return dec.Decode(target)
+}
+
 // parseStreamState decodes a stream's saved state into target. A state that
 // does not decode is logged and leaves target partly filled.
 func parseStreamState(ctx context.Context, streamName string, raw json.RawMessage, target any) {
-	if err := json.Unmarshal(raw, target); err != nil {
+	if err := decodeState(raw, target); err != nil {
 		synclet.Logger(ctx).Warn(fmt.Sprintf("Ignoring unreadable state of stream %s: %v", streamName, err))
 	}
 }
@@ -73,8 +83,22 @@ type cdcSharedState struct {
 
 // loadCDCState returns the CDC state saved by the previous sync, or nil when
 // there is none. It reads a GLOBAL state, and a LEGACY state as written by
-// 0.1.x of this connector.
-func loadCDCState(prev *synclet.InputState) (*CDCState, error) {
+// 0.1.x of this connector. Snapshot progress is kept only for the streams
+// named in streams.
+func loadCDCState(prev *synclet.InputState, streams []string) (*CDCState, error) {
+	cdcState, err := decodeCDCState(prev)
+	if err != nil || cdcState == nil {
+		return cdcState, err
+	}
+	for name := range cdcState.SnapshotStreams {
+		if !slices.Contains(streams, name) {
+			delete(cdcState.SnapshotStreams, name)
+		}
+	}
+	return cdcState, nil
+}
+
+func decodeCDCState(prev *synclet.InputState) (*CDCState, error) {
 	switch prev.Type {
 	case synclet.StateTypeGlobal:
 		var shared cdcSharedState
@@ -91,7 +115,7 @@ func loadCDCState(prev *synclet.InputState) (*CDCState, error) {
 		for _, st := range prev.Streams {
 			ss := &CDCStreamSnapshotState{}
 			if len(st.StreamState) > 0 {
-				if err := json.Unmarshal(st.StreamState, ss); err != nil {
+				if err := decodeState(st.StreamState, ss); err != nil {
 					return nil, fmt.Errorf("parsing CDC state of stream %s: %w", st.StreamDescriptor.Name, err)
 				}
 			}
@@ -100,7 +124,7 @@ func loadCDCState(prev *synclet.InputState) (*CDCState, error) {
 		return cdcState, nil
 	case synclet.StateTypeLegacy:
 		var cdcState CDCState
-		if err := json.Unmarshal(prev.Legacy, &cdcState); err != nil {
+		if err := decodeState(prev.Legacy, &cdcState); err != nil {
 			return nil, fmt.Errorf("parsing CDC state: %w", err)
 		}
 		return &cdcState, nil

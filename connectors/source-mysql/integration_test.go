@@ -327,6 +327,43 @@ func TestIntegrationIncrementalRead(t *testing.T) {
 	assert.Equal(t, []string{"Dave"}, names(records(t, second)))
 }
 
+func TestIntegrationIncrementalDecimalCursor(t *testing.T) {
+	cfg := testConfig(t)
+	db := openTestDB(t, cfg)
+	exec(t, db,
+		"DROP TABLE IF EXISTS inc_amounts",
+		"CREATE TABLE inc_amounts (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(32), amount DECIMAL(20,2))",
+		"INSERT INTO inc_amounts (name, amount) VALUES ('a', 12345678901234567.88), ('b', 12345678901234567.89)",
+	)
+	catalog := configuredCatalog(t, "inc_amounts", "incremental", "amount")
+
+	first, err := serve(t, synclet.Request{Command: synclet.CommandRead, Config: configJSON(t, cfg), Catalog: catalog})
+	require.NoError(t, err)
+	assert.Equal(t, []string{"a", "b"}, names(records(t, first)))
+
+	exec(t, db, "INSERT INTO inc_amounts (name, amount) VALUES ('c', 12345678901234567.90)")
+
+	second, err := serve(t, synclet.Request{
+		Command: synclet.CommandRead,
+		Config:  configJSON(t, cfg),
+		Catalog: catalog,
+		State:   savedState(t, states(first)),
+	})
+	require.NoError(t, err)
+	assert.Equal(t, []string{"c"}, names(records(t, second)))
+
+	exec(t, db, "INSERT INTO inc_amounts (name, amount) VALUES ('d', 12345678901234567.91)")
+
+	third, err := serve(t, synclet.Request{
+		Command: synclet.CommandRead,
+		Config:  configJSON(t, cfg),
+		Catalog: catalog,
+		State:   savedState(t, states(second)),
+	})
+	require.NoError(t, err)
+	assert.Equal(t, []string{"d"}, names(records(t, third)))
+}
+
 // readCDC runs a CDC read, calls during once the read streams the binlog (at
 // once when resuming from state, else after the snapshot), and cancels the
 // read, the way SIGTERM ends a CDC sync, once stop reports true for the
