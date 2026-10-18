@@ -183,10 +183,11 @@ scope is for people reading the history. `fix` releases a patch, `feat` a minor 
 `refactor` release nothing on their own. Record a breaking change in `breaking_changes` in `meta.json` too, so
 Synclet can warn before the upgrade.
 
-After a merge to main, release-please opens or updates one pull request per connector with releasable
-changes, titled `chore: release <dir> <version>`. It bumps `version` in `meta.json`, the connector's entry in
-`.release-please-manifest.json` and its `CHANGELOG.md`. Merging that pull request creates the GitHub release
-and the tag `<dir>-v<version>`, which runs the release workflow: it checks that the tag matches
+After a merge to main, release-please opens or updates a single pull request, titled `chore: release
+connectors`, for every connector with releasable changes. For each of them it bumps `version` in `meta.json`,
+the connector's entry in `.release-please-manifest.json` and its `CHANGELOG.md`, each at its own version.
+Merging that pull request creates a GitHub release and a tag `<dir>-v<version>` per included connector, and
+every tag runs the release workflow on its own: it checks that the tag matches
 `meta.json`, builds `ghcr.io/synclet-io/connectors/<dir>:<version>` (also `latest`) for linux/amd64 and
 linux/arm64, runs `spec` on the pushed image for both platforms, checks the image can be pulled anonymously
 and, once it succeeds, the Registry workflow republishes `registry.json` on GitHub Pages. If any step fails, the registry keeps the previous
@@ -194,8 +195,8 @@ version. A failed release can be re-run from **Actions → Release → Run workf
 
 A new connector needs a package in `release-please-config.json` (copy another connector's) and starts at
 `"version": "0.1.0"` in `meta.json`, the config's `initial-version`. Leave it out of
-`.release-please-manifest.json`: a connector missing there is not released yet, and release-please opens its
-first release pull request at `0.1.0` whatever its commits are. Merging that pull request adds it to the
+`.release-please-manifest.json`: a connector missing there is not released yet, and release-please adds it to
+the release pull request at `0.1.0` whatever its commits are. Merging that pull request adds it to the
 manifest. `task validate` fails until the package is there and `meta.json` declares `0.1.0`. After the first
 release, make its GHCR package public (see the README).
 

@@ -63,8 +63,9 @@ pull request / main ──► ci.yml
                            testcontainers), docker build, spec.json == `spec` output
 
 main ─────────────────► release-please.yml
-                        └─ one release pull request per connector with releasable commits; merging it
-                           bumps meta.json and CHANGELOG.md and creates the tag <dir>-v<version>
+                        └─ one release pull request for every connector with releasable commits; merging
+                           it bumps their meta.json and CHANGELOG.md and creates a tag <dir>-v<version>
+                           per connector
 
 tag <dir>-v<version> ──► release.yml
                         ├─ plan: the tag must match connectors/<dir>/meta.json's version

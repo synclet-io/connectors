@@ -1,7 +1,8 @@
 name: Release Please
 
-# Keeps one release pull request open per connector with unreleased changes. Merging it bumps the
-# connector's meta.json and CHANGELOG.md and creates the tag <dir>-v<version>, which runs release.yml.
+# Keeps one release pull request open for every connector with unreleased changes. Merging it bumps
+# each included connector's meta.json and CHANGELOG.md and creates one tag <dir>-v<version> per
+# connector, each of which runs release.yml.
 on:
   push:
     branches: [main]
@@ -17,6 +18,9 @@ concurrency:
 jobs:
   release-please:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
     steps:
       # Tags and pull requests created with GITHUB_TOKEN start no workflows, so release.yml and CI
       # would never run for them; the App's token does not have that limit.
@@ -30,7 +34,29 @@ jobs:
           permission-issues: write
 
       - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        id: release
         with:
           token: ${{ steps.app-token.outputs.token }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+
+      # release-please creates each tag through the releases API, which starts release.yml once per tag.
+      # A tag whose push run has not shown up after a minute is released by dispatch instead; both runs
+      # share release.yml's per-tag concurrency group, and a release re-run is harmless.
+      - name: Make sure every new tag has a release run
+        if: ${{ steps.release.outputs.releases_created == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OUTPUTS: ${{ toJSON(steps.release.outputs) }}
+        run: |
+          mapfile -t tags < <(jq -r '. as $o | .paths_released | fromjson[] | $o[. + "--tag_name"]' <<<"$OUTPUTS")
+          sleep 60
+          for tag in "${tags[@]}"; do
+            runs=$(gh run list -R "$GITHUB_REPOSITORY" -w release.yml -e push -b "$tag" --json databaseId -q length)
+            if [ "$runs" = 0 ]; then
+              echo "No push run for $tag; dispatching release.yml"
+              gh workflow run release.yml -R "$GITHUB_REPOSITORY" -f tag="$tag"
+            else
+              echo "$tag is releasing"
+            fi
+          done
