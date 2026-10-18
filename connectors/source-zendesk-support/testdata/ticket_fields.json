@@ -1,0 +1,7 @@
+{
+  "ticket_fields": [
+    {"id": 6001, "url": "https://example.zendesk.com/api/v2/ticket_fields/6001.json", "type": "tagger", "title": "Category", "raw_title": "Category", "description": "Ticket category", "raw_description": "Ticket category", "position": 1, "active": true, "required": false, "collapsed_for_agents": false, "regexp_for_validation": null, "title_in_portal": "Category", "raw_title_in_portal": "Category", "visible_in_portal": true, "editable_in_portal": true, "required_in_portal": false, "tag": null, "removable": true, "key": null, "agent_description": null, "custom_field_options": [{"id": 6101, "name": "Hardware", "value": "hardware"}], "created_at": "2026-09-01T00:00:00Z", "updated_at": "2026-09-01T00:00:00Z"}
+  ],
+  "meta": {"has_more": false, "after_cursor": "f1", "before_cursor": "f0"},
+  "links": {"prev": null, "next": null}
+}

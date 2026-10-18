@@ -28,6 +28,7 @@ Taskfile.yml              local shortcuts
 | [source-mysql](connectors/source-mysql) | `ghcr.io/synclet-io/connectors/source-mysql` |
 | [source-openexchangerates](connectors/source-openexchangerates) | `ghcr.io/synclet-io/connectors/source-openexchangerates` |
 | [source-postgres](connectors/source-postgres) | `ghcr.io/synclet-io/connectors/source-postgres` |
+| [source-zendesk-support](connectors/source-zendesk-support) | `ghcr.io/synclet-io/connectors/source-zendesk-support` |
 | [destination-bigquery](connectors/destination-bigquery) | `ghcr.io/synclet-io/connectors/destination-bigquery` |
 | [destination-google-sheets](connectors/destination-google-sheets) | `ghcr.io/synclet-io/connectors/destination-google-sheets` |
 

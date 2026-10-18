@@ -1,0 +1,10 @@
+{
+  "tickets": [
+    {"id": 2003, "url": "https://example.zendesk.com/api/v2/tickets/2003.json", "subject": "Invoice question", "description": "Why was I charged twice?", "status": "solved", "priority": "low", "type": "question", "requester_id": 1005, "submitter_id": 1005, "assignee_id": 1001, "organization_id": 4002, "group_id": 5002, "tags": ["billing"], "custom_fields": [], "via": {"channel": "api", "source": {"from": {}, "to": {}, "rel": null}}, "is_public": false, "has_incidents": false, "due_at": "2026-10-10T00:00:00Z", "generated_timestamp": 1791194400, "created_at": "2026-10-04T08:00:00Z", "updated_at": "2026-10-05T10:00:00Z"}
+  ],
+  "after_url": "https://example.zendesk.com/api/v2/incremental/tickets/cursor.json?cursor=c2",
+  "after_cursor": "c2",
+  "before_url": "https://example.zendesk.com/api/v2/incremental/tickets/cursor.json?cursor=c0",
+  "before_cursor": "c0",
+  "end_of_stream": true
+}

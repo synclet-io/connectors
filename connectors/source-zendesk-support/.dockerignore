@@ -1,0 +1,7 @@
+/source-zendesk-support
+*_test.go
+testdata
+README.md
+CHANGELOG.md
+spec.json
+meta.json

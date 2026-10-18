@@ -1,0 +1,7 @@
+{
+  "organizations": [
+    {"id": 4001, "url": "https://example.zendesk.com/api/v2/organizations/4001.json", "name": "Example Corp", "shared_tickets": false, "shared_comments": false, "external_id": null, "domain_names": ["example.com"], "details": "", "notes": "", "group_id": null, "tags": [], "organization_fields": {}, "created_at": "2026-09-01T00:00:00Z", "updated_at": "2026-09-01T00:00:00Z"}
+  ],
+  "meta": {"has_more": true, "after_cursor": "o1", "before_cursor": "o0"},
+  "links": {"prev": null, "next": "https://example.zendesk.com/api/v2/organizations.json?page%5Bafter%5D=o1&page%5Bsize%5D=100"}
+}

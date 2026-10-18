@@ -1,0 +1,61 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Reads tickets, users, ticket events, organizations, groups, ticket fields and satisfaction ratings from Zendesk Support with an API token.",
+    "properties": {
+      "api_token": {
+        "airbyte_secret": true,
+        "description": "Zendesk API token (Admin Center > Apps and integrations > Zendesk API). It is sent in the Authorization header.",
+        "order": 2,
+        "title": "API Token",
+        "type": "string"
+      },
+      "email": {
+        "description": "Email of the admin the API token belongs to.",
+        "examples": [
+          "admin@example.com"
+        ],
+        "order": 1,
+        "title": "Email",
+        "type": "string"
+      },
+      "start_date": {
+        "description": "Earliest update the first sync of tickets, users and ticket events reads: an RFC 3339 time or YYYY-MM-DD, in UTC.",
+        "examples": [
+          "2026-01-01",
+          "2026-01-01T00:00:00Z"
+        ],
+        "order": 3,
+        "title": "Start Date",
+        "type": "string"
+      },
+      "subdomain": {
+        "description": "Account name of your Zendesk, such as acme for https://acme.zendesk.com.",
+        "examples": [
+          "acme"
+        ],
+        "order": 0,
+        "title": "Subdomain",
+        "type": "string"
+      }
+    },
+    "required": [
+      "subdomain",
+      "email",
+      "api_token",
+      "start_date"
+    ],
+    "title": "Zendesk Support Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-zendesk-support",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": true,
+  "supportsNormalization": false
+}

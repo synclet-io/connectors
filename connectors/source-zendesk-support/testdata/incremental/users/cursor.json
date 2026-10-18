@@ -1,0 +1,11 @@
+{
+  "users": [
+    {"id": 1001, "url": "https://example.zendesk.com/api/v2/users/1001.json", "name": "Test Admin", "email": "tester@example.com", "role": "admin", "role_type": null, "active": true, "verified": true, "suspended": false, "locale": "en-US", "locale_id": 1, "time_zone": "Etc/UTC", "iana_time_zone": "Etc/UTC", "organization_id": null, "tags": [], "user_fields": {}, "photo": null, "last_login_at": "2026-10-02T09:00:00Z", "created_at": "2026-10-01T08:00:00Z", "updated_at": "2026-10-02T09:00:00Z"},
+    {"id": 1003, "url": "https://example.zendesk.com/api/v2/users/1003.json", "name": "End User", "email": "user@example.com", "role": "end-user", "role_type": null, "active": true, "verified": false, "suspended": false, "locale": "en-US", "locale_id": 1, "time_zone": "Etc/UTC", "iana_time_zone": "Etc/UTC", "organization_id": 4001, "tags": ["vip"], "user_fields": {"plan": "gold"}, "photo": null, "last_login_at": null, "created_at": "2026-10-02T10:00:00Z", "updated_at": "2026-10-03T11:00:00Z"}
+  ],
+  "after_url": null,
+  "after_cursor": "u1",
+  "before_url": null,
+  "before_cursor": null,
+  "end_of_stream": true
+}

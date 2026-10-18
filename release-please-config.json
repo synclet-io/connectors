@@ -97,6 +97,16 @@
           "jsonpath": "$.version"
         }
       ]
+    },
+    "connectors/source-zendesk-support": {
+      "component": "source-zendesk-support",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "meta.json",
+          "jsonpath": "$.version"
+        }
+      ]
     }
   }
 }
