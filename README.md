@@ -9,6 +9,14 @@ Synclet installs read from:
 https://synclet-io.github.io/connectors/registry.json
 ```
 
+To write a connector, read the guides on the Synclet docs site:
+[Writing a connector](https://synclet-io.github.io/synclet-site/docs/connector-development/writing-a-connector/)
+walks through source-postgres (interfaces, spec, check, discover, read, state, the conformance suite and
+testcontainers), and
+[Publishing a connector](https://synclet-io.github.io/synclet-site/docs/connector-development/publishing-a-connector/)
+covers the release tag, the GHCR image, the registry entry and running your own connectors repository from
+[synclet-connectors-template](https://github.com/synclet-io/synclet-connectors-template).
+
 ```
 connectors/<name>/        one connector per directory: Dockerfile, meta.json, spec.json, Go code
 schema/meta.schema.json   JSON Schema every meta.json is validated against
