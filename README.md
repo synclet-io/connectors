@@ -22,6 +22,7 @@ Taskfile.yml              local shortcuts
 | Connector | Image |
 |---|---|
 | [source-example](connectors/source-example) | `ghcr.io/synclet-io/connectors/source-example` |
+| [source-bigquery](connectors/source-bigquery) | `ghcr.io/synclet-io/connectors/source-bigquery` |
 | [source-google-sheets](connectors/source-google-sheets) | `ghcr.io/synclet-io/connectors/source-google-sheets` |
 | [source-mysql](connectors/source-mysql) | `ghcr.io/synclet-io/connectors/source-mysql` |
 | [source-openexchangerates](connectors/source-openexchangerates) | `ghcr.io/synclet-io/connectors/source-openexchangerates` |
