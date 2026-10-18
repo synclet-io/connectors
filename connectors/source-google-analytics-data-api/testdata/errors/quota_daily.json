@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": 429,
+    "message": "Exhausted property tokens per day for this property. Visit https://developers.google.com/analytics/devguides/reporting/data/v1/quotas to learn more.",
+    "status": "RESOURCE_EXHAUSTED"
+  }
+}

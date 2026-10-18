@@ -1,0 +1,109 @@
+{
+  "dimensionHeaders": [
+    {
+      "name": "date"
+    },
+    {
+      "name": "customEvent:plan_tier"
+    },
+    {
+      "name": "country"
+    }
+  ],
+  "metricHeaders": [
+    {
+      "name": "totalRevenue",
+      "type": "TYPE_CURRENCY"
+    },
+    {
+      "name": "sessions",
+      "type": "TYPE_INTEGER"
+    }
+  ],
+  "rows": [
+    {
+      "dimensionValues": [
+        {
+          "value": "20261006"
+        },
+        {
+          "value": "free"
+        },
+        {
+          "value": "Portugal"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "0.587763"
+        },
+        {
+          "value": "221"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261006"
+        },
+        {
+          "value": "pro"
+        },
+        {
+          "value": "Germany"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "0.841525"
+        },
+        {
+          "value": "89"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261014"
+        },
+        {
+          "value": "free"
+        },
+        {
+          "value": "Portugal"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "0.736209"
+        },
+        {
+          "value": "321"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261014"
+        },
+        {
+          "value": "pro"
+        },
+        {
+          "value": "Germany"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "0.497492"
+        },
+        {
+          "value": "423"
+        }
+      ]
+    }
+  ]
+}

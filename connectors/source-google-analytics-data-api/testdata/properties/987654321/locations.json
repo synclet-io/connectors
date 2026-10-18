@@ -1,0 +1,220 @@
+{
+  "dimensionHeaders": [
+    {
+      "name": "date"
+    },
+    {
+      "name": "region"
+    },
+    {
+      "name": "country"
+    },
+    {
+      "name": "city"
+    }
+  ],
+  "metricHeaders": [
+    {
+      "name": "totalUsers",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "newUsers",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "sessions",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "sessionsPerUser",
+      "type": "TYPE_FLOAT"
+    },
+    {
+      "name": "averageSessionDuration",
+      "type": "TYPE_SECONDS"
+    },
+    {
+      "name": "screenPageViews",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "screenPageViewsPerSession",
+      "type": "TYPE_FLOAT"
+    },
+    {
+      "name": "bounceRate",
+      "type": "TYPE_FLOAT"
+    }
+  ],
+  "rows": [
+    {
+      "dimensionValues": [
+        {
+          "value": "20261006"
+        },
+        {
+          "value": "Lisbon"
+        },
+        {
+          "value": "Portugal"
+        },
+        {
+          "value": "Lisbon"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "330"
+        },
+        {
+          "value": "275"
+        },
+        {
+          "value": "67"
+        },
+        {
+          "value": "0.052156"
+        },
+        {
+          "value": "0.616851"
+        },
+        {
+          "value": "123"
+        },
+        {
+          "value": "0.793380"
+        },
+        {
+          "value": "0.594784"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261006"
+        },
+        {
+          "value": "Bavaria"
+        },
+        {
+          "value": "Germany"
+        },
+        {
+          "value": "Munich"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "439"
+        },
+        {
+          "value": "119"
+        },
+        {
+          "value": "217"
+        },
+        {
+          "value": "0.717151"
+        },
+        {
+          "value": "0.232698"
+        },
+        {
+          "value": "215"
+        },
+        {
+          "value": "0.654965"
+        },
+        {
+          "value": "0.304915"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261014"
+        },
+        {
+          "value": "Lisbon"
+        },
+        {
+          "value": "Portugal"
+        },
+        {
+          "value": "Lisbon"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "452"
+        },
+        {
+          "value": "24"
+        },
+        {
+          "value": "214"
+        },
+        {
+          "value": "0.169509"
+        },
+        {
+          "value": "0.254764"
+        },
+        {
+          "value": "396"
+        },
+        {
+          "value": "0.828485"
+        },
+        {
+          "value": "0.683049"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261014"
+        },
+        {
+          "value": "Bavaria"
+        },
+        {
+          "value": "Germany"
+        },
+        {
+          "value": "Munich"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "176"
+        },
+        {
+          "value": "442"
+        },
+        {
+          "value": "212"
+        },
+        {
+          "value": "0.108325"
+        },
+        {
+          "value": "0.359077"
+        },
+        {
+          "value": "133"
+        },
+        {
+          "value": "0.105316"
+        },
+        {
+          "value": "0.265797"
+        }
+      ]
+    }
+  ]
+}

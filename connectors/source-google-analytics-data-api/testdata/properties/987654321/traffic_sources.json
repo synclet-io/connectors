@@ -1,0 +1,205 @@
+{
+  "dimensionHeaders": [
+    {
+      "name": "date"
+    },
+    {
+      "name": "sessionSource"
+    },
+    {
+      "name": "sessionMedium"
+    }
+  ],
+  "metricHeaders": [
+    {
+      "name": "totalUsers",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "newUsers",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "sessions",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "sessionsPerUser",
+      "type": "TYPE_FLOAT"
+    },
+    {
+      "name": "averageSessionDuration",
+      "type": "TYPE_SECONDS"
+    },
+    {
+      "name": "screenPageViews",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "screenPageViewsPerSession",
+      "type": "TYPE_FLOAT"
+    },
+    {
+      "name": "bounceRate",
+      "type": "TYPE_FLOAT"
+    }
+  ],
+  "rows": [
+    {
+      "dimensionValues": [
+        {
+          "value": "20261006"
+        },
+        {
+          "value": "google"
+        },
+        {
+          "value": "organic"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "166"
+        },
+        {
+          "value": "131"
+        },
+        {
+          "value": "43"
+        },
+        {
+          "value": "0.305918"
+        },
+        {
+          "value": "0.483450"
+        },
+        {
+          "value": "485"
+        },
+        {
+          "value": "0.595787"
+        },
+        {
+          "value": "0.469408"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261006"
+        },
+        {
+          "value": "(direct)"
+        },
+        {
+          "value": "(none)"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "52"
+        },
+        {
+          "value": "134"
+        },
+        {
+          "value": "137"
+        },
+        {
+          "value": "0.229689"
+        },
+        {
+          "value": "0.121364"
+        },
+        {
+          "value": "262"
+        },
+        {
+          "value": "0.662989"
+        },
+        {
+          "value": "0.553661"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261014"
+        },
+        {
+          "value": "google"
+        },
+        {
+          "value": "organic"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "164"
+        },
+        {
+          "value": "69"
+        },
+        {
+          "value": "115"
+        },
+        {
+          "value": "0.544634"
+        },
+        {
+          "value": "0.883651"
+        },
+        {
+          "value": "393"
+        },
+        {
+          "value": "0.188566"
+        },
+        {
+          "value": "0.845537"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261014"
+        },
+        {
+          "value": "(direct)"
+        },
+        {
+          "value": "(none)"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "213"
+        },
+        {
+          "value": "92"
+        },
+        {
+          "value": "377"
+        },
+        {
+          "value": "0.692076"
+        },
+        {
+          "value": "0.455366"
+        },
+        {
+          "value": "118"
+        },
+        {
+          "value": "0.638917"
+        },
+        {
+          "value": "0.807422"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,150 @@
+{
+  "name": "properties/987654321/metadata",
+  "dimensions": [
+    {
+      "apiName": "date",
+      "uiName": "date",
+      "category": "Synthetic"
+    },
+    {
+      "apiName": "sessionSource",
+      "uiName": "sessionSource",
+      "category": "Synthetic"
+    },
+    {
+      "apiName": "sessionMedium",
+      "uiName": "sessionMedium",
+      "category": "Synthetic"
+    },
+    {
+      "apiName": "hostName",
+      "uiName": "hostName",
+      "category": "Synthetic"
+    },
+    {
+      "apiName": "pagePathPlusQueryString",
+      "uiName": "pagePathPlusQueryString",
+      "category": "Synthetic"
+    },
+    {
+      "apiName": "eventName",
+      "uiName": "eventName",
+      "category": "Synthetic"
+    },
+    {
+      "apiName": "deviceCategory",
+      "uiName": "deviceCategory",
+      "category": "Synthetic"
+    },
+    {
+      "apiName": "operatingSystem",
+      "uiName": "operatingSystem",
+      "category": "Synthetic"
+    },
+    {
+      "apiName": "browser",
+      "uiName": "browser",
+      "category": "Synthetic"
+    },
+    {
+      "apiName": "region",
+      "uiName": "region",
+      "category": "Synthetic"
+    },
+    {
+      "apiName": "country",
+      "uiName": "country",
+      "category": "Synthetic"
+    },
+    {
+      "apiName": "city",
+      "uiName": "city",
+      "category": "Synthetic"
+    },
+    {
+      "apiName": "customEvent:plan_tier",
+      "uiName": "customEvent:plan_tier",
+      "category": "Synthetic"
+    }
+  ],
+  "metrics": [
+    {
+      "apiName": "totalUsers",
+      "uiName": "totalUsers",
+      "type": "TYPE_INTEGER",
+      "category": "Synthetic"
+    },
+    {
+      "apiName": "newUsers",
+      "uiName": "newUsers",
+      "type": "TYPE_INTEGER",
+      "category": "Synthetic"
+    },
+    {
+      "apiName": "sessions",
+      "uiName": "sessions",
+      "type": "TYPE_INTEGER",
+      "category": "Synthetic"
+    },
+    {
+      "apiName": "sessionsPerUser",
+      "uiName": "sessionsPerUser",
+      "type": "TYPE_FLOAT",
+      "category": "Synthetic"
+    },
+    {
+      "apiName": "averageSessionDuration",
+      "uiName": "averageSessionDuration",
+      "type": "TYPE_SECONDS",
+      "category": "Synthetic"
+    },
+    {
+      "apiName": "screenPageViews",
+      "uiName": "screenPageViews",
+      "type": "TYPE_INTEGER",
+      "category": "Synthetic"
+    },
+    {
+      "apiName": "screenPageViewsPerSession",
+      "uiName": "screenPageViewsPerSession",
+      "type": "TYPE_FLOAT",
+      "category": "Synthetic"
+    },
+    {
+      "apiName": "bounceRate",
+      "uiName": "bounceRate",
+      "type": "TYPE_FLOAT",
+      "category": "Synthetic"
+    },
+    {
+      "apiName": "active1DayUsers",
+      "uiName": "active1DayUsers",
+      "type": "TYPE_INTEGER",
+      "category": "Synthetic"
+    },
+    {
+      "apiName": "eventCount",
+      "uiName": "eventCount",
+      "type": "TYPE_INTEGER",
+      "category": "Synthetic"
+    },
+    {
+      "apiName": "eventCountPerUser",
+      "uiName": "eventCountPerUser",
+      "type": "TYPE_FLOAT",
+      "category": "Synthetic"
+    },
+    {
+      "apiName": "keyEvents",
+      "uiName": "keyEvents",
+      "type": "TYPE_FLOAT",
+      "category": "Synthetic"
+    },
+    {
+      "apiName": "totalRevenue",
+      "uiName": "totalRevenue",
+      "type": "TYPE_CURRENCY",
+      "category": "Synthetic"
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "dimensionHeaders": [
+    {
+      "name": "date"
+    }
+  ],
+  "metricHeaders": [
+    {
+      "name": "active1DayUsers",
+      "type": "TYPE_INTEGER"
+    }
+  ],
+  "rows": [
+    {
+      "dimensionValues": [
+        {
+          "value": "20261005"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "266"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261010"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "240"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261014"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "431"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261016"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "370"
+        }
+      ]
+    }
+  ]
+}

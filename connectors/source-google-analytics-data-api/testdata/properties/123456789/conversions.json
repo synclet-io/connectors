@@ -1,0 +1,8 @@
+{
+  "dimensionHeaders": [{"name": "date"}],
+  "metricHeaders": [{"name": "sessions", "type": "TYPE_INTEGER"}, {"name": "bounceRate", "type": "TYPE_FLOAT"}],
+  "rows": [
+    {"dimensionValues": [{"value": "20261010"}], "metricValues": [{"value": "12"}, {"value": "0.1234567890123456789"}]},
+    {"dimensionValues": [{"value": "20261011"}], "metricValues": [{"value": "9223372036854775807"}, {"value": "1e-7"}]}
+  ]
+}

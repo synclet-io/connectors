@@ -1,0 +1,193 @@
+{
+  "dimensionHeaders": [
+    {
+      "name": "date"
+    },
+    {
+      "name": "customEvent:plan_tier"
+    },
+    {
+      "name": "country"
+    }
+  ],
+  "metricHeaders": [
+    {
+      "name": "totalRevenue",
+      "type": "TYPE_CURRENCY"
+    },
+    {
+      "name": "sessions",
+      "type": "TYPE_INTEGER"
+    }
+  ],
+  "rows": [
+    {
+      "dimensionValues": [
+        {
+          "value": "20261005"
+        },
+        {
+          "value": "free"
+        },
+        {
+          "value": "Portugal"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "0.449348"
+        },
+        {
+          "value": "428"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261005"
+        },
+        {
+          "value": "pro"
+        },
+        {
+          "value": "Germany"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "0.824473"
+        },
+        {
+          "value": "59"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261010"
+        },
+        {
+          "value": "free"
+        },
+        {
+          "value": "Portugal"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "0.350050"
+        },
+        {
+          "value": "350"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261010"
+        },
+        {
+          "value": "pro"
+        },
+        {
+          "value": "Germany"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "0.399198"
+        },
+        {
+          "value": "376"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261014"
+        },
+        {
+          "value": "free"
+        },
+        {
+          "value": "Portugal"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "0.659980"
+        },
+        {
+          "value": "459"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261014"
+        },
+        {
+          "value": "pro"
+        },
+        {
+          "value": "Germany"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "0.241725"
+        },
+        {
+          "value": "494"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261016"
+        },
+        {
+          "value": "free"
+        },
+        {
+          "value": "Portugal"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "0.328987"
+        },
+        {
+          "value": "199"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261016"
+        },
+        {
+          "value": "pro"
+        },
+        {
+          "value": "Germany"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "0.157472"
+        },
+        {
+          "value": "381"
+        }
+      ]
+    }
+  ]
+}

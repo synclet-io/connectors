@@ -1,0 +1,220 @@
+{
+  "dimensionHeaders": [
+    {
+      "name": "date"
+    },
+    {
+      "name": "deviceCategory"
+    },
+    {
+      "name": "operatingSystem"
+    },
+    {
+      "name": "browser"
+    }
+  ],
+  "metricHeaders": [
+    {
+      "name": "totalUsers",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "newUsers",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "sessions",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "sessionsPerUser",
+      "type": "TYPE_FLOAT"
+    },
+    {
+      "name": "averageSessionDuration",
+      "type": "TYPE_SECONDS"
+    },
+    {
+      "name": "screenPageViews",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "screenPageViewsPerSession",
+      "type": "TYPE_FLOAT"
+    },
+    {
+      "name": "bounceRate",
+      "type": "TYPE_FLOAT"
+    }
+  ],
+  "rows": [
+    {
+      "dimensionValues": [
+        {
+          "value": "20261006"
+        },
+        {
+          "value": "desktop"
+        },
+        {
+          "value": "Linux"
+        },
+        {
+          "value": "Firefox"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "429"
+        },
+        {
+          "value": "308"
+        },
+        {
+          "value": "45"
+        },
+        {
+          "value": "0.914744"
+        },
+        {
+          "value": "0.357071"
+        },
+        {
+          "value": "70"
+        },
+        {
+          "value": "0.145436"
+        },
+        {
+          "value": "0.508526"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261006"
+        },
+        {
+          "value": "mobile"
+        },
+        {
+          "value": "Android"
+        },
+        {
+          "value": "Chrome"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "264"
+        },
+        {
+          "value": "224"
+        },
+        {
+          "value": "481"
+        },
+        {
+          "value": "0.925777"
+        },
+        {
+          "value": "0.700100"
+        },
+        {
+          "value": "203"
+        },
+        {
+          "value": "0.828485"
+        },
+        {
+          "value": "0.684052"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261014"
+        },
+        {
+          "value": "desktop"
+        },
+        {
+          "value": "Linux"
+        },
+        {
+          "value": "Firefox"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "206"
+        },
+        {
+          "value": "374"
+        },
+        {
+          "value": "97"
+        },
+        {
+          "value": "0.531595"
+        },
+        {
+          "value": "0.479438"
+        },
+        {
+          "value": "361"
+        },
+        {
+          "value": "0.740221"
+        },
+        {
+          "value": "0.946841"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261014"
+        },
+        {
+          "value": "mobile"
+        },
+        {
+          "value": "Android"
+        },
+        {
+          "value": "Chrome"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "353"
+        },
+        {
+          "value": "444"
+        },
+        {
+          "value": "322"
+        },
+        {
+          "value": "0.981946"
+        },
+        {
+          "value": "0.441324"
+        },
+        {
+          "value": "181"
+        },
+        {
+          "value": "0.144433"
+        },
+        {
+          "value": "0.478435"
+        }
+      ]
+    }
+  ]
+}

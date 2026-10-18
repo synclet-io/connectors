@@ -1,0 +1,388 @@
+{
+  "dimensionHeaders": [
+    {
+      "name": "date"
+    },
+    {
+      "name": "deviceCategory"
+    },
+    {
+      "name": "operatingSystem"
+    },
+    {
+      "name": "browser"
+    }
+  ],
+  "metricHeaders": [
+    {
+      "name": "totalUsers",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "newUsers",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "sessions",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "sessionsPerUser",
+      "type": "TYPE_FLOAT"
+    },
+    {
+      "name": "averageSessionDuration",
+      "type": "TYPE_SECONDS"
+    },
+    {
+      "name": "screenPageViews",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "screenPageViewsPerSession",
+      "type": "TYPE_FLOAT"
+    },
+    {
+      "name": "bounceRate",
+      "type": "TYPE_FLOAT"
+    }
+  ],
+  "rows": [
+    {
+      "dimensionValues": [
+        {
+          "value": "20261005"
+        },
+        {
+          "value": "desktop"
+        },
+        {
+          "value": "Linux"
+        },
+        {
+          "value": "Firefox"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "99"
+        },
+        {
+          "value": "93"
+        },
+        {
+          "value": "407"
+        },
+        {
+          "value": "0.623872"
+        },
+        {
+          "value": "0.340020"
+        },
+        {
+          "value": "40"
+        },
+        {
+          "value": "0.759278"
+        },
+        {
+          "value": "0.537613"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261005"
+        },
+        {
+          "value": "mobile"
+        },
+        {
+          "value": "Android"
+        },
+        {
+          "value": "Chrome"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "166"
+        },
+        {
+          "value": "177"
+        },
+        {
+          "value": "21"
+        },
+        {
+          "value": "0.622869"
+        },
+        {
+          "value": "0.309930"
+        },
+        {
+          "value": "108"
+        },
+        {
+          "value": "0.874624"
+        },
+        {
+          "value": "0.114343"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261010"
+        },
+        {
+          "value": "desktop"
+        },
+        {
+          "value": "Linux"
+        },
+        {
+          "value": "Firefox"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "44"
+        },
+        {
+          "value": "382"
+        },
+        {
+          "value": "393"
+        },
+        {
+          "value": "0.188566"
+        },
+        {
+          "value": "0.845537"
+        },
+        {
+          "value": "212"
+        },
+        {
+          "value": "0.560682"
+        },
+        {
+          "value": "0.381143"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261010"
+        },
+        {
+          "value": "mobile"
+        },
+        {
+          "value": "Android"
+        },
+        {
+          "value": "Chrome"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "315"
+        },
+        {
+          "value": "311"
+        },
+        {
+          "value": "139"
+        },
+        {
+          "value": "0.838516"
+        },
+        {
+          "value": "0.994985"
+        },
+        {
+          "value": "344"
+        },
+        {
+          "value": "0.212638"
+        },
+        {
+          "value": "0.592778"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261014"
+        },
+        {
+          "value": "desktop"
+        },
+        {
+          "value": "Linux"
+        },
+        {
+          "value": "Firefox"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "376"
+        },
+        {
+          "value": "159"
+        },
+        {
+          "value": "459"
+        },
+        {
+          "value": "0.240722"
+        },
+        {
+          "value": "0.462387"
+        },
+        {
+          "value": "334"
+        },
+        {
+          "value": "0.354062"
+        },
+        {
+          "value": "0.975928"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261014"
+        },
+        {
+          "value": "mobile"
+        },
+        {
+          "value": "Android"
+        },
+        {
+          "value": "Chrome"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "255"
+        },
+        {
+          "value": "397"
+        },
+        {
+          "value": "359"
+        },
+        {
+          "value": "0.679037"
+        },
+        {
+          "value": "0.051153"
+        },
+        {
+          "value": "86"
+        },
+        {
+          "value": "0.190572"
+        },
+        {
+          "value": "0.908726"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261016"
+        },
+        {
+          "value": "desktop"
+        },
+        {
+          "value": "Linux"
+        },
+        {
+          "value": "Firefox"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "171"
+        },
+        {
+          "value": "286"
+        },
+        {
+          "value": "360"
+        },
+        {
+          "value": "0.709127"
+        },
+        {
+          "value": "0.982949"
+        },
+        {
+          "value": "471"
+        },
+        {
+          "value": "0.613842"
+        },
+        {
+          "value": "0.029087"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261016"
+        },
+        {
+          "value": "mobile"
+        },
+        {
+          "value": "Android"
+        },
+        {
+          "value": "Chrome"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "401"
+        },
+        {
+          "value": "483"
+        },
+        {
+          "value": "34"
+        },
+        {
+          "value": "0.573721"
+        },
+        {
+          "value": "0.786359"
+        },
+        {
+          "value": "378"
+        },
+        {
+          "value": "0.723170"
+        },
+        {
+          "value": "0.419258"
+        }
+      ]
+    }
+  ]
+}

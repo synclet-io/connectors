@@ -1,0 +1,7 @@
+{
+  "dimensionHeaders": [{"name": "date"}],
+  "metricHeaders": [{"name": "sessions", "type": "TYPE_INTEGER"}, {"name": "bounceRate", "type": "TYPE_FLOAT"}],
+  "rows": [{"dimensionValues": [{"value": "20261010"}], "metricValues": [{"value": "1.5"}, {"value": "0.5"}]}],
+  "rowCount": 1,
+  "kind": "analyticsData#runReport"
+}

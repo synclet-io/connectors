@@ -1,0 +1,13 @@
+{
+  "dimensionHeaders": [{"name": "date"}],
+  "metricHeaders": [{"name": "totalUsers", "type": "TYPE_INTEGER"}],
+  "rows": [
+    {"dimensionValues": [{"value": "20261012"}], "metricValues": [{"value": "4210"}]}
+  ],
+  "metadata": {
+    "samplingMetadatas": [{"samplesReadCount": "250000", "samplingSpaceSize": "1000000"}],
+    "subjectToThresholding": true,
+    "currencyCode": "EUR",
+    "timeZone": "Europe/Lisbon"
+  }
+}

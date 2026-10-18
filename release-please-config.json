@@ -129,6 +129,16 @@
         }
       ]
     },
+    "connectors/source-google-analytics-data-api": {
+      "component": "source-google-analytics-data-api",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "meta.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
     "connectors/source-google-sheets": {
       "component": "source-google-sheets",
       "extra-files": [

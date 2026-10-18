@@ -1,0 +1,109 @@
+{
+  "dimensionHeaders": [
+    {
+      "name": "date"
+    }
+  ],
+  "metricHeaders": [
+    {
+      "name": "totalUsers",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "newUsers",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "sessions",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "sessionsPerUser",
+      "type": "TYPE_FLOAT"
+    },
+    {
+      "name": "averageSessionDuration",
+      "type": "TYPE_SECONDS"
+    },
+    {
+      "name": "screenPageViews",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "screenPageViewsPerSession",
+      "type": "TYPE_FLOAT"
+    },
+    {
+      "name": "bounceRate",
+      "type": "TYPE_FLOAT"
+    }
+  ],
+  "rows": [
+    {
+      "dimensionValues": [
+        {
+          "value": "20261006"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "362"
+        },
+        {
+          "value": "225"
+        },
+        {
+          "value": "463"
+        },
+        {
+          "value": "0.911735"
+        },
+        {
+          "value": "0.263791"
+        },
+        {
+          "value": "178"
+        },
+        {
+          "value": "0.503511"
+        },
+        {
+          "value": "0.608826"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261014"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "372"
+        },
+        {
+          "value": "83"
+        },
+        {
+          "value": "49"
+        },
+        {
+          "value": "0.039117"
+        },
+        {
+          "value": "0.212638"
+        },
+        {
+          "value": "91"
+        },
+        {
+          "value": "0.345035"
+        },
+        {
+          "value": "0.696088"
+        }
+      ]
+    }
+  ]
+}

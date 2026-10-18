@@ -1,0 +1,256 @@
+{
+  "dimensionHeaders": [
+    {
+      "name": "date"
+    },
+    {
+      "name": "hostName"
+    },
+    {
+      "name": "pagePathPlusQueryString"
+    }
+  ],
+  "metricHeaders": [
+    {
+      "name": "screenPageViews",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "bounceRate",
+      "type": "TYPE_FLOAT"
+    }
+  ],
+  "rows": [
+    {
+      "dimensionValues": [
+        {
+          "value": "20261005"
+        },
+        {
+          "value": "shop.example.test"
+        },
+        {
+          "value": "/"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "170"
+        },
+        {
+          "value": "0.801404"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261005"
+        },
+        {
+          "value": "shop.example.test"
+        },
+        {
+          "value": "/pricing"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "343"
+        },
+        {
+          "value": "0.181545"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261010"
+        },
+        {
+          "value": "shop.example.test"
+        },
+        {
+          "value": "/"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "127"
+        },
+        {
+          "value": "0.464393"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261010"
+        },
+        {
+          "value": "shop.example.test"
+        },
+        {
+          "value": "/pricing"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "397"
+        },
+        {
+          "value": "0.313942"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261014"
+        },
+        {
+          "value": "shop.example.test"
+        },
+        {
+          "value": "/"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "231"
+        },
+        {
+          "value": "0.698094"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261014"
+        },
+        {
+          "value": "shop.example.test"
+        },
+        {
+          "value": "/pricing"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "141"
+        },
+        {
+          "value": "0.900702"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261014"
+        },
+        {
+          "value": "shop.example.test"
+        },
+        {
+          "value": "/blog/a"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "422"
+        },
+        {
+          "value": "0.638917"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261014"
+        },
+        {
+          "value": "shop.example.test"
+        },
+        {
+          "value": "/blog/b"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "308"
+        },
+        {
+          "value": "0.095286"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261014"
+        },
+        {
+          "value": "shop.example.test"
+        },
+        {
+          "value": "/signup"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "456"
+        },
+        {
+          "value": "0.698094"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261016"
+        },
+        {
+          "value": "shop.example.test"
+        },
+        {
+          "value": "/"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "140"
+        },
+        {
+          "value": "0.868606"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261016"
+        },
+        {
+          "value": "shop.example.test"
+        },
+        {
+          "value": "/pricing"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "426"
+        },
+        {
+          "value": "0.762287"
+        }
+      ]
+    }
+  ]
+}

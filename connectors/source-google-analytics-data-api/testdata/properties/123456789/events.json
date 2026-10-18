@@ -1,0 +1,194 @@
+{
+  "dimensionHeaders": [
+    {
+      "name": "date"
+    },
+    {
+      "name": "eventName"
+    }
+  ],
+  "metricHeaders": [
+    {
+      "name": "eventCount",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "totalUsers",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "eventCountPerUser",
+      "type": "TYPE_FLOAT"
+    }
+  ],
+  "rows": [
+    {
+      "dimensionValues": [
+        {
+          "value": "20261005"
+        },
+        {
+          "value": "page_view"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "130"
+        },
+        {
+          "value": "57"
+        },
+        {
+          "value": "0.287864"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261005"
+        },
+        {
+          "value": "purchase"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "423"
+        },
+        {
+          "value": "168"
+        },
+        {
+          "value": "0.740221"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261010"
+        },
+        {
+          "value": "page_view"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "445"
+        },
+        {
+          "value": "352"
+        },
+        {
+          "value": "0.913741"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261010"
+        },
+        {
+          "value": "purchase"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "327"
+        },
+        {
+          "value": "138"
+        },
+        {
+          "value": "0.260782"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261014"
+        },
+        {
+          "value": "page_view"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "85"
+        },
+        {
+          "value": "111"
+        },
+        {
+          "value": "0.966901"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261014"
+        },
+        {
+          "value": "purchase"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "473"
+        },
+        {
+          "value": "224"
+        },
+        {
+          "value": "0.934804"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261016"
+        },
+        {
+          "value": "page_view"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "477"
+        },
+        {
+          "value": "347"
+        },
+        {
+          "value": "0.758275"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261016"
+        },
+        {
+          "value": "purchase"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "7"
+        },
+        {
+          "value": "233"
+        },
+        {
+          "value": "0.761284"
+        }
+      ]
+    }
+  ]
+}

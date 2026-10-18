@@ -1,0 +1,171 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Reads daily Google Analytics 4 reports, built-in and custom, through the Google Analytics Data API.",
+    "properties": {
+      "credentials": {
+        "description": "A service account key, or an OAuth client with the refresh token of a Google user. Either needs the Viewer role on every property.",
+        "oneOf": [
+          {
+            "properties": {
+              "auth_type": {
+                "const": "service_account",
+                "order": 0,
+                "type": "string"
+              },
+              "service_account_key": {
+                "airbyte_secret": true,
+                "description": "The JSON key of a service account of a Google Cloud project with the Google Analytics Data API enabled.",
+                "order": 1,
+                "title": "Service Account Key",
+                "type": "string"
+              }
+            },
+            "required": [
+              "auth_type",
+              "service_account_key"
+            ],
+            "title": "Service Account Key",
+            "type": "object"
+          },
+          {
+            "properties": {
+              "auth_type": {
+                "const": "oauth",
+                "order": 0,
+                "type": "string"
+              },
+              "client_id": {
+                "description": "Client ID of the Google Cloud OAuth client the refresh token was issued to.",
+                "order": 1,
+                "title": "OAuth Client ID",
+                "type": "string"
+              },
+              "client_secret": {
+                "airbyte_secret": true,
+                "description": "Client secret of the OAuth client.",
+                "order": 2,
+                "title": "OAuth Client Secret",
+                "type": "string"
+              },
+              "refresh_token": {
+                "airbyte_secret": true,
+                "description": "OAuth refresh token with the https://www.googleapis.com/auth/analytics.readonly scope.",
+                "order": 3,
+                "title": "Refresh Token",
+                "type": "string"
+              }
+            },
+            "required": [
+              "auth_type",
+              "client_id",
+              "client_secret",
+              "refresh_token"
+            ],
+            "title": "Google OAuth",
+            "type": "object"
+          }
+        ],
+        "order": 0,
+        "title": "Authentication",
+        "type": "object"
+      },
+      "custom_reports": {
+        "description": "Each report becomes a stream with its name, read by day. date is added as the first dimension when missing; at most 9 dimensions with date and 1 to 10 metrics.",
+        "items": {
+          "properties": {
+            "dimensions": {
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 9,
+              "title": "Dimensions",
+              "type": "array"
+            },
+            "metrics": {
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 10,
+              "title": "Metrics",
+              "type": "array"
+            },
+            "name": {
+              "pattern": "^[a-z][a-z0-9_]*$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "metrics"
+          ],
+          "type": "object"
+        },
+        "order": 5,
+        "title": "Custom Reports",
+        "type": "array"
+      },
+      "data_quality_fields": {
+        "default": true,
+        "description": "Add sampled, sampling_ratio, subject_to_thresholding and data_loss_from_other_row to every record.",
+        "order": 6,
+        "title": "Data Quality Fields",
+        "type": "boolean"
+      },
+      "end_date": {
+        "description": "Last day, YYYY-MM-DD, whose reports are read; empty reads up to today (UTC).",
+        "format": "date",
+        "order": 3,
+        "title": "End Date",
+        "type": "string"
+      },
+      "lookback_days": {
+        "default": 3,
+        "description": "Days before the saved date an incremental read starts again, since Google Analytics keeps processing recent days.",
+        "order": 4,
+        "title": "Lookback Days",
+        "type": "integer"
+      },
+      "property_ids": {
+        "description": "Google Analytics 4 property ids to read, with or without the properties/ prefix. Every report reads each of them.",
+        "examples": [
+          "123456789"
+        ],
+        "items": {
+          "pattern": "^(properties/)?[0-9]+$",
+          "type": "string"
+        },
+        "order": 1,
+        "title": "Property IDs",
+        "type": "array"
+      },
+      "start_date": {
+        "description": "First day, YYYY-MM-DD, whose reports are read.",
+        "examples": [
+          "2026-01-01"
+        ],
+        "format": "date",
+        "order": 2,
+        "title": "Start Date",
+        "type": "string"
+      }
+    },
+    "required": [
+      "credentials",
+      "property_ids",
+      "start_date"
+    ],
+    "title": "Google Analytics 4 Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-google-analytics-data-api",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": true,
+  "supportsNormalization": false
+}

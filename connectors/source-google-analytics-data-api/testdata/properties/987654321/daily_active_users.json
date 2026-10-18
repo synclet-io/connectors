@@ -1,0 +1,39 @@
+{
+  "dimensionHeaders": [
+    {
+      "name": "date"
+    }
+  ],
+  "metricHeaders": [
+    {
+      "name": "active1DayUsers",
+      "type": "TYPE_INTEGER"
+    }
+  ],
+  "rows": [
+    {
+      "dimensionValues": [
+        {
+          "value": "20261006"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "78"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261014"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "439"
+        }
+      ]
+    }
+  ]
+}

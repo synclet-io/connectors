@@ -1,0 +1,109 @@
+{
+  "dimensionHeaders": [
+    {
+      "name": "date"
+    },
+    {
+      "name": "hostName"
+    },
+    {
+      "name": "pagePathPlusQueryString"
+    }
+  ],
+  "metricHeaders": [
+    {
+      "name": "screenPageViews",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "bounceRate",
+      "type": "TYPE_FLOAT"
+    }
+  ],
+  "rows": [
+    {
+      "dimensionValues": [
+        {
+          "value": "20261006"
+        },
+        {
+          "value": "shop.example.test"
+        },
+        {
+          "value": "/"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "31"
+        },
+        {
+          "value": "0.932798"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261006"
+        },
+        {
+          "value": "shop.example.test"
+        },
+        {
+          "value": "/pricing"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "416"
+        },
+        {
+          "value": "0.451354"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261014"
+        },
+        {
+          "value": "shop.example.test"
+        },
+        {
+          "value": "/"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "490"
+        },
+        {
+          "value": "0.751254"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20261014"
+        },
+        {
+          "value": "shop.example.test"
+        },
+        {
+          "value": "/pricing"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "290"
+        },
+        {
+          "value": "0.986961"
+        }
+      ]
+    }
+  ]
+}

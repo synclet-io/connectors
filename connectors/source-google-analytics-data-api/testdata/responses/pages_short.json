@@ -1,0 +1,6 @@
+{
+  "dimensionHeaders": [{"name": "date"}, {"name": "hostName"}, {"name": "pagePathPlusQueryString"}],
+  "metricHeaders": [{"name": "screenPageViews", "type": "TYPE_INTEGER"}, {"name": "bounceRate", "type": "TYPE_FLOAT"}],
+  "rowCount": 5,
+  "kind": "analyticsData#runReport"
+}

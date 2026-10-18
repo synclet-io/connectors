@@ -1,0 +1,10 @@
+{
+  "dimensionHeaders": [{"name": "date"}],
+  "metricHeaders": [{"name": "active1DayUsers", "type": "TYPE_INTEGER"}],
+  "propertyQuota": {
+    "tokensPerDay": {"consumed": 12, "remaining": 0},
+    "tokensPerHour": {"consumed": 12, "remaining": 4000},
+    "concurrentRequests": {"consumed": 0, "remaining": 10}
+  },
+  "kind": "analyticsData#runReport"
+}
