@@ -48,6 +48,16 @@
         }
       ]
     },
+    "connectors/source-facebook-marketing": {
+      "component": "source-facebook-marketing",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "meta.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
     "connectors/source-google-sheets": {
       "component": "source-google-sheets",
       "extra-files": [

@@ -1,0 +1,390 @@
+{
+  "streams": [
+    {
+      "cursor": [
+        "date_start"
+      ],
+      "name": "ad_insights",
+      "namespace": "facebook_marketing",
+      "primary_key": [
+        [
+          "account_id"
+        ],
+        [
+          "ad_id"
+        ],
+        [
+          "date_start"
+        ]
+      ],
+      "properties": {
+        "account_id": "string",
+        "actions": "array",
+        "ad_id": "string",
+        "ad_name": "string",
+        "adset_id": "string",
+        "adset_name": "string",
+        "campaign_id": "string",
+        "campaign_name": "string",
+        "clicks": "integer",
+        "cost_per_thruplay": "array",
+        "date_start": "string",
+        "impressions": "integer",
+        "inline_link_clicks": "integer",
+        "spend": "number",
+        "unique_clicks": "integer",
+        "unique_inline_link_clicks": "integer",
+        "unique_outbound_clicks": "array",
+        "video_avg_time_watched_actions": "array",
+        "video_continuous_2_sec_watched_actions": "array",
+        "video_p100_watched_actions": "array",
+        "video_p25_watched_actions": "array",
+        "video_p50_watched_actions": "array",
+        "video_p75_watched_actions": "array",
+        "video_play_actions": "array"
+      },
+      "sync_modes": [
+        "full_refresh",
+        "incremental"
+      ]
+    },
+    {
+      "cursor": [
+        "date_start"
+      ],
+      "name": "ad_insights_age",
+      "namespace": "facebook_marketing",
+      "primary_key": [
+        [
+          "account_id"
+        ],
+        [
+          "ad_id"
+        ],
+        [
+          "date_start"
+        ],
+        [
+          "age"
+        ]
+      ],
+      "properties": {
+        "account_id": "string",
+        "actions": "array",
+        "ad_id": "string",
+        "ad_name": "string",
+        "adset_id": "string",
+        "adset_name": "string",
+        "age": "string",
+        "campaign_id": "string",
+        "campaign_name": "string",
+        "clicks": "integer",
+        "cost_per_thruplay": "array",
+        "date_start": "string",
+        "impressions": "integer",
+        "inline_link_clicks": "integer",
+        "spend": "number",
+        "unique_clicks": "integer",
+        "unique_inline_link_clicks": "integer",
+        "unique_outbound_clicks": "array",
+        "video_avg_time_watched_actions": "array",
+        "video_continuous_2_sec_watched_actions": "array",
+        "video_p100_watched_actions": "array",
+        "video_p25_watched_actions": "array",
+        "video_p50_watched_actions": "array",
+        "video_p75_watched_actions": "array",
+        "video_play_actions": "array"
+      },
+      "sync_modes": [
+        "full_refresh",
+        "incremental"
+      ]
+    },
+    {
+      "cursor": [
+        "date_start"
+      ],
+      "name": "ad_insights_age_gender",
+      "namespace": "facebook_marketing",
+      "primary_key": [
+        [
+          "account_id"
+        ],
+        [
+          "ad_id"
+        ],
+        [
+          "date_start"
+        ],
+        [
+          "age"
+        ],
+        [
+          "gender"
+        ]
+      ],
+      "properties": {
+        "account_id": "string",
+        "actions": "array",
+        "ad_id": "string",
+        "ad_name": "string",
+        "adset_id": "string",
+        "adset_name": "string",
+        "age": "string",
+        "campaign_id": "string",
+        "campaign_name": "string",
+        "clicks": "integer",
+        "cost_per_thruplay": "array",
+        "date_start": "string",
+        "gender": "string",
+        "impressions": "integer",
+        "inline_link_clicks": "integer",
+        "spend": "number",
+        "unique_clicks": "integer",
+        "unique_inline_link_clicks": "integer",
+        "unique_outbound_clicks": "array",
+        "video_avg_time_watched_actions": "array",
+        "video_continuous_2_sec_watched_actions": "array",
+        "video_p100_watched_actions": "array",
+        "video_p25_watched_actions": "array",
+        "video_p50_watched_actions": "array",
+        "video_p75_watched_actions": "array",
+        "video_play_actions": "array"
+      },
+      "sync_modes": [
+        "full_refresh",
+        "incremental"
+      ]
+    },
+    {
+      "cursor": [
+        "date_start"
+      ],
+      "name": "ad_insights_country",
+      "namespace": "facebook_marketing",
+      "primary_key": [
+        [
+          "account_id"
+        ],
+        [
+          "ad_id"
+        ],
+        [
+          "date_start"
+        ],
+        [
+          "country"
+        ]
+      ],
+      "properties": {
+        "account_id": "string",
+        "actions": "array",
+        "ad_id": "string",
+        "ad_name": "string",
+        "adset_id": "string",
+        "adset_name": "string",
+        "campaign_id": "string",
+        "campaign_name": "string",
+        "clicks": "integer",
+        "cost_per_thruplay": "array",
+        "country": "string",
+        "date_start": "string",
+        "impressions": "integer",
+        "inline_link_clicks": "integer",
+        "spend": "number",
+        "unique_clicks": "integer",
+        "unique_inline_link_clicks": "integer",
+        "unique_outbound_clicks": "array",
+        "video_avg_time_watched_actions": "array",
+        "video_continuous_2_sec_watched_actions": "array",
+        "video_p100_watched_actions": "array",
+        "video_p25_watched_actions": "array",
+        "video_p50_watched_actions": "array",
+        "video_p75_watched_actions": "array",
+        "video_play_actions": "array"
+      },
+      "sync_modes": [
+        "full_refresh",
+        "incremental"
+      ]
+    },
+    {
+      "cursor": [
+        "date_start"
+      ],
+      "name": "ad_insights_platform",
+      "namespace": "facebook_marketing",
+      "primary_key": [
+        [
+          "account_id"
+        ],
+        [
+          "ad_id"
+        ],
+        [
+          "date_start"
+        ],
+        [
+          "publisher_platform"
+        ],
+        [
+          "platform_position"
+        ]
+      ],
+      "properties": {
+        "account_id": "string",
+        "actions": "array",
+        "ad_id": "string",
+        "ad_name": "string",
+        "adset_id": "string",
+        "adset_name": "string",
+        "campaign_id": "string",
+        "campaign_name": "string",
+        "clicks": "integer",
+        "cost_per_thruplay": "array",
+        "date_start": "string",
+        "impressions": "integer",
+        "inline_link_clicks": "integer",
+        "platform_position": "string",
+        "publisher_platform": "string",
+        "spend": "number",
+        "unique_clicks": "integer",
+        "unique_inline_link_clicks": "integer",
+        "unique_outbound_clicks": "array",
+        "video_avg_time_watched_actions": "array",
+        "video_continuous_2_sec_watched_actions": "array",
+        "video_p100_watched_actions": "array",
+        "video_p25_watched_actions": "array",
+        "video_p50_watched_actions": "array",
+        "video_p75_watched_actions": "array",
+        "video_play_actions": "array"
+      },
+      "sync_modes": [
+        "full_refresh",
+        "incremental"
+      ]
+    },
+    {
+      "cursor": [
+        "date_start"
+      ],
+      "name": "ad_insights_hourly",
+      "namespace": "facebook_marketing",
+      "primary_key": [
+        [
+          "account_id"
+        ],
+        [
+          "ad_id"
+        ],
+        [
+          "date_start"
+        ],
+        [
+          "hourly_stats_aggregated_by_advertiser_time_zone"
+        ]
+      ],
+      "properties": {
+        "account_id": "string",
+        "actions": "array",
+        "ad_id": "string",
+        "ad_name": "string",
+        "adset_id": "string",
+        "adset_name": "string",
+        "campaign_id": "string",
+        "campaign_name": "string",
+        "clicks": "integer",
+        "cost_per_thruplay": "array",
+        "date_start": "string",
+        "hourly_stats_aggregated_by_advertiser_time_zone": "string",
+        "impressions": "integer",
+        "inline_link_clicks": "integer",
+        "spend": "number",
+        "unique_clicks": "integer",
+        "unique_inline_link_clicks": "integer",
+        "unique_outbound_clicks": "array",
+        "video_avg_time_watched_actions": "array",
+        "video_continuous_2_sec_watched_actions": "array",
+        "video_p100_watched_actions": "array",
+        "video_p25_watched_actions": "array",
+        "video_p50_watched_actions": "array",
+        "video_p75_watched_actions": "array",
+        "video_play_actions": "array"
+      },
+      "sync_modes": [
+        "full_refresh",
+        "incremental"
+      ]
+    },
+    {
+      "cursor": [
+        "date_start"
+      ],
+      "name": "account_spend_daily",
+      "namespace": "facebook_marketing",
+      "primary_key": [
+        [
+          "account_id"
+        ],
+        [
+          "date_start"
+        ]
+      ],
+      "properties": {
+        "account_currency": "string",
+        "account_id": "string",
+        "date_start": "string",
+        "spend": "number"
+      },
+      "sync_modes": [
+        "full_refresh",
+        "incremental"
+      ]
+    },
+    {
+      "cursor": [],
+      "name": "business_extended_credits",
+      "namespace": "facebook_marketing",
+      "primary_key": [
+        [
+          "id"
+        ]
+      ],
+      "properties": {
+        "allocated_amount_amount": "number",
+        "allocated_amount_amount_in_hundredths": "string",
+        "allocated_amount_currency": "string",
+        "allocated_amount_offsetted_amount": "string",
+        "balance_amount": "number",
+        "balance_amount_in_hundredths": "string",
+        "balance_currency": "string",
+        "balance_offsetted_amount": "string",
+        "credit_available_amount": "number",
+        "credit_available_amount_in_hundredths": "string",
+        "credit_available_currency": "string",
+        "credit_available_offsetted_amount": "string",
+        "credit_type": "string",
+        "date_created": "string",
+        "id": "string",
+        "is_access_revoked": "boolean",
+        "is_automated_experience": "boolean",
+        "legal_entity_name": "string",
+        "liable_biz_name": "string",
+        "max_balance_amount": "number",
+        "max_balance_amount_in_hundredths": "string",
+        "max_balance_currency": "string",
+        "max_balance_offsetted_amount": "string",
+        "online_max_balance_amount": "number",
+        "online_max_balance_amount_in_hundredths": "string",
+        "online_max_balance_currency": "string",
+        "online_max_balance_offsetted_amount": "string",
+        "owner_business_id": "string",
+        "owner_business_name": "string",
+        "send_bill_to_biz_name": "string"
+      },
+      "sync_modes": [
+        "full_refresh"
+      ]
+    }
+  ]
+}

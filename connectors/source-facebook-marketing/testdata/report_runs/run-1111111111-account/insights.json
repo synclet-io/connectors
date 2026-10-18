@@ -1,0 +1,52 @@
+{
+  "data": [
+    {
+      "account_id": "1111111111",
+      "account_currency": "USD",
+      "spend": "100.25",
+      "date_start": "2026-10-13",
+      "date_stop": "2026-10-13"
+    },
+    {
+      "account_id": "1111111111",
+      "account_currency": "USD",
+      "spend": "101.25",
+      "date_start": "2026-10-14",
+      "date_stop": "2026-10-14"
+    },
+    {
+      "account_id": "1111111111",
+      "account_currency": "USD",
+      "spend": "102.25",
+      "date_start": "2026-10-15",
+      "date_stop": "2026-10-15"
+    },
+    {
+      "account_id": "1111111111",
+      "account_currency": "USD",
+      "spend": "103.25",
+      "date_start": "2026-10-16",
+      "date_stop": "2026-10-16"
+    },
+    {
+      "account_id": "1111111111",
+      "account_currency": "USD",
+      "spend": "104.25",
+      "date_start": "2026-10-17",
+      "date_stop": "2026-10-17"
+    },
+    {
+      "account_id": "1111111111",
+      "account_currency": "USD",
+      "spend": "105.25",
+      "date_start": "2026-10-19",
+      "date_stop": "2026-10-19"
+    }
+  ],
+  "paging": {
+    "cursors": {
+      "before": "b0",
+      "after": "end"
+    }
+  }
+}

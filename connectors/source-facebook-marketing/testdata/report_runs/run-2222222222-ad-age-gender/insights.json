@@ -1,0 +1,176 @@
+{
+  "data": [
+    {
+      "account_id": "2222222222",
+      "campaign_id": "620003",
+      "campaign_name": "Campaign 3",
+      "adset_id": "630003",
+      "adset_name": "Ad set 3",
+      "ad_id": "6400003",
+      "ad_name": "Ad 3",
+      "spend": "10.50",
+      "clicks": "5",
+      "unique_clicks": "4",
+      "impressions": "100",
+      "unique_inline_link_clicks": "2",
+      "inline_link_clicks": "3",
+      "cost_per_thruplay": [
+        {
+          "action_type": "video_view",
+          "value": "0.10"
+        }
+      ],
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "3"
+        },
+        {
+          "action_type": "purchase",
+          "value": "1"
+        }
+      ],
+      "unique_outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "1"
+        }
+      ],
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "7"
+        }
+      ],
+      "video_avg_time_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "video_continuous_2_sec_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "6"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "5"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "video_p75_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "3"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "2"
+        }
+      ],
+      "date_start": "2026-10-16",
+      "date_stop": "2026-10-16",
+      "age": "25-34",
+      "gender": "female"
+    },
+    {
+      "account_id": "2222222222",
+      "campaign_id": "620003",
+      "campaign_name": "Campaign 3",
+      "adset_id": "630003",
+      "adset_name": "Ad set 3",
+      "ad_id": "6400003",
+      "ad_name": "Ad 3",
+      "spend": "10.50",
+      "clicks": "5",
+      "unique_clicks": "4",
+      "impressions": "100",
+      "unique_inline_link_clicks": "2",
+      "inline_link_clicks": "3",
+      "cost_per_thruplay": [
+        {
+          "action_type": "video_view",
+          "value": "0.10"
+        }
+      ],
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "3"
+        },
+        {
+          "action_type": "purchase",
+          "value": "1"
+        }
+      ],
+      "unique_outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "1"
+        }
+      ],
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "7"
+        }
+      ],
+      "video_avg_time_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "video_continuous_2_sec_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "6"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "5"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "video_p75_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "3"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "2"
+        }
+      ],
+      "date_start": "2026-10-16",
+      "date_stop": "2026-10-16",
+      "age": "25-34",
+      "gender": "male"
+    }
+  ],
+  "paging": {
+    "cursors": {
+      "before": "b0",
+      "after": "end"
+    }
+  }
+}

@@ -1,0 +1,995 @@
+{
+  "data": [
+    {
+      "account_id": "1111111111",
+      "campaign_id": "620001",
+      "campaign_name": "Campaign 1",
+      "adset_id": "630001",
+      "adset_name": "Ad set 1",
+      "ad_id": "6400001",
+      "ad_name": "Ad 1",
+      "spend": "10.50",
+      "clicks": "5",
+      "unique_clicks": "4",
+      "impressions": "100",
+      "unique_inline_link_clicks": "2",
+      "inline_link_clicks": "3",
+      "cost_per_thruplay": [
+        {
+          "action_type": "video_view",
+          "value": "0.10"
+        }
+      ],
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "3"
+        },
+        {
+          "action_type": "purchase",
+          "value": "1"
+        }
+      ],
+      "unique_outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "1"
+        }
+      ],
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "7"
+        }
+      ],
+      "video_avg_time_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "video_continuous_2_sec_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "6"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "5"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "video_p75_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "3"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "2"
+        }
+      ],
+      "date_start": "2026-10-13",
+      "date_stop": "2026-10-13",
+      "hourly_stats_aggregated_by_advertiser_time_zone": "09:00:00 - 09:59:59"
+    },
+    {
+      "account_id": "1111111111",
+      "campaign_id": "620001",
+      "campaign_name": "Campaign 1",
+      "adset_id": "630001",
+      "adset_name": "Ad set 1",
+      "ad_id": "6400001",
+      "ad_name": "Ad 1",
+      "spend": "10.50",
+      "clicks": "5",
+      "unique_clicks": "4",
+      "impressions": "100",
+      "unique_inline_link_clicks": "2",
+      "inline_link_clicks": "3",
+      "cost_per_thruplay": [
+        {
+          "action_type": "video_view",
+          "value": "0.10"
+        }
+      ],
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "3"
+        },
+        {
+          "action_type": "purchase",
+          "value": "1"
+        }
+      ],
+      "unique_outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "1"
+        }
+      ],
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "7"
+        }
+      ],
+      "video_avg_time_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "video_continuous_2_sec_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "6"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "5"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "video_p75_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "3"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "2"
+        }
+      ],
+      "date_start": "2026-10-13",
+      "date_stop": "2026-10-13",
+      "hourly_stats_aggregated_by_advertiser_time_zone": "10:00:00 - 10:59:59"
+    },
+    {
+      "account_id": "1111111111",
+      "campaign_id": "620002",
+      "campaign_name": "Campaign 2",
+      "adset_id": "630002",
+      "adset_name": "Ad set 2",
+      "ad_id": "6400002",
+      "ad_name": "Ad 2",
+      "spend": "10.50",
+      "clicks": "5",
+      "unique_clicks": "4",
+      "impressions": "100",
+      "unique_inline_link_clicks": "2",
+      "inline_link_clicks": "3",
+      "cost_per_thruplay": [
+        {
+          "action_type": "video_view",
+          "value": "0.10"
+        }
+      ],
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "3"
+        },
+        {
+          "action_type": "purchase",
+          "value": "1"
+        }
+      ],
+      "unique_outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "1"
+        }
+      ],
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "7"
+        }
+      ],
+      "video_avg_time_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "video_continuous_2_sec_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "6"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "5"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "video_p75_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "3"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "2"
+        }
+      ],
+      "date_start": "2026-10-13",
+      "date_stop": "2026-10-13",
+      "hourly_stats_aggregated_by_advertiser_time_zone": "09:00:00 - 09:59:59"
+    },
+    {
+      "account_id": "1111111111",
+      "campaign_id": "620002",
+      "campaign_name": "Campaign 2",
+      "adset_id": "630002",
+      "adset_name": "Ad set 2",
+      "ad_id": "6400002",
+      "ad_name": "Ad 2",
+      "spend": "10.50",
+      "clicks": "5",
+      "unique_clicks": "4",
+      "impressions": "100",
+      "unique_inline_link_clicks": "2",
+      "inline_link_clicks": "3",
+      "cost_per_thruplay": [
+        {
+          "action_type": "video_view",
+          "value": "0.10"
+        }
+      ],
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "3"
+        },
+        {
+          "action_type": "purchase",
+          "value": "1"
+        }
+      ],
+      "unique_outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "1"
+        }
+      ],
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "7"
+        }
+      ],
+      "video_avg_time_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "video_continuous_2_sec_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "6"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "5"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "video_p75_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "3"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "2"
+        }
+      ],
+      "date_start": "2026-10-13",
+      "date_stop": "2026-10-13",
+      "hourly_stats_aggregated_by_advertiser_time_zone": "10:00:00 - 10:59:59"
+    },
+    {
+      "account_id": "1111111111",
+      "campaign_id": "620001",
+      "campaign_name": "Campaign 1",
+      "adset_id": "630001",
+      "adset_name": "Ad set 1",
+      "ad_id": "6400001",
+      "ad_name": "Ad 1",
+      "spend": "20.50",
+      "clicks": "10",
+      "unique_clicks": "8",
+      "impressions": "200",
+      "unique_inline_link_clicks": "4",
+      "inline_link_clicks": "6",
+      "cost_per_thruplay": [
+        {
+          "action_type": "video_view",
+          "value": "0.10"
+        }
+      ],
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "6"
+        },
+        {
+          "action_type": "purchase",
+          "value": "1"
+        }
+      ],
+      "unique_outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "2"
+        }
+      ],
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "14"
+        }
+      ],
+      "video_avg_time_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "video_continuous_2_sec_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "12"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "10"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "8"
+        }
+      ],
+      "video_p75_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "6"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "date_start": "2026-10-14",
+      "date_stop": "2026-10-14",
+      "hourly_stats_aggregated_by_advertiser_time_zone": "09:00:00 - 09:59:59"
+    },
+    {
+      "account_id": "1111111111",
+      "campaign_id": "620001",
+      "campaign_name": "Campaign 1",
+      "adset_id": "630001",
+      "adset_name": "Ad set 1",
+      "ad_id": "6400001",
+      "ad_name": "Ad 1",
+      "spend": "20.50",
+      "clicks": "10",
+      "unique_clicks": "8",
+      "impressions": "200",
+      "unique_inline_link_clicks": "4",
+      "inline_link_clicks": "6",
+      "cost_per_thruplay": [
+        {
+          "action_type": "video_view",
+          "value": "0.10"
+        }
+      ],
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "6"
+        },
+        {
+          "action_type": "purchase",
+          "value": "1"
+        }
+      ],
+      "unique_outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "2"
+        }
+      ],
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "14"
+        }
+      ],
+      "video_avg_time_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "video_continuous_2_sec_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "12"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "10"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "8"
+        }
+      ],
+      "video_p75_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "6"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "date_start": "2026-10-14",
+      "date_stop": "2026-10-14",
+      "hourly_stats_aggregated_by_advertiser_time_zone": "10:00:00 - 10:59:59"
+    },
+    {
+      "account_id": "1111111111",
+      "campaign_id": "620002",
+      "campaign_name": "Campaign 2",
+      "adset_id": "630002",
+      "adset_name": "Ad set 2",
+      "ad_id": "6400002",
+      "ad_name": "Ad 2",
+      "spend": "20.50",
+      "clicks": "10",
+      "unique_clicks": "8",
+      "impressions": "200",
+      "unique_inline_link_clicks": "4",
+      "inline_link_clicks": "6",
+      "cost_per_thruplay": [
+        {
+          "action_type": "video_view",
+          "value": "0.10"
+        }
+      ],
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "6"
+        },
+        {
+          "action_type": "purchase",
+          "value": "1"
+        }
+      ],
+      "unique_outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "2"
+        }
+      ],
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "14"
+        }
+      ],
+      "video_avg_time_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "video_continuous_2_sec_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "12"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "10"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "8"
+        }
+      ],
+      "video_p75_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "6"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "date_start": "2026-10-14",
+      "date_stop": "2026-10-14",
+      "hourly_stats_aggregated_by_advertiser_time_zone": "09:00:00 - 09:59:59"
+    },
+    {
+      "account_id": "1111111111",
+      "campaign_id": "620002",
+      "campaign_name": "Campaign 2",
+      "adset_id": "630002",
+      "adset_name": "Ad set 2",
+      "ad_id": "6400002",
+      "ad_name": "Ad 2",
+      "spend": "20.50",
+      "clicks": "10",
+      "unique_clicks": "8",
+      "impressions": "200",
+      "unique_inline_link_clicks": "4",
+      "inline_link_clicks": "6",
+      "cost_per_thruplay": [
+        {
+          "action_type": "video_view",
+          "value": "0.10"
+        }
+      ],
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "6"
+        },
+        {
+          "action_type": "purchase",
+          "value": "1"
+        }
+      ],
+      "unique_outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "2"
+        }
+      ],
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "14"
+        }
+      ],
+      "video_avg_time_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "video_continuous_2_sec_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "12"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "10"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "8"
+        }
+      ],
+      "video_p75_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "6"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "date_start": "2026-10-14",
+      "date_stop": "2026-10-14",
+      "hourly_stats_aggregated_by_advertiser_time_zone": "10:00:00 - 10:59:59"
+    },
+    {
+      "account_id": "1111111111",
+      "campaign_id": "620001",
+      "campaign_name": "Campaign 1",
+      "adset_id": "630001",
+      "adset_name": "Ad set 1",
+      "ad_id": "6400001",
+      "ad_name": "Ad 1",
+      "spend": "30.50",
+      "clicks": "15",
+      "unique_clicks": "12",
+      "impressions": "300",
+      "unique_inline_link_clicks": "6",
+      "inline_link_clicks": "9",
+      "cost_per_thruplay": [
+        {
+          "action_type": "video_view",
+          "value": "0.10"
+        }
+      ],
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "9"
+        },
+        {
+          "action_type": "purchase",
+          "value": "1"
+        }
+      ],
+      "unique_outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "3"
+        }
+      ],
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "21"
+        }
+      ],
+      "video_avg_time_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "video_continuous_2_sec_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "18"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "15"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "12"
+        }
+      ],
+      "video_p75_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "9"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "6"
+        }
+      ],
+      "date_start": "2026-10-15",
+      "date_stop": "2026-10-15",
+      "hourly_stats_aggregated_by_advertiser_time_zone": "09:00:00 - 09:59:59"
+    },
+    {
+      "account_id": "1111111111",
+      "campaign_id": "620001",
+      "campaign_name": "Campaign 1",
+      "adset_id": "630001",
+      "adset_name": "Ad set 1",
+      "ad_id": "6400001",
+      "ad_name": "Ad 1",
+      "spend": "30.50",
+      "clicks": "15",
+      "unique_clicks": "12",
+      "impressions": "300",
+      "unique_inline_link_clicks": "6",
+      "inline_link_clicks": "9",
+      "cost_per_thruplay": [
+        {
+          "action_type": "video_view",
+          "value": "0.10"
+        }
+      ],
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "9"
+        },
+        {
+          "action_type": "purchase",
+          "value": "1"
+        }
+      ],
+      "unique_outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "3"
+        }
+      ],
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "21"
+        }
+      ],
+      "video_avg_time_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "video_continuous_2_sec_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "18"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "15"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "12"
+        }
+      ],
+      "video_p75_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "9"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "6"
+        }
+      ],
+      "date_start": "2026-10-15",
+      "date_stop": "2026-10-15",
+      "hourly_stats_aggregated_by_advertiser_time_zone": "10:00:00 - 10:59:59"
+    },
+    {
+      "account_id": "1111111111",
+      "campaign_id": "620002",
+      "campaign_name": "Campaign 2",
+      "adset_id": "630002",
+      "adset_name": "Ad set 2",
+      "ad_id": "6400002",
+      "ad_name": "Ad 2",
+      "spend": "30.50",
+      "clicks": "15",
+      "unique_clicks": "12",
+      "impressions": "300",
+      "unique_inline_link_clicks": "6",
+      "inline_link_clicks": "9",
+      "cost_per_thruplay": [
+        {
+          "action_type": "video_view",
+          "value": "0.10"
+        }
+      ],
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "9"
+        },
+        {
+          "action_type": "purchase",
+          "value": "1"
+        }
+      ],
+      "unique_outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "3"
+        }
+      ],
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "21"
+        }
+      ],
+      "video_avg_time_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "video_continuous_2_sec_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "18"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "15"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "12"
+        }
+      ],
+      "video_p75_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "9"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "6"
+        }
+      ],
+      "date_start": "2026-10-15",
+      "date_stop": "2026-10-15",
+      "hourly_stats_aggregated_by_advertiser_time_zone": "09:00:00 - 09:59:59"
+    },
+    {
+      "account_id": "1111111111",
+      "campaign_id": "620002",
+      "campaign_name": "Campaign 2",
+      "adset_id": "630002",
+      "adset_name": "Ad set 2",
+      "ad_id": "6400002",
+      "ad_name": "Ad 2",
+      "spend": "30.50",
+      "clicks": "15",
+      "unique_clicks": "12",
+      "impressions": "300",
+      "unique_inline_link_clicks": "6",
+      "inline_link_clicks": "9",
+      "cost_per_thruplay": [
+        {
+          "action_type": "video_view",
+          "value": "0.10"
+        }
+      ],
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "9"
+        },
+        {
+          "action_type": "purchase",
+          "value": "1"
+        }
+      ],
+      "unique_outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "3"
+        }
+      ],
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "21"
+        }
+      ],
+      "video_avg_time_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "video_continuous_2_sec_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "18"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "15"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "12"
+        }
+      ],
+      "video_p75_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "9"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "6"
+        }
+      ],
+      "date_start": "2026-10-15",
+      "date_stop": "2026-10-15",
+      "hourly_stats_aggregated_by_advertiser_time_zone": "10:00:00 - 10:59:59"
+    }
+  ],
+  "paging": {
+    "cursors": {
+      "before": "b0",
+      "after": "p2"
+    },
+    "next": "https://graph.example.com/next?after=p2"
+  }
+}

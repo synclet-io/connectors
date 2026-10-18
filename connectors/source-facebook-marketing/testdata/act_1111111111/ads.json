@@ -1,0 +1,32 @@
+{
+  "data": [
+    {
+      "id": "640001",
+      "account_id": "1111111111",
+      "campaign_id": "620001",
+      "adset_id": "630001",
+      "name": "Ad 1",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "created_time": "2026-02-03T10:00:00+0000",
+      "updated_time": "2026-10-03T08:30:00+0000"
+    },
+    {
+      "id": "640002",
+      "account_id": "1111111111",
+      "campaign_id": "620002",
+      "adset_id": "630002",
+      "name": "Ad 2",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "created_time": "2026-02-03T10:00:00+0000",
+      "updated_time": "2026-10-03T08:30:00+0000"
+    }
+  ],
+  "paging": {
+    "cursors": {
+      "before": "b0",
+      "after": "end"
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "data": [
+    {
+      "id": "650001",
+      "account_id": "1111111111",
+      "name": "Creative 1",
+      "title": "Example title",
+      "body": "Example body text",
+      "object_type": "SHARE",
+      "thumbnail_url": "https://example.com/thumb/1.png"
+    },
+    {
+      "id": "650002",
+      "account_id": "1111111111",
+      "name": "Creative 2",
+      "title": "Example title",
+      "body": "Example body text",
+      "object_type": "SHARE",
+      "thumbnail_url": "https://example.com/thumb/2.png"
+    }
+  ],
+  "paging": {
+    "cursors": {
+      "before": "b0",
+      "after": "end"
+    }
+  }
+}

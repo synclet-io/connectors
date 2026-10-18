@@ -1,0 +1,55 @@
+{
+  "data": [
+    {
+      "id": "66000001",
+      "credit_type": "PREPAID",
+      "legal_entity_name": "Example Ltd",
+      "liable_biz_name": "Example Ltd",
+      "owner_business": {
+        "id": "3333333333",
+        "name": "Example Business"
+      },
+      "owner_business_name": "Example Business",
+      "send_bill_to_biz_name": "Example Ltd",
+      "is_automated_experience": false,
+      "is_access_revoked": false,
+      "balance": {
+        "amount": "1,500.00",
+        "amount_in_hundredths": "150000",
+        "currency": "USD",
+        "offsetted_amount": "0.00"
+      },
+      "credit_available": {
+        "amount": "3500,00",
+        "amount_in_hundredths": "350000",
+        "currency": "EUR",
+        "offsetted_amount": "0.00"
+      },
+      "online_max_balance": {
+        "amount": "5000.00",
+        "amount_in_hundredths": "500000",
+        "currency": "USD",
+        "offsetted_amount": "0.00"
+      },
+      "max_balance": {
+        "amount": "5 000,00",
+        "amount_in_hundredths": "500000",
+        "currency": "EUR",
+        "offsetted_amount": "0.00"
+      },
+      "allocated_amount": {
+        "amount": "0.00",
+        "amount_in_hundredths": "0",
+        "currency": "USD",
+        "offsetted_amount": "0.00"
+      }
+    }
+  ],
+  "paging": {
+    "cursors": {
+      "before": "b0",
+      "after": "cr2"
+    },
+    "next": "https://graph.example.com/next?after=cr2"
+  }
+}

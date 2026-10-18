@@ -1,0 +1,1006 @@
+{
+  "data": [
+    {
+      "account_id": "1111111111",
+      "campaign_id": "620001",
+      "campaign_name": "Campaign 1",
+      "adset_id": "630001",
+      "adset_name": "Ad set 1",
+      "ad_id": "6400001",
+      "ad_name": "Ad 1",
+      "spend": "40.50",
+      "clicks": "20",
+      "unique_clicks": "16",
+      "impressions": "400",
+      "unique_inline_link_clicks": "8",
+      "inline_link_clicks": "12",
+      "cost_per_thruplay": [
+        {
+          "action_type": "video_view",
+          "value": "0.10"
+        }
+      ],
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "12"
+        },
+        {
+          "action_type": "purchase",
+          "value": "1"
+        }
+      ],
+      "unique_outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "4"
+        }
+      ],
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "28"
+        }
+      ],
+      "video_avg_time_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "video_continuous_2_sec_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "24"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "20"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "16"
+        }
+      ],
+      "video_p75_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "12"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "8"
+        }
+      ],
+      "date_start": "2026-10-16",
+      "date_stop": "2026-10-16",
+      "publisher_platform": "facebook",
+      "platform_position": "feed"
+    },
+    {
+      "account_id": "1111111111",
+      "campaign_id": "620001",
+      "campaign_name": "Campaign 1",
+      "adset_id": "630001",
+      "adset_name": "Ad set 1",
+      "ad_id": "6400001",
+      "ad_name": "Ad 1",
+      "spend": "40.50",
+      "clicks": "20",
+      "unique_clicks": "16",
+      "impressions": "400",
+      "unique_inline_link_clicks": "8",
+      "inline_link_clicks": "12",
+      "cost_per_thruplay": [
+        {
+          "action_type": "video_view",
+          "value": "0.10"
+        }
+      ],
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "12"
+        },
+        {
+          "action_type": "purchase",
+          "value": "1"
+        }
+      ],
+      "unique_outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "4"
+        }
+      ],
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "28"
+        }
+      ],
+      "video_avg_time_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "video_continuous_2_sec_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "24"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "20"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "16"
+        }
+      ],
+      "video_p75_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "12"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "8"
+        }
+      ],
+      "date_start": "2026-10-16",
+      "date_stop": "2026-10-16",
+      "publisher_platform": "instagram",
+      "platform_position": "story"
+    },
+    {
+      "account_id": "1111111111",
+      "campaign_id": "620002",
+      "campaign_name": "Campaign 2",
+      "adset_id": "630002",
+      "adset_name": "Ad set 2",
+      "ad_id": "6400002",
+      "ad_name": "Ad 2",
+      "spend": "40.50",
+      "clicks": "20",
+      "unique_clicks": "16",
+      "impressions": "400",
+      "unique_inline_link_clicks": "8",
+      "inline_link_clicks": "12",
+      "cost_per_thruplay": [
+        {
+          "action_type": "video_view",
+          "value": "0.10"
+        }
+      ],
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "12"
+        },
+        {
+          "action_type": "purchase",
+          "value": "1"
+        }
+      ],
+      "unique_outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "4"
+        }
+      ],
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "28"
+        }
+      ],
+      "video_avg_time_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "video_continuous_2_sec_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "24"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "20"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "16"
+        }
+      ],
+      "video_p75_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "12"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "8"
+        }
+      ],
+      "date_start": "2026-10-16",
+      "date_stop": "2026-10-16",
+      "publisher_platform": "facebook",
+      "platform_position": "feed"
+    },
+    {
+      "account_id": "1111111111",
+      "campaign_id": "620002",
+      "campaign_name": "Campaign 2",
+      "adset_id": "630002",
+      "adset_name": "Ad set 2",
+      "ad_id": "6400002",
+      "ad_name": "Ad 2",
+      "spend": "40.50",
+      "clicks": "20",
+      "unique_clicks": "16",
+      "impressions": "400",
+      "unique_inline_link_clicks": "8",
+      "inline_link_clicks": "12",
+      "cost_per_thruplay": [
+        {
+          "action_type": "video_view",
+          "value": "0.10"
+        }
+      ],
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "12"
+        },
+        {
+          "action_type": "purchase",
+          "value": "1"
+        }
+      ],
+      "unique_outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "4"
+        }
+      ],
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "28"
+        }
+      ],
+      "video_avg_time_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "video_continuous_2_sec_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "24"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "20"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "16"
+        }
+      ],
+      "video_p75_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "12"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "8"
+        }
+      ],
+      "date_start": "2026-10-16",
+      "date_stop": "2026-10-16",
+      "publisher_platform": "instagram",
+      "platform_position": "story"
+    },
+    {
+      "account_id": "1111111111",
+      "campaign_id": "620001",
+      "campaign_name": "Campaign 1",
+      "adset_id": "630001",
+      "adset_name": "Ad set 1",
+      "ad_id": "6400001",
+      "ad_name": "Ad 1",
+      "spend": "50.50",
+      "clicks": "25",
+      "unique_clicks": "20",
+      "impressions": "500",
+      "unique_inline_link_clicks": "10",
+      "inline_link_clicks": "15",
+      "cost_per_thruplay": [
+        {
+          "action_type": "video_view",
+          "value": "0.10"
+        }
+      ],
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "15"
+        },
+        {
+          "action_type": "purchase",
+          "value": "1"
+        }
+      ],
+      "unique_outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "5"
+        }
+      ],
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "35"
+        }
+      ],
+      "video_avg_time_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "video_continuous_2_sec_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "30"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "25"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "20"
+        }
+      ],
+      "video_p75_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "15"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "10"
+        }
+      ],
+      "date_start": "2026-10-17",
+      "date_stop": "2026-10-17",
+      "publisher_platform": "facebook",
+      "platform_position": "feed"
+    },
+    {
+      "account_id": "1111111111",
+      "campaign_id": "620001",
+      "campaign_name": "Campaign 1",
+      "adset_id": "630001",
+      "adset_name": "Ad set 1",
+      "ad_id": "6400001",
+      "ad_name": "Ad 1",
+      "spend": "50.50",
+      "clicks": "25",
+      "unique_clicks": "20",
+      "impressions": "500",
+      "unique_inline_link_clicks": "10",
+      "inline_link_clicks": "15",
+      "cost_per_thruplay": [
+        {
+          "action_type": "video_view",
+          "value": "0.10"
+        }
+      ],
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "15"
+        },
+        {
+          "action_type": "purchase",
+          "value": "1"
+        }
+      ],
+      "unique_outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "5"
+        }
+      ],
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "35"
+        }
+      ],
+      "video_avg_time_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "video_continuous_2_sec_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "30"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "25"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "20"
+        }
+      ],
+      "video_p75_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "15"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "10"
+        }
+      ],
+      "date_start": "2026-10-17",
+      "date_stop": "2026-10-17",
+      "publisher_platform": "instagram",
+      "platform_position": "story"
+    },
+    {
+      "account_id": "1111111111",
+      "campaign_id": "620002",
+      "campaign_name": "Campaign 2",
+      "adset_id": "630002",
+      "adset_name": "Ad set 2",
+      "ad_id": "6400002",
+      "ad_name": "Ad 2",
+      "spend": "50.50",
+      "clicks": "25",
+      "unique_clicks": "20",
+      "impressions": "500",
+      "unique_inline_link_clicks": "10",
+      "inline_link_clicks": "15",
+      "cost_per_thruplay": [
+        {
+          "action_type": "video_view",
+          "value": "0.10"
+        }
+      ],
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "15"
+        },
+        {
+          "action_type": "purchase",
+          "value": "1"
+        }
+      ],
+      "unique_outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "5"
+        }
+      ],
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "35"
+        }
+      ],
+      "video_avg_time_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "video_continuous_2_sec_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "30"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "25"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "20"
+        }
+      ],
+      "video_p75_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "15"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "10"
+        }
+      ],
+      "date_start": "2026-10-17",
+      "date_stop": "2026-10-17",
+      "publisher_platform": "facebook",
+      "platform_position": "feed"
+    },
+    {
+      "account_id": "1111111111",
+      "campaign_id": "620002",
+      "campaign_name": "Campaign 2",
+      "adset_id": "630002",
+      "adset_name": "Ad set 2",
+      "ad_id": "6400002",
+      "ad_name": "Ad 2",
+      "spend": "50.50",
+      "clicks": "25",
+      "unique_clicks": "20",
+      "impressions": "500",
+      "unique_inline_link_clicks": "10",
+      "inline_link_clicks": "15",
+      "cost_per_thruplay": [
+        {
+          "action_type": "video_view",
+          "value": "0.10"
+        }
+      ],
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "15"
+        },
+        {
+          "action_type": "purchase",
+          "value": "1"
+        }
+      ],
+      "unique_outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "5"
+        }
+      ],
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "35"
+        }
+      ],
+      "video_avg_time_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "video_continuous_2_sec_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "30"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "25"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "20"
+        }
+      ],
+      "video_p75_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "15"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "10"
+        }
+      ],
+      "date_start": "2026-10-17",
+      "date_stop": "2026-10-17",
+      "publisher_platform": "instagram",
+      "platform_position": "story"
+    },
+    {
+      "account_id": "1111111111",
+      "campaign_id": "620001",
+      "campaign_name": "Campaign 1",
+      "adset_id": "630001",
+      "adset_name": "Ad set 1",
+      "ad_id": "6400001",
+      "ad_name": "Ad 1",
+      "spend": "60.50",
+      "clicks": "30",
+      "unique_clicks": "24",
+      "impressions": "600",
+      "unique_inline_link_clicks": "12",
+      "inline_link_clicks": "18",
+      "cost_per_thruplay": [
+        {
+          "action_type": "video_view",
+          "value": "0.10"
+        }
+      ],
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "18"
+        },
+        {
+          "action_type": "purchase",
+          "value": "1"
+        }
+      ],
+      "unique_outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "6"
+        }
+      ],
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "42"
+        }
+      ],
+      "video_avg_time_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "video_continuous_2_sec_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "36"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "30"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "24"
+        }
+      ],
+      "video_p75_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "18"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "12"
+        }
+      ],
+      "date_start": "2026-10-19",
+      "date_stop": "2026-10-19",
+      "publisher_platform": "facebook",
+      "platform_position": "feed"
+    },
+    {
+      "account_id": "1111111111",
+      "campaign_id": "620001",
+      "campaign_name": "Campaign 1",
+      "adset_id": "630001",
+      "adset_name": "Ad set 1",
+      "ad_id": "6400001",
+      "ad_name": "Ad 1",
+      "spend": "60.50",
+      "clicks": "30",
+      "unique_clicks": "24",
+      "impressions": "600",
+      "unique_inline_link_clicks": "12",
+      "inline_link_clicks": "18",
+      "cost_per_thruplay": [
+        {
+          "action_type": "video_view",
+          "value": "0.10"
+        }
+      ],
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "18"
+        },
+        {
+          "action_type": "purchase",
+          "value": "1"
+        }
+      ],
+      "unique_outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "6"
+        }
+      ],
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "42"
+        }
+      ],
+      "video_avg_time_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "video_continuous_2_sec_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "36"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "30"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "24"
+        }
+      ],
+      "video_p75_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "18"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "12"
+        }
+      ],
+      "date_start": "2026-10-19",
+      "date_stop": "2026-10-19",
+      "publisher_platform": "instagram",
+      "platform_position": "story"
+    },
+    {
+      "account_id": "1111111111",
+      "campaign_id": "620002",
+      "campaign_name": "Campaign 2",
+      "adset_id": "630002",
+      "adset_name": "Ad set 2",
+      "ad_id": "6400002",
+      "ad_name": "Ad 2",
+      "spend": "60.50",
+      "clicks": "30",
+      "unique_clicks": "24",
+      "impressions": "600",
+      "unique_inline_link_clicks": "12",
+      "inline_link_clicks": "18",
+      "cost_per_thruplay": [
+        {
+          "action_type": "video_view",
+          "value": "0.10"
+        }
+      ],
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "18"
+        },
+        {
+          "action_type": "purchase",
+          "value": "1"
+        }
+      ],
+      "unique_outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "6"
+        }
+      ],
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "42"
+        }
+      ],
+      "video_avg_time_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "video_continuous_2_sec_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "36"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "30"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "24"
+        }
+      ],
+      "video_p75_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "18"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "12"
+        }
+      ],
+      "date_start": "2026-10-19",
+      "date_stop": "2026-10-19",
+      "publisher_platform": "facebook",
+      "platform_position": "feed"
+    },
+    {
+      "account_id": "1111111111",
+      "campaign_id": "620002",
+      "campaign_name": "Campaign 2",
+      "adset_id": "630002",
+      "adset_name": "Ad set 2",
+      "ad_id": "6400002",
+      "ad_name": "Ad 2",
+      "spend": "60.50",
+      "clicks": "30",
+      "unique_clicks": "24",
+      "impressions": "600",
+      "unique_inline_link_clicks": "12",
+      "inline_link_clicks": "18",
+      "cost_per_thruplay": [
+        {
+          "action_type": "video_view",
+          "value": "0.10"
+        }
+      ],
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "18"
+        },
+        {
+          "action_type": "purchase",
+          "value": "1"
+        }
+      ],
+      "unique_outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "6"
+        }
+      ],
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "42"
+        }
+      ],
+      "video_avg_time_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4"
+        }
+      ],
+      "video_continuous_2_sec_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "36"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "30"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "24"
+        }
+      ],
+      "video_p75_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "18"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "12"
+        }
+      ],
+      "date_start": "2026-10-19",
+      "date_stop": "2026-10-19",
+      "publisher_platform": "instagram",
+      "platform_position": "story"
+    }
+  ],
+  "paging": {
+    "cursors": {
+      "before": "b0",
+      "after": "end"
+    }
+  }
+}

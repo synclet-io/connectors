@@ -1,0 +1,54 @@
+{
+  "data": [
+    {
+      "id": "66000002",
+      "credit_type": "LINE_OF_CREDIT",
+      "legal_entity_name": "Example Ltd",
+      "liable_biz_name": "Example Ltd",
+      "owner_business": {
+        "id": "3333333333",
+        "name": "Example Business"
+      },
+      "owner_business_name": "Example Business",
+      "send_bill_to_biz_name": "Example Ltd",
+      "is_automated_experience": true,
+      "is_access_revoked": false,
+      "balance": {
+        "amount": "250.00",
+        "amount_in_hundredths": "25000",
+        "currency": "USD",
+        "offsetted_amount": "0.00"
+      },
+      "credit_available": {
+        "amount": "750.00",
+        "amount_in_hundredths": "75000",
+        "currency": "USD",
+        "offsetted_amount": "0.00"
+      },
+      "online_max_balance": {
+        "amount": "5000.00",
+        "amount_in_hundredths": "500000",
+        "currency": "USD",
+        "offsetted_amount": "0.00"
+      },
+      "max_balance": {
+        "amount": "5 000,00",
+        "amount_in_hundredths": "500000",
+        "currency": "EUR",
+        "offsetted_amount": "0.00"
+      },
+      "allocated_amount": {
+        "amount": "0.00",
+        "amount_in_hundredths": "0",
+        "currency": "USD",
+        "offsetted_amount": "0.00"
+      }
+    }
+  ],
+  "paging": {
+    "cursors": {
+      "before": "b0",
+      "after": "end"
+    }
+  }
+}

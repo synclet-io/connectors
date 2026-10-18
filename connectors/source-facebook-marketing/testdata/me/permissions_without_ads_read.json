@@ -1,0 +1,12 @@
+{
+  "data": [
+    {
+      "permission": "ads_read",
+      "status": "declined"
+    },
+    {
+      "permission": "public_profile",
+      "status": "granted"
+    }
+  ]
+}

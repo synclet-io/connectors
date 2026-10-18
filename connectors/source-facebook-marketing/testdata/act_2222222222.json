@@ -1,0 +1,9 @@
+{
+  "id": "act_2222222222",
+  "account_id": "2222222222",
+  "name": "Example Shop B",
+  "account_status": 1,
+  "currency": "USD",
+  "timezone_name": "Etc/UTC",
+  "created_time": "2026-01-05T09:00:00+0000"
+}

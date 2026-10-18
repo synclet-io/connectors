@@ -1,0 +1,105 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Reads Meta ad accounts, campaigns, ad sets, ads, creatives, business extended credits and daily ad insights from the Facebook Marketing API.",
+    "properties": {
+      "access_token": {
+        "airbyte_secret": true,
+        "description": "Long-lived user or system-user access token with the ads_read permission. It is sent in the Authorization header.",
+        "order": 0,
+        "title": "Access Token",
+        "type": "string"
+      },
+      "account_ids": {
+        "description": "Ad accounts to read, with or without the act_ prefix.",
+        "examples": [
+          "act_1234567890"
+        ],
+        "items": {
+          "type": "string"
+        },
+        "order": 1,
+        "title": "Ad Account IDs",
+        "type": "array"
+      },
+      "business_ids": {
+        "description": "Businesses whose extended credits the business_extended_credits stream reads.",
+        "items": {
+          "type": "string"
+        },
+        "order": 5,
+        "title": "Business IDs",
+        "type": "array"
+      },
+      "end_date": {
+        "description": "Last day, YYYY-MM-DD, whose insights are read; empty reads up to today.",
+        "format": "date",
+        "order": 3,
+        "title": "End Date",
+        "type": "string"
+      },
+      "graph_api_base_url": {
+        "description": "Replaces https://graph.facebook.com, for example to send requests through a proxy; the API version path is appended.",
+        "order": 6,
+        "title": "Graph API Base URL",
+        "type": "string"
+      },
+      "graph_api_headers": {
+        "description": "Headers sent with every Graph API request, for example for a proxy.",
+        "items": {
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "value": {
+              "airbyte_secret": true,
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "value"
+          ],
+          "type": "object"
+        },
+        "order": 7,
+        "title": "Extra Request Headers",
+        "type": "array"
+      },
+      "lookback_days": {
+        "default": 28,
+        "description": "Days before the saved date_start an incremental insights read starts again, since Meta still changes insights for about 28 days.",
+        "order": 4,
+        "title": "Lookback Days",
+        "type": "integer"
+      },
+      "start_date": {
+        "description": "First day, YYYY-MM-DD, whose insights are read.",
+        "examples": [
+          "2026-01-01"
+        ],
+        "format": "date",
+        "order": 2,
+        "title": "Start Date",
+        "type": "string"
+      }
+    },
+    "required": [
+      "access_token",
+      "account_ids",
+      "start_date"
+    ],
+    "title": "Facebook Marketing Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-facebook-marketing",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": true,
+  "supportsNormalization": false
+}

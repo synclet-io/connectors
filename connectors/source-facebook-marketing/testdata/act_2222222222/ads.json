@@ -1,0 +1,21 @@
+{
+  "data": [
+    {
+      "id": "640003",
+      "account_id": "2222222222",
+      "campaign_id": "620003",
+      "adset_id": "630003",
+      "name": "Ad 3",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "created_time": "2026-02-03T10:00:00+0000",
+      "updated_time": "2026-10-03T08:30:00+0000"
+    }
+  ],
+  "paging": {
+    "cursors": {
+      "before": "b0",
+      "after": "end"
+    }
+  }
+}
