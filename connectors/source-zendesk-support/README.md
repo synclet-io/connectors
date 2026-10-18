@@ -15,7 +15,7 @@ docker run --rm -v "$PWD:/data" ghcr.io/synclet-io/connectors/source-zendesk-sup
 
 | Key | Required | Meaning |
 |---|---|---|
-| `subdomain` | yes | Account name: `acme` for `https://acme.zendesk.com`. Lowercase letters, digits and hyphens; a full host or URL is rejected with the name to use instead |
+| `subdomain` | yes | Account name: `acme` for `https://acme.zendesk.com`. Letters, digits and hyphens, lowercased before use; a full host or URL is rejected with the name to use instead |
 | `email` | yes | Email of the admin the API token belongs to |
 | `api_token` | yes | API token (Admin Center > Apps and integrations > Zendesk API). Sent only as `Authorization: Basic base64("<email>/token:<api_token>")`, never in a URL |
 | `start_date` | yes | Earliest update the first incremental read requests: RFC 3339 time or `YYYY-MM-DD`, UTC |
@@ -76,8 +76,10 @@ each page the connector saves its `after_cursor` in STREAM state, and the next s
 ```
 
 `ticket_events` uses the time-based export: each response's `end_time` is the next request's
-`start_time`, until `end_of_stream` or until `end_time` stops advancing. The state is the next
-`start_time`, a Unix time:
+`start_time`, until `end_of_stream`. Zendesk returns every item of one second in a single page, so a
+page with `end_of_stream` false whose `end_time` equals its `start_time` is not expected; if one
+comes, the connector moves on one second (`start_time + 1`) and logs a warning. The state is the next `start_time`, a Unix time; an empty state (`{}`) starts from
+`start_date`:
 
 ```json
 {"start_time": 1791244800}

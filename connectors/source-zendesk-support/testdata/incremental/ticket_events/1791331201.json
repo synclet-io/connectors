@@ -1,0 +1,9 @@
+{
+  "ticket_events": [
+    {"id": 7005, "ticket_id": 2002, "timestamp": 1791331300, "created_at": "2026-10-07T00:01:40Z", "updater_id": 1001, "via": "Web form", "event_type": "Update", "child_events": [], "merged_ticket_ids": [], "system": {}}
+  ],
+  "next_page": null,
+  "count": 1,
+  "end_of_stream": true,
+  "end_time": 1791331300
+}

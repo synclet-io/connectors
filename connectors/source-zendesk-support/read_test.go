@@ -149,13 +149,26 @@ func TestResume(t *testing.T) {
 		assert.Equal(t, []string{`{"start_time":1791244800}`}, states(out), "the saved start_time advances to end_time")
 	})
 
-	t.Run("ticket_events stop when end_time does not advance", func(t *testing.T) {
-		srv, h := fixtureServer(t, map[string]fixture{
-			"incremental/ticket_events.json": {status: 200, file: "incremental/ticket_events/1791244800.json"},
-		})
+	t.Run("ticket_events empty state starts at start_date", func(t *testing.T) {
+		srv, h := fixtureServer(t, nil)
 		src := testSource(srv)
-		_ = runRead(t, src, catalogOf(t, src, synclet.SyncModeIncremental, "ticket_events"), streamState("ticket_events", `{"start_time":1791244800}`))
-		assert.Len(t, h.list(), 1)
+		out := runRead(t, src, catalogOf(t, src, synclet.SyncModeIncremental, "ticket_events"), streamState("ticket_events", `{}`))
+
+		assert.Equal(t, "incremental/ticket_events.json?start_time=1790812800", h.list()[0])
+		assert.Equal(t, []int64{7001, 7002, 7003}, recordIDs(t, out, "ticket_events"))
+	})
+
+	t.Run("ticket_events end_time not advancing moves start_time one second on", func(t *testing.T) {
+		srv, h := fixtureServer(t, nil)
+		src := testSource(srv)
+		out := runRead(t, src, catalogOf(t, src, synclet.SyncModeIncremental, "ticket_events"), streamState("ticket_events", `{"start_time":1791331200}`))
+
+		assert.Equal(t, []string{
+			"incremental/ticket_events.json?start_time=1791331200",
+			"incremental/ticket_events.json?start_time=1791331201",
+		}, h.list(), "a page with end_of_stream false and end_time == start_time is followed by start_time + 1")
+		assert.Equal(t, []int64{7004, 7005}, recordIDs(t, out, "ticket_events"))
+		assert.Equal(t, []string{`{"start_time":1791331201}`, `{"start_time":1791331300}`}, states(out))
 	})
 
 	t.Run("bad state", func(t *testing.T) {

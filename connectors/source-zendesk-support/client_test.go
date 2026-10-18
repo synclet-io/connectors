@@ -159,4 +159,7 @@ func TestAuthHeader(t *testing.T) {
 
 func TestDefaultBaseURL(t *testing.T) {
 	assert.Equal(t, "https://acme.zendesk.com/api/v2/", Source{}.apiClient(testCfg).baseURL)
+	upper := testCfg
+	upper.Subdomain = "ACME"
+	assert.Equal(t, "https://acme.zendesk.com/api/v2/", Source{}.apiClient(upper).baseURL, "the subdomain is lowercased")
 }

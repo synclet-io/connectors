@@ -1,0 +1,9 @@
+{
+  "ticket_events": [
+    {"id": 7004, "ticket_id": 2002, "timestamp": 1791331200, "created_at": "2026-10-07T00:00:00Z", "updater_id": 1001, "via": "Web form", "event_type": "Update", "child_events": [], "merged_ticket_ids": [], "system": {}}
+  ],
+  "next_page": "https://example.zendesk.com/api/v2/incremental/ticket_events.json?start_time=1791331200",
+  "count": 1,
+  "end_of_stream": false,
+  "end_time": 1791331200
+}

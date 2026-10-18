@@ -48,7 +48,7 @@ func (s Source) apiClient(cfg Config) *apiClient {
 	c := &apiClient{
 		http:           s.client,
 		baseURL:        s.baseURL,
-		subdomain:      cfg.Subdomain,
+		subdomain:      cfg.subdomain(),
 		auth:           "Basic " + base64.StdEncoding.EncodeToString([]byte(cfg.Email+"/token:"+cfg.APIToken)),
 		retryDelay:     s.retryDelay,
 		exportInterval: s.exportInterval,
@@ -59,7 +59,7 @@ func (s Source) apiClient(cfg Config) *apiClient {
 		c.http = &http.Client{Timeout: time.Minute}
 	}
 	if c.baseURL == "" {
-		c.baseURL = "https://" + cfg.Subdomain + ".zendesk.com/api/v2/"
+		c.baseURL = "https://" + cfg.subdomain() + ".zendesk.com/api/v2/"
 	}
 	if c.retryDelay == 0 {
 		c.retryDelay = defaultRetryDelay

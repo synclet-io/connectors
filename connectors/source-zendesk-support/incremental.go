@@ -73,9 +73,10 @@ func (r streamRead) cursorExport(ctx context.Context) error {
 }
 
 // timeExport requests ticket_events from start_date, or from the saved
-// start_time, and then from each response's end_time until end_of_stream or
-// until end_time stops advancing. An incremental read saves the next
-// start_time of every page once its records are out.
+// start_time, and then from each response's end_time until end_of_stream; a
+// page whose end_time equals its start_time is followed by start_time + 1.
+// An incremental read saves the next start_time of every page once its
+// records are out.
 func (r streamRead) timeExport(ctx context.Context) error {
 	from, err := r.cfg.start()
 	if err != nil {
@@ -86,7 +87,9 @@ func (r streamRead) timeExport(ctx context.Context) error {
 		if err := r.decodeState(&st); err != nil {
 			return err
 		}
-		from = time.Unix(st.StartTime, 0).UTC()
+		if st.StartTime > 0 {
+			from = time.Unix(st.StartTime, 0).UTC()
+		}
 	}
 	start := startTime(from, r.c.now())
 	for {
@@ -107,12 +110,19 @@ func (r streamRead) timeExport(ctx context.Context) error {
 			return fmt.Errorf("GET %s: %w", r.def.path, err)
 		}
 		next := max(start, end)
+		if !done && next == start {
+			// Zendesk returns every item of one second in a single page, so a
+			// page that does not advance end_time is not expected; if one
+			// comes, the read moves on one second.
+			next = start + 1
+			synclet.Logger(ctx).Warn("ticket_events end_time did not advance; requesting the next second", "start_time", start)
+		}
 		if r.incremental {
 			if err := r.em.StreamState(r.desc, timeState{StartTime: next}); err != nil {
 				return err
 			}
 		}
-		if done || next == start {
+		if done {
 			return nil
 		}
 		start = next

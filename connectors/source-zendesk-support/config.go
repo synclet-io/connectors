@@ -26,7 +26,7 @@ type Config struct {
 
 func (c Config) validate() error {
 	var errs []error
-	if err := validateSubdomain(c.Subdomain); err != nil {
+	if err := validateSubdomain(c.subdomain()); err != nil {
 		errs = append(errs, err)
 	}
 	if c.Email == "" {
@@ -41,6 +41,10 @@ func (c Config) validate() error {
 	return errors.Join(errs...)
 }
 
+// subdomain returns the configured subdomain in lowercase, as Zendesk
+// hostnames are.
+func (c Config) subdomain() string { return strings.ToLower(c.Subdomain) }
+
 func validateSubdomain(s string) error {
 	if s == "" {
 		return errors.New("subdomain is required")
@@ -54,7 +58,7 @@ func validateSubdomain(s string) error {
 		return fmt.Errorf("subdomain %q must be the account name only, such as %q for https://%s.zendesk.com", s, name, name)
 	}
 	if !subdomainPattern.MatchString(s) {
-		return fmt.Errorf("subdomain %q may contain only lowercase letters, digits and hyphens", s)
+		return fmt.Errorf("subdomain %q may contain only letters, digits and hyphens", s)
 	}
 	return nil
 }

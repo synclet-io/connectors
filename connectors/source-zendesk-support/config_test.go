@@ -35,9 +35,10 @@ func TestConfigValidate(t *testing.T) {
 			name: "url", cfg: with(func(c *Config) { c.Subdomain = "https://acme.zendesk.com/" }),
 			err: `subdomain "https://acme.zendesk.com/" must be the account name only, such as "acme"`,
 		},
-		{name: "uppercase", cfg: with(func(c *Config) { c.Subdomain = "Acme" }), err: `subdomain "Acme" may contain only lowercase letters, digits and hyphens`},
-		{name: "leading hyphen", cfg: with(func(c *Config) { c.Subdomain = "-acme" }), err: "may contain only lowercase letters"},
-		{name: "dot", cfg: with(func(c *Config) { c.Subdomain = "acme.eu" }), err: "may contain only lowercase letters"},
+		{name: "uppercase is lowercased", cfg: with(func(c *Config) { c.Subdomain = "Acme" })},
+		{name: "underscore", cfg: with(func(c *Config) { c.Subdomain = "ac_me" }), err: `subdomain "ac_me" may contain only letters, digits and hyphens`},
+		{name: "leading hyphen", cfg: with(func(c *Config) { c.Subdomain = "-acme" }), err: "may contain only letters"},
+		{name: "dot", cfg: with(func(c *Config) { c.Subdomain = "acme.eu" }), err: "may contain only letters"},
 		{
 			name: "bad start_date", cfg: with(func(c *Config) { c.StartDate = "2026-10-1" }),
 			err: `start_date "2026-10-1" is neither an RFC 3339 time nor a YYYY-MM-DD date`,

@@ -24,7 +24,7 @@ func (s Source) Check(ctx context.Context, cfg Config) error {
 	err := s.apiClient(cfg).get(ctx, "users/me.json", nil, &me)
 	var he *httpError
 	if errors.As(err, &he) && he.status == http.StatusNotFound {
-		return synclet.ConfigError(fmt.Errorf("wrong subdomain %q: %s", cfg.Subdomain, he))
+		return synclet.ConfigError(fmt.Errorf("wrong subdomain %q: %s", cfg.subdomain(), he))
 	}
 	if err != nil {
 		return err
