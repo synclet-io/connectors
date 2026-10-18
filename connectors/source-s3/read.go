@@ -64,6 +64,7 @@ func readStream(ctx context.Context, store objectStore, s StreamConfig, cs syncl
 	if err != nil {
 		return err
 	}
+	ages := newestFirst(slices.Clone(objs))
 	if incremental {
 		slices.SortFunc(objs, func(a, b object) int {
 			return cmp.Or(a.LastModified.Compare(b.LastModified), strings.Compare(a.Key, b.Key))
@@ -76,6 +77,10 @@ func readStream(ctx context.Context, store objectStore, s StreamConfig, cs syncl
 	}
 	for _, o := range objs {
 		if err := readObject(ctx, store, s, rs, desc, o, em); err != nil {
+			var unknown *unknownColumnError
+			if errors.As(err, &unknown) {
+				return synclet.ConfigError(fmt.Errorf("%w; %s", err, unknownColumnHint(s, unknown.name, o, ages)))
+			}
 			return err
 		}
 		if !incremental {
@@ -95,6 +100,18 @@ func readStream(ctx context.Context, store objectStore, s StreamConfig, cs syncl
 		return em.StreamState(desc, st)
 	}
 	return nil
+}
+
+// unknownColumnHint says how to get a column of file o into the stream
+// schema; ages is every matching object, newest first.
+func unknownColumnHint(s StreamConfig, column string, o object, ages []object) string {
+	if s.Schema != "" {
+		return fmt.Sprintf("add column %q to the stream's schema, then run discover again and refresh the catalog", column)
+	}
+	age := slices.IndexFunc(ages, func(a object) bool { return a.Key == o.Key }) + 1
+	return fmt.Sprintf("the schema is inferred from the newest %d files (schema_sample_files) and this file is number %d of %d, newest first; "+
+		"set schema_sample_files to at least %d or give the stream a schema with column %q, then run discover again and refresh the catalog",
+		s.SchemaSampleFiles, age, len(ages), age, column)
 }
 
 func savedState(raw json.RawMessage) (streamState, time.Time, error) {
@@ -137,7 +154,8 @@ func readObject(ctx context.Context, store objectStore, s StreamConfig, rs *reco
 		var rec map[string]any
 		if err == nil {
 			rec, err = convertRow(rs, fields)
-			if err != nil {
+			var unknown *unknownColumnError
+			if err != nil && (s.Schema != "" || !errors.As(err, &unknown)) {
 				err = &badRowError{err: err}
 			}
 		}

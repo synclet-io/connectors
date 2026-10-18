@@ -127,7 +127,7 @@ func convertRow(rs *recordSchema, in map[string]any) (map[string]any, error) {
 		}
 		f, ok := rs.fields[name]
 		if !ok {
-			return nil, fmt.Errorf("field %q is not in the stream schema; run discover again or add it to the schema", name)
+			return nil, &unknownColumnError{name: name}
 		}
 		v, err := convertValue(f, in[name])
 		if err != nil {
@@ -136,6 +136,13 @@ func convertRow(rs *recordSchema, in map[string]any) (map[string]any, error) {
 		out[name] = v
 	}
 	return out, nil
+}
+
+// unknownColumnError is a row field the stream schema does not have.
+type unknownColumnError struct{ name string }
+
+func (e *unknownColumnError) Error() string {
+	return fmt.Sprintf("column %q is not in the stream schema", e.name)
 }
 
 func convertValue(f fieldSpec, v any) (any, error) {

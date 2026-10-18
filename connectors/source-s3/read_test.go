@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	synclet "github.com/synclet-io/synclet-go-sdk"
 	"github.com/synclet-io/synclet-go-sdk/testkit"
@@ -172,4 +173,29 @@ func TestBadRows(t *testing.T) {
 	store.put("c/a.csv", []byte("id,v\n1,a\n"), t0)
 	out = runRead(t, src, cfg, catalogOf(synclet.SyncModeFullRefresh, cat["c"]), nil)
 	require.ErrorContains(t, out.Err, `file "c/b.csv" row 1: field "id": value "not-a-number" is not of type integer`)
+}
+
+// A column that only older files have, outside the sampled newest files,
+// fails the read naming the file and the column, even with skip_bad_rows.
+func TestColumnOutsideSampledFiles(t *testing.T) {
+	store := newMemStore()
+	store.put("o/old.csv", []byte("a,legacy\n1,x\n"), t0)
+	store.put("o/mid.csv", []byte("a\n2\n"), t0.Add(time.Hour))
+	store.put("o/new.csv", []byte("a\n3\n"), t0.Add(2*time.Hour))
+	src := Source{store: store}
+	cfg := testConfig(StreamConfig{Name: "o", Glob: "o/*", Format: Format{Filetype: formatCSV}, SchemaSampleFiles: 1, SkipBadRows: true})
+	streams := discoverStreams(t, src, cfg)
+
+	out := runRead(t, src, cfg, catalogOf(synclet.SyncModeFullRefresh, streams["o"]), nil)
+	require.Error(t, out.Err)
+	msg := out.Err.Error()
+	for _, want := range []string{`file "o/old.csv"`, `column "legacy"`, "schema_sample_files to at least 3", "run discover again"} {
+		assert.Contains(t, msg, want)
+	}
+
+	given := StreamConfig{Name: "o", Glob: "o/*", Format: Format{Filetype: formatCSV}, Schema: `{"type":"object","properties":{"a":{"type":"string"}}}`}
+	cfg = testConfig(given)
+	out = runRead(t, src, cfg, catalogOf(synclet.SyncModeFullRefresh, discoverStreams(t, src, cfg)["o"]), nil)
+	require.Error(t, out.Err)
+	assert.Contains(t, out.Err.Error(), `add column "legacy" to the stream's schema`)
 }

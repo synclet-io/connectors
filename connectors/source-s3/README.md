@@ -103,6 +103,13 @@ and makes every field nullable:
 - JSONL fields take the union of the JSON types seen, with `integer` folded into `number`.
 - Parquet fields take the type of the file's schema; several files give the union.
 
+Inference stays bounded to the sampled files instead of reading every matching file, since discover over a
+large bucket would otherwise download all of it. A column that only files outside the sample have (older
+files, when the schema changed) is not in the inferred schema, so reading such a file fails, also with
+`skip_bad_rows`, naming the file, the column and the fix: set `schema_sample_files` to at least the file's
+position among the matching files, newest first, which the error gives, or configure a `schema` with the
+column, then run discover again and refresh the catalog.
+
 | Parquet | JSON schema | Value |
 |---|---|---|
 | `BOOLEAN` | `boolean` | |
@@ -140,7 +147,8 @@ The primary key is `_synclet_source_file` + `_synclet_source_row`; the cursor is
 
 A row that cannot be parsed or does not fit the schema fails the read with the stream, the file and the row
 (`stream "orders": file "orders/a.csv" row 2: line 3: 3 fields, the header has 2`). With `skip_bad_rows` the
-row is skipped and a warning logs the count per file.
+row is skipped and a warning logs the count per file. A column missing from an inferred schema is not a bad
+row (see [Schema and types](#schema-and-types)); with a configured `schema` it is.
 
 ## Sync modes and state
 

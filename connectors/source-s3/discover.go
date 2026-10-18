@@ -71,9 +71,7 @@ func streamSchema(ctx context.Context, store objectStore, s StreamConfig) (json.
 	if len(objs) == 0 {
 		return nil, synclet.ConfigError(fmt.Errorf("stream %q: no object matches glob %q; add files or give the stream a schema", s.Name, s.Glob))
 	}
-	slices.SortFunc(objs, func(a, b object) int {
-		return cmp.Or(b.LastModified.Compare(a.LastModified), strings.Compare(a.Key, b.Key))
-	})
+	objs = newestFirst(objs)
 	in := newInference(s.Format.Filetype)
 	for _, o := range objs[:min(len(objs), s.SchemaSampleFiles)] {
 		fi, err := inferFile(ctx, store, s, o.Key)
@@ -83,6 +81,15 @@ func streamSchema(ctx context.Context, store objectStore, s StreamConfig) (json.
 		in.merge(fi)
 	}
 	return withMetadata(in.properties()), nil
+}
+
+// newestFirst sorts objs by LastModified, newest first, then by key, the
+// order schema inference samples them in.
+func newestFirst(objs []object) []object {
+	slices.SortFunc(objs, func(a, b object) int {
+		return cmp.Or(b.LastModified.Compare(a.LastModified), strings.Compare(a.Key, b.Key))
+	})
+	return objs
 }
 
 // listMatching returns the objects whose key matches the stream's glob.
