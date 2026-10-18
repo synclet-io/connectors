@@ -51,6 +51,10 @@ the day in STREAM state:
 {"date": "2026-10-17"}
 ```
 
+A saved state takes priority over `start_date`: moving `start_date` later does not skip days
+after the saved date, and moving it earlier does not re-read days before it; reset the stream to
+start over from the new `start_date`.
+
 A read that stops halfway resumes at the first day it did not finish. A full refresh reads every day
 from `start_date` and saves no state. Each day costs one request against the plan's monthly quota, so
 an early `start_date` on a small plan can use up the quota on the first sync.
@@ -65,6 +69,7 @@ These are configuration errors (failure type `config_error`) and are not retried
 | 401 | `invalid_app_id`, `missing_app_id` | `invalid app_id` |
 | 429 | `not_allowed` | `plan does not allow this route` |
 | 403 | `access_restricted` | `access restricted` |
+| 400 | `invalid_base` | `invalid base currency` |
 
 The rest of the message is `(HTTP <status> <message>): <description>`. 429 here means the plan does
 not include the route or parameter (for example `base` on the free plan), not throttling, so it is

@@ -60,6 +60,12 @@ var configCauses = map[int]string{
 	http.StatusForbidden:       "access restricted",
 }
 
+// messageCauses names the cause of error codes that come from the
+// configuration but share their status with other errors, such as 400.
+var messageCauses = map[string]string{
+	"invalid_base": "invalid base currency",
+}
+
 // retryable marks a failure that may pass when the request is repeated.
 type retryable struct{ err error }
 
@@ -128,7 +134,11 @@ func (c *apiClient) do(ctx context.Context, u string, out any) (rerr error) {
 	if e.Description != "" {
 		detail += ": " + e.Description
 	}
-	if cause, ok := configCauses[resp.StatusCode]; ok {
+	cause, ok := messageCauses[e.Message]
+	if !ok {
+		cause, ok = configCauses[resp.StatusCode]
+	}
+	if ok {
 		return synclet.ConfigError(fmt.Errorf("%s %s", cause, detail))
 	}
 	err = fmt.Errorf("GET %s %s", req.URL.Path, detail)

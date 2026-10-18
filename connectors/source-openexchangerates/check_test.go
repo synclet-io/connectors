@@ -36,6 +36,11 @@ func TestCheckErrors(t *testing.T) {
 			message:  "plan does not allow this route (HTTP 429 not_allowed): Changing the API `base` currency",
 		},
 		{
+			name: "400", appID: testAppID,
+			override: map[string]fixture{"latest.json": {status: http.StatusBadRequest, file: "errors/invalid_base.json"}},
+			message:  "invalid base currency (HTTP 400 invalid_base): Client requested rates for an unsupported base currency.",
+		},
+		{
 			name: "403", appID: testAppID,
 			override: map[string]fixture{"latest.json": {status: http.StatusForbidden, file: "errors/access_restricted.json"}},
 			message:  "access restricted (HTTP 403 access_restricted): Access restricted",
