@@ -24,6 +24,7 @@ The keys match Airbyte's source-mongodb-v2, so an existing configuration carries
 | `database_config.auth_source` | the connection string's `authSource`, else `admin` | Database that holds the user |
 | `discover_sample_size` | `10000` | Documents sampled per collection to infer its schema (1-100000) |
 | `tls_ca_certificate` | | PEM certificate of the CA that signed the server certificates; TLS itself is turned on by `tls=true` in the connection string (on by default for `mongodb+srv://`) |
+| `allow_missing_cursor` | `false` | Incremental only: skip documents whose cursor field is null or missing instead of failing; see [Incremental sync](#incremental-sync) |
 | `tunnel_method` | `{"tunnel_method": "NO_TUNNEL"}` | `SSH_KEY_AUTH` (`ssh_key`) or `SSH_PASSWORD_AUTH` (`tunnel_user_password`), both with `tunnel_host`, `tunnel_port` (22), `tunnel_user` and optionally `tunnel_host_key` |
 
 ```json
@@ -97,10 +98,16 @@ and keeps the greatest cursor in STREAM state, as canonical Extended JSON so it 
   that share the last cursor value are emitted again; use a destination sync mode that deduplicates
   (`append_dedup`) when that matters.
 - A STATE message follows every 10,000 documents and the end of the stream.
-- Documents without the cursor field, or with `null` in it, are emitted by the first read only.
-- The cursor field must hold one BSON type in every document. MongoDB compares values of different types by
-  type order, and a query on the saved cursor only matches values of its type, so documents whose cursor has
-  another type are skipped after the first read.
+- A range query never matches a document whose cursor field is null or missing. Every incremental read
+  counts them first; when there are any, the read fails with a config error naming the collection, the
+  field, the count and one `_id`. With `"allow_missing_cursor": true` those documents are skipped on every
+  read, the first one included, and each read logs their count as a WARN.
+- The cursor field must hold values MongoDB orders against each other: numbers (int, long, double and
+  decimal mix freely), strings (string and symbol), or a single other BSON type (date, ObjectId, ...). A
+  range query only matches values of the saved cursor's kind, so the connector checks every incremental
+  read: when a document's cursor has another kind than the saved cursor (or, on a first read, the first
+  cursor in sort order), the read fails with a config error naming the collection, the field and both
+  types. Choose a cursor field with one type, or use full refresh.
 - When the saved state names a different cursor field than the catalog, the read logs a warning and starts
   the stream over.
 - The state holds a cursor value, never a change stream resume token, so it cannot expire.

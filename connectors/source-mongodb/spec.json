@@ -3,6 +3,13 @@
   "connectionSpecification": {
     "description": "Reads the collections of a MongoDB database: full refresh, or incremental by a cursor field.",
     "properties": {
+      "allow_missing_cursor": {
+        "default": false,
+        "description": "Incremental streams only. When false, an incremental read fails while any document of the collection has the cursor field null or missing. When true, those documents are skipped on every read and each read logs their count.",
+        "order": 4,
+        "title": "Skip documents without a cursor value",
+        "type": "boolean"
+      },
       "database_config": {
         "description": "Configures the MongoDB cluster type.",
         "oneOf": [
