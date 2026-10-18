@@ -1,0 +1,14 @@
+{
+  "kind": "bigquery#tableList",
+  "etag": "Bv0sZ0vVq3a7bMcRpDdN3g==",
+  "tables": [
+    {
+      "kind": "bigquery#table",
+      "id": "p:d.types",
+      "tableReference": {"projectId": "p", "datasetId": "d", "tableId": "types"},
+      "type": "TABLE",
+      "creationTime": "1709202896789"
+    }
+  ],
+  "totalItems": 1
+}

@@ -1,0 +1,7 @@
+*_test.go
+testdata/
+README.md
+CHANGELOG.md
+spec.json
+meta.json
+/source-bigquery

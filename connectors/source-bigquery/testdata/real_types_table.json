@@ -1,0 +1,39 @@
+{
+  "kind": "bigquery#table",
+  "etag": "c3VyZWx5IG5vdCBhIHJlYWwgZXRhZw==",
+  "id": "p:d.types",
+  "selfLink": "https://bigquery.googleapis.com/bigquery/v2/projects/p/datasets/d/tables/types",
+  "tableReference": {"projectId": "p", "datasetId": "d", "tableId": "types"},
+  "schema": {
+    "fields": [
+      {"name": "c_int", "type": "INTEGER", "mode": "REQUIRED"},
+      {"name": "c_num", "type": "NUMERIC", "mode": "NULLABLE"},
+      {"name": "c_bignum", "type": "BIGNUMERIC", "mode": "NULLABLE"},
+      {"name": "c_float", "type": "FLOAT", "mode": "NULLABLE"},
+      {"name": "c_bool", "type": "BOOLEAN", "mode": "NULLABLE"},
+      {"name": "c_str", "type": "STRING", "mode": "NULLABLE"},
+      {"name": "c_bytes", "type": "BYTES", "mode": "NULLABLE"},
+      {"name": "c_date", "type": "DATE", "mode": "NULLABLE"},
+      {"name": "c_time", "type": "TIME", "mode": "NULLABLE"},
+      {"name": "c_dt", "type": "DATETIME", "mode": "NULLABLE"},
+      {"name": "c_ts", "type": "TIMESTAMP", "mode": "NULLABLE"},
+      {"name": "c_geo", "type": "GEOGRAPHY", "mode": "NULLABLE"},
+      {"name": "c_json", "type": "JSON", "mode": "NULLABLE"},
+      {"name": "c_rec", "type": "RECORD", "mode": "NULLABLE", "fields": [
+        {"name": "k", "type": "STRING", "mode": "NULLABLE"},
+        {"name": "v", "type": "INTEGER", "mode": "NULLABLE"}
+      ]},
+      {"name": "c_arr", "type": "INTEGER", "mode": "REPEATED"},
+      {"name": "c_rarr", "type": "RECORD", "mode": "REPEATED", "fields": [
+        {"name": "k", "type": "STRING", "mode": "NULLABLE"}
+      ]}
+    ]
+  },
+  "tableConstraints": {"primaryKey": {"columns": ["c_int"]}},
+  "numBytes": "312",
+  "numRows": "3",
+  "creationTime": "1709202896789",
+  "lastModifiedTime": "1709202896789",
+  "type": "TABLE",
+  "location": "US"
+}

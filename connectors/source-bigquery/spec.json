@@ -1,0 +1,94 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Reads tables and views of BigQuery datasets: full refresh, or incremental by a cursor column.",
+    "properties": {
+      "credentials": {
+        "description": "Credentials for the BigQuery API. When omitted, Application Default Credentials are used.",
+        "oneOf": [
+          {
+            "properties": {
+              "auth_type": {
+                "const": "Service",
+                "order": 0,
+                "type": "string"
+              },
+              "service_account_info": {
+                "airbyte_secret": true,
+                "description": "The JSON key of the service account to use for authorization.",
+                "order": 1,
+                "title": "Service Account Information",
+                "type": "string"
+              }
+            },
+            "required": [
+              "auth_type",
+              "service_account_info"
+            ],
+            "title": "Service Account Key Authentication",
+            "type": "object"
+          },
+          {
+            "description": "Use Google Cloud Application Default Credentials (no extra fields needed).",
+            "properties": {
+              "auth_type": {
+                "const": "ApplicationDefault",
+                "order": 0,
+                "type": "string"
+              }
+            },
+            "required": [
+              "auth_type"
+            ],
+            "title": "Application Default Credentials",
+            "type": "object"
+          }
+        ],
+        "order": 3,
+        "title": "Authentication",
+        "type": "object"
+      },
+      "datasets": {
+        "description": "Datasets to sync from. When empty, every dataset of the project.",
+        "items": {
+          "type": "string"
+        },
+        "order": 1,
+        "title": "Datasets",
+        "type": "array"
+      },
+      "location": {
+        "description": "Location the query jobs run in, such as US or europe-west1. When empty, BigQuery picks it from the tables read.",
+        "examples": [
+          "US",
+          "EU",
+          "europe-west1"
+        ],
+        "order": 2,
+        "title": "Location",
+        "type": "string"
+      },
+      "project_id": {
+        "description": "The Google Cloud project that runs the queries and holds the datasets.",
+        "order": 0,
+        "title": "Project ID",
+        "type": "string"
+      }
+    },
+    "required": [
+      "project_id"
+    ],
+    "title": "BigQuery Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-bigquery",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": true,
+  "supportsNormalization": false
+}
