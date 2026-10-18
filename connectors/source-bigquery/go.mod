@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go v0.123.0
 	cloud.google.com/go/bigquery v1.85.0
 	github.com/stretchr/testify v1.12.1
-	github.com/synclet-io/synclet-go-sdk v0.3.0
+	github.com/synclet-io/synclet-go-sdk v0.4.0
 	github.com/testcontainers/testcontainers-go v0.44.0
 	golang.org/x/oauth2 v0.37.0
 	google.golang.org/api v0.304.0

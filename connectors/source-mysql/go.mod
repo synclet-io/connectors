@@ -6,7 +6,7 @@ require (
 	github.com/go-mysql-org/go-mysql v1.16.0
 	github.com/go-sql-driver/mysql v1.10.1
 	github.com/stretchr/testify v1.12.1
-	github.com/synclet-io/synclet-go-sdk v0.3.0
+	github.com/synclet-io/synclet-go-sdk v0.4.0
 	github.com/testcontainers/testcontainers-go/modules/mysql v0.44.0
 	go.uber.org/multierr v1.11.0
 	golang.org/x/crypto v0.58.0

@@ -4,8 +4,8 @@ github.com/santhosh-tekuri/jsonschema/v6 v6.0.2 h1:KRzFb2m7YtdldCEkzs6KqmJw4nqEV
 github.com/santhosh-tekuri/jsonschema/v6 v6.0.2/go.mod h1:JXeL+ps8p7/KNMjDQk3TCwPpBy0wYklyWTfbkIzdIFU=
 github.com/stretchr/testify v1.12.1 h1:EuwCh5fleGS7H32xRwO3wRGT7DxrDhLAT6FF8MpWDWE=
 github.com/stretchr/testify v1.12.1/go.mod h1:MDEgiDPPsNp5cuIrHPPCyornHKgEVbtFUmoNlxoYthg=
-github.com/synclet-io/synclet-go-sdk v0.3.1 h1:EVmZ673yNDZQC79wxEkSuWMt/w828zoWkRrGZ9N3eAg=
-github.com/synclet-io/synclet-go-sdk v0.3.1/go.mod h1:jM4yNoeno1592/HOCQ5CffIIZKQTQ9HlMr7rAKxpf0s=
+github.com/synclet-io/synclet-go-sdk v0.4.0 h1:QqrIz3kNTIU0XpdKSDqTCOB8MrSb7ADPoZW6DSvGKxY=
+github.com/synclet-io/synclet-go-sdk v0.4.0/go.mod h1:jM4yNoeno1592/HOCQ5CffIIZKQTQ9HlMr7rAKxpf0s=
 go.uber.org/multierr v1.11.0 h1:blXXJkSxSSfBVBlC76pxqeO+LN3aDfLQo+309xJstO0=
 go.uber.org/multierr v1.11.0/go.mod h1:20+QtiLqy0Nd6FdQB9TLXag12DsQkrbs3htMFfDN80Y=
 go.yaml.in/yaml/v3 v3.0.5 h1:N6y/pJk8buWs9NY5ERU2HSMfm+IuD/OtfdAnq6kESPw=

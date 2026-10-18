@@ -13,7 +13,7 @@ require (
 	github.com/klauspost/compress v1.20.3
 	github.com/parquet-go/parquet-go v0.32.0
 	github.com/stretchr/testify v1.12.1
-	github.com/synclet-io/synclet-go-sdk v0.3.1
+	github.com/synclet-io/synclet-go-sdk v0.4.0
 	github.com/testcontainers/testcontainers-go v0.44.0
 	github.com/testcontainers/testcontainers-go/modules/minio v0.44.0
 )

@@ -8,8 +8,8 @@ github.com/santhosh-tekuri/jsonschema/v6 v6.0.3 h1:1EYB5IzjZawrrnELUi78f9fPu57Hu
 github.com/santhosh-tekuri/jsonschema/v6 v6.0.3/go.mod h1:JXeL+ps8p7/KNMjDQk3TCwPpBy0wYklyWTfbkIzdIFU=
 github.com/stretchr/testify v1.11.1 h1:7s2iGBzp5EwR7/aIZr8ao5+dra3wiQyKjjFuvgVKu7U=
 github.com/stretchr/testify v1.11.1/go.mod h1:wZwfW3scLgRK+23gO65QZefKpKQRnfz6sD981Nm4B6U=
-github.com/synclet-io/synclet-go-sdk v0.3.0 h1:t+fK+AxFH7PjaCQmjqRyaDJFndnj0Bf2scS7+CoRA5c=
-github.com/synclet-io/synclet-go-sdk v0.3.0/go.mod h1:jM4yNoeno1592/HOCQ5CffIIZKQTQ9HlMr7rAKxpf0s=
+github.com/synclet-io/synclet-go-sdk v0.4.0 h1:QqrIz3kNTIU0XpdKSDqTCOB8MrSb7ADPoZW6DSvGKxY=
+github.com/synclet-io/synclet-go-sdk v0.4.0/go.mod h1:jM4yNoeno1592/HOCQ5CffIIZKQTQ9HlMr7rAKxpf0s=
 golang.org/x/text v0.14.0 h1:ScX5w1eTa3QqT8oi6+ziP7dTV1S2+ALU0bI+0zXKWiQ=
 golang.org/x/text v0.14.0/go.mod h1:18ZOQIKpY8NJVqYksKHtTdi31H5itFRjB5/qKTNYzSU=
 gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
