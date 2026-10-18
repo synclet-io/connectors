@@ -124,6 +124,8 @@ func TestConnectErrorRedacts(t *testing.T) {
 	cl := &client{cfg: c, user: "reader"}
 	err := cl.connectError(errors.New("server selection error: dial db1 with secret-pw and uri-pw"))
 	require.EqualError(t, err, "cannot reach db1:27017,db2:27017: server selection error: dial db1 with **** and ****")
+	c.DatabaseConfig.ConnectionString = "mongodb://u:p%40ss@db1/app"
+	require.Equal(t, "dial **** and ****", redact(c, "dial p@ss and p%40ss"))
 	require.Equal(t, "cluster0.example.net", uriHosts("mongodb+srv://u:p@ss@cluster0.example.net/db?tls=true"))
 	require.Equal(t, "p@ss", uriPassword("mongodb+srv://u:p@ss@cluster0.example.net/db"))
 }

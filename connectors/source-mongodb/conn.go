@@ -108,9 +108,15 @@ func uriPassword(uri string) string {
 	return pass
 }
 
-// redact removes the passwords of cfg from msg.
+// redact removes the passwords of cfg from msg, the URI password both as
+// written and percent-decoded.
 func redact(cfg Config, msg string) string {
-	for _, secret := range []string{cfg.DatabaseConfig.Password, uriPassword(cfg.DatabaseConfig.ConnectionString)} {
+	uriPass := uriPassword(cfg.DatabaseConfig.ConnectionString)
+	secrets := []string{cfg.DatabaseConfig.Password, uriPass}
+	if decoded, err := url.PathUnescape(uriPass); err == nil {
+		secrets = append(secrets, decoded)
+	}
+	for _, secret := range secrets {
 		if secret != "" {
 			msg = strings.ReplaceAll(msg, secret, "****")
 		}

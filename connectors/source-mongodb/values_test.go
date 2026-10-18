@@ -193,6 +193,9 @@ func TestInferDateTimeFormat(t *testing.T) {
 		"2024-01-02T03:04:05.123+02:00": true,
 		"2024-01-02T03:04:05,123Z":      false,
 		"2024-01-02 03:04:05Z":          false,
+		"2024-01-02T03:04:05+24:00":     false,
+		"2024-01-02T03:04:05+23:60":     false,
+		"2024-12-31T23:59:60Z":          false,
 	}
 	for value, isDate := range cases {
 		t.Run(value, func(t *testing.T) {
@@ -214,4 +217,21 @@ func TestInferDateTimeFormat(t *testing.T) {
 			}
 		})
 	}
+}
+
+// FuzzIsDateTime checks that every string isDateTime accepts passes the
+// date-time format check of the schema validator the tests use.
+func FuzzIsDateTime(f *testing.F) {
+	for _, seed := range []string{"2024-01-02T03:04:05.123+02:00", "0000-01-01T00:00:00+24:00", "2024-01-02t03:04:05z", "2024-12-31T23:59:60Z"} {
+		f.Add(seed)
+	}
+	c := jsonschema.NewCompiler()
+	c.AssertFormat()
+	require.NoError(f, c.AddResource("s.json", map[string]any{"type": "string", "format": "date-time"}))
+	sch := c.MustCompile("s.json")
+	f.Fuzz(func(t *testing.T, s string) {
+		if isDateTime(s) {
+			require.NoError(t, sch.Validate(s), "isDateTime accepts %q", s)
+		}
+	})
 }
