@@ -860,6 +860,7 @@
             "null",
             "string"
           ],
+          "format": "date-time",
           "airbyte_type": "timestamp_without_timezone"
         },
         "transaction_datetime_provider": {
@@ -867,6 +868,7 @@
             "null",
             "string"
           ],
+          "format": "date-time",
           "airbyte_type": "timestamp_without_timezone"
         },
         "transaction_datetime_utc": {

@@ -50,8 +50,8 @@
         "inv-0003-a": {
           "id": "inv-0003-a",
           "status": "paid",
-          "created_at": "2026-10-17 09:00:00",
-          "updated_at": "2026-10-17 09:01:00",
+          "created_at": "2026-09-17 09:00:00",
+          "updated_at": "2026-09-17 09:01:00",
           "amount": 0,
           "billing_period_started_at": null,
           "billing_period_ended_at": null,

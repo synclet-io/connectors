@@ -31,9 +31,14 @@ func TestConformance(t *testing.T) {
 		testkit.RunSourceSuite(t, src, testkit.SourceSuite{
 			Config: json.RawMessage(testConfig), BrokenConfig: broken,
 			Catalog: configured(t, src, synclet.SyncModeIncremental, incremental...),
-			// A read starts lookback_days before the day of the saved cursor,
-			// never before start_date.
-			Lookback: func(_ synclet.StreamDescriptor, cursor any) (any, error) {
+			// A read starts lookback_days before the day of the saved cursor.
+			// subscription_invoices has no lower bound: the subscriptions report
+			// is requested by the subscription's updated_at and lists every
+			// invoice of each subscription, however long ago the invoice changed.
+			Lookback: func(desc synclet.StreamDescriptor, cursor any) (any, error) {
+				if desc.Name == streamSubscriptionInvoices {
+					return time.Time{}.Format(utcTimeLayout), nil
+				}
 				s := cursor.(string)
 				c, err := parseCursor(s)
 				if err != nil {

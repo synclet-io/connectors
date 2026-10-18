@@ -121,8 +121,8 @@ func TestReadRecords(t *testing.T) {
 		"product_currency":"USD","product_trial":true,"product_trial_period":7,"pause_from_date":null,"pause_to_date":null
 	}`, string(sub.Data))
 
-	assert.Equal(t, []string{"inv-0002-b", "inv-0001-b", "inv-0003-b", "inv-0003-a"}, recordField(t, out, streamSubscriptionInvoices, "id"),
-		"invoices updated before their window are dropped")
+	assert.Equal(t, []string{"inv-0002-b", "inv-0002-a", "inv-0001-b", "inv-0001-a", "inv-0003-b", "inv-0003-a"}, recordField(t, out, streamSubscriptionInvoices, "id"),
+		"every invoice of a subscription is emitted, also one that changed before the window")
 	inv := out.Records(synclet.StreamDescriptor{Name: streamSubscriptionInvoices})
 	assert.JSONEq(t, `{
 		"id":"inv-0002-b","solid_account":"acme_test","subscription_id":"sub-0002","status":"paid",
@@ -131,7 +131,8 @@ func TestReadRecords(t *testing.T) {
 		"subscription_term_number":2,
 		"orders":[{"id":"ord-0002","status":"success","created_at":"2026-10-16 09:00:00","processed_at":"2026-10-16 09:00:05","amount":999,"operation":"recurring"}]
 	}`, string(inv[0].Data))
-	assert.Contains(t, string(inv[3].Data), `"orders":[]`)
+	assert.Contains(t, string(inv[1].Data), `"orders":[]`)
+	assert.Contains(t, string(inv[1].Data), `"updated_at":"2026-09-16T09:01:00+00:00"`)
 
 	cb := out.Records(synclet.StreamDescriptor{Name: streamChargebacks})
 	require.Len(t, cb, 2)

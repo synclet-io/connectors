@@ -86,7 +86,7 @@ func (fd field) schema() synclet.PropertySpec {
 	case kObjectNull:
 		return synclet.PropertySpec{PropertyType: typed(synclet.Null, synclet.Object)}
 	case kLocalTimeNull:
-		return synclet.PropertySpec{PropertyType: synclet.PropertyType{Type: synclet.PropTypes{synclet.Null, synclet.String}, AirbyteType: synclet.TimestampWOTZ}}
+		return synclet.PropertySpec{PropertyType: synclet.PropertyType{Type: synclet.PropTypes{synclet.Null, synclet.String}, AirbyteType: synclet.TimestampWOTZ}, Format: synclet.DateTime}
 	case kUTCTimeNull:
 		return synclet.PropertySpec{PropertyType: synclet.PropertyType{Type: synclet.PropTypes{synclet.Null, synclet.String}, AirbyteType: synclet.TimestampWithTZ}, Format: synclet.DateTime}
 	case kDateNull:

@@ -71,7 +71,7 @@ The reports API is `https://reports.solidgate.com/api/v1`, products come from
 
 Report timestamps are UTC; records carry them as `2026-10-16T10:00:00+00:00`. In
 `financial_entries`, `transaction_datetime_utc` carries `+00:00`, while `created_at` and
-`transaction_datetime_provider` carry no zone (`2026-10-16T10:00:00`, airbyte_type
+`transaction_datetime_provider` carry no zone (`2026-10-16T10:00:00`, format `date-time`, airbyte_type
 `timestamp_without_timezone`): Solidgate does not write them in UTC on every row, and `created_at`
 lags the transaction by hours. `accounting_date` is a date.
 
@@ -81,8 +81,13 @@ The report streams request one UTC day per request (`date_from` 00:00:00 inclusi
 next 00:00:00 exclusive, `filter` `updated_at`, `limit` 2000) and follow
 `metadata.next_page_iterator` until it comes back empty. A read covers every day from the day of the
 saved cursor minus `lookback_days` (or from `start_date` on the first read, and never before it) up to
-today. Records whose cursor is before the day they were requested for are dropped: the subscriptions
-report lists every invoice of a subscription updated that day, also invoices that changed long ago.
+today.
+
+`subscription_invoices` is requested through the subscriptions report, which selects subscriptions by
+their `updated_at` and lists every invoice of each, also invoices that changed long ago. Its records
+are all emitted, so an incremental read can emit invoices whose `updated_at` is older than the saved
+cursor; deduplication by `id` and `solid_account` keeps the latest copy. The conformance test states
+this with a `Lookback` that sets no lower bound for this stream.
 
 After each day of each account an incremental read saves the greatest cursor per account in STREAM
 state:
@@ -133,11 +138,9 @@ differs in:
 - `lookback_days` (default 2) replaces `sync_last_days`: an incremental read restarts from the
   saved cursor minus the lookback;
 - state is the greatest cursor per account, not the set of handled days;
-- report timestamps carry `+00:00`; `financial_entries.created_at` and
-  `transaction_datetime_provider` have no `format: date-time`, since that format needs an offset and
-  these values have none (their airbyte_type `timestamp_without_timezone` is kept);
-- report records whose cursor is before their requested day are dropped (old invoices of a
-  subscription updated that day);
+- report timestamps carry `+00:00` (their schema is `format: date-time` without an airbyte_type,
+  which JSON Schema and the SDK conformance suite read as a timestamp with a zone); the
+  `financial_entries` timestamps are emitted as before;
 - `financial_entries` emits schema columns only;
 - report requests send `filter: updated_at` explicitly;
 - the auth headers are lowercase `merchant` and `signature`;
@@ -163,4 +166,6 @@ recorded-HTTP pattern every API source in this repository follows (see
 - `TestSignature` checks the signature against a vector computed with `openssl`; `TestCheckErrors`
   the invalid key pair, WAF and 429 `5.07` messages; `TestRead*` resume, window, pagination and
   records; `TestFinancialEntries*` the report statuses and that a malformed file saves no state;
-  `TestConformance` runs the SDK conformance suite for full refresh and incremental.
+  `TestConformance` runs the SDK conformance suite for full refresh and incremental. The
+  suite needs synclet-go-sdk v0.3.1 or later, which accepts zone-less values for
+  `timestamp_without_timezone`.

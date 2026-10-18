@@ -116,10 +116,7 @@ func (s Source) readWindows(ctx context.Context, cfg Config, d streamDef, cs syn
 }
 
 // reportWindow reads every page of d's report for one day, following
-// metadata.next_page_iterator until it is empty. A record whose cursor is
-// before the day is dropped: the subscriptions report lists every invoice of
-// a subscription updated that day, including invoices that changed long
-// before, which an earlier window already read.
+// metadata.next_page_iterator until it is empty.
 func reportWindow(d streamDef, desc synclet.StreamDescriptor, em *synclet.Emitter) windowReader {
 	return func(ctx context.Context, c *apiClient, w time.Time) (string, error) {
 		req := reportRequest{
@@ -129,7 +126,6 @@ func reportWindow(d streamDef, desc synclet.StreamDescriptor, em *synclet.Emitte
 			Limit:    reportLimit,
 		}
 		var top string
-		since := w.Format(utcTimeLayout)
 		for {
 			var body map[string]json.RawMessage
 			if err := c.postJSON(ctx, c.reportsURL, d.report.path, req, &body); err != nil {
@@ -144,11 +140,9 @@ func reportWindow(d streamDef, desc synclet.StreamDescriptor, em *synclet.Emitte
 				if err != nil {
 					return "", err
 				}
-				cur, _ := rec[d.cursor].(string)
-				if cur != "" && cur < since {
-					continue
+				if cur, _ := rec[d.cursor].(string); cur > top {
+					top = cur
 				}
-				top = max(top, cur)
 				if err := em.Record(desc, rec); err != nil {
 					return "", err
 				}
