@@ -2,7 +2,7 @@
   "$schema": "../../schema/meta.schema.json",
   "name": "Google Sheets",
   "connector_type": "destination",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "release_stage": "alpha",
   "support_level": "community",
   "source_type": "",

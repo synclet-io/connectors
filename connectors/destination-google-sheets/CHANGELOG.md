@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.1](https://github.com/synclet-io/connectors/compare/destination-google-sheets-v0.2.0...destination-google-sheets-v0.2.1) (2026-10-18)
+
+
+### Bug Fixes
+
+* **deps:** bump the docker group across 5 directories with 2 updates ([#16](https://github.com/synclet-io/connectors/issues/16)) ([fe642ef](https://github.com/synclet-io/connectors/commit/fe642ef1743be0a491b49b1011eb5fbdf00ea444))
+* **deps:** bump the gomod group across 2 directories with 6 updates ([#17](https://github.com/synclet-io/connectors/issues/17)) ([4fbf3ed](https://github.com/synclet-io/connectors/commit/4fbf3eda00e0a76bc0d714b1733391a5adebdf56))
+
 ## 0.2.0 (2026-10-18)
 
 ### Changes

@@ -1,6 +1,6 @@
 {
   "connectors/destination-bigquery": "0.2.1",
-  "connectors/destination-google-sheets": "0.2.0",
+  "connectors/destination-google-sheets": "0.2.1",
   "connectors/source-bigquery": "0.2.0",
   "connectors/source-example": "0.2.0",
   "connectors/source-google-sheets": "0.3.0",
