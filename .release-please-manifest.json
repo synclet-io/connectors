@@ -6,7 +6,7 @@
   "connectors/source-google-sheets": "0.3.0",
   "connectors/source-mysql": "0.2.0",
   "connectors/source-openexchangerates": "0.2.0",
-  "connectors/source-postgres": "0.2.0",
+  "connectors/source-postgres": "0.2.1",
   "connectors/source-facebook-marketing": "0.1.0",
   "connectors/source-zendesk-support": "0.1.0"
 }
