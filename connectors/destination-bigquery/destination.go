@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -166,8 +167,8 @@ func writeMessages(ctx context.Context, writer *BigQueryWriter, in *synclet.Mess
 			if msg.Record == nil {
 				continue
 			}
-			var data map[string]interface{}
-			if err := json.Unmarshal(msg.Record.Data, &data); err != nil {
+			data, err := decodeRecordData(msg.Record.Data)
+			if err != nil {
 				continue
 			}
 			sk := streamKeyFromRecord(msg.Record.Namespace, msg.Record.Stream)
@@ -187,6 +188,18 @@ func writeMessages(ctx context.Context, writer *BigQueryWriter, in *synclet.Mess
 	}
 
 	return nil
+}
+
+// decodeRecordData decodes a record's data, keeping numbers as json.Number so
+// integers and decimals reach BigQuery with every digit.
+func decodeRecordData(raw json.RawMessage) (map[string]interface{}, error) {
+	var data map[string]interface{}
+	dec := json.NewDecoder(bytes.NewReader(raw))
+	dec.UseNumber()
+	if err := dec.Decode(&data); err != nil {
+		return nil, err
+	}
+	return data, nil
 }
 
 // catalogStreams converts the configured catalog into the writer's stream

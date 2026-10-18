@@ -71,3 +71,23 @@ func TestWriteMessagesRejectsInvalidInput(t *testing.T) {
 	err := writeMessages(t.Context(), w, synclet.NewMessageReader(strings.NewReader("not json\n")), synclet.NewEmitter(&bytes.Buffer{}))
 	require.Error(t, err)
 }
+
+func TestWriteMessagesKeepsNumbersExact(t *testing.T) {
+	ldr := &mockLoader{}
+	schema := map[string]interface{}{"properties": map[string]interface{}{
+		"id":     map[string]interface{}{"type": "integer"},
+		"amount": map[string]interface{}{"type": "number"},
+	}}
+	w := NewBigQueryWriter(newMockOps(), ldr, testConfig(), testCatalogWithMode("payments", "", "append", nil, nil, schema))
+	input := `{"type":"RECORD","record":{"stream":"payments","data":{"id":9007199254740993,"amount":12345678901234567.89},"emitted_at":1}}`
+
+	require.NoError(t, writeMessages(t.Context(), w, synclet.NewMessageReader(strings.NewReader(input)), synclet.NewEmitter(&bytes.Buffer{})))
+
+	require.Len(t, ldr.loadCalls, 1)
+	rec := ldr.loadCalls[0].records[0]
+	assert.Equal(t, int64(9007199254740993), rec["id"])
+	assert.Equal(t, json.Number("12345678901234567.89"), rec["amount"])
+	encoded, err := json.Marshal(rec["amount"])
+	require.NoError(t, err)
+	assert.Equal(t, "12345678901234567.89", string(encoded))
+}

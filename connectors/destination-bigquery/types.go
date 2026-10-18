@@ -1,8 +1,13 @@
 package main
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"math"
+	"math/big"
+	"strconv"
+	"strings"
 	"time"
 
 	"cloud.google.com/go/bigquery"
@@ -78,6 +83,8 @@ func validateAndCoerce(fieldName string, value interface{}, bqType bigquery.Fiel
 
 func coerceInteger(fieldName string, value interface{}) (interface{}, *validationError) {
 	switch v := value.(type) {
+	case json.Number:
+		return coerceIntegerNumber(fieldName, v)
 	case int64:
 		return v, nil
 	case float64:
@@ -95,7 +102,52 @@ func coerceInteger(fieldName string, value interface{}) (interface{}, *validatio
 	}
 }
 
+// coerceIntegerNumber converts an exact JSON number to int64, truncating a
+// fraction toward zero.
+func coerceIntegerNumber(fieldName string, v json.Number) (interface{}, *validationError) {
+	n, err := strconv.ParseInt(string(v), 10, 64)
+	if err == nil {
+		return n, nil
+	}
+	if errors.Is(err, strconv.ErrRange) {
+		return nil, &validationError{field: fieldName, reason: reasonFieldSizeLimitation}
+	}
+	r, ok := new(big.Rat).SetString(string(v))
+	if !ok {
+		return nil, &validationError{field: fieldName, reason: reasonSerializationError}
+	}
+	i := new(big.Int).Quo(r.Num(), r.Denom())
+	if !i.IsInt64() {
+		return nil, &validationError{field: fieldName, reason: reasonFieldSizeLimitation}
+	}
+	return i.Int64(), nil
+}
+
+// numericLimit is the exclusive bound of NUMERIC(38,9) absolute values: 10^29.
+var numericLimit = new(big.Rat).SetInt(new(big.Int).Exp(big.NewInt(10), big.NewInt(29), nil))
+
+// coerceNumericNumber rounds an exact JSON number to NUMERIC(38,9)'s 9
+// decimal places, halves away from zero, without passing through float64.
+func coerceNumericNumber(fieldName string, v json.Number) (interface{}, *validationError) {
+	r, ok := new(big.Rat).SetString(string(v))
+	if !ok {
+		return nil, &validationError{field: fieldName, reason: reasonSerializationError}
+	}
+	if new(big.Rat).Abs(r).Cmp(numericLimit) >= 0 {
+		return nil, &validationError{field: fieldName, reason: reasonFieldSizeLimitation}
+	}
+	s := strings.TrimRight(r.FloatString(9), "0")
+	s = strings.TrimSuffix(s, ".")
+	if s == "-0" {
+		s = "0"
+	}
+	return json.Number(s), nil
+}
+
 func coerceNumeric(fieldName string, value interface{}) (interface{}, *validationError) {
+	if n, ok := value.(json.Number); ok {
+		return coerceNumericNumber(fieldName, n)
+	}
 	v, ok := value.(float64)
 	if !ok {
 		return value, nil

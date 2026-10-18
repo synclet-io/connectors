@@ -15,7 +15,7 @@ func TestWriteMessages(t *testing.T) {
 	input := strings.Join([]string{
 		`{"type":"RECORD","record":{"stream":"users","data":{"name":"Alice","age":30},"emitted_at":1}}`,
 		`{"type":"STATE","state":{"type":"STREAM","stream":{"stream_descriptor":{"name":"users"},"stream_state":{"cursor":1}}}}`,
-		`{"type":"RECORD","record":{"stream":"orders","data":{"id":"o1"},"emitted_at":2}}`,
+		`{"type":"RECORD","record":{"stream":"orders","data":{"id":"o1","total":12345678901234567.89,"seq":9007199254740993},"emitted_at":2}}`,
 		`{"type":"STATE","state":{"type":"GLOBAL","global":{"shared_state":{"pos":1},"stream_states":[]}}}`,
 		`{"type":"LOG","log":{"level":"INFO","message":"hi"}}`,
 	}, "\n")
@@ -33,8 +33,8 @@ func TestWriteMessages(t *testing.T) {
 	for _, c := range mock.appendedCalls {
 		rows[c.sheetTitle] = append(rows[c.sheetTitle], c.rows...)
 	}
-	assert.Equal(t, [][]interface{}{{"age", "name"}, {float64(30), "Alice"}}, rows["users"])
-	assert.Equal(t, [][]interface{}{{"id"}, {"o1"}}, rows["orders"])
+	assert.Equal(t, [][]interface{}{{"age", "name"}, {json.Number("30"), "Alice"}}, rows["users"])
+	assert.Equal(t, [][]interface{}{{"id", "seq", "total"}, {"o1", json.Number("9007199254740993"), json.Number("12345678901234567.89")}}, rows["orders"])
 
 	var echoed synclet.Message
 	require.NoError(t, json.Unmarshal(out.Bytes(), &echoed))

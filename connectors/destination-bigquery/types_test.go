@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"math"
 	"testing"
 
@@ -178,4 +179,38 @@ func TestValidationError(t *testing.T) {
 	err := &validationError{field: "age", reason: reasonFieldSizeLimitation}
 	assert.Contains(t, err.Error(), "age")
 	assert.Contains(t, err.Error(), reasonFieldSizeLimitation)
+}
+
+func TestCoerceExactNumbers(t *testing.T) {
+	tests := []struct {
+		name   string
+		value  json.Number
+		bqType bigquery.FieldType
+		want   interface{}
+		reason string
+	}{
+		{"numeric keeps digits", "12345678901234567.89", bigquery.NumericFieldType, json.Number("12345678901234567.89"), ""},
+		{"numeric integer", "9007199254740993", bigquery.NumericFieldType, json.Number("9007199254740993"), ""},
+		{"numeric rounds to 9 places", "1.1234567896", bigquery.NumericFieldType, json.Number("1.12345679"), ""},
+		{"numeric rounds half away from zero", "-0.0000000005", bigquery.NumericFieldType, json.Number("-0.000000001"), ""},
+		{"numeric exponent", "1.5e3", bigquery.NumericFieldType, json.Number("1500"), ""},
+		{"numeric out of range", "100000000000000000000000000000", bigquery.NumericFieldType, nil, reasonFieldSizeLimitation},
+		{"integer keeps digits", "9007199254740993", bigquery.IntegerFieldType, int64(9007199254740993), ""},
+		{"integer max", "9223372036854775807", bigquery.IntegerFieldType, int64(math.MaxInt64), ""},
+		{"integer out of range", "18446744073709551616", bigquery.IntegerFieldType, nil, reasonFieldSizeLimitation},
+		{"integer fraction truncates", "42.9", bigquery.IntegerFieldType, int64(42), ""},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, vErr := validateAndCoerce("f", tt.value, tt.bqType)
+			if tt.reason != "" {
+				require.NotNil(t, vErr)
+				assert.Equal(t, tt.reason, vErr.reason)
+				assert.Nil(t, got)
+				return
+			}
+			require.Nil(t, vErr)
+			assert.Equal(t, tt.want, got)
+		})
+	}
 }

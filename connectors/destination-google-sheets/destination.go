@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -124,7 +125,9 @@ func writeMessages(ctx context.Context, writer *SheetWriter, syncModes map[strin
 				continue
 			}
 			var data map[string]interface{}
-			if err := json.Unmarshal(msg.Record.Data, &data); err != nil {
+			dec := json.NewDecoder(bytes.NewReader(msg.Record.Data))
+			dec.UseNumber()
+			if err := dec.Decode(&data); err != nil {
 				continue
 			}
 
