@@ -1,0 +1,6 @@
+{
+  "error": true,
+  "status": 403,
+  "message": "access_restricted",
+  "description": "Access restricted for repeated over-use (status: 429), or other reason given in 'description' (403)."
+}

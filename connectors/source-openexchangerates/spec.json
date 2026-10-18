@@ -1,0 +1,59 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Reads currencies, the latest exchange rates and daily historical rates from Open Exchange Rates.",
+    "properties": {
+      "app_id": {
+        "airbyte_secret": true,
+        "description": "App ID of your Open Exchange Rates account. It is sent in the Authorization header.",
+        "order": 0,
+        "title": "App ID",
+        "type": "string"
+      },
+      "base": {
+        "description": "Currency the rates are quoted against. Changing it needs a paid plan; empty uses USD.",
+        "examples": [
+          "EUR"
+        ],
+        "order": 2,
+        "title": "Base Currency",
+        "type": "string"
+      },
+      "start_date": {
+        "description": "First day, YYYY-MM-DD in UTC, whose historical rates are read.",
+        "examples": [
+          "2026-01-01"
+        ],
+        "format": "date",
+        "order": 1,
+        "title": "Start Date",
+        "type": "string"
+      },
+      "symbols": {
+        "description": "Currencies to read rates for; empty reads every currency. Needs a paid plan.",
+        "items": {
+          "type": "string"
+        },
+        "order": 3,
+        "title": "Symbols",
+        "type": "array"
+      }
+    },
+    "required": [
+      "app_id",
+      "start_date"
+    ],
+    "title": "Open Exchange Rates Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-openexchangerates",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": true,
+  "supportsNormalization": false
+}

@@ -1,0 +1,11 @@
+{
+  "disclaimer": "Usage subject to terms: https://openexchangerates.org/terms",
+  "license": "https://openexchangerates.org/license",
+  "timestamp": 1792191600,
+  "base": "USD",
+  "rates": {
+    "EUR": 0.9116,
+    "GBP": 0.7816,
+    "JPY": 149.16
+  }
+}

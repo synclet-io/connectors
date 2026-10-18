@@ -58,6 +58,16 @@
         }
       ]
     },
+    "connectors/source-openexchangerates": {
+      "component": "source-openexchangerates",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "meta.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
     "connectors/source-postgres": {
       "component": "source-postgres",
       "extra-files": [

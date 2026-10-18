@@ -1,0 +1,6 @@
+{
+  "error": true,
+  "status": 429,
+  "message": "not_allowed",
+  "description": "Changing the API `base` currency is available for Developer, Enterprise and Unlimited plan clients. Please upgrade, or contact support@openexchangerates.org with any questions."
+}
