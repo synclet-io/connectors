@@ -469,3 +469,10 @@ func TestInferPageCap(t *testing.T) {
 		assert.Equal(t, []string{`{"id":"p1a"}`}, out.records("children"), "one parent page, one page per child")
 	})
 }
+
+func TestIsConfigErrorJoined(t *testing.T) {
+	assert.True(t, isConfigError(synclet.ConfigError(errors.New("bad key"))))
+	assert.True(t, isConfigError(fmt.Errorf("stream items: %w", synclet.ConfigError(errors.New("bad key")))))
+	assert.True(t, isConfigError(errors.Join(errors.New("other"), synclet.ConfigError(errors.New("bad key")))))
+	assert.False(t, isConfigError(errors.New("bad key")))
+}

@@ -273,12 +273,7 @@ func sampleErr(err error) error {
 var configErrorType = reflect.TypeOf(synclet.ConfigError(errors.New("")))
 
 func isConfigError(err error) bool {
-	for ; err != nil; err = errors.Unwrap(err) {
-		if reflect.TypeOf(err) == configErrorType {
-			return true
-		}
-	}
-	return false
+	return errors.As(err, reflect.New(configErrorType).Interface())
 }
 
 // requestLog logs every request as method and path, with the query unless
