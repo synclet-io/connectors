@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	synclet "github.com/synclet-io/synclet-go-sdk"
 )
 
@@ -21,6 +23,7 @@ type Destination struct {
 	retries  int
 
 	httpClient *http.Client
+	newRunID   func() string
 	openSQL    func(ctx context.Context, cfg Config, client *http.Client, b *bearer, retries int) (sqlRunner, error)
 }
 
@@ -44,7 +47,12 @@ func (d Destination) Write(
 	if err := cfg.validate(); err != nil {
 		return err
 	}
-	plans, err := planStreams(catalog)
+	newRunID := d.newRunID
+	if newRunID == nil {
+		newRunID = uuid.NewString
+	}
+	runID := newRunID()
+	plans, err := planStreams(catalog, shortRunID(runID))
 	if err != nil {
 		return fmt.Errorf("catalog: %w", err)
 	}
@@ -56,7 +64,7 @@ func (d Destination) Write(
 	}
 	defer func() { rerr = errors.Join(rerr, run.close()) }()
 
-	w := newWriter(run, &filesClient{base: cfg.baseURL(), http: client, bearer: b}, cfg, em, d, plans)
+	w := newWriter(run, &filesClient{base: cfg.baseURL(), http: client, bearer: b}, cfg, em, d, plans, runID)
 	defer w.warnUnknown(ctx)
 	defer w.cleanup(ctx)
 	if err := w.prepare(ctx); err != nil {
@@ -95,3 +103,10 @@ const (
 	httpTimeout    = 10 * time.Minute
 	cleanupTimeout = 30 * time.Second
 )
+
+// shortRunID is the first 12 hex digits of a run's UUID, which name its
+// helper tables.
+func shortRunID(runID string) string {
+	id := strings.ReplaceAll(runID, "-", "")
+	return id[:min(12, len(id))]
+}

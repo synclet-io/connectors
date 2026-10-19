@@ -148,10 +148,18 @@ func (ws *fakeWorkspace) config(t *testing.T) Config {
 
 // destination returns the connector talking to ws, with sql as its SQL
 // warehouse; a nil sql connects the real driver to ws.
+// testRunID is the run UUID of every destination the fake workspace makes;
+// testRun is its short form, which names the helper tables.
+const (
+	testRunID = "0123abcd-4567-89ef-0123-456789abcdef"
+	testRun   = "0123abcd4567"
+)
+
 func (ws *fakeWorkspace) destination(sql *fakeSQL) Destination {
 	d := NewDestination()
 	d.httpClient = ws.srv.Client()
 	d.retries = 0
+	d.newRunID = func() string { return testRunID }
 	if sql != nil {
 		d.openSQL = func(context.Context, Config, *http.Client, *bearer, int) (sqlRunner, error) { return sql, nil }
 	}

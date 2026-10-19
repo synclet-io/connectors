@@ -58,16 +58,16 @@ func TestWriteAppendAddsRows(t *testing.T) {
 		record("events", `{"id":1,"payload":{"a":[1,"x"]},"amount":0.5}`)+
 			record("events", `{"id":2,"amount":null,"extra":true}`)+
 			state("events", `{"id":2}`)+
-			record("events", `{"id":3,"amount":"12345678901234567890123456789.123456789"}`)+
+			record("events", `{"id":3,"amount":"37.77492912345"}`)+
 			state("events", `{"id":3}`))
 	require.NoError(t, err)
 	assert.Equal(t, []string{`events {"id":2}`, `events {"id":3}`}, states)
 
-	assert.Equal(t, []string{"CREATE TABLE IF NOT EXISTS `main`.`raw`.`events` (`_airbyte_raw_id` STRING, `_airbyte_extracted_at` TIMESTAMP, `amount` DECIMAL(38,9), `id` BIGINT, `payload` VARIANT)" + tableProps}, sql.matching("CREATE TABLE"))
+	assert.Equal(t, []string{"CREATE TABLE IF NOT EXISTS `main`.`raw`.`events` (`_airbyte_raw_id` STRING, `_airbyte_extracted_at` TIMESTAMP, `amount` DOUBLE, `id` BIGINT, `payload` VARIANT)" + tableProps}, sql.matching("CREATE TABLE"))
 	inserts := sql.matching("INSERT INTO `main`.`raw`.`events`")
 	assert.Len(t, inserts, 2, "one append per batch")
-	assert.Len(t, sql.matching("COPY INTO `main`.`raw`.`_synclet_stage_events`"), 2)
-	assert.Equal(t, []string{"DROP TABLE IF EXISTS `main`.`raw`.`_synclet_stage_events`"}, sql.matching("DROP TABLE"))
+	assert.Len(t, sql.matching("COPY INTO `main`.`raw`.`_synclet_stage_0123abcd4567_events`"), 2)
+	assert.Equal(t, []string{"DROP TABLE IF EXISTS `main`.`raw`.`_synclet_stage_0123abcd4567_events`"}, sql.matching("DROP TABLE"))
 
 	require.Len(t, files, 2)
 	var rows []map[string]*string
@@ -80,10 +80,10 @@ func TestWriteAppendAddsRows(t *testing.T) {
 		assert.Equal(t, "2024-01-02T03:04:05.123000Z", *r["c1"])
 		assert.Equal(t, []string{"1", "2", "3"}[i], *r["s"])
 	}
-	assert.Equal(t, map[string]*string{"s": rows[0]["s"], "c0": rows[0]["c0"], "c1": rows[0]["c1"], "c2": str("0.500000000"), "c3": str("1"), "c4": str(`{"a":[1,"x"]}`)}, rows[0])
+	assert.Equal(t, map[string]*string{"s": rows[0]["s"], "c0": rows[0]["c0"], "c1": rows[0]["c1"], "c2": str("0.5"), "c3": str("1"), "c4": str(`{"a":[1,"x"]}`)}, rows[0])
 	assert.Nil(t, rows[1]["c2"])
 	assert.Nil(t, rows[1]["c4"])
-	assert.Equal(t, "12345678901234567890123456789.123456789", *rows[2]["c2"])
+	assert.Equal(t, "37.77492912345", *rows[2]["c2"])
 
 	assert.Zero(t, ws.fileCount(), "staged files are deleted")
 	assert.Contains(t, ws.opsList(), "DELETE "+strings.TrimSuffix(strings.Split(stagedFile.FindStringSubmatch(sql.matching("COPY INTO")[0])[1], "/0-")[0], "/"))
@@ -134,19 +134,33 @@ func TestWriteOverwriteReplacesOnSuccess(t *testing.T) {
 	assert.Equal(t, []string{`rates {"a":1}`, `rates {"a":2}`}, states)
 
 	p := planOf(t, "overwrite", ratesSchema, nil, nil)
-	p.table, p.shadow = "rates", "_synclet_tmp_rates"
+	p.table, p.shadow = "rates", "_synclet_tmp_0123abcd4567_rates"
 	ev := sql.events()
 	swap := indexOf(ev, swapSQL(testLoc, p))
 	require.GreaterOrEqual(t, swap, 0, "the table is replaced")
-	assert.Len(t, sql.matching("COPY INTO `main`.`raw`.`_synclet_tmp_rates`"), 2)
-	assert.Equal(t, "CREATE OR REPLACE TABLE `main`.`raw`.`_synclet_tmp_rates` (`_airbyte_raw_id` STRING, `_airbyte_extracted_at` TIMESTAMP, `code` STRING, `rate` DECIMAL(38,9))"+tableProps, ev[0])
-	assert.Equal(t, []string{"DROP TABLE IF EXISTS `main`.`raw`.`_synclet_tmp_rates`"}, sql.matching("DROP TABLE"))
+	assert.Len(t, sql.matching("COPY INTO `main`.`raw`.`_synclet_tmp_0123abcd4567_rates`"), 2)
+	assert.Equal(t, "CREATE OR REPLACE TABLE `main`.`raw`.`_synclet_tmp_0123abcd4567_rates` (`_airbyte_raw_id` STRING, `_airbyte_extracted_at` TIMESTAMP, `code` STRING, `rate` DOUBLE)"+tableProps, ev[0])
+	assert.Equal(t, []string{"DROP TABLE IF EXISTS `main`.`raw`.`_synclet_tmp_0123abcd4567_rates`"}, sql.matching("DROP TABLE"))
 	assert.Greater(t, indexOf(ev, `STATE rates {"a":1}`), swap, "states wait for the swap")
 	assert.Empty(t, sql.matching("INSERT INTO"))
 }
 
 // TestWriteOverwriteKeepsTableOnFailure never replaces the table of a sync
 // that fails, drops the shadow table and echoes no state.
+// TestWriteRejectsInexactNumber fails the sync on a number DOUBLE would
+// round, naming the stream, the record and the column.
+func TestWriteRejectsInexactNumber(t *testing.T) {
+	ws := newWorkspace(t)
+	sql := newFakeSQL(ws)
+	states, err := runWrite(t, ws.destination(sql), ws.config(t), sql,
+		catalogJSON(streamJSON("events", "append", eventsSchema, "", "")),
+		record("events", `{"id":1,"amount":0.30000000000000004}`)+
+			record("events", `{"id":2,"amount":9007199254740993}`)+state("events", `{"id":2}`))
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), `stream "events": record 2: column "amount": value 9007199254740993 has more precision than DOUBLE`)
+	assert.Empty(t, states)
+}
+
 func TestWriteOverwriteKeepsTableOnFailure(t *testing.T) {
 	ws := newWorkspace(t)
 	sql := newFakeSQL(ws)
@@ -160,31 +174,39 @@ func TestWriteOverwriteKeepsTableOnFailure(t *testing.T) {
 	assert.Contains(t, err.Error(), `stream "rates": record 2: column "rate": value "not a number" is not a number`)
 	assert.Empty(t, states)
 	assert.Empty(t, sql.matching("CREATE OR REPLACE TABLE `main`.`raw`.`rates`"), "the table is not replaced")
-	assert.Equal(t, []string{"DROP TABLE IF EXISTS `main`.`raw`.`_synclet_tmp_rates`"}, sql.matching("DROP TABLE"))
+	assert.Equal(t, []string{"DROP TABLE IF EXISTS `main`.`raw`.`_synclet_tmp_0123abcd4567_rates`"}, sql.matching("DROP TABLE"))
 	assert.Zero(t, ws.fileCount())
 }
 
 // TestWriteEchoesStateAfterCommit echoes a STATE only once the batch before
-// it is in the table; a failure mid-batch echoes nothing for that batch.
+// it is in its stream's table; a failure mid-batch echoes no state of a
+// stream whose records it did not commit.
 func TestWriteEchoesStateAfterCommit(t *testing.T) {
-	failures := map[string]func(stmt string) bool{
-		"copy fails": func(stmt string) bool {
-			return strings.HasPrefix(stmt, "COPY INTO `main`.`raw`.`_synclet_stage_b`")
+	failures := map[string]struct {
+		failing func(stmt string) bool
+		want    []string
+	}{
+		"copy fails": {
+			failing: func(stmt string) bool {
+				return strings.HasPrefix(stmt, "COPY INTO `main`.`raw`.`_synclet_stage_0123abcd4567_b`")
+			},
+			want: []string{`a {"n":1}`},
 		},
-		"insert into the second table fails after the first commits": func(stmt string) bool {
-			return strings.HasPrefix(stmt, "INSERT INTO `main`.`raw`.`b`")
+		"insert into the second table fails after the first commits": {
+			failing: func(stmt string) bool { return strings.HasPrefix(stmt, "INSERT INTO `main`.`raw`.`b`") },
+			want:    []string{`a {"n":1}`, `a {"n":2}`},
 		},
 	}
-	for name, failing := range failures {
+	for name, tt := range failures {
 		t.Run(name, func(t *testing.T) {
 			ws := newWorkspace(t)
 			sql := newFakeSQL(ws)
 			batch := 0
 			sql.fail = func(stmt string) error {
-				if strings.HasPrefix(stmt, "COPY INTO `main`.`raw`.`_synclet_stage_a`") {
+				if strings.HasPrefix(stmt, "COPY INTO `main`.`raw`.`_synclet_stage_0123abcd4567_a`") {
 					batch++
 				}
-				if batch == 2 && failing(stmt) {
+				if batch == 2 && tt.failing(stmt) {
 					return errors.New("warehouse failure")
 				}
 				return nil
@@ -197,18 +219,43 @@ func TestWriteEchoesStateAfterCommit(t *testing.T) {
 					record("a", `{"id":2}`)+record("b", `{"id":2}`)+state("a", `{"n":2}`))
 			require.Error(t, err)
 			assert.Contains(t, err.Error(), "warehouse failure")
-			assert.Equal(t, []string{`a {"n":1}`}, states)
+			assert.Equal(t, tt.want, states)
 
 			ev := sql.events()
-			first := indexOf(ev, `STATE a {"n":1}`)
-			assert.Greater(t, first, indexOf(ev, "INSERT INTO `main`.`raw`.`b` (`_airbyte_raw_id`, `_airbyte_extracted_at`, `amount`, `id`, `payload`) SELECT `_airbyte_raw_id`, `_airbyte_extracted_at`, `amount`, `id`, `payload` FROM `main`.`raw`.`_synclet_stage_b`"))
+			assert.Greater(t, indexOf(ev, `STATE a {"n":1}`), indexOf(ev, "INSERT INTO `main`.`raw`.`a` (`_airbyte_raw_id`, `_airbyte_extracted_at`, `amount`, `id`, `payload`) SELECT `_airbyte_raw_id`, `_airbyte_extracted_at`, `amount`, `id`, `payload` FROM `main`.`raw`.`_synclet_stage_0123abcd4567_a`"))
 			assert.ElementsMatch(t, []string{
-				"DROP TABLE IF EXISTS `main`.`raw`.`_synclet_stage_a`",
-				"DROP TABLE IF EXISTS `main`.`raw`.`_synclet_stage_b`",
+				"DROP TABLE IF EXISTS `main`.`raw`.`_synclet_stage_0123abcd4567_a`",
+				"DROP TABLE IF EXISTS `main`.`raw`.`_synclet_stage_0123abcd4567_b`",
 			}, sql.matching("DROP TABLE"))
 			assert.Zero(t, ws.fileCount(), "staged files are deleted")
 		})
 	}
+}
+
+// TestWriteEchoesStreamStateOnItsOwnCommit echoes a STREAM state as soon as
+// its stream's INSERT commits, before the next stream's INSERT runs; a
+// GLOBAL state waits for every stream of the batch.
+func TestWriteEchoesStreamStateOnItsOwnCommit(t *testing.T) {
+	ws := newWorkspace(t)
+	sql := newFakeSQL(ws)
+	sql.fail = func(stmt string) error {
+		if strings.HasPrefix(stmt, "INSERT INTO `main`.`raw`.`b`") {
+			return errors.New("warehouse failure")
+		}
+		return nil
+	}
+	states, err := runWrite(t, ws.destination(sql), ws.config(t), sql,
+		catalogJSON(streamJSON("a", "append", eventsSchema, "", ""), streamJSON("b", "append", eventsSchema, "", "")),
+		record("a", `{"id":1}`)+record("b", `{"id":1}`)+state("a", `{"n":1}`)+state("b", `{"n":1}`)+
+			`{"type":"STATE","state":{"type":"GLOBAL","global":{"shared_state":{"g":1},"stream_states":[]}}}`+"\n")
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "warehouse failure")
+	assert.Equal(t, []string{`a {"n":1}`}, states)
+
+	ev := sql.events()
+	echoed := indexOf(ev, `STATE a {"n":1}`)
+	assert.Greater(t, echoed, indexOf(ev, "INSERT INTO `main`.`raw`.`a` (`_airbyte_raw_id`, `_airbyte_extracted_at`, `amount`, `id`, `payload`) SELECT `_airbyte_raw_id`, `_airbyte_extracted_at`, `amount`, `id`, `payload` FROM `main`.`raw`.`_synclet_stage_0123abcd4567_a`"))
+	assert.Less(t, echoed, indexOf(ev, "INSERT INTO `main`.`raw`.`b` (`_airbyte_raw_id`, `_airbyte_extracted_at`, `amount`, `id`, `payload`) SELECT `_airbyte_raw_id`, `_airbyte_extracted_at`, `amount`, `id`, `payload` FROM `main`.`raw`.`_synclet_stage_0123abcd4567_b`"))
 }
 
 // TestWriteFailsOnRowCountMismatch fails a batch COPY INTO did not load in
@@ -251,14 +298,14 @@ func TestWriteEvolvesExistingTable(t *testing.T) {
 		catalogJSON(streamJSON("events", "append", eventsSchema, "", "")), record("events", `{"id":1}`))
 	require.NoError(t, err)
 	assert.Empty(t, sql.matching("CREATE TABLE IF NOT EXISTS"))
-	assert.Equal(t, []string{"ALTER TABLE `main`.`raw`.`events` ADD COLUMNS (`amount` DECIMAL(38,9), `payload` VARIANT)"}, sql.matching("ALTER TABLE"))
+	assert.Equal(t, []string{"ALTER TABLE `main`.`raw`.`events` ADD COLUMNS (`amount` DOUBLE, `payload` VARIANT)"}, sql.matching("ALTER TABLE"))
 
 	sql = newFakeSQL(ws)
-	sql.columns["events"] = []map[string]string{{"column_name": "amount", "full_data_type": "double"}}
+	sql.columns["events"] = []map[string]string{{"column_name": "amount", "full_data_type": "decimal(38,9)"}}
 	_, err = runWrite(t, ws.destination(sql), ws.config(t), sql,
 		catalogJSON(streamJSON("events", "append", eventsSchema, "", "")), record("events", `{"id":1}`))
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "column \"amount\" of table `main`.`raw`.`events` is DOUBLE, the catalog needs DECIMAL(38,9)")
+	assert.Contains(t, err.Error(), "column \"amount\" of table `main`.`raw`.`events` is DECIMAL(38,9), the catalog needs DOUBLE")
 	assert.Empty(t, sql.matching("COPY INTO"))
 }
 
@@ -278,4 +325,28 @@ func indexOf(list []string, s string) int {
 		}
 	}
 	return -1
+}
+
+// TestWriteRunsUseTheirOwnHelperTables gives each run stage and shadow
+// tables named after its run ID, so concurrent syncs of one table do not
+// share them, and each run drops only its own.
+func TestWriteRunsUseTheirOwnHelperTables(t *testing.T) {
+	ws := newWorkspace(t)
+	catalog := catalogJSON(streamJSON("events", "append", eventsSchema, "", ""), streamJSON("rates", "overwrite", ratesSchema, "", ""))
+	input := record("events", `{"id":1}`) + record("rates", `{"code":"EUR","rate":0.9}`)
+	var dropped [][]string
+	for range 2 {
+		sql := newFakeSQL(ws)
+		d := ws.destination(sql)
+		d.newRunID = nil
+		_, err := runWrite(t, d, ws.config(t), sql, catalog, input)
+		require.NoError(t, err)
+		drops := sql.matching("DROP TABLE")
+		require.Len(t, drops, 2)
+		assert.Regexp(t, "^DROP TABLE IF EXISTS `main`.`raw`.`_synclet_stage_[0-9a-f]{12}_events`$", drops[0])
+		assert.Regexp(t, "^DROP TABLE IF EXISTS `main`.`raw`.`_synclet_tmp_[0-9a-f]{12}_rates`$", drops[1])
+		dropped = append(dropped, drops)
+	}
+	assert.NotEqual(t, dropped[0][0], dropped[1][0])
+	assert.NotEqual(t, dropped[0][1], dropped[1][1])
 }

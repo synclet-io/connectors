@@ -56,7 +56,7 @@ case) fail the sync before anything is written. Each table gets `_airbyte_raw_id
 |---|---|
 | `boolean` | `BOOLEAN` |
 | `integer`, `number` with `airbyte_type: integer` | `BIGINT` |
-| `number` | `DECIMAL(38,9)` |
+| `number` | `DOUBLE` |
 | `string` with `airbyte_type: big_integer` | `DECIMAL(38,0)` |
 | `string` with `format: date` | `DATE` |
 | `string` with `format: date-time`, `timestamp_with_timezone` | `TIMESTAMP` (stored in UTC) |
@@ -65,9 +65,11 @@ case) fail the sync before anything is written. Each table gets `_airbyte_raw_id
 | `object`, `array`, unions, no type | `VARIANT` |
 
 Values are checked before they are staged, and a value the column cannot hold exactly fails the
-sync, naming the stream, the record and the column: a number with more than 9 digits after the point
-or 29 before it, an integer outside `BIGINT`, a timestamp with digits finer than microseconds, a zone
-on a `TIMESTAMP_NTZ`, a malformed date, or a string that is not valid UTF-8. A timestamp without a
+sync, naming the stream, the record and the column: a `number` that `DOUBLE` would round (one that
+does not print back as the same value, such as an integer above 2^53), an integer outside `BIGINT`,
+a timestamp with digits finer than microseconds, a zone on a `TIMESTAMP_NTZ`, a date or timestamp
+in year 0000, a malformed date, or a string that is not valid UTF-8. Decimals such as
+`0.30000000000000004`, `1e-10` or `1e29` pass, since `DOUBLE` holds them as the source wrote them. A timestamp without a
 zone is read as UTC. Record fields that are not in the stream's schema are not written; they are
 logged once per stream.
 
@@ -77,17 +79,20 @@ logged once per stream.
 - **append_dedup** merges each batch on the primary key: within a batch the record with the highest
   cursor wins (the latest among equal cursors), and a stored row is replaced only by a cursor that
   is not lower. A null primary key fails the sync.
-- **overwrite** writes into `_synclet_tmp_<table>` and replaces the table with it in one
+- **overwrite** writes into `_synclet_tmp_<run>_<table>` (`<run>` is the start of the run's UUID, so concurrent syncs never share it) and replaces the table with it in one
   `CREATE OR REPLACE TABLE ... AS SELECT` at the end of a successful sync; a failed sync drops it and
   the old table stays.
 
 A batch is committed at 50,000 records, 64 MiB of record data, on a STATE a minute after the last
 commit, and at the end of the input. Every stream's batch is copied into its stage table first, and
-only when every copy loaded all its rows are the stage tables appended or merged into the tables. A
-STATE is echoed once the records before it are committed; the states of an overwrite stream, and
-GLOBAL and LEGACY states while the catalog has an overwrite stream, wait for the replace. If the
-append or merge of one stream fails after another stream's batch was committed, no state is echoed
-for that batch, so a retry may write the committed stream's records again.
+only when every copy loaded all its rows are the stage tables appended or merged into the tables,
+one stream after another. A STREAM state is echoed as soon as its own stream's append or merge
+commits; GLOBAL and LEGACY states wait until every stream of the batch is committed. The states of
+an overwrite stream, and GLOBAL and LEGACY states while the catalog has an overwrite stream, wait
+for the replace. If the append or merge of one stream fails, the STREAM states of the streams
+committed before it are already echoed, but its own are not, nor are GLOBAL and LEGACY states: a
+source that sends per-stream states re-sends only the failed stream's batch, while a source with
+GLOBAL or LEGACY state may write the committed streams' records again on retry.
 
 ## Tests
 

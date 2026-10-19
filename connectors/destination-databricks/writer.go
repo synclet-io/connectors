@@ -25,8 +25,9 @@ type batch struct {
 // batch is staged as one file per stream in the volume and copied into the
 // stage tables; only when every stream's copy succeeded is each stage table
 // appended or merged into its table, so a value the warehouse rejects
-// commits nothing. A STATE is echoed once every record received before it is
-// committed; the states of an overwrite stream, and GLOBAL and LEGACY states
+// commits nothing. A STREAM state is echoed once its stream's records
+// received before it are committed, any other STATE once every record
+// received before it is; the states of an overwrite stream, and GLOBAL and LEGACY states
 // while the catalog has an overwrite stream, are held until the shadow
 // tables replace the old ones.
 type writer struct {
@@ -55,12 +56,12 @@ type writer struct {
 	lastCommit time.Time
 }
 
-func newWriter(run sqlRunner, files *filesClient, cfg Config, em *synclet.Emitter, limits Destination, plans []*streamPlan) *writer {
+func newWriter(run sqlRunner, files *filesClient, cfg Config, em *synclet.Emitter, limits Destination, plans []*streamPlan, runID string) *writer {
 	w := &writer{
 		run:        run,
 		files:      files,
 		loc:        location{catalog: cfg.Database, schema: cfg.Schema},
-		dir:        cfg.volumePath() + "/_synclet/" + uuid.NewString(),
+		dir:        cfg.volumePath() + "/_synclet/" + runID,
 		em:         em,
 		limits:     limits,
 		plans:      plans,
@@ -205,6 +206,46 @@ func (w *writer) release(states []synclet.StateMessage) error {
 	return nil
 }
 
+// releaseCommitted echoes the queued STREAM states of p, whose records are
+// all committed now; the other states stay queued.
+func (w *writer) releaseCommitted(p *streamPlan) error {
+	var own []synclet.StateMessage
+	rest := w.queued[:0]
+	for _, st := range w.queued {
+		if w.owner(st) == p {
+			own = append(own, st)
+		} else {
+			rest = append(rest, st)
+		}
+	}
+	w.queued = rest
+	return w.release(own)
+}
+
+// owner returns the catalog stream a STREAM state belongs to: the one of its
+// exact descriptor, failing that the only one of its name, and nil when
+// there is none or more than one.
+func (w *writer) owner(st synclet.StateMessage) *streamPlan {
+	if st.Type != synclet.StateTypeStream || st.Stream == nil {
+		return nil
+	}
+	desc := st.Stream.StreamDescriptor
+	if p, ok := w.byDesc[desc]; ok {
+		return p
+	}
+	var found *streamPlan
+	for d, p := range w.byDesc {
+		if d.Name != desc.Name {
+			continue
+		}
+		if found != nil {
+			return nil
+		}
+		found = p
+	}
+	return found
+}
+
 // isHeld reports whether st may cover an overwrite stream. A STREAM state
 // belongs to the catalog stream of its exact descriptor; failing that, to
 // every catalog stream of its name, since sources and platforms disagree on
@@ -231,9 +272,11 @@ func (w *writer) isHeld(st synclet.StateMessage) bool {
 	return !named && len(w.overwrite) > 0
 }
 
-// flush commits every pending row, then echoes the queued states. Every
+// flush commits every pending row and echoes the queued states. Every
 // stream's batch is staged and copied first; the appends and merges into the
-// tables follow once all copies succeeded.
+// tables follow once all copies succeeded. A STREAM state is echoed as soon
+// as its stream's batch is committed; the other states once every stream's
+// is.
 func (w *writer) flush(ctx context.Context) error {
 	if w.rows > 0 {
 		w.flushes++
@@ -249,6 +292,9 @@ func (w *writer) flush(ctx context.Context) error {
 		}
 		for _, p := range pending {
 			if err := w.commit(ctx, p); err != nil {
+				return err
+			}
+			if err := w.releaseCommitted(p); err != nil {
 				return err
 			}
 		}

@@ -77,11 +77,11 @@ func TestProtocolWrite(t *testing.T) {
 
 	assert.Len(t, sql.matching("INSERT INTO `main`.`raw`.`events`"), 1, "append")
 	assert.Len(t, sql.matching("MERGE INTO `main`.`raw`.`users`"), 1, "append_dedup")
-	assert.Len(t, sql.matching("COPY INTO `main`.`raw`.`_synclet_tmp_rates`"), 1, "overwrite stages into the shadow table")
-	assert.Equal(t, []string{"CREATE OR REPLACE TABLE `main`.`raw`.`rates`" + tableProps + " AS SELECT * FROM `main`.`raw`.`_synclet_tmp_rates`"},
+	assert.Len(t, sql.matching("COPY INTO `main`.`raw`.`_synclet_tmp_0123abcd4567_rates`"), 1, "overwrite stages into the shadow table")
+	assert.Equal(t, []string{"CREATE OR REPLACE TABLE `main`.`raw`.`rates`" + tableProps + " AS SELECT * FROM `main`.`raw`.`_synclet_tmp_0123abcd4567_rates`"},
 		sql.matching("CREATE OR REPLACE TABLE `main`.`raw`.`rates`"), "overwrite replaces")
 	for _, s := range sql.statements() {
-		assert.False(t, strings.Contains(s, "_synclet_stage_rates"), s)
+		assert.False(t, strings.Contains(s, "_synclet_stage_0123abcd4567_rates"), s)
 	}
 	assert.Zero(t, ws.fileCount())
 }

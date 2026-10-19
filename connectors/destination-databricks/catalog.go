@@ -50,11 +50,11 @@ type streamPlan struct {
 // planStreams maps every configured stream to its table and columns. Every
 // table goes in the configured schema; namespaces are ignored, so two streams
 // whose names map to the same table fail here, before anything is written.
-func planStreams(catalog *synclet.ConfiguredCatalog) ([]*streamPlan, error) {
+func planStreams(catalog *synclet.ConfiguredCatalog, runID string) ([]*streamPlan, error) {
 	tables := newNameSet("table")
 	plans := make([]*streamPlan, 0, len(catalog.Streams))
 	for i, cs := range catalog.Streams {
-		p, err := planStream(i, cs)
+		p, err := planStream(i, cs, runID)
 		if err != nil {
 			return nil, fmt.Errorf("stream %q: %w", cs.Stream.Name, err)
 		}
@@ -78,7 +78,7 @@ func planStreams(catalog *synclet.ConfiguredCatalog) ([]*streamPlan, error) {
 	return plans, nil
 }
 
-func planStream(i int, cs synclet.ConfiguredStream) (*streamPlan, error) {
+func planStream(i int, cs synclet.ConfiguredStream, runID string) (*streamPlan, error) {
 	p := &streamPlan{
 		index:  i,
 		desc:   cs.Stream.Descriptor(),
@@ -90,9 +90,9 @@ func planStream(i int, cs synclet.ConfiguredStream) (*streamPlan, error) {
 	}
 	switch p.mode {
 	case synclet.DestinationSyncModeOverwrite:
-		p.shadow = tableName(shadowPrefix + p.table)
+		p.shadow = tableName(shadowPrefix + runID + "_" + p.table)
 	case synclet.DestinationSyncModeAppend, synclet.DestinationSyncModeAppendDedup:
-		p.stage = tableName(stagePrefix + p.table)
+		p.stage = tableName(stagePrefix + runID + "_" + p.table)
 	default:
 		return nil, fmt.Errorf("destination_sync_mode %q is not one of overwrite, append, append_dedup", p.mode)
 	}

@@ -20,8 +20,8 @@ type colType string
 const (
 	colBoolean      colType = "BOOLEAN"
 	colBigint       colType = "BIGINT"
-	colDecimal      colType = "DECIMAL(38,9)"
 	colBigDecimal   colType = "DECIMAL(38,0)"
+	colDouble       colType = "DOUBLE"
 	colString       colType = "STRING"
 	colDate         colType = "DATE"
 	colTimestamp    colType = "TIMESTAMP"
@@ -29,11 +29,8 @@ const (
 	colVariant      colType = "VARIANT"
 )
 
-// decimalScale and decimalPrecision are those of colDecimal.
-const (
-	decimalPrecision = 38
-	decimalScale     = 9
-)
+// decimalPrecision is that of colBigDecimal.
+const decimalPrecision = 38
 
 // wellKnownTypes maps the definitions of Airbyte's WellKnownTypes.json that
 // a property may reference with "$ref". Databricks has no time type, so
@@ -43,7 +40,7 @@ var wellKnownTypes = map[string]colType{
 	"BinaryData":               colString,
 	"Boolean":                  colBoolean,
 	"Integer":                  colBigint,
-	"Number":                   colDecimal,
+	"Number":                   colDouble,
 	"Date":                     colDate,
 	"TimestampWithTimezone":    colTimestamp,
 	"TimestampWithoutTimezone": colTimestampNTZ,
@@ -78,7 +75,7 @@ func columnType(prop map[string]any) colType {
 		if airbyteType == "integer" {
 			return colBigint
 		}
-		return colDecimal
+		return colDouble
 	case "string":
 		switch {
 		case airbyteType == "big_integer":
@@ -168,14 +165,20 @@ func encodeValue(t colType, raw json.RawMessage) (val string, null bool, err err
 			return "", false, fmt.Errorf("value %s is not an integer", raw)
 		}
 		return text, false, nil
-	case colDecimal, colBigDecimal:
-		return encodeDecimal(t, text, raw)
+	case colDouble:
+		return encodeDouble(text, raw)
+	case colBigDecimal:
+		return encodeBigDecimal(text, raw)
 	case colDate:
 		if !isString {
 			return "", false, fmt.Errorf("value %s is not a string", raw)
 		}
-		if _, err := time.Parse(time.DateOnly, str); err != nil {
+		d, err := time.Parse(time.DateOnly, str)
+		if err != nil {
 			return "", false, fmt.Errorf("value %s is not a date (YYYY-MM-DD)", raw)
+		}
+		if d.Year() < 1 {
+			return "", false, fmt.Errorf("value %s is in year 0000, which Databricks dates cannot hold", raw)
 		}
 		return str, false, nil
 	case colTimestamp, colTimestampNTZ:
@@ -185,6 +188,9 @@ func encodeValue(t colType, raw json.RawMessage) (val string, null bool, err err
 		ts, zoned, err := parseTimestamp(str)
 		if err != nil {
 			return "", false, fmt.Errorf("value %s %w", raw, err)
+		}
+		if ts.Year() < 1 || ts.UTC().Year() < 1 {
+			return "", false, fmt.Errorf("value %s is in year 0000, which Databricks timestamps cannot hold", raw)
 		}
 		if t == colTimestampNTZ {
 			if zoned {
@@ -197,11 +203,28 @@ func encodeValue(t colType, raw json.RawMessage) (val string, null bool, err err
 	return "", false, fmt.Errorf("unknown column type %s", t)
 }
 
-var pow10Scale = new(big.Int).Exp(big.NewInt(10), big.NewInt(decimalScale), nil)
+// encodeDouble accepts a number only when the float64 nearest to it prints
+// back as the same decimal value, so DOUBLE holds it exactly as the source
+// wrote it.
+func encodeDouble(text string, raw json.RawMessage) (string, bool, error) {
+	if !numberText.MatchString(text) {
+		return "", false, fmt.Errorf("value %s is not a number", raw)
+	}
+	f, err := strconv.ParseFloat(text, 64)
+	if err != nil {
+		return "", false, fmt.Errorf("value %s is outside the DOUBLE range", raw)
+	}
+	out := strconv.FormatFloat(f, 'g', -1, 64)
+	want, ok1 := new(big.Rat).SetString(text)
+	got, ok2 := new(big.Rat).SetString(out)
+	if !ok1 || !ok2 || want.Cmp(got) != 0 {
+		return "", false, fmt.Errorf("value %s has more precision than DOUBLE, which cannot hold it exactly (nearest is %s)", raw, out)
+	}
+	return out, false, nil
+}
 
-// encodeDecimal renders a number with the scale of its column; the digits it
-// needs must fit the column's precision and scale.
-func encodeDecimal(t colType, text string, raw json.RawMessage) (string, bool, error) {
+// encodeBigDecimal renders an integer of at most decimalPrecision digits.
+func encodeBigDecimal(text string, raw json.RawMessage) (string, bool, error) {
 	if !numberText.MatchString(text) {
 		return "", false, fmt.Errorf("value %s is not a number", raw)
 	}
@@ -209,28 +232,13 @@ func encodeDecimal(t colType, text string, raw json.RawMessage) (string, bool, e
 	if !ok {
 		return "", false, fmt.Errorf("value %s is not a number", raw)
 	}
-	scale, intDigits := decimalScale, decimalPrecision-decimalScale
-	if t == colBigDecimal {
-		scale, intDigits = 0, decimalPrecision
+	if !r.IsInt() {
+		return "", false, fmt.Errorf("value %s is not an integer, which %s needs", raw, colBigDecimal)
 	}
-	scaled := new(big.Rat).Set(r)
-	if scale > 0 {
-		scaled.Mul(scaled, new(big.Rat).SetInt(pow10Scale))
+	if len(new(big.Int).Abs(r.Num()).String()) > decimalPrecision {
+		return "", false, fmt.Errorf("value %s has more than %d digits, which %s cannot hold", raw, decimalPrecision, colBigDecimal)
 	}
-	if !scaled.IsInt() {
-		if scale == 0 {
-			return "", false, fmt.Errorf("value %s is not an integer, which %s needs", raw, t)
-		}
-		return "", false, fmt.Errorf("value %s has more than %d digits after the point, which %s cannot hold", raw, scale, t)
-	}
-	whole := new(big.Int).Quo(r.Num(), r.Denom())
-	if len(whole.Abs(whole).String()) > intDigits {
-		if scale == 0 {
-			return "", false, fmt.Errorf("value %s has more than %d digits, which %s cannot hold", raw, intDigits, t)
-		}
-		return "", false, fmt.Errorf("value %s has more than %d digits before the point, which %s cannot hold", raw, intDigits, t)
-	}
-	return r.FloatString(scale), false, nil
+	return r.Num().String(), false, nil
 }
 
 var timestampText = regexp.MustCompile(`^(\d{4}-\d{2}-\d{2})(?:[Tt ](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,9}))?)?)?\s*(?:([Zz])|([+-])(\d{2})(?::?(\d{2}))?)?$`)

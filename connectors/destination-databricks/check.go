@@ -86,7 +86,7 @@ func probeVolume(ctx context.Context, files *filesClient, cfg Config) error {
 func probeSchema(ctx context.Context, run sqlRunner, cfg Config) error {
 	loc := location{catalog: cfg.Database, schema: cfg.Schema}
 	probe := loc.table("_synclet_check_" + strings.ReplaceAll(uuid.NewString(), "-", ""))
-	if err := run.exec(ctx, "CREATE TABLE "+probe+" (id INT) USING DELTA"); err != nil {
+	if err := run.exec(ctx, "CREATE TABLE "+probe+" (id INT, v VARIANT) USING DELTA"); err != nil {
 		if permissionDenied(err) {
 			return fmt.Errorf("no privilege to create tables in schema %s.%s (needs USE CATALOG, USE SCHEMA, CREATE TABLE and MODIFY): %w", cfg.Database, cfg.Schema, err)
 		}

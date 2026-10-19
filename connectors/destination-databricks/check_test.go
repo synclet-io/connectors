@@ -131,10 +131,10 @@ func TestCheckSucceeds(t *testing.T) {
 			assert.Equal(t, "DELETE"+strings.TrimPrefix(ops[0], "PUT"), ops[1])
 			created := sql.matching("CREATE TABLE")
 			require.Len(t, created, 1)
-			assert.Regexp(t, "^CREATE TABLE `main`.`raw`.`_synclet_check_[0-9a-f]{32}` \\(id INT\\) USING DELTA$", created[0])
+			assert.Regexp(t, "^CREATE TABLE `main`.`raw`.`_synclet_check_[0-9a-f]{32}` \\(id INT, v VARIANT\\) USING DELTA$", created[0])
 			dropped := sql.matching("DROP TABLE")
 			require.Len(t, dropped, 1)
-			assert.Equal(t, "DROP TABLE IF EXISTS "+strings.TrimSuffix(strings.TrimPrefix(created[0], "CREATE TABLE "), " (id INT) USING DELTA"), dropped[0])
+			assert.Equal(t, "DROP TABLE IF EXISTS "+strings.TrimSuffix(strings.TrimPrefix(created[0], "CREATE TABLE "), " (id INT, v VARIANT) USING DELTA"), dropped[0])
 			assert.True(t, sql.closed)
 		})
 	}
