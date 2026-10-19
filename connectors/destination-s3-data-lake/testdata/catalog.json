@@ -1,0 +1,36 @@
+{
+  "streams": [
+    {
+      "stream": {
+        "name": "all_types",
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "id": {"type": "integer"},
+            "bool_col": {"type": ["null", "boolean"]},
+            "int_col": {"type": "integer"},
+            "airbyte_int_col": {"type": "number", "airbyte_type": "integer"},
+            "num_col": {"type": "number"},
+            "big_int_col": {"type": "string", "airbyte_type": "big_integer"},
+            "big_int_num_col": {"type": "integer", "airbyte_type": "big_integer"},
+            "str_col": {"type": "string"},
+            "date_col": {"type": "string", "format": "date"},
+            "ts_col": {"type": "string", "format": "date-time"},
+            "ts_ntz_col": {"type": "string", "format": "date-time", "airbyte_type": "timestamp_without_timezone"},
+            "time_col": {"type": "string", "format": "time", "airbyte_type": "time_without_timezone"},
+            "time_plain_col": {"type": "string", "format": "time"},
+            "timetz_col": {"type": "string", "format": "time", "airbyte_type": "time_with_timezone"},
+            "obj_col": {"type": "object", "properties": {"a": {"type": "integer"}}},
+            "arr_col": {"type": "array", "items": {"type": "number"}},
+            "union_col": {"type": ["string", "integer"]},
+            "any_of_col": {"anyOf": [{"type": "string"}, {"type": "integer"}]},
+            "untyped_col": {}
+          }
+        },
+        "supported_sync_modes": ["full_refresh"]
+      },
+      "sync_mode": "full_refresh",
+      "destination_sync_mode": "append"
+    }
+  ]
+}

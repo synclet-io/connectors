@@ -70,6 +70,16 @@
         }
       ]
     },
+    "connectors/destination-s3-data-lake": {
+      "component": "destination-s3-data-lake",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "meta.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
     "connectors/source-airtable": {
       "component": "source-airtable",
       "extra-files": [

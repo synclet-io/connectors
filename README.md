@@ -58,6 +58,7 @@ Taskfile.yml              local shortcuts
 | [destination-mysql](connectors/destination-mysql) | `ghcr.io/synclet-io/connectors/destination-mysql` |
 | [destination-postgres](connectors/destination-postgres) | `ghcr.io/synclet-io/connectors/destination-postgres` |
 | [destination-s3](connectors/destination-s3) | `ghcr.io/synclet-io/connectors/destination-s3` |
+| [destination-s3-data-lake](connectors/destination-s3-data-lake) | `ghcr.io/synclet-io/connectors/destination-s3-data-lake` |
 
 ## How it works
 

@@ -1,0 +1,239 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Writes streams as Apache Iceberg tables on S3-compatible storage through an Iceberg REST catalog",
+    "properties": {
+      "catalog": {
+        "description": "The Iceberg catalog the tables are registered in",
+        "oneOf": [
+          {
+            "description": "An Iceberg REST catalog: Apache Polaris, Lakekeeper, Gravitino, Nessie's REST API, Unity Catalog and others",
+            "properties": {
+              "catalog_type": {
+                "const": "rest",
+                "type": "string"
+              },
+              "credential": {
+                "airbyte_secret": true,
+                "description": "client_id:client_secret exchanged for a token at the catalog's token endpoint",
+                "order": 2,
+                "title": "OAuth2 Credential",
+                "type": "string"
+              },
+              "scope": {
+                "description": "Scope requested with credential; catalog when empty",
+                "order": 4,
+                "title": "OAuth2 Scope",
+                "type": "string"
+              },
+              "token": {
+                "airbyte_secret": true,
+                "description": "A static bearer token; set this or credential, not both",
+                "order": 3,
+                "title": "Bearer Token",
+                "type": "string"
+              },
+              "uri": {
+                "description": "Base URL of the catalog's REST API, without /v1",
+                "examples": [
+                  "http://iceberg-rest:8181",
+                  "https://polaris.example.com/api/catalog"
+                ],
+                "order": 0,
+                "title": "URI",
+                "type": "string"
+              },
+              "warehouse": {
+                "description": "Warehouse name or location sent to the catalog's /v1/config; empty when the catalog needs none",
+                "order": 1,
+                "title": "Warehouse",
+                "type": "string"
+              }
+            },
+            "required": [
+              "catalog_type",
+              "uri"
+            ],
+            "title": "REST Catalog",
+            "type": "object"
+          }
+        ],
+        "order": 0,
+        "title": "Catalog",
+        "type": "object"
+      },
+      "decimal_scale": {
+        "default": 9,
+        "description": "Digits after the decimal point of number columns (0-38); a number with more digits fails the sync",
+        "order": 4,
+        "title": "Decimal Scale",
+        "type": "integer"
+      },
+      "namespace": {
+        "description": "Iceberg namespace every table is written to; dots separate levels. It must exist in the catalog",
+        "examples": [
+          "synclet",
+          "analytics.raw"
+        ],
+        "order": 1,
+        "title": "Namespace",
+        "type": "string"
+      },
+      "number_type": {
+        "default": "decimal",
+        "description": "decimal writes JSON numbers as decimal(38, decimal_scale) exactly; double writes them as double",
+        "examples": [
+          "decimal",
+          "double"
+        ],
+        "order": 3,
+        "title": "Number Type",
+        "type": "string"
+      },
+      "s3": {
+        "description": "Where the tables' data and metadata files are written",
+        "order": 2,
+        "properties": {
+          "credentials": {
+            "description": "How the connector authenticates to the bucket",
+            "oneOf": [
+              {
+                "properties": {
+                  "access_key_id": {
+                    "airbyte_secret": true,
+                    "order": 0,
+                    "title": "Access Key ID",
+                    "type": "string"
+                  },
+                  "auth_type": {
+                    "const": "access_key",
+                    "type": "string"
+                  },
+                  "secret_access_key": {
+                    "airbyte_secret": true,
+                    "order": 1,
+                    "title": "Secret Access Key",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "auth_type",
+                  "access_key_id",
+                  "secret_access_key"
+                ],
+                "title": "Access Key",
+                "type": "object"
+              },
+              {
+                "description": "Environment variables, shared configuration, web identity, container or instance role",
+                "properties": {
+                  "auth_type": {
+                    "const": "default_chain",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "auth_type"
+                ],
+                "title": "Default Credential Chain",
+                "type": "object"
+              },
+              {
+                "description": "Assumes a role with the credentials of the default chain",
+                "properties": {
+                  "auth_type": {
+                    "const": "assume_role",
+                    "type": "string"
+                  },
+                  "external_id": {
+                    "airbyte_secret": true,
+                    "order": 1,
+                    "title": "External ID",
+                    "type": "string"
+                  },
+                  "role_arn": {
+                    "examples": [
+                      "arn:aws:iam::123456789012:role/synclet-writer"
+                    ],
+                    "order": 0,
+                    "title": "Role ARN",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "auth_type",
+                  "role_arn"
+                ],
+                "title": "Assume Role",
+                "type": "object"
+              }
+            ],
+            "order": 2,
+            "title": "Authentication",
+            "type": "object"
+          },
+          "endpoint": {
+            "description": "URL of an S3-compatible service such as MinIO or Cloudflare R2; empty for AWS S3",
+            "examples": [
+              "http://minio:9000",
+              "https://<account_id>.r2.cloudflarestorage.com"
+            ],
+            "order": 3,
+            "title": "Endpoint",
+            "type": "string"
+          },
+          "force_path_style": {
+            "default": false,
+            "description": "Address the bucket in the URL path instead of the host name; MinIO needs it",
+            "order": 4,
+            "title": "Path-Style Access",
+            "type": "boolean"
+          },
+          "region": {
+            "default": "us-east-1",
+            "description": "Region of the bucket",
+            "examples": [
+              "us-east-1",
+              "eu-central-1",
+              "auto"
+            ],
+            "order": 1,
+            "title": "Region",
+            "type": "string"
+          },
+          "warehouse_location": {
+            "description": "s3://bucket/prefix under which each table is created at <namespace levels>/<table>",
+            "examples": [
+              "s3://lake/warehouse"
+            ],
+            "order": 0,
+            "title": "Warehouse Location",
+            "type": "string"
+          }
+        },
+        "required": [
+          "warehouse_location",
+          "credentials"
+        ],
+        "title": "S3 Storage",
+        "type": "object"
+      }
+    },
+    "required": [
+      "catalog",
+      "namespace",
+      "s3"
+    ],
+    "title": "S3 Data Lake Destination Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/destination-s3-data-lake",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": false,
+  "supportsNormalization": false
+}
