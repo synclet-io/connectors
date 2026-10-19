@@ -24,8 +24,8 @@ const minSecretLen = 8
 // credential, longest form first.
 type redactor struct{ secrets []string }
 
-func newRedactor(m *manifest.Manifest, cfg map[string]any) redactor {
-	var r redactor
+func newRedactor(m *manifest.Manifest, cfg map[string]any) *redactor {
+	r := &redactor{}
 	for name, p := range m.Spec.Properties {
 		if !p.Secret {
 			continue
@@ -47,6 +47,12 @@ func newRedactor(m *manifest.Manifest, cfg map[string]any) redactor {
 	}
 	r.finish()
 	return r
+}
+
+// register adds a secret obtained at run time, such as an OAuth token.
+func (r *redactor) register(v string) {
+	r.add(v)
+	r.finish()
 }
 
 // add registers v and its encoded forms.
@@ -78,7 +84,7 @@ func jsonEscape(v string, html bool) string {
 	return s[1 : len(s)-1]
 }
 
-func (r redactor) apply(s string) string {
+func (r *redactor) apply(s string) string {
 	for _, v := range r.secrets {
 		if len(v) >= minSecretLen {
 			s = strings.ReplaceAll(s, v, "***")
@@ -119,7 +125,7 @@ func isWordByte(c byte) bool {
 
 // wrap returns err with its message redacted; errors.As and errors.Is see
 // err through it.
-func (r redactor) wrap(err error) error {
+func (r *redactor) wrap(err error) error {
 	if err == nil {
 		return nil
 	}
@@ -128,20 +134,20 @@ func (r redactor) wrap(err error) error {
 
 type redactedError struct {
 	err error
-	red redactor
+	red *redactor
 }
 
 func (e redactedError) Error() string { return e.red.apply(e.err.Error()) }
 func (e redactedError) Unwrap() error { return e.err }
 
 // logger is the connector's logger with messages and attribute values redacted.
-func (r redactor) logger(ctx context.Context) *slog.Logger {
+func (r *redactor) logger(ctx context.Context) *slog.Logger {
 	return slog.New(redactHandler{h: synclet.Logger(ctx).Handler(), red: r})
 }
 
 type redactHandler struct {
 	h   slog.Handler
-	red redactor
+	red *redactor
 }
 
 func (h redactHandler) Enabled(ctx context.Context, l slog.Level) bool { return h.h.Enabled(ctx, l) }

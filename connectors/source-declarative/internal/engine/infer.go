@@ -108,9 +108,11 @@ func (inf *inferer) Discover(ctx context.Context, raw json.RawMessage) (*synclet
 		base = o.Client.Transport
 	}
 	c := *o.Client
-	c.Transport = &requestLog{base: base, queryKey: m.Auth.Type == manifest.AuthAPIKey && m.Auth.In == "query", red: newRedactor(m, cfg)}
+	rl := &requestLog{base: base, queryKey: m.Auth.Type == manifest.AuthAPIKey && m.Auth.In == "query"}
+	c.Transport = rl
 	o.Client = &c
 	r := newRun(m, cfg, o, inf.em)
+	rl.red = r.red
 	red := r.red
 	log := r.logger(ctx)
 
@@ -279,7 +281,7 @@ func isConfigError(err error) bool {
 type requestLog struct {
 	base     http.RoundTripper
 	queryKey bool
-	red      redactor
+	red      *redactor
 }
 
 func (l *requestLog) RoundTrip(req *http.Request) (*http.Response, error) {

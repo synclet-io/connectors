@@ -224,8 +224,44 @@ func TestRedactingLogger(t *testing.T) {
 	red := redactor{}
 	red.add("long-secret-1")
 	red.finish()
-	log := slog.New(redactHandler{h: slog.NewTextHandler(&buf, nil), red: red})
+	log := slog.New(redactHandler{h: slog.NewTextHandler(&buf, nil), red: &red})
 	log.With("k", "long-secret-1").Warn("echo long-secret-1", "v", "x long-secret-1")
 	assert.NotContains(t, buf.String(), "long-secret-1")
 	assert.Contains(t, buf.String(), "echo ***")
+}
+
+func TestRedactsRuntimeOAuthTokens(t *testing.T) {
+	const access, rotated = "at-RUNTIME-7f3e9c1d", "rt-ROTATED-4b2a8e6f"
+	api := func() *fakeAPI {
+		return newAPI(t).
+			json("/oauth/token", fmt.Sprintf(`{"access_token":%q,"refresh_token":%q,"expires_in":3600}`, access, rotated)).
+			on("/v1/items", reply{status: 401, body: fmt.Sprintf(`{"error":"bad token %s, refresh %s"}`, access, rotated)})
+	}
+	masked := func(t *testing.T, s string) {
+		t.Helper()
+		assert.Contains(t, s, "bad token ***, refresh ***")
+		assert.NotContains(t, s, access)
+		assert.NotContains(t, s, rotated)
+	}
+	t.Run("read", func(t *testing.T) {
+		a := api()
+		src := oauthSource(t, a, newClock(), itemsStream)
+		out := read(t, src, oauthConfig, catalog(t, src, oauthConfig, synclet.SyncModeFullRefresh, "items"), "")
+		require.Error(t, out.Err)
+		masked(t, texts(out.Messages))
+	})
+	t.Run("check", func(t *testing.T) {
+		a := api()
+		st := checkStatus(t, oauthSource(t, a, newClock(), itemsStream), oauthConfig)
+		assert.Equal(t, synclet.ConnectionStatusFailed, st.Status)
+		masked(t, st.Message)
+	})
+	t.Run("infer", func(t *testing.T) {
+		a := api()
+		yaml := manifestYAML(strings.Replace(oauthTop, "TOKEN_URL", a.srv.URL+"/oauth/token", 1), itemsStream)
+		out := infer(t, generic(a), InferRequest{Config: json.RawMessage(withManifest(t, oauthConfig, yaml))})
+		require.NoError(t, out.err)
+		require.Len(t, out.traces(), 1)
+		masked(t, texts(out.msgs))
+	})
 }

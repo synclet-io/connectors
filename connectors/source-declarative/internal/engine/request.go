@@ -43,7 +43,7 @@ type run struct {
 	cfg map[string]any
 	o   Options
 	em  *synclet.Emitter
-	red redactor
+	red *redactor
 
 	base     *url.URL
 	baseErr  error
@@ -545,6 +545,7 @@ func (r *run) refresh(ctx context.Context) error {
 	if !ok || token == "" {
 		return fmt.Errorf("oauth2 refresh: %s: no access token at %s", desc, atPath.Raw)
 	}
+	r.red.register(token)
 	r.token, r.tokenSet, r.expiry = token, true, time.Time{}
 	if v, ok := expPath.Get(resp.doc); ok && v != nil {
 		n, ok := v.(json.Number)
@@ -556,6 +557,7 @@ func (r *run) refresh(ctx context.Context) error {
 		r.expiry = r.o.Now().Add(time.Duration(f * float64(time.Second)))
 	}
 	if rt, _ := resp.doc.(map[string]any)["refresh_token"].(string); rt != "" && rt != vals["refresh_token"] {
+		r.red.register(rt)
 		r.logger(ctx).Warn("the token endpoint returned a new refresh_token; it is ignored, the configured one stays in use (APIs that rotate refresh tokens need a Go connector)")
 	}
 	return nil
