@@ -148,7 +148,8 @@ A catalog image whose `COPY` misses the manifest fails `spec`, so it cannot sile
   directory), runs the SDK conformance suite for full refresh over every stream and once per incremental
   stream, checks that `check` with the broken config reports the text of `testdata/errors/401.json`, and that
   every paginated stream's fixtures span `MinPages` pages. `Overrides` replaces the response of one route;
-  `RateLimitOnce` answers one read's first request with 429. Because the connector has a `go.mod`, CI runs
+  `RateLimitOnce` answers one read's first request with 429. `Inspect` sees every request, for a test that asserts a
+  header the fixtures cannot show. Because the connector has a `go.mod`, CI runs
   `go vet`, `golangci-lint` and `go test -race` in it as for Go connectors.
 - **Fixtures.** A request is answered by `testdata/<path>.json`; one that carries pagination parameters (a
   query key that is not a static `params` key, `size_param`, a `{{ since }}`/`{{ until }}` parameter or a

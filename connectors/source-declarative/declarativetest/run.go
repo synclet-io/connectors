@@ -86,6 +86,8 @@ type Suite struct {
 	// Route maps a request (its path under BasePath and its query) to a
 	// fixture file; default the convention of the README.
 	Route func(path string, query url.Values) string
+	// Inspect, when set, sees every request the fixture server receives.
+	Inspect func(r *http.Request)
 	// Unauthorized is the fixture of a request without the credential;
 	// default errors/401.json.
 	Unauthorized string
@@ -158,6 +160,9 @@ func New(t testing.TB, s Suite) *Harness {
 
 func (h *Harness) serve(t testing.TB, w http.ResponseWriter, r *http.Request) {
 	s := h.suite
+	if s.Inspect != nil {
+		s.Inspect(r)
+	}
 	if s.Auth.header != "" && s.Auth.value != "" && strings.Contains(r.URL.RawQuery, url.QueryEscape(s.Auth.value)) {
 		t.Errorf("request %s carries the credential in its URL", r.URL.Path)
 	}
