@@ -414,7 +414,7 @@ func (r *run) errorMessage(body []byte) string {
 			}
 		}
 	}
-	s := strings.TrimSpace(string(body))
+	s := strings.TrimSpace(r.red.apply(string(body)))
 	if len(s) > errorSnippetBytes {
 		s = s[:errorSnippetBytes]
 	}
@@ -561,4 +561,4 @@ func (r *run) refresh(ctx context.Context) error {
 	return nil
 }
 
-func (r *run) logger(ctx context.Context) *slog.Logger { return synclet.Logger(ctx) }
+func (r *run) logger(ctx context.Context) *slog.Logger { return r.red.logger(ctx) }

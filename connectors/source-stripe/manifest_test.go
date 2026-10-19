@@ -65,7 +65,7 @@ func TestCheckFailures(t *testing.T) {
 			name:    "unauthenticated",
 			config:  brokenConfig,
 			status:  http.StatusUnauthorized,
-			message: "Invalid API Key provided: wrong-key",
+			message: "Invalid API Key provided: *****-key",
 		},
 		{
 			name:    "missing permission",

@@ -281,7 +281,8 @@ func (s *source) Check(ctx context.Context, raw json.RawMessage) error {
 	if err != nil {
 		return err
 	}
-	return newRun(m, cfg, s.o, nil).check(ctx)
+	r := newRun(m, cfg, s.o, nil)
+	return r.red.wrap(r.check(ctx))
 }
 
 // Discover returns the manifest's streams; it sends no request.
@@ -322,5 +323,6 @@ func (s *source) Read(ctx context.Context, raw json.RawMessage, catalog *synclet
 	if err != nil {
 		return err
 	}
-	return newRun(m, cfg, s.o, em).read(ctx, catalog, state)
+	r := newRun(m, cfg, s.o, em)
+	return r.red.wrap(r.read(ctx, catalog, state))
 }

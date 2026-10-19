@@ -1,8 +1,11 @@
 package engine
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"log/slog"
+	"net/url"
 	"strings"
 	"testing"
 
@@ -113,4 +116,116 @@ func TestInferRedactsResponseBody(t *testing.T) {
 			assert.NotContains(t, out.raw, tt.echo)
 		})
 	}
+}
+
+// texts joins the human-readable text of msgs: log, connection status and
+// error trace messages.
+func texts[M synclet.Message | *synclet.Message](msgs []M) string {
+	var b strings.Builder
+	for _, v := range msgs {
+		m := asMessage(v)
+		switch {
+		case m.Log != nil:
+			b.WriteString(m.Log.Message)
+		case m.ConnectionStatus != nil:
+			b.WriteString(m.ConnectionStatus.Message)
+		case m.Trace != nil && m.Trace.Error != nil:
+			b.WriteString(m.Trace.Error.Message)
+		}
+		b.WriteString("\n")
+	}
+	return b.String()
+}
+
+func asMessage[M synclet.Message | *synclet.Message](v M) *synclet.Message {
+	switch m := any(v).(type) {
+	case *synclet.Message:
+		return m
+	case synclet.Message:
+		return &m
+	}
+	return nil
+}
+
+func TestRedactsEncodedForms(t *testing.T) {
+	const user, secret = "svc-user", `pa"ss\wo rd/+<&>`
+	jsonForm := func(html bool) string {
+		var b strings.Builder
+		enc := json.NewEncoder(&b)
+		enc.SetEscapeHTML(html)
+		require.NoError(t, enc.Encode(secret))
+		return strings.TrimSuffix(strings.TrimSpace(b.String()), `"`)[1:]
+	}
+	forms := map[string]string{
+		"raw":       secret,
+		"json":      jsonForm(false),
+		"json html": jsonForm(true),
+		"query":     url.QueryEscape(secret),
+		"path":      url.PathEscape(secret),
+		"basic":     base64.StdEncoding.EncodeToString([]byte(user + ":" + secret)),
+	}
+	var body strings.Builder
+	for _, k := range sortedKeys(forms) {
+		fmt.Fprintf(&body, "%s=%s ", k, forms[k])
+	}
+	yaml := manifestYAML(`auth: {type: basic, username: "{{ config.user }}", password: "{{ config.api_key }}"}`+"\n", itemsStream)
+	cfgB, err := json.Marshal(map[string]string{"api_key": secret, "user": user})
+	require.NoError(t, err)
+	cfg := string(cfgB)
+	api := func() *fakeAPI { return newAPI(t).on("/v1/items", reply{status: 401, body: body.String()}) }
+
+	masked := func(t *testing.T, s string) {
+		t.Helper()
+		for _, k := range sortedKeys(forms) {
+			assert.Contains(t, s, k+"=***", "form %s", k)
+			assert.NotContains(t, s, forms[k], "form %s", k)
+		}
+	}
+	t.Run("read", func(t *testing.T) {
+		src := newSource(t, yaml, api(), newClock())
+		out := read(t, src, cfg, catalog(t, src, cfg, synclet.SyncModeFullRefresh, "items"), "")
+		require.Error(t, out.Err)
+		masked(t, texts(out.Messages))
+	})
+	t.Run("check", func(t *testing.T) {
+		src := newSource(t, yaml, api(), newClock())
+		st := checkStatus(t, src, cfg)
+		assert.Equal(t, synclet.ConnectionStatusFailed, st.Status)
+		masked(t, st.Message)
+	})
+	t.Run("infer", func(t *testing.T) {
+		out := infer(t, generic(api()), InferRequest{Config: json.RawMessage(withManifest(t, cfg, yaml))})
+		require.NoError(t, out.err)
+		require.Len(t, out.traces(), 1)
+		masked(t, texts(out.msgs))
+	})
+}
+
+func TestRedactorShortSecret(t *testing.T) {
+	red := redactor{}
+	red.add("k1")
+	red.add("long-secret-1")
+	red.finish()
+	tests := []struct{ in, want string }{
+		{"bad key k1", "bad key ***"},
+		{"k1", "***"},
+		{"key=k1&x=1", "key=***&x=1"},
+		{`{"key":"k1"}`, `{"key":"***"}`},
+		{"k1abc bk1 ak12 k1_x", "k1abc bk1 ak12 k1_x"},
+		{"echo xlong-secret-1y", "echo x***y"},
+	}
+	for _, tt := range tests {
+		assert.Equal(t, tt.want, red.apply(tt.in), tt.in)
+	}
+}
+
+func TestRedactingLogger(t *testing.T) {
+	var buf strings.Builder
+	red := redactor{}
+	red.add("long-secret-1")
+	red.finish()
+	log := slog.New(redactHandler{h: slog.NewTextHandler(&buf, nil), red: red})
+	log.With("k", "long-secret-1").Warn("echo long-secret-1", "v", "x long-secret-1")
+	assert.NotContains(t, buf.String(), "long-secret-1")
+	assert.Contains(t, buf.String(), "echo ***")
 }

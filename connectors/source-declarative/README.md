@@ -390,7 +390,7 @@ The manifest is linted in a relaxed mode: `schema` may be absent on any stream. 
 Output on stdout, in order:
 
 - RECORD messages, at most `--limit` per stream, exactly as `read` would emit them (with `add`, records older than `start` left out);
-- a LOG message naming each request (method and path, without the query when `auth.in: query`); secret config values never appear in a LOG or TRACE message;
+- a LOG message naming each request (method and path, without the query when `auth.in: query`); secret config values never appear in a LOG or TRACE message, nor do their JSON-escaped, URL query-escaped and path-escaped forms or the base64 `user:pass` of basic auth; a value shorter than 8 bytes is masked only as a whole token, so text that merely contains it stays readable;
 - per stream that fails (HTTP error, extraction error, pagination guard): a TRACE error with its `stream_descriptor` and message; the other streams continue, and the failed stream is left out of the CATALOG;
 - LOG warnings for the relaxed-lint findings and for a stream with no records;
 - last, one CATALOG message whose streams carry the draft `json_schema`, the stream's `source_defined_primary_key` and cursor from the manifest, as `discover` reports them.

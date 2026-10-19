@@ -9,8 +9,6 @@ import (
 	"net/http"
 	"reflect"
 	"slices"
-	"sort"
-	"strings"
 	"sync"
 	"time"
 
@@ -148,7 +146,7 @@ func (inf *inferer) Discover(ctx context.Context, raw json.RawMessage) (*synclet
 		}
 		if st.Schema == nil {
 			for _, e := range manifest.SchemaFieldErrors(m, i, schema) {
-				log.Warn(red.apply(fmt.Sprintf("draft schema of %s: %s.%s: %s", st.Name, ManifestKey, e.Path, e.Message)))
+				log.Warn(fmt.Sprintf("draft schema of %s: %s.%s: %s", st.Name, ManifestKey, e.Path, e.Message))
 			}
 		}
 		cat.Streams = append(cat.Streams, catalogStream(st, schema))
@@ -289,35 +287,6 @@ func (l *requestLog) RoundTrip(req *http.Request) (*http.Response, error) {
 	if req.URL.RawQuery != "" && !l.queryKey {
 		d += "?" + req.URL.RawQuery
 	}
-	synclet.Logger(req.Context()).Info(l.red.apply("request: " + d))
+	l.red.logger(req.Context()).Info("request: " + d)
 	return l.base.RoundTrip(req)
-}
-
-// redactor masks the values of the config's secret properties.
-type redactor struct{ secrets []string }
-
-func newRedactor(m *manifest.Manifest, cfg map[string]any) redactor {
-	var out []string
-	for name, p := range m.Spec.Properties {
-		if !p.Secret {
-			continue
-		}
-		switch v := cfg[name].(type) {
-		case string:
-			if v != "" {
-				out = append(out, v)
-			}
-		case json.Number:
-			out = append(out, v.String())
-		}
-	}
-	sort.Slice(out, func(i, j int) bool { return len(out[i]) > len(out[j]) })
-	return redactor{secrets: out}
-}
-
-func (r redactor) apply(s string) string {
-	for _, v := range r.secrets {
-		s = strings.ReplaceAll(s, v, "***")
-	}
-	return s
 }
