@@ -77,6 +77,7 @@ func TestCheckInvalidConfig(t *testing.T) {
 		"keys":         {func(c *Config) { c.S3.Credentials.SecretAccessKey = "" }, `access_key_id and secret_access_key are required`},
 		"number type":  {func(c *Config) { c.NumberType = "float" }, `number_type must be`},
 		"scale":        {func(c *Config) { s := 39; c.DecimalScale = &s }, `decimal_scale must be between 0 and 38`},
+		"key limit":    {func(c *Config) { c.DedupKeyLimit = -1 }, `dedup_key_limit must be at least 1`},
 		"auth":         {func(c *Config) { c.Catalog.Token, c.Catalog.Credential = "t", "c" }, `set credential or token, not both`},
 	} {
 		t.Run(name, func(t *testing.T) {

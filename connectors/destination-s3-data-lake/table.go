@@ -163,6 +163,9 @@ func (s *streamTable) commit(ctx context.Context, what string, build func(contex
 			s.tbl = s.lake.wrap(next)
 			return nil
 		}
+		if rejected(err) {
+			return fmt.Errorf("stream %q: catalog rejected the %s on %s: %w", s.plan.desc.Name, what, s.name(), err)
+		}
 		if !errors.Is(err, table.ErrCommitFailed) {
 			return fmt.Errorf("stream %q: %s on %s: %w: %w", s.plan.desc.Name, what, s.name(), errCommitUnknown, err)
 		}
@@ -220,6 +223,18 @@ func (s *streamTable) removeFiles(ctx context.Context, files []iceberg.DataFile)
 			log.Warn(fmt.Sprintf("stream %q: remove uncommitted file %s: %v", s.plan.desc.Name, f.FilePath(), err))
 		}
 	}
+}
+
+// rejected reports whether the catalog answered a commit with a definite
+// 4xx rejection other than a conflict, so it applied nothing.
+func rejected(err error) bool {
+	for _, target := range []error{rest.ErrBadRequest, rest.ErrUnauthorized, rest.ErrForbidden,
+		rest.ErrAuthorizationExpired, catalog.ErrNoSuchTable} {
+		if errors.Is(err, target) {
+			return true
+		}
+	}
+	return false
 }
 
 // isUnknown reports whether a commit error leaves the commit state unknown.

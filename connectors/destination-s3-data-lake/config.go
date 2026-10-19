@@ -19,16 +19,20 @@ const (
 
 	defaultRegion       = "us-east-1"
 	defaultDecimalScale = 9
-	maxDecimalPrecision = 38
+	// defaultDedupKeyLimit bounds the primary keys of one append_dedup
+	// stream whose highest cursor a sync remembers.
+	defaultDedupKeyLimit = 1_000_000
+	maxDecimalPrecision  = 38
 )
 
 // Config is the destination-s3-data-lake configuration.
 type Config struct {
-	Catalog      CatalogConfig `json:"catalog"`
-	Namespace    string        `json:"namespace"`
-	S3           S3Config      `json:"s3"`
-	NumberType   string        `json:"number_type,omitempty"`
-	DecimalScale *int          `json:"decimal_scale,omitempty"`
+	Catalog       CatalogConfig `json:"catalog"`
+	Namespace     string        `json:"namespace"`
+	S3            S3Config      `json:"s3"`
+	NumberType    string        `json:"number_type,omitempty"`
+	DecimalScale  *int          `json:"decimal_scale,omitempty"`
+	DedupKeyLimit int           `json:"dedup_key_limit,omitempty"`
 }
 
 // CatalogConfig is how the connector reaches the Iceberg REST catalog.
@@ -75,6 +79,9 @@ func (c *Config) applyDefaults() {
 	if c.NumberType == "" {
 		c.NumberType = numberTypeDecimal
 	}
+	if c.DedupKeyLimit == 0 {
+		c.DedupKeyLimit = defaultDedupKeyLimit
+	}
 	if c.DecimalScale == nil {
 		scale := defaultDecimalScale
 		c.DecimalScale = &scale
@@ -120,6 +127,9 @@ func (c *Config) validate() error {
 	}
 	if *c.DecimalScale < 0 || *c.DecimalScale > maxDecimalPrecision {
 		return fmt.Errorf("decimal_scale must be between 0 and %d, got %d", maxDecimalPrecision, *c.DecimalScale)
+	}
+	if c.DedupKeyLimit < 1 {
+		return fmt.Errorf("dedup_key_limit must be at least 1, got %d", c.DedupKeyLimit)
 	}
 	return nil
 }

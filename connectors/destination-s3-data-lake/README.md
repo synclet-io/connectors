@@ -33,6 +33,7 @@ They need no real credentials.
 | `s3.credentials` | | See [Authentication](#authentication) |
 | `number_type` | `decimal` | `decimal` writes numbers exactly as `decimal(38, decimal_scale)`; `double` as `double` |
 | `decimal_scale` | `9` | Digits after the decimal point of number columns, 0 to 38 |
+| `dedup_key_limit` | `1000000` | Most distinct primary keys per `append_dedup` stream with a cursor that one sync remembers; see [Sync modes](#sync-modes) |
 
 ```json
 {
@@ -106,9 +107,18 @@ UTC. A non-string value in a `string` column is written as its JSON text.
 | `append_dedup` | Each flush commits one `overwrite` snapshot per stream (an Iceberg row delta): data files plus an equality-delete file on the primary key, which deletes the rows of earlier snapshots with those keys (merge-on-read) |
 
 `append_dedup` needs a primary key of top-level fields, none of them a `double` column; a stream without one
-fails when the write starts (`check` sees no catalog). Within a flush, the record with the highest cursor
-wins, the latest one among equal cursors or without a cursor; a null cursor is the lowest. Across flushes and
-syncs the later record wins whatever its cursor. A null primary key fails the sync.
+fails when the write starts (`check` sees no catalog). A null primary key fails the sync.
+
+Within a sync, the record with the highest cursor wins, the latest one among equal cursors; a null cursor is
+the lowest. The sync remembers the highest cursor written per primary key across its flushes, so a record
+whose cursor is lower than one already written for its key is skipped, never written; the number skipped is
+logged as a warning per stream at the end. Remembering costs memory per key: a sync of a stream with more
+than `dedup_key_limit` distinct keys fails rather than drop the guard. A stream without a cursor keeps the
+latest record per key.
+
+Across syncs the later record wins whatever its cursor: sources emit incremental records in cursor order and
+resume from the last state, so only a source that emits out of cursor order can bring an older version of a
+row back.
 
 ## Files and state
 
@@ -125,7 +135,9 @@ syncs the later record wins whatever its cursor. A null primary key fails the sy
 - A commit that conflicts with another writer (HTTP 409, `CommitFailedException`) reloads the table and is
   rebuilt on it from the files already written, up to 5 attempts with backoff from 100 ms to 2 s; then the
   sync fails with `stream "<name>": commit to <table> failed after 5 conflicts`.
-- A commit whose outcome is unknown (a server error or a broken connection while committing) is never retried:
+- A commit the catalog rejects outright (HTTP 400, 401, 403, 404 or 419) is not retried: the sync fails,
+  naming the rejection, and its files are removed.
+- A commit whose outcome is unknown (a server error, another status, or a broken connection while committing) is never retried:
   the sync fails and its files stay, since the catalog may have accepted them.
 - Any other failed commit, and any failure before a commit, removes the uncommitted data and delete files
   (best-effort, logged when a removal fails) and echoes no state for their records.

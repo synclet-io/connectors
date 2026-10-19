@@ -69,6 +69,13 @@
         "title": "Decimal Scale",
         "type": "integer"
       },
+      "dedup_key_limit": {
+        "default": 1000000,
+        "description": "Most distinct primary keys per append_dedup stream with a cursor whose highest cursor one sync remembers, so a record with a lower cursor than one already written is skipped; a sync with more keys fails",
+        "order": 5,
+        "title": "Dedup Key Limit",
+        "type": "integer"
+      },
       "namespace": {
         "description": "Iceberg namespace every table is written to; dots separate levels. It must exist in the catalog",
         "examples": [

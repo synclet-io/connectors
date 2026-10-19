@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"net/http"
 	"os"
 	"path/filepath"
 	"testing"
@@ -238,6 +239,77 @@ func TestCommitConflictFailsLoudly(t *testing.T) {
 	assert.Equal(t, int64(maxCommitAttempts), proxy.commits.Load())
 	assert.Empty(t, tableRows(t, cfg, "events", "id"))
 	assert.Empty(t, dataObjects(t, e, cfg, "events"), "the files of a failed commit are removed")
+}
+
+func TestAppendDedupStaleInLaterFlush(t *testing.T) {
+	e := startLake(t)
+	cfg := e.config(t)
+	d := NewDestination()
+	d.maxRows = 1
+	streams := []synclet.ConfiguredStream{stream("users",
+		`{"properties":{"id":{"type":"integer"},"name":{"type":"string"},"v":{"type":"integer"}}}`,
+		synclet.DestinationSyncModeAppendDedup, [][]string{{"id"}}, []string{"v"})}
+	out := runWrite(t, d, cfg, streams,
+		rec("users", `{"id":1,"name":"Ann B","v":3}`),
+		rec("users", `{"id":1,"name":"stale","v":2}`),
+		rec("users", `{"id":1,"name":"no cursor"}`),
+		rec("users", `{"id":2,"name":"Bob","v":1}`),
+		state("users", `{"v":3}`))
+	require.NoError(t, out.Err)
+	assert.Equal(t, []string{`{"v":3}`}, stateValues(out))
+	assert.Equal(t, [][]string{{"1", "Ann B"}, {"2", "Bob"}}, tableRows(t, cfg, "users", "id", "name"),
+		"a record whose cursor is lower than one already written for its key does not win")
+	var warned []string
+	for _, l := range out.Logs() {
+		if l.Level == synclet.LogLevelWarn {
+			warned = append(warned, l.Message)
+		}
+	}
+	assert.Contains(t, warned, `stream "users": skipped 2 records whose cursor is lower than one already written for the same primary key in this sync`)
+}
+
+func TestAppendDedupKeyLimit(t *testing.T) {
+	e := startLake(t)
+	cfg := e.config(t)
+	cfg.DedupKeyLimit = 1
+	streams := []synclet.ConfiguredStream{stream("users",
+		`{"properties":{"id":{"type":"integer"},"v":{"type":"integer"}}}`,
+		synclet.DestinationSyncModeAppendDedup, [][]string{{"id"}}, []string{"v"})}
+	out := runWrite(t, NewDestination(), cfg, streams,
+		rec("users", `{"id":1,"v":1}`), rec("users", `{"id":1,"v":2}`), rec("users", `{"id":2,"v":1}`))
+	require.Error(t, out.Err)
+	assert.Equal(t, `stream "users": record 3: more than 1 distinct primary keys in one sync; raise dedup_key_limit`, out.Err.Error())
+	assert.Empty(t, tableRows(t, cfg, "users", "id"))
+}
+
+func TestDedupKeyEncoding(t *testing.T) {
+	st := &streamTable{pkFields: []int{0, 1}}
+	w := &writer{}
+	a, err := w.dedupKey(st, []any{"a:1", "b"})
+	require.NoError(t, err)
+	b, err := w.dedupKey(st, []any{"a", "1:b"})
+	require.NoError(t, err)
+	assert.NotEqual(t, a, b)
+	c, err := w.dedupKey(st, []any{"a\x00string:b", "c"})
+	require.NoError(t, err)
+	d, err := w.dedupKey(st, []any{"a", "b\x00string:c"})
+	require.NoError(t, err)
+	assert.NotEqual(t, c, d)
+}
+
+func TestCommitRejectedRemovesFiles(t *testing.T) {
+	e := startLake(t)
+	cfg := e.config(t)
+	proxy := newCatalogProxy(t, e.uri)
+	cfg.Catalog.URI = proxy.URL
+	proxy.reject.Store(http.StatusBadRequest)
+	streams := []synclet.ConfiguredStream{stream("events", `{"properties":{"id":{"type":"integer"}}}`, synclet.DestinationSyncModeAppend, nil, nil)}
+	out := runWrite(t, NewDestination(), cfg, streams, rec("events", `{"id":1}`), state("events", `{"id":1}`))
+	require.Error(t, out.Err)
+	assert.Contains(t, out.Err.Error(), `stream "events": catalog rejected the commit on `+cfg.Namespace+`.events`)
+	assert.Empty(t, out.States())
+	assert.Equal(t, int64(1), proxy.commits.Load(), "a rejection is not retried")
+	assert.Empty(t, dataObjects(t, e, cfg, "events"), "the files of a rejected commit are removed")
 }
 
 func TestAppendDedupTwoSyncs(t *testing.T) {

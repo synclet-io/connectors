@@ -36,6 +36,14 @@ func connectionSpec() synclet.ConnectionSpecification {
 					Default:      defaultDecimalScale,
 					Order:        intPtr(4),
 				},
+				"dedup_key_limit": {
+					Title: "Dedup Key Limit",
+					Description: "Most distinct primary keys per append_dedup stream with a cursor whose highest cursor one sync remembers, " +
+						"so a record with a lower cursor than one already written is skipped; a sync with more keys fails",
+					PropertyType: synclet.PropertyType{Type: []synclet.PropType{synclet.Integer}},
+					Default:      defaultDedupKeyLimit,
+					Order:        intPtr(5),
+				},
 			},
 		},
 	}

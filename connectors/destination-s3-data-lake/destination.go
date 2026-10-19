@@ -64,9 +64,10 @@ func (d Destination) Write(
 	}
 	defer l.close()
 
-	w := newWriter(em, d, plans)
+	w := newWriter(em, d, plans, cfg.DedupKeyLimit)
 	defer w.release()
 	defer w.warnUnknown(ctx)
+	defer w.warnStale(ctx)
 	defer func() {
 		if rerr != nil {
 			w.discardPending(ctx)

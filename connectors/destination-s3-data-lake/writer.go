@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"iter"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 
@@ -22,12 +23,17 @@ import (
 // buffer holds the records of one stream not yet written to data files.
 // Append and overwrite streams append to builder as records arrive;
 // append_dedup streams keep one row per primary key in rows, which is
-// appended to a builder at flush.
+// appended to a builder at flush. maxCursor holds, for an append_dedup
+// stream with a cursor, the highest cursor accepted per primary key in this
+// sync, across flushes.
 type buffer struct {
 	builder *array.RecordBuilder
 	n       int
 	rows    map[string][]any
 	order   []string
+
+	maxCursor map[string]any
+	stale     int
 }
 
 // writer buffers records of every stream and writes them in batches. A
@@ -48,6 +54,7 @@ type writer struct {
 	pending  [][]iceberg.DataFile
 	received []int
 	unknown  []map[string]struct{}
+	keyLimit int
 	rows     int
 	size     int
 
@@ -57,8 +64,9 @@ type writer struct {
 	lastCommit time.Time
 }
 
-func newWriter(em *synclet.Emitter, limits Destination, plans []*streamPlan) *writer {
+func newWriter(em *synclet.Emitter, limits Destination, plans []*streamPlan, keyLimit int) *writer {
 	w := &writer{
+		keyLimit:   keyLimit,
 		em:         em,
 		limits:     limits,
 		plans:      plans,
@@ -89,6 +97,9 @@ func (w *writer) prepare(ctx context.Context, l *lake) error {
 		}
 		w.tables[p.index] = t
 		w.resetBuffer(p.index)
+		if p.mode == synclet.DestinationSyncModeAppendDedup && t.cursorField >= 0 {
+			w.buffers[p.index].maxCursor = map[string]any{}
+		}
 	}
 	return nil
 }
@@ -181,13 +192,19 @@ func (w *writer) addRecord(ctx context.Context, r *synclet.RecordMessage) error 
 		if err != nil {
 			return fail("%v", err)
 		}
-		if prev, ok := b.rows[key]; ok {
-			if st.cursorField >= 0 && laterCursor(prev[st.cursorField], values[st.cursorField]) {
-				w.rows++
-				w.size += len(r.Data)
-				return w.maybeFlush(ctx)
+		if st.cursorField >= 0 {
+			cur := values[st.cursorField]
+			prev, seen := b.maxCursor[key]
+			if seen && laterCursor(prev, cur) {
+				b.stale++
+				return nil
 			}
-		} else {
+			if !seen && len(b.maxCursor) >= w.keyLimit {
+				return fail("more than %d distinct primary keys in one sync; raise dedup_key_limit", w.keyLimit)
+			}
+			b.maxCursor[key] = cur
+		}
+		if _, ok := b.rows[key]; !ok {
 			b.order = append(b.order, key)
 		}
 		b.rows[key] = values
@@ -207,14 +224,19 @@ func (w *writer) maybeFlush(ctx context.Context) error {
 	return nil
 }
 
-// dedupKey identifies a record by its primary key values; a null key fails.
+// dedupKey identifies a record by its primary key values, each written as
+// its length and its typed text, so no two keys share an encoding; a null
+// key fails.
 func (w *writer) dedupKey(st *streamTable, values []any) (string, error) {
 	var key strings.Builder
 	for _, f := range st.pkFields {
 		if values[f] == nil {
 			return "", fmt.Errorf("primary key column %q is null", st.schema.Field(f).Name)
 		}
-		fmt.Fprintf(&key, "%T:%v\x00", values[f], values[f])
+		v := fmt.Sprintf("%T:%v", values[f], values[f])
+		key.WriteString(strconv.Itoa(len(v)))
+		key.WriteByte(':')
+		key.WriteString(v)
 	}
 	return key.String(), nil
 }
@@ -483,6 +505,16 @@ func (w *writer) finish(ctx context.Context) error {
 		}
 	}
 	return nil
+}
+
+// warnStale logs, once per stream, how many records were skipped because
+// their cursor is lower than one already accepted for the same primary key.
+func (w *writer) warnStale(ctx context.Context) {
+	for _, p := range w.plans {
+		if n := w.buffers[p.index].stale; n > 0 {
+			synclet.Logger(ctx).Warn(fmt.Sprintf("stream %q: skipped %d records whose cursor is lower than one already written for the same primary key in this sync", p.desc.Name, n))
+		}
+	}
 }
 
 // warnUnknown logs, once per stream, the record fields the stream's schema

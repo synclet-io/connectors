@@ -192,13 +192,15 @@ func (e *lakeEnv) config(t *testing.T) Config {
 }
 
 // catalogProxy forwards to the catalog. It answers 401 to requests without
-// the bearer token when token is set, and 409 to table commits while
-// conflicts is above zero (or always when it is negative).
+// the bearer token when token is set, 409 to table commits while conflicts
+// is above zero (or always when it is negative), and reject to every table
+// commit when it is set.
 type catalogProxy struct {
 	*httptest.Server
 	token     string
 	conflicts atomic.Int64
 	commits   atomic.Int64
+	reject    atomic.Int64
 }
 
 var commitPath = regexp.MustCompile(`^/v1/namespaces/[^/]+/tables/[^/]+$`)
@@ -218,6 +220,12 @@ func newCatalogProxy(t *testing.T, target string) *catalogProxy {
 		}
 		if r.Method == http.MethodPost && commitPath.MatchString(r.URL.Path) {
 			p.commits.Add(1)
+			if status := p.reject.Load(); status != 0 {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(int(status))
+				_, _ = io.WriteString(w, `{"error":{"message":"Invalid update","type":"BadRequestException","code":400}}`)
+				return
+			}
 			if n := p.conflicts.Load(); n != 0 {
 				if n > 0 {
 					p.conflicts.Add(-1)
