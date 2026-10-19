@@ -159,19 +159,39 @@ func (c *conn) tableRef(schema, name string) string {
 	return ident(c.database) + "." + ident(schema) + "." + ident(name)
 }
 
-// strings runs query and returns its rows, each column as a string; NULL
-// is the empty string.
+// rows runs query and returns its rows, each column as a string; NULL is
+// the empty string.
 func (c *conn) rows(ctx context.Context, query string, args ...any) ([][]string, error) {
-	rows, err := c.db.QueryContext(ctx, query, args...)
-	if err != nil {
-		return nil, c.queryError(err)
-	}
-	defer func() { _ = rows.Close() }()
-	cols, err := rows.Columns()
+	_, out, err := c.query(ctx, query, args...)
+	return out, err
+}
+
+// records runs query and returns its rows by column name.
+func (c *conn) records(ctx context.Context, query string, args ...any) ([]map[string]string, error) {
+	cols, rows, err := c.query(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}
-	var out [][]string
+	out := make([]map[string]string, len(rows))
+	for i, r := range rows {
+		out[i] = make(map[string]string, len(cols))
+		for j, name := range cols {
+			out[i][name] = r[j]
+		}
+	}
+	return out, nil
+}
+
+func (c *conn) query(ctx context.Context, query string, args ...any) (cols []string, out [][]string, rerr error) {
+	rows, err := c.db.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, nil, c.queryError(err)
+	}
+	defer func() { rerr = errors.Join(rerr, rows.Close()) }()
+	cols, err = rows.Columns()
+	if err != nil {
+		return nil, nil, err
+	}
 	for rows.Next() {
 		cells := make([]sql.NullString, len(cols))
 		ptrs := make([]any, len(cols))
@@ -179,7 +199,7 @@ func (c *conn) rows(ctx context.Context, query string, args ...any) ([][]string,
 			ptrs[i] = &cells[i]
 		}
 		if err := rows.Scan(ptrs...); err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		r := make([]string, len(cols))
 		for i, cell := range cells {
@@ -188,7 +208,7 @@ func (c *conn) rows(ctx context.Context, query string, args ...any) ([][]string,
 		out = append(out, r)
 	}
 	if err := rows.Err(); err != nil {
-		return nil, c.queryError(err)
+		return nil, nil, c.queryError(err)
 	}
-	return out, nil
+	return cols, out, nil
 }

@@ -13,5 +13,4 @@ type Source struct {
 	endpoint *url.URL
 }
 
-func main() {}
-var _ = cli.RunSource[Config]
+func main() { cli.RunSource(Source{}) }
