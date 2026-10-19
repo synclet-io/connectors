@@ -31,11 +31,18 @@ tasks:
         cat connectors/go.work
 
   build:
-    desc: Build one connector image for the local platform (CONNECTOR=source-example [SDK_DIR=../synclet-go-sdk])
+    desc: Build one connector image for the local platform (CONNECTOR=source-example [SDK_DIR=../synclet-go-sdk]); a manifest connector builds on the engine of the working tree
     requires:
       vars: [CONNECTOR]
     cmds:
-      - docker build {{.SDK_CONTEXT}} -t {{.IMAGE_PREFIX}}/{{.CONNECTOR}}:dev connectors/{{.CONNECTOR}}
+      - |
+        set -e
+        base=""
+        if grep -Eq '^ARG BASE=[^[:space:]]*/source-declarative:' connectors/{{.CONNECTOR}}/Dockerfile; then
+          docker build {{.SDK_CONTEXT}} -t local/source-declarative:dev connectors/source-declarative
+          base="--build-arg BASE=local/source-declarative:dev"
+        fi
+        docker build {{.SDK_CONTEXT}} $base -t {{.IMAGE_PREFIX}}/{{.CONNECTOR}}:dev connectors/{{.CONNECTOR}}
 
   test:
     desc: Run a connector's go vet and tests (CONNECTOR=source-example)

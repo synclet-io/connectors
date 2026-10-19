@@ -74,6 +74,15 @@ jobs:
             echo "title=$(jq -r .name "$DIR/meta.json")"
           } >> "$GITHUB_OUTPUT"
 
+      # A manifest connector is released on the engine its Dockerfile pins; that engine release comes first.
+      - name: Pinned engine image is published
+        run: |
+          BASE=$(sed -nE 's/^ARG BASE=([^[:space:]]*\/source-declarative:[^[:space:]]+).*/\1/p' "$DIR/Dockerfile")
+          if [ -n "$BASE" ] && ! docker buildx imagetools inspect "$BASE" > /dev/null 2>&1; then
+            echo "::error file=$DIR/Dockerfile::$CONNECTOR is built FROM $BASE, which is not published or not public. Release source-declarative at that version first, then re-run this workflow for $TAG."
+            exit 1
+          fi
+
       - uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
 
       - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
