@@ -1,0 +1,135 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Reads tables and views of a Snowflake database: full refresh, or incremental by a cursor column.",
+    "properties": {
+      "account": {
+        "description": "Account identifier, orgname-accountname or the account locator with its region (the part before .snowflakecomputing.com).",
+        "examples": [
+          "myorg-myaccount",
+          "xy12345.eu-central-1"
+        ],
+        "order": 0,
+        "title": "Account",
+        "type": "string"
+      },
+      "credentials": {
+        "description": "How the connector logs in to Snowflake.",
+        "oneOf": [
+          {
+            "properties": {
+              "auth_type": {
+                "const": "Key Pair Authentication",
+                "order": 0,
+                "type": "string"
+              },
+              "private_key": {
+                "airbyte_secret": true,
+                "description": "RSA private key in PEM (PKCS#8 or PKCS#1) whose public key is set as the user's RSA_PUBLIC_KEY.",
+                "order": 2,
+                "title": "Private Key",
+                "type": "string"
+              },
+              "private_key_password": {
+                "airbyte_secret": true,
+                "description": "Password of an encrypted PKCS#8 private key.",
+                "order": 3,
+                "title": "Private Key Password",
+                "type": "string"
+              },
+              "username": {
+                "description": "The Snowflake user to log in as.",
+                "order": 1,
+                "title": "Username",
+                "type": "string"
+              }
+            },
+            "required": [
+              "auth_type",
+              "username",
+              "private_key"
+            ],
+            "title": "Key Pair Authentication",
+            "type": "object"
+          },
+          {
+            "properties": {
+              "auth_type": {
+                "const": "username/password",
+                "order": 0,
+                "type": "string"
+              },
+              "password": {
+                "airbyte_secret": true,
+                "order": 2,
+                "title": "Password",
+                "type": "string"
+              },
+              "username": {
+                "description": "The Snowflake user to log in as.",
+                "order": 1,
+                "title": "Username",
+                "type": "string"
+              }
+            },
+            "required": [
+              "auth_type",
+              "username",
+              "password"
+            ],
+            "title": "Username and Password",
+            "type": "object"
+          }
+        ],
+        "order": 5,
+        "title": "Authentication",
+        "type": "object"
+      },
+      "database": {
+        "description": "Database to read. The role needs USAGE on it.",
+        "order": 2,
+        "title": "Database",
+        "type": "string"
+      },
+      "role": {
+        "description": "Role of the session. When empty, the user's default role.",
+        "order": 4,
+        "title": "Role",
+        "type": "string"
+      },
+      "schemas": {
+        "description": "Schemas to sync, as Snowflake stores their names (unquoted names are upper case). When empty, every schema of the database.",
+        "items": {
+          "type": "string"
+        },
+        "order": 3,
+        "title": "Schemas",
+        "type": "array"
+      },
+      "warehouse": {
+        "description": "Warehouse that runs the queries. The role needs USAGE on it.",
+        "order": 1,
+        "title": "Warehouse",
+        "type": "string"
+      }
+    },
+    "required": [
+      "account",
+      "warehouse",
+      "database",
+      "credentials"
+    ],
+    "title": "Snowflake Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-snowflake",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": true,
+  "supportsNormalization": false
+}
