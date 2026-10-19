@@ -60,6 +60,16 @@
         }
       ]
     },
+    "connectors/destination-redshift": {
+      "component": "destination-redshift",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "meta.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
     "connectors/destination-s3": {
       "component": "destination-s3",
       "extra-files": [

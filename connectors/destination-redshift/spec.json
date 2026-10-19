@@ -1,0 +1,210 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Stages each batch as gzipped CSV in S3 and loads it with COPY into a typed table: overwrite, append or append_dedup.",
+    "properties": {
+      "database": {
+        "description": "Name of the database.",
+        "order": 2,
+        "title": "Database",
+        "type": "string"
+      },
+      "host": {
+        "description": "Endpoint of the Redshift cluster or Serverless workgroup, without the port and database.",
+        "order": 0,
+        "title": "Host",
+        "type": "string"
+      },
+      "password": {
+        "airbyte_secret": true,
+        "description": "Password of the user.",
+        "order": 5,
+        "title": "Password",
+        "type": "string"
+      },
+      "port": {
+        "default": 5439,
+        "description": "Port of the cluster.",
+        "examples": [
+          "5439"
+        ],
+        "order": 1,
+        "title": "Port",
+        "type": "integer"
+      },
+      "schema": {
+        "default": "public",
+        "description": "Schema every table is written to; it is created when missing. Redshift folds it to lower case.",
+        "examples": [
+          "public"
+        ],
+        "order": 3,
+        "title": "Default Schema",
+        "type": "string"
+      },
+      "ssl_mode": {
+        "description": "How the connection is encrypted.",
+        "oneOf": [
+          {
+            "description": "Always encrypts; the server certificate is not verified.",
+            "properties": {
+              "mode": {
+                "const": "require",
+                "order": 0,
+                "type": "string"
+              }
+            },
+            "required": [
+              "mode"
+            ],
+            "title": "require",
+            "type": "object"
+          },
+          {
+            "description": "Always encrypts and verifies the server certificate against the system roots and the host name.",
+            "properties": {
+              "mode": {
+                "const": "verify-full",
+                "order": 0,
+                "type": "string"
+              }
+            },
+            "required": [
+              "mode"
+            ],
+            "title": "verify-full",
+            "type": "object"
+          },
+          {
+            "description": "No encryption. Only for local test servers.",
+            "properties": {
+              "mode": {
+                "const": "disable",
+                "order": 0,
+                "type": "string"
+              }
+            },
+            "required": [
+              "mode"
+            ],
+            "title": "disable",
+            "type": "object"
+          }
+        ],
+        "order": 6,
+        "title": "SSL Mode",
+        "type": "object"
+      },
+      "uploading_method": {
+        "description": "Batches are staged as gzipped CSV files in an S3 bucket and loaded with COPY.",
+        "oneOf": [
+          {
+            "properties": {
+              "access_key_id": {
+                "airbyte_secret": true,
+                "description": "Access key of an IAM user that may write, read and delete under the path. Empty uses the default AWS credential chain.",
+                "order": 4,
+                "title": "S3 Access Key Id",
+                "type": "string"
+              },
+              "external_id": {
+                "airbyte_secret": true,
+                "description": "External ID the assumed role requires.",
+                "order": 7,
+                "title": "External ID",
+                "type": "string"
+              },
+              "iam_role_arn": {
+                "description": "Role attached to the cluster that COPY uses to read the staged files (IAM_ROLE); a comma-separated list chains roles. Empty makes COPY use the upload credentials.",
+                "order": 8,
+                "title": "COPY IAM Role ARN",
+                "type": "string"
+              },
+              "method": {
+                "const": "S3 Staging",
+                "order": 0,
+                "type": "string"
+              },
+              "purge_staging_data": {
+                "default": true,
+                "description": "Delete the staged files once they are loaded.",
+                "order": 9,
+                "title": "Purge Staging Files",
+                "type": "boolean"
+              },
+              "role_arn": {
+                "description": "Role the connector assumes on top of the keys or the default chain to upload; COPY then uses the role's temporary credentials unless iam_role_arn is set.",
+                "order": 6,
+                "title": "Assumed Role ARN",
+                "type": "string"
+              },
+              "s3_bucket_name": {
+                "description": "Bucket the batches are staged in.",
+                "order": 1,
+                "title": "S3 Bucket Name",
+                "type": "string"
+              },
+              "s3_bucket_path": {
+                "description": "Key prefix of the staged files.",
+                "order": 2,
+                "title": "S3 Bucket Path",
+                "type": "string"
+              },
+              "s3_bucket_region": {
+                "default": "us-east-1",
+                "description": "Region of the bucket.",
+                "order": 3,
+                "title": "S3 Bucket Region",
+                "type": "string"
+              },
+              "secret_access_key": {
+                "airbyte_secret": true,
+                "description": "Secret of the access key.",
+                "order": 5,
+                "title": "S3 Secret Access Key",
+                "type": "string"
+              }
+            },
+            "required": [
+              "method",
+              "s3_bucket_name",
+              "s3_bucket_region"
+            ],
+            "title": "S3 Staging",
+            "type": "object"
+          }
+        ],
+        "order": 7,
+        "title": "Uploading Method",
+        "type": "object"
+      },
+      "username": {
+        "description": "Database user.",
+        "order": 4,
+        "title": "Username",
+        "type": "string"
+      }
+    },
+    "required": [
+      "host",
+      "port",
+      "database",
+      "schema",
+      "username",
+      "password",
+      "uploading_method"
+    ],
+    "title": "Redshift Destination Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/destination-redshift",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": false,
+  "supportsNormalization": false
+}
