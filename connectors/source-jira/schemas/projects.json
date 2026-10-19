@@ -1,0 +1,25 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {"type": "string"},
+    "key": {"type": "string"},
+    "name": {"type": "string"},
+    "self": {"type": "string"},
+    "description": {"type": ["string", "null"]},
+    "projectTypeKey": {"type": ["string", "null"]},
+    "simplified": {"type": ["boolean", "null"]},
+    "style": {"type": ["string", "null"]},
+    "isPrivate": {"type": ["boolean", "null"]},
+    "url": {"type": ["string", "null"]},
+    "entityId": {"type": ["string", "null"]},
+    "uuid": {"type": ["string", "null"]},
+    "lead": {"type": ["object", "null"], "additionalProperties": true},
+    "avatarUrls": {"type": ["object", "null"], "additionalProperties": true},
+    "projectCategory": {"type": ["object", "null"], "additionalProperties": true},
+    "issueTypes": {"type": ["array", "null"], "items": {"type": "object", "additionalProperties": true}},
+    "projectKeys": {"type": ["array", "null"], "items": {"type": "string"}},
+    "insight": {"type": ["object", "null"], "additionalProperties": true},
+    "properties": {"type": ["object", "null"], "additionalProperties": true}
+  },
+  "additionalProperties": true
+}

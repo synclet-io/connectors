@@ -1,0 +1,3 @@
+{"maxResults":2,"startAt":2,"total":3,"isLast":true,"values":[
+ {"id":3,"self":"https://example.atlassian.net/rest/agile/1.0/board/3","name":"GAMMA board","type":"simple","isPrivate":true,"location":{"projectId":10002,"projectKey":"GAMMA","projectName":"Gamma","projectTypeKey":"software"}}
+]}

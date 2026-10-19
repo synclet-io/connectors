@@ -1,0 +1,4 @@
+{"maxResults":2,"startAt":0,"total":3,"isLast":false,"values":[
+ {"id":1,"self":"https://example.atlassian.net/rest/agile/1.0/board/1","name":"ALPHA board","type":"scrum","isPrivate":false,"location":{"projectId":10000,"projectKey":"ALPHA","projectName":"Alpha","projectTypeKey":"software"}},
+ {"id":2,"self":"https://example.atlassian.net/rest/agile/1.0/board/2","name":"BETA board","type":"kanban","isPrivate":false,"location":{"projectId":10001,"projectKey":"BETA","projectName":"Beta","projectTypeKey":"business"}}
+]}

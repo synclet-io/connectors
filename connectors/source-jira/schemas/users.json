@@ -1,0 +1,15 @@
+{
+  "type": "object",
+  "properties": {
+    "accountId": {"type": "string"},
+    "accountType": {"type": ["string", "null"]},
+    "self": {"type": ["string", "null"]},
+    "emailAddress": {"type": ["string", "null"]},
+    "displayName": {"type": ["string", "null"]},
+    "active": {"type": ["boolean", "null"]},
+    "timeZone": {"type": ["string", "null"]},
+    "locale": {"type": ["string", "null"]},
+    "avatarUrls": {"type": ["object", "null"], "additionalProperties": true}
+  },
+  "additionalProperties": true
+}

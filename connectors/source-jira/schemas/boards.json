@@ -1,0 +1,12 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {"type": "integer"},
+    "self": {"type": ["string", "null"]},
+    "name": {"type": ["string", "null"]},
+    "type": {"type": ["string", "null"]},
+    "isPrivate": {"type": ["boolean", "null"]},
+    "location": {"type": ["object", "null"], "additionalProperties": true}
+  },
+  "additionalProperties": true
+}

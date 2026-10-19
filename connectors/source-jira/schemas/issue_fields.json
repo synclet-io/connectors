@@ -1,0 +1,18 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {"type": "string"},
+    "key": {"type": ["string", "null"]},
+    "name": {"type": ["string", "null"]},
+    "description": {"type": ["string", "null"]},
+    "custom": {"type": ["boolean", "null"]},
+    "isLocked": {"type": ["boolean", "null"]},
+    "searcherKey": {"type": ["string", "null"]},
+    "screensCount": {"type": ["integer", "null"]},
+    "contextsCount": {"type": ["integer", "null"]},
+    "projectsCount": {"type": ["integer", "null"]},
+    "lastUsed": {"type": ["object", "null"], "additionalProperties": true},
+    "schema": {"type": ["object", "null"], "additionalProperties": true}
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,29 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {"type": "string"},
+    "key": {"type": "string"},
+    "self": {"type": ["string", "null"]},
+    "expand": {"type": ["string", "null"]},
+    "fields": {
+      "type": "object",
+      "properties": {
+        "updated": {"type": "string"},
+        "created": {"type": ["string", "null"]},
+        "summary": {"type": ["string", "null"]},
+        "description": {"type": ["object", "null"], "additionalProperties": true},
+        "issuetype": {"type": ["object", "null"], "additionalProperties": true},
+        "project": {"type": ["object", "null"], "additionalProperties": true},
+        "status": {"type": ["object", "null"], "additionalProperties": true},
+        "priority": {"type": ["object", "null"], "additionalProperties": true},
+        "assignee": {"type": ["object", "null"], "additionalProperties": true},
+        "reporter": {"type": ["object", "null"], "additionalProperties": true},
+        "labels": {"type": ["array", "null"], "items": {"type": "string"}},
+        "resolutiondate": {"type": ["string", "null"]},
+        "duedate": {"type": ["string", "null"]}
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

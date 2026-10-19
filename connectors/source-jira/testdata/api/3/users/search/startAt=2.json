@@ -1,0 +1,3 @@
+[
+ {"self":"https://example.atlassian.net/rest/api/3/user?accountId=557058:00000000-0000-4000-8000-0000000000b1","accountId":"557058:00000000-0000-4000-8000-0000000000b1","accountType":"app","displayName":"Example Automation","active":true,"avatarUrls":{"48x48":"https://avatar.example.com/b1.png"}}
+]

@@ -1,0 +1,4 @@
+[
+ {"self":"https://example.atlassian.net/rest/api/3/user?accountId=000000:00000000-0000-4000-8000-0000000000a1","accountId":"000000:00000000-0000-4000-8000-0000000000a1","accountType":"atlassian","emailAddress":"ada@example.com","displayName":"Ada Example","active":true,"timeZone":"Europe/Berlin","locale":"en_US","avatarUrls":{"48x48":"https://avatar.example.com/a1.png"}},
+ {"self":"https://example.atlassian.net/rest/api/3/user?accountId=000000:00000000-0000-4000-8000-0000000000a2","accountId":"000000:00000000-0000-4000-8000-0000000000a2","accountType":"atlassian","displayName":"Bo Sample","active":true,"timeZone":"UTC","locale":"en_GB","avatarUrls":{"48x48":"https://avatar.example.com/a2.png"}}
+]

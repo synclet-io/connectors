@@ -1,0 +1,3 @@
+{"isLast":true,"issues":[
+ {"id":"20003","key":"ALPHA-2","self":"https://example.atlassian.net/rest/api/3/issue/20003","fields":{"summary":"Close the first sprint","created":"2026-02-20T10:00:00.000+0200","updated":"2026-03-02T10:15:30.000+0200","issuetype":{"id":"10001","name":"Task"},"project":{"id":"10000","key":"ALPHA"},"status":{"id":"10002","name":"Done"},"priority":{"id":"2","name":"High"},"assignee":{"accountId":"000000:00000000-0000-4000-8000-0000000000a2","displayName":"Bo Sample"},"reporter":{"accountId":"000000:00000000-0000-4000-8000-0000000000a1","displayName":"Ada Example"},"labels":["sprint"],"resolutiondate":"2026-03-02T10:15:30.000+0200","duedate":null,"description":null}}
+]}

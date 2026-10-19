@@ -1,0 +1,64 @@
+# yaml-language-server: $schema=../source-declarative/internal/manifest/manifest.schema.json
+version: 1
+connector:
+  name: source-jira
+  documentation_url: https://github.com/synclet-io/connectors/tree/main/connectors/source-jira
+base_url: "https://{{ config.domain }}/rest/"
+spec:
+  title: Jira Source Spec
+  description: Reads projects, users, issue fields, boards and issues from Jira Cloud.
+  required: [domain, email, api_token, start_date]
+  properties:
+    domain:
+      type: string
+      title: Domain
+      description: "Host name of the Jira Cloud site, without https://."
+      examples: [your-site.atlassian.net]
+      pattern: "^[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?(\\.[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?)+$"
+      order: 0
+    email:      {type: string, title: Email, description: "Email of the Atlassian account the API token belongs to.", order: 1}
+    api_token:  {type: string, title: API token, description: "API token of that account, sent with the email as basic auth.", secret: true, order: 2}
+    start_date: {type: string, title: Start date, description: "Issues last updated before it are not read.", format: date-time, examples: ["2026-01-01T00:00:00Z"], order: 3}
+auth: {type: basic, username: "{{ config.email }}", password: "{{ config.api_token }}"}
+errors: {message: "$.errorMessages[0]"}
+check: {stream: projects}
+streams:
+  - name: projects
+    path: api/3/project/search
+    params: {expand: "description,lead,issueTypes,url,projectKeys,insight"}
+    primary_key: [id]
+    schema: schemas/projects.json
+    records: {path: $.values}
+    pagination: &values {type: offset, offset_param: startAt, size: 50, size_param: maxResults, is_last: $.isLast}
+  - name: users
+    path: api/3/users/search
+    primary_key: [accountId]
+    schema: schemas/users.json
+    pagination: {type: offset, offset_param: startAt, size: 50, size_param: maxResults}
+  - name: issue_fields
+    path: api/3/field/search
+    primary_key: [id]
+    schema: schemas/issue_fields.json
+    records: {path: $.values}
+    pagination: *values
+  - name: boards
+    path: agile/1.0/board
+    primary_key: [id]
+    schema: schemas/boards.json
+    records: {path: $.values}
+    pagination: *values
+  - name: issues
+    path: api/3/search/jql
+    params:
+      jql: "updated >= \"{{ since }}\" ORDER BY updated ASC"
+      fields: "*all"
+    primary_key: [id]
+    schema: schemas/issues.json
+    records: {path: $.issues}
+    pagination: {type: cursor, cursor_from: $.nextPageToken, cursor_param: nextPageToken, size: 100, size_param: maxResults, is_last: $.isLast}
+    incremental:
+      cursor_field: fields.updated
+      cursor_format: "2006-01-02T15:04:05.000-0700"
+      since_format: "2006-01-02 15:04"
+      start: "{{ config.start_date }}"
+      lookback: 1d

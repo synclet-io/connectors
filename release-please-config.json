@@ -210,6 +210,16 @@
         }
       ]
     },
+    "connectors/source-jira": {
+      "component": "source-jira",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "meta.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
     "connectors/source-mongodb": {
       "component": "source-mongodb",
       "extra-files": [

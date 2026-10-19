@@ -1,0 +1,58 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Reads projects, users, issue fields, boards and issues from Jira Cloud.",
+    "properties": {
+      "api_token": {
+        "airbyte_secret": true,
+        "description": "API token of that account, sent with the email as basic auth.",
+        "order": 2,
+        "title": "API token",
+        "type": "string"
+      },
+      "domain": {
+        "description": "Host name of the Jira Cloud site, without https://.",
+        "examples": [
+          "your-site.atlassian.net"
+        ],
+        "order": 0,
+        "title": "Domain",
+        "type": "string"
+      },
+      "email": {
+        "description": "Email of the Atlassian account the API token belongs to.",
+        "order": 1,
+        "title": "Email",
+        "type": "string"
+      },
+      "start_date": {
+        "description": "Issues last updated before it are not read.",
+        "examples": [
+          "2026-01-01T00:00:00Z"
+        ],
+        "format": "date-time",
+        "order": 3,
+        "title": "Start date",
+        "type": "string"
+      }
+    },
+    "required": [
+      "domain",
+      "email",
+      "api_token",
+      "start_date"
+    ],
+    "title": "Jira Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-jira",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": true,
+  "supportsNormalization": false
+}
