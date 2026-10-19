@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"maps"
+	"net/http"
 	"net/url"
 	"slices"
 	"strings"
@@ -144,4 +145,31 @@ func TestIncrementalResumesThroughSince(t *testing.T) {
 		"repos/octo-example/api/commits":         "2026-10-15T08:00:00Z",
 		"repos/octo-example/web/commits":         "2026-09-15T08:00:00Z",
 	})
+}
+
+func TestStargazersAskForStarredAt(t *testing.T) {
+	var (
+		mu     sync.Mutex
+		accept = map[string][]string{}
+	)
+	inspect := func(r *http.Request) {
+		mu.Lock()
+		defer mu.Unlock()
+		accept[r.URL.Path] = append(accept[r.URL.Path], r.Header.Get("Accept"))
+	}
+	h := declarativetest.New(t, declarativetest.Suite{Config: config, Auth: auth, Now: now, Inspect: inspect})
+	out := h.Read(t, h.Catalog(t, synclet.SyncModeFullRefresh, "stargazers"), nil)
+	if out.Err != nil {
+		t.Fatalf("read: %v", out.Err)
+	}
+	if len(accept) == 0 {
+		t.Fatal("no stargazers request")
+	}
+	for path, values := range accept {
+		for _, v := range values {
+			if v != "application/vnd.github.star+json" {
+				t.Errorf("%s: Accept %q, want application/vnd.github.star+json", path, v)
+			}
+		}
+	}
 }

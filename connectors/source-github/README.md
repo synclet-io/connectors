@@ -61,18 +61,28 @@ The next read sends `since=<saved cursor minus 1h>` and drops records older than
 records are read again and deduplicated by the primary key. A repository added to the list later is read
 from `start_date`. A full refresh reads from `start_date` and saves no state.
 
+The `commits` cursor is the committer date, and GitHub's `since` filters on it. A commit whose committer
+date is older than the saved cursor when it reaches the default branch, such as one merged by a fast-forward
+or a merge commit that keeps the original commits' dates, is not read by an incremental sync. Run a full
+refresh of `commits` periodically (for example weekly) to pick such commits up.
+
 ## Errors and rate limits
 
 - 401 (bad credentials) and 403 (missing permission) fail `check` and every read as configuration errors
   with GitHub's `message`.
 - 429, and 403 with `x-ratelimit-remaining: 0` (the primary rate limit), wait for `Retry-After` or until
   `x-ratelimit-reset`, then repeat the request, up to five times.
+- A 403 of the secondary rate limit, which carries `Retry-After` while `x-ratelimit-remaining` is above 0,
+  is not waited for: it fails the read as a configuration error with GitHub's `message`. Rerun the sync
+  later, or read fewer repositories per connection.
 - 5xx responses and network errors are retried three times with a doubling delay from 1s.
 - A repository that does not exist or that the token cannot see answers 404 and fails the read.
 
 ## Tests
 
 `manifest_test.go` runs the engine against hand-written synthetic fixtures in `testdata/` (two
-repositories, two `Link`-paged pages per list stream) without network or credentials: the SDK conformance
-suite for full refresh and for each incremental stream, `check` with 401 and 403, a one-time 429, both
-repositories per stream, and the `since` sent on a first and on a resumed read.
+repositories, two `Link`-paged pages per list stream, one of them reached through an absolute
+`https://api.github.com/repositories/<id>/...` link as GitHub sends it) without network or credentials: the
+SDK conformance suite for full refresh and for each incremental stream, `check` with 401 and 403, a one-time
+429, both repositories per stream, the `since` sent on a first and on a resumed read, and the `star+json`
+`Accept` header of `stargazers`.
