@@ -25,7 +25,8 @@ type streamState struct {
 
 // Read emits every configured stream in catalog order. An incremental read
 // selects the rows whose cursor is at least the saved one, in cursor order;
-// rows with a NULL cursor come last and do not move the state.
+// rows with a NULL cursor come last and do not move the state. A NaN or
+// infinite FLOAT cursor fails the read: no saved cursor could resume past it.
 func (s Source) Read(ctx context.Context, cfg Config, catalog *synclet.ConfiguredCatalog, state *synclet.InputState, em *synclet.Emitter) error {
 	c, err := s.connect(ctx, cfg)
 	if err != nil {
@@ -130,8 +131,14 @@ func (c *conn) readStream(ctx context.Context, cs synclet.ConfiguredStream, stat
 			record[col.name] = v
 		}
 		if cursorAt >= 0 && cells[cursorAt].Valid {
-			if _, err := p.cursor.kind.value(cells[cursorAt]); err != nil {
+			cv, err := p.cursor.kind.value(cells[cursorAt])
+			if err != nil {
 				return fmt.Errorf("read %s: cursor column %q: %w", p.ref, p.cursor.name, err)
+			}
+			if cv == nil {
+				return fmt.Errorf("stream %s: cursor column %q is %s at row %d: NaN and infinity cannot be saved as a cursor, "+
+					"because Snowflake orders them above every number and a resumed read would never get past them",
+					streamName(desc), p.cursor.name, cells[cursorAt].String, count+1)
 			}
 			v := cells[cursorAt].String
 			st.Cursor = &v
@@ -240,8 +247,12 @@ func (c *conn) planStream(ctx context.Context, cs synclet.ConfiguredStream, stat
 		return p, nil
 	}
 	if saved.Cursor != nil {
-		if _, err := k.value(sql.NullString{String: *saved.Cursor, Valid: true}); err != nil {
+		v, err := k.value(sql.NullString{String: *saved.Cursor, Valid: true})
+		if err != nil {
 			return streamPlan{}, synclet.ConfigError(fmt.Errorf("stream %s: invalid state cursor: %w", name, err))
+		}
+		if v == nil {
+			return streamPlan{}, synclet.ConfigError(fmt.Errorf("stream %s: invalid state cursor %q: NaN and infinity are not cursor values", name, *saved.Cursor))
 		}
 	}
 	p.from = saved.Cursor

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"compress/gzip"
 	"crypto"
 	"crypto/rand"
@@ -14,10 +15,29 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"slices"
+	"strconv"
 	"strings"
 	"sync"
 	"testing"
+
+	"github.com/apache/arrow-go/v18/arrow"
+	"github.com/apache/arrow-go/v18/arrow/array"
+	"github.com/apache/arrow-go/v18/arrow/ipc"
+	"github.com/apache/arrow-go/v18/arrow/memory"
 )
+
+// Result formats the fake answers queries in.
+const (
+	formatJSON  = "json"
+	formatArrow = "arrow"
+)
+
+// resultFormats are the formats a test of result decoding runs in.
+var resultFormats = []string{formatJSON, formatArrow}
+
+// fakeQRMK is the result master key the fake hands out with chunked
+// results and expects back on every chunk download.
+const fakeQRMK = "fake-qrmk"
 
 // fakeColumn is one column of a fake result: its name and the driver's
 // type of it (text, fixed, real).
@@ -27,14 +47,24 @@ type fakeColumn struct {
 }
 
 // fakeQuery answers a query whose SQL text and bound values equal sql and
-// bindings, with rows or with a Snowflake error.
+// bindings, with rows or with a Snowflake error. Rows of chunks follow rows,
+// each chunk downloaded from its own URL; failChunk, when set, is the
+// 1-based chunk that answers 403.
 type fakeQuery struct {
-	sql      string
-	bindings []string
-	columns  []fakeColumn
-	rows     [][]*string
-	errCode  string
-	errMsg   string
+	sql       string
+	bindings  []string
+	columns   []fakeColumn
+	rows      [][]*string
+	chunks    [][][]*string
+	failChunk int
+	errCode   string
+	errMsg    string
+}
+
+// fakeChunk is a result chunk the fake serves at /chunk/N.
+type fakeChunk struct {
+	body   []byte
+	status int
 }
 
 // fakeSnowflake speaks the part of Snowflake's HTTP protocol gosnowflake
@@ -51,13 +81,25 @@ type fakeSnowflake struct {
 	// loginErr, when set, is the code and message every login fails with.
 	loginErr [2]string
 
+	// format is the result format of every query: formatJSON or
+	// formatArrow.
+	format string
+
 	mu      sync.Mutex
+	url     string
 	queries []fakeQuery
 	seen    []string
+	chunks  []fakeChunk
 }
 
 func newFake(t *testing.T) *fakeSnowflake {
-	return &fakeSnowflake{t: t, user: "SYNCLET_TEST", password: "test-password", key: &testKey.PublicKey}
+	return &fakeSnowflake{t: t, user: "SYNCLET_TEST", password: "test-password", key: &testKey.PublicKey, format: formatJSON}
+}
+
+// in sets the result format of every query.
+func (f *fakeSnowflake) in(format string) *fakeSnowflake {
+	f.format = format
+	return f
 }
 
 func (f *fakeSnowflake) on(q ...fakeQuery) *fakeSnowflake {
@@ -78,6 +120,9 @@ func (f *fakeSnowflake) executed() []string {
 func (f *fakeSnowflake) source() Source {
 	srv := httptest.NewServer(http.HandlerFunc(f.serve))
 	f.t.Cleanup(srv.Close)
+	f.mu.Lock()
+	f.url = srv.URL
+	f.mu.Unlock()
 	u, err := url.Parse(srv.URL)
 	if err != nil {
 		f.t.Fatal(err)
@@ -106,6 +151,8 @@ func (f *fakeSnowflake) serve(w http.ResponseWriter, r *http.Request) {
 		f.login(w, raw)
 	case r.Method == http.MethodPost && r.URL.Path == "/queries/v1/query-request":
 		f.query(w, raw)
+	case r.Method == http.MethodGet && strings.HasPrefix(r.URL.Path, "/chunk/"):
+		f.chunk(w, r)
 	case r.Method == http.MethodPost && r.URL.Path == "/session" && r.URL.Query().Get("delete") == "true":
 		_, _ = fmt.Fprint(w, `{"success":true,"data":null}`)
 	default:
@@ -223,15 +270,152 @@ func (f *fakeSnowflake) query(w http.ResponseWriter, raw []byte) {
 	for i, c := range match.columns {
 		rowtype[i] = map[string]any{"name": c.name, "type": c.typ, "nullable": true, "precision": 38, "scale": 0}
 	}
-	rows := match.rows
-	if rows == nil {
-		rows = [][]*string{}
+	total := len(match.rows)
+	var chunks []map[string]any
+	f.mu.Lock()
+	for i, rows := range match.chunks {
+		total += len(rows)
+		body, err := f.encodeChunk(match.columns, rows)
+		if err != nil {
+			f.mu.Unlock()
+			f.t.Errorf("fake Snowflake: %v", err)
+			fail(w, "000904", "fake: cannot encode chunk")
+			return
+		}
+		c := fakeChunk{body: body, status: http.StatusOK}
+		if match.failChunk == i+1 {
+			c.status = http.StatusForbidden
+		}
+		chunks = append(chunks, map[string]any{"url": fmt.Sprintf("%s/chunk/%d", f.url, len(f.chunks)), "rowCount": len(rows)})
+		f.chunks = append(f.chunks, c)
 	}
-	b, _ := json.Marshal(map[string]any{"success": true, "data": map[string]any{
-		"queryResultFormat": "json", "queryId": "01fake00-0000-0000-0000-000000000000",
-		"rowtype": rowtype, "rowset": rows, "total": len(rows), "returned": len(rows),
-	}})
+	f.mu.Unlock()
+	data := map[string]any{
+		"queryResultFormat": f.format, "queryId": "01fake00-0000-0000-0000-000000000000",
+		"rowtype": rowtype, "total": total, "returned": total,
+	}
+	if len(chunks) > 0 {
+		data["chunks"] = chunks
+		data["qrmk"] = fakeQRMK
+	}
+	if f.format == formatArrow {
+		if len(match.rows) > 0 {
+			b, err := arrowRows(match.columns, match.rows)
+			if err != nil {
+				f.t.Errorf("fake Snowflake: %v", err)
+				fail(w, "000904", "fake: cannot encode rows")
+				return
+			}
+			data["rowsetBase64"] = base64.StdEncoding.EncodeToString(b)
+		}
+	} else {
+		rows := match.rows
+		if rows == nil {
+			rows = [][]*string{}
+		}
+		data["rowset"] = rows
+	}
+	b, _ := json.Marshal(map[string]any{"success": true, "data": data})
 	_, _ = w.Write(b)
+}
+
+// chunk serves a result chunk to a request that carries the result's
+// master key.
+func (f *fakeSnowflake) chunk(w http.ResponseWriter, r *http.Request) {
+	n, err := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/chunk/"))
+	f.mu.Lock()
+	ok := err == nil && n >= 0 && n < len(f.chunks)
+	var c fakeChunk
+	if ok {
+		c = f.chunks[n]
+	}
+	f.mu.Unlock()
+	if !ok {
+		f.t.Errorf("fake Snowflake: unknown chunk %s", r.URL.Path)
+		http.Error(w, "unknown chunk", http.StatusNotFound)
+		return
+	}
+	if got := r.Header.Get("X-Amz-Server-Side-Encryption-Customer-Key"); got != fakeQRMK {
+		f.t.Errorf("fake Snowflake: chunk %d requested with key %q", n, got)
+	}
+	w.Header().Set("Content-Type", "application/octet-stream")
+	if c.status != http.StatusOK {
+		w.WriteHeader(c.status)
+		_, _ = fmt.Fprint(w, "<Error><Code>AccessDenied</Code></Error>")
+		return
+	}
+	_, _ = w.Write(c.body)
+}
+
+// encodeChunk renders rows as a chunk body: JSON rows without the
+// enclosing brackets, or an Arrow IPC stream.
+func (f *fakeSnowflake) encodeChunk(columns []fakeColumn, rows [][]*string) ([]byte, error) {
+	if f.format == formatArrow {
+		return arrowRows(columns, rows)
+	}
+	b, err := json.Marshal(rows)
+	if err != nil {
+		return nil, err
+	}
+	return b[1 : len(b)-1], nil
+}
+
+// arrowRows renders rows as an Arrow IPC stream of one record batch: text
+// columns as strings, real as float64 and fixed as int64.
+func arrowRows(columns []fakeColumn, rows [][]*string) ([]byte, error) {
+	fields := make([]arrow.Field, len(columns))
+	for i, c := range columns {
+		var dt arrow.DataType
+		switch c.typ {
+		case "text":
+			dt = arrow.BinaryTypes.String
+		case "real":
+			dt = arrow.PrimitiveTypes.Float64
+		case "fixed":
+			dt = arrow.PrimitiveTypes.Int64
+		default:
+			return nil, fmt.Errorf("no Arrow type for column type %q", c.typ)
+		}
+		fields[i] = arrow.Field{Name: c.name, Type: dt, Nullable: true}
+	}
+	schema := arrow.NewSchema(fields, nil)
+	b := array.NewRecordBuilder(memory.DefaultAllocator, schema)
+	defer b.Release()
+	for _, r := range rows {
+		for i, cell := range r {
+			if cell == nil {
+				b.Field(i).AppendNull()
+				continue
+			}
+			switch fb := b.Field(i).(type) {
+			case *array.StringBuilder:
+				fb.Append(*cell)
+			case *array.Float64Builder:
+				v, err := strconv.ParseFloat(*cell, 64)
+				if err != nil {
+					return nil, fmt.Errorf("real cell %q: %w", *cell, err)
+				}
+				fb.Append(v)
+			case *array.Int64Builder:
+				v, err := strconv.ParseInt(*cell, 10, 64)
+				if err != nil {
+					return nil, fmt.Errorf("fixed cell %q: %w", *cell, err)
+				}
+				fb.Append(v)
+			}
+		}
+	}
+	rec := b.NewRecord()
+	defer rec.Release()
+	var buf bytes.Buffer
+	w := ipc.NewWriter(&buf, ipc.WithSchema(schema))
+	if err := w.Write(rec); err != nil {
+		return nil, err
+	}
+	if err := w.Close(); err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
 }
 
 // str is a fake cell value; null is SQL NULL.

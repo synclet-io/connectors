@@ -116,6 +116,10 @@ It keeps the greatest cursor in STREAM state, in the text form that it selects t
   (`append_dedup`) when that matters.
 - A STATE message follows every 10,000 rows and the end of the stream.
 - Rows whose cursor is `NULL` are emitted by the first read only.
+- A `FLOAT` cursor that is `NaN`, `inf` or `-inf` fails the read with an error naming the stream,
+  the column and the row. Snowflake orders `NaN` above every number, so a saved `NaN` would make each
+  later read return only the `NaN` rows; no such value is ever saved as state. Use another cursor
+  column, or a view that filters these rows or maps them to `NULL`.
 - When the saved state names a different cursor field than the catalog, the read logs a warning and
   starts the stream over.
 - Deletes are not seen.
@@ -130,8 +134,9 @@ It keeps the greatest cursor in STREAM state, in the text form that it selects t
 
 The tests need no Snowflake account. `go test ./...` (or `-short`) runs every test against a fake
 `httptest` server. The fake speaks the part of Snowflake's HTTP protocol that gosnowflake uses: login
-(it checks the password, or the RS256 signature of the key-pair JWT), queries with bound values, and
-session close. It answers each query only when the SQL text and the bindings match exactly, and it fails
+(it checks the password, or the RS256 signature of the key-pair JWT), queries with bound values, result
+chunks downloaded with the result master key, and session close. It answers in JSON or in Arrow (the
+format real accounts send to Go clients), and the read tests run in both. It answers each query only when the SQL text and the bindings match exactly, and it fails
 the test on anything else. So the tests pin the queries the connector builds, run the real driver, and
 cover type decoding, `check` failure causes, discover, incremental resume and the SDK conformance suite
 (`testkit.RunSourceSuite`). Every account, name and value in them is synthetic.
