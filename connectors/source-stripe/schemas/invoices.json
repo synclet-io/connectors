@@ -14,7 +14,10 @@
       "type": "boolean"
     },
     "metadata": {
-      "type": "object"
+      "type": [
+        "object",
+        "null"
+      ]
     },
     "customer": {
       "type": "string"

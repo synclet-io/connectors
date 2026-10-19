@@ -65,6 +65,8 @@ type Suite struct {
 	// Auth is the credential a request must carry; without it the request
 	// gets the unauthorized fixture with HTTP 401.
 	Auth Auth
+	// Headers are headers every request must carry with these values.
+	Headers map[string]string
 	// Now is the engine's clock.
 	Now time.Time
 	// MinPages is the least number of pages the fixtures of every paginated
@@ -156,6 +158,11 @@ func (h *Harness) serve(t testing.TB, w http.ResponseWriter, r *http.Request) {
 	s := h.suite
 	if s.Auth.header != "" && s.Auth.value != "" && strings.Contains(r.URL.RawQuery, url.QueryEscape(s.Auth.value)) {
 		t.Errorf("request %s carries the credential in its URL", r.URL.Path)
+	}
+	for k, v := range s.Headers {
+		if got := r.Header.Get(k); got != v {
+			t.Errorf("request %s: header %s=%q, want %q", r.URL.Path, k, got, v)
+		}
 	}
 	h.mu.Lock()
 	limited := h.rateLimit

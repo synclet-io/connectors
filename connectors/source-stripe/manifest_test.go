@@ -41,6 +41,7 @@ func suite() declarativetest.Suite {
 		Config:       config,
 		BrokenConfig: brokenConfig,
 		Auth:         declarativetest.Header("Authorization", "Bearer sk_test_example"),
+		Headers:      map[string]string{"Stripe-Version": "2025-08-27.basil"},
 		Now:          time.Date(2026, 10, 18, 12, 0, 0, 0, time.UTC),
 		MinPages:     2,
 	}
@@ -190,6 +191,13 @@ func TestStreamsPageByStartingAfter(t *testing.T) {
 			}
 			if got := qs[1].Get("starting_after"); got != last {
 				t.Errorf("second request starting_after=%q, want the first page's last id %q", got, last)
+			}
+			if name == "subscriptions" {
+				for _, q := range qs {
+					if got := q.Get("status"); got != "all" {
+						t.Errorf("subscriptions request status=%q, want all: canceled subscriptions are left out otherwise", got)
+					}
+				}
 			}
 			var want []string
 			for _, p := range [][]string{ids(first), ids(second)} {

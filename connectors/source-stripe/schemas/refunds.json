@@ -11,7 +11,10 @@
       "type": "integer"
     },
     "metadata": {
-      "type": "object"
+      "type": [
+        "object",
+        "null"
+      ]
     },
     "amount": {
       "type": "integer"
