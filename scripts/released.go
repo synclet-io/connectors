@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"sort"
 	"strconv"
@@ -19,9 +20,10 @@ type imageChecker func(repo, tag string) (bool, error)
 // loadReleased returns, for every connector directory, the connector as of its
 // newest <dir>-v<version> tag whose image is published. A tag whose image is not
 // pullable yet (its release is still running, or failed) is skipped in favour of
-// the previous one, and so is a tag whose files are invalid; a connector with no
-// published tag is left out.
-func loadReleased(root, imagePrefix string, published imageChecker) ([]Connector, error) {
+// the previous one, and so is a tag whose files do not load, with a GitHub
+// warning annotation naming it. A connector with no published tag is left out;
+// one whose published tags all fail to load is an error.
+func loadReleased(root, imagePrefix string, published imageChecker, warn io.Writer) ([]Connector, error) {
 	schema, err := compileSchema(root)
 	if err != nil {
 		return nil, err
@@ -39,10 +41,17 @@ func loadReleased(root, imagePrefix string, published imageChecker) ([]Connector
 
 	tags := strings.Fields(out)
 
-	var connectors []Connector
+	var (
+		connectors []Connector
+		errs       []error
+	)
 
 	for _, dir := range dirs {
 		repo := strings.ToLower(strings.TrimSuffix(imagePrefix, "/") + "/" + dir)
+
+		var failed []error
+
+		loaded := false
 
 		for _, v := range releasedVersions(tags, dir) {
 			ok, err := published(repo, v)
@@ -51,7 +60,9 @@ func loadReleased(root, imagePrefix string, published imageChecker) ([]Connector
 			}
 
 			if !ok {
-				fmt.Printf("skip %s %s: image not published\n", dir, v)
+				if _, err := fmt.Fprintf(warn, "skip %s %s: image not published\n", dir, v); err != nil {
+					return nil, err
+				}
 
 				continue
 			}
@@ -60,7 +71,7 @@ func loadReleased(root, imagePrefix string, published imageChecker) ([]Connector
 
 			c, err := parseReleased(root, tag, dir, schema)
 			if err != nil {
-				fmt.Printf("warning: skip %s: %v\n", tag, err)
+				failed = append(failed, fmt.Errorf("%s: %w", tag, err))
 
 				continue
 			}
@@ -69,10 +80,27 @@ func loadReleased(root, imagePrefix string, published imageChecker) ([]Connector
 				return nil, fmt.Errorf("%s: meta.json declares version %s", tag, c.Meta.Version)
 			}
 
+			if len(failed) > 0 {
+				reasons := strings.ReplaceAll(errors.Join(failed...).Error(), "\n", "%0A")
+				if _, err := fmt.Fprintf(warn, "::warning::%s: falling back to %s, newer published tags do not load:%%0A%s\n",
+					dir, tag, reasons); err != nil {
+					return nil, err
+				}
+			}
+
 			connectors = append(connectors, c)
+			loaded = true
 
 			break
 		}
+
+		if !loaded && len(failed) > 0 {
+			errs = append(errs, fmt.Errorf("%s: none of its published release tags load:\n%w", dir, errors.Join(failed...)))
+		}
+	}
+
+	if len(errs) > 0 {
+		return nil, errors.Join(errs...)
 	}
 
 	return connectors, nil
@@ -254,4 +282,21 @@ func anonymousPull(client *http.Client) imageChecker {
 
 func newAnonymousPull() imageChecker {
 	return anonymousPull(&http.Client{Timeout: 30 * time.Second})
+}
+
+// newestPublished returns the newest version among dir's release tags whose
+// image is published, or "" when none is.
+func newestPublished(tags []string, dir, repo string, published imageChecker) (string, error) {
+	for _, v := range releasedVersions(tags, dir) {
+		ok, err := published(repo, v)
+		if err != nil {
+			return "", fmt.Errorf("%s:%s: %w", repo, v, err)
+		}
+
+		if ok {
+			return v, nil
+		}
+	}
+
+	return "", nil
 }

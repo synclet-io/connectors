@@ -27,7 +27,6 @@ jobs:
     outputs:
       connector: ${{ steps.release.outputs.connector }}
       version: ${{ steps.release.outputs.version }}
-      latest: ${{ steps.release.outputs.latest }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -42,8 +41,6 @@ jobs:
       - name: Validate
         run: go run ./scripts validate
 
-      # latest is true only when no other release tag of the connector has a higher version, so re-running
-      # an older tag leaves :latest on the newest release.
       - name: Resolve the tag to a connector
         id: release
         run: |
@@ -52,7 +49,6 @@ jobs:
           {
             echo "connector=$(echo "$RELEASE" | jq -r .connector)"
             echo "version=$(echo "$RELEASE" | jq -r .version)"
-            echo "latest=$(echo "$RELEASE" | jq -r .latest)"
           } >> "$GITHUB_OUTPUT"
 
   image:
@@ -123,9 +119,7 @@ jobs:
           context: ${{ env.DIR }}
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: |
-            ${{ steps.image.outputs.repo }}:${{ env.VERSION }}
-            ${{ needs.plan.outputs.latest == 'true' && format('{0}:latest', steps.image.outputs.repo) || '' }}
+          tags: ${{ steps.image.outputs.repo }}:${{ env.VERSION }}
           labels: |
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
@@ -160,3 +154,39 @@ jobs:
             echo "::error::$REPO is not public. Make the package public (Packages -> $CONNECTOR -> Package settings -> Change visibility), then re-run this workflow for $TAG."
             exit 1
           fi
+
+  # Releases of one connector queue here, one at a time. Each points :latest at the newest release whose image
+  # is published, read from the tags as they are now, so an older release finishing last leaves it alone.
+  latest:
+    needs: [plan, image]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    concurrency:
+      group: release-latest-${{ needs.plan.outputs.connector }}
+      cancel-in-progress: false
+    env:
+      CONNECTOR: ${{ needs.plan.outputs.connector }}
+      REPO: ${{ needs.image.outputs.repo }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: refs/tags/${{ env.TAG }}
+
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+
+      - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Point :latest at the newest published release
+        run: |
+          git fetch --force --tags origin
+          NEWEST=$(go run ./scripts latest --connector "$CONNECTOR")
+          echo "$REPO:latest -> $REPO:$NEWEST"
+          docker buildx imagetools create --tag "$REPO:latest" "$REPO:$NEWEST"

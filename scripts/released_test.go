@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -60,7 +61,7 @@ func TestLoadReleasedSkipsUnpublishedTag(t *testing.T) {
 		return tag == "0.1.0", nil
 	}
 
-	connectors, err := loadReleased(root, "ghcr.io/Org/Repo", published)
+	connectors, err := loadReleased(root, "ghcr.io/Org/Repo", published, io.Discard)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -74,7 +75,7 @@ func TestLoadReleasedSkipsUnpublishedTag(t *testing.T) {
 		t.Errorf("checked %v, want %v", checked, want)
 	}
 
-	none, err := loadReleased(root, "ghcr.io/org/repo", func(string, string) (bool, error) { return false, nil })
+	none, err := loadReleased(root, "ghcr.io/org/repo", func(string, string) (bool, error) { return false, nil }, io.Discard)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -211,13 +212,58 @@ func TestLoadReleasedOldTagFailingTodaysSchema(t *testing.T) {
 
 	commitAcme(t, root, "0.3.0", `"license":"MIT"`)
 
-	connectors, err := loadReleased(root, "ghcr.io/org/repo", func(string, string) (bool, error) { return true, nil })
+	var warn strings.Builder
+
+	connectors, err := loadReleased(root, "ghcr.io/org/repo", func(string, string) (bool, error) { return true, nil }, &warn)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	if len(connectors) != 1 || connectors[0].Meta.Version != "0.1.0" {
 		t.Fatalf("loadReleased = %+v, want source-acme at 0.1.0", connectors)
+	}
+
+	if !strings.Contains(warn.String(), "::warning::source-acme: falling back to source-acme-v0.1.0") ||
+		!strings.Contains(warn.String(), "source-acme-v0.2.0") {
+		t.Errorf("warnings = %q, want a ::warning:: annotation for the fallback past source-acme-v0.2.0", warn.String())
+	}
+}
+
+func TestLoadReleasedFailsWhenNoPublishedTagLoads(t *testing.T) {
+	root := t.TempDir()
+
+	schema, err := os.ReadFile(filepath.Join("..", schemaPath))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	writeFile(t, root, schemaPath, string(schema))
+	writeFile(t, root, "connectors/source-acme/Dockerfile", "FROM scratch\n")
+
+	runGit(t, root, "init", "-q")
+
+	// 0.1.0 has no spec.json.
+	commitAcme(t, root, "0.1.0", `"license":"MIT"`)
+	runGit(t, root, "tag", "source-acme-v0.1.0")
+
+	// 0.2.0 has a meta.json that is not JSON.
+	writeFile(t, root, "connectors/source-acme/spec.json", `{"connectionSpecification":{}}`)
+	writeFile(t, root, "connectors/source-acme/meta.json", `{"name":`)
+	runGit(t, root, "add", ".")
+	runGit(t, root, "-c", "user.name=t", "-c", "user.email=t@example.com", "commit", "-q", "-m", "0.2.0")
+	runGit(t, root, "tag", "source-acme-v0.2.0")
+
+	commitAcme(t, root, "0.3.0", `"license":"MIT"`)
+
+	connectors, err := loadReleased(root, "ghcr.io/org/repo", func(string, string) (bool, error) { return true, nil }, io.Discard)
+	if err == nil {
+		t.Fatalf("loadReleased = %+v, want an error: no published tag of source-acme loads", connectors)
+	}
+
+	for _, want := range []string{"source-acme", "source-acme-v0.2.0: parsing meta.json", "source-acme-v0.1.0: reading spec.json"} {
+		if !strings.Contains(err.Error(), want) {
+			t.Errorf("error = %v, want it to contain %q", err, want)
+		}
 	}
 }
 
@@ -228,4 +274,42 @@ func commitAcme(t *testing.T, root, version, extra string) {
 		`","release_stage":"alpha","support_level":"community",`+extra+`}`)
 	runGit(t, root, "add", ".")
 	runGit(t, root, "-c", "user.name=t", "-c", "user.email=t@example.com", "commit", "-q", "-m", version)
+}
+
+func TestNewestPublishedIgnoresWhichReleaseAsks(t *testing.T) {
+	tags := []string{"source-acme-v0.1.0", "source-acme-v0.10.0", "source-acme-v0.2.0", "source-acme-extra-v9.0.0"}
+	repo := "ghcr.io/org/repo/source-acme"
+
+	pushed := map[string]bool{}
+	published := func(r, v string) (bool, error) {
+		if r != repo {
+			t.Fatalf("checked %s, want %s", r, repo)
+		}
+
+		return pushed[v], nil
+	}
+
+	// Releases of 0.10.0 and 0.1.0 race; 0.10.0's :latest step runs first, then 0.1.0's.
+	steps := []struct {
+		pushed string
+		want   string
+	}{{"0.2.0", "0.2.0"}, {"0.10.0", "0.10.0"}, {"0.1.0", "0.10.0"}}
+
+	for _, s := range steps {
+		pushed[s.pushed] = true
+
+		got, err := newestPublished(tags, "source-acme", repo, published)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if got != s.want {
+			t.Errorf("after pushing %s, :latest -> %q, want %q", s.pushed, got, s.want)
+		}
+	}
+
+	none, err := newestPublished(tags, "source-gone", "ghcr.io/org/repo/source-gone", func(string, string) (bool, error) { return true, nil })
+	if err != nil || none != "" {
+		t.Errorf("newestPublished without tags = %q, %v, want empty", none, err)
+	}
 }

@@ -3,6 +3,7 @@
 //	go run ./scripts validate
 //	go run ./scripts registry [--image-prefix ghcr.io/org/repo] [--out dist/registry.json] [--released]
 //	go run ./scripts release --tag <dir>-v<version>   # JSON {connector, version, tag, latest}; fails unless meta.json has that version
+//	go run ./scripts latest --connector <dir> [--image-prefix ghcr.io/org/repo]   # newest release version whose image is published
 //	go run ./scripts entry --connector <dir> [--image-prefix ghcr.io/org/repo]   # one registry entry as JSON
 //	go run ./scripts changed --base <git-ref>   # JSON list of connectors touched since <git-ref>
 //
@@ -22,7 +23,7 @@ import (
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "usage: registry <validate|registry|release|entry|changed> [flags]")
+		fmt.Fprintln(os.Stderr, "usage: registry <validate|registry|release|latest|entry|changed> [flags]")
 		os.Exit(2)
 	}
 
@@ -53,6 +54,8 @@ func run(cmd string, args []string) error {
 		return writeRegistry(*root, *imagePrefix, *out, *released)
 	case "release":
 		return release(*root, *tag)
+	case "latest":
+		return latest(*root, *connector, *imagePrefix)
 	case "entry":
 		return entry(*root, *connector, *imagePrefix)
 	case "changed":
@@ -83,7 +86,7 @@ func writeRegistry(root, imagePrefix, out string, released bool) error {
 
 	var connectors []Connector
 	if released {
-		connectors, err = loadReleased(root, imagePrefix, newAnonymousPull())
+		connectors, err = loadReleased(root, imagePrefix, newAnonymousPull(), os.Stdout)
 	} else {
 		connectors, err = loadConnectors(root)
 	}
@@ -117,6 +120,40 @@ type Release struct {
 	Version   string `json:"version"`
 	Tag       string `json:"tag"`
 	Latest    bool   `json:"latest"`
+}
+
+// latest prints the version :latest of the connector should point at: the newest
+// release tag whose image is published. Every release computes the same answer
+// once its own image is pushed, so the order in which releases finish does not matter.
+func latest(root, dir, imagePrefix string) error {
+	if dir == "" {
+		return errors.New("--connector is required")
+	}
+
+	imagePrefix, err := resolveImagePrefix(imagePrefix)
+	if err != nil {
+		return err
+	}
+
+	out, err := git(root, "tag", "--list", dir+"-v*")
+	if err != nil {
+		return err
+	}
+
+	repo := strings.ToLower(strings.TrimSuffix(imagePrefix, "/") + "/" + dir)
+
+	v, err := newestPublished(strings.Fields(out), dir, repo, newAnonymousPull())
+	if err != nil {
+		return err
+	}
+
+	if v == "" {
+		return fmt.Errorf("%s has no published release", dir)
+	}
+
+	fmt.Println(v)
+
+	return nil
 }
 
 func release(root, tag string) error {
