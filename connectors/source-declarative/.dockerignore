@@ -1,0 +1,9 @@
+*_test.go
+testdata
+example
+README.md
+CHANGELOG.md
+spec.json
+meta.json
+/source-declarative
+/manifest-lint

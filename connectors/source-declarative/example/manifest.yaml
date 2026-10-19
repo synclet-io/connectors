@@ -1,0 +1,41 @@
+# yaml-language-server: $schema=../internal/manifest/manifest.schema.json
+version: 1
+connector:
+  name: source-acme
+  documentation_url: https://github.com/synclet-io/connectors/tree/main/connectors/source-acme
+base_url: https://api.example.com/v1/
+spec:
+  title: Acme Source Spec
+  description: Reads customers and charges from the Acme API.
+  required: [api_key, start_date]
+  properties:
+    api_key:    {type: string, title: API key, description: "Secret API key, sent as a Bearer token.", secret: true, order: 0}
+    start_date: {type: string, title: Start date, description: "Records created before it are not read.", format: date-time, examples: ["2026-01-01T00:00:00Z"], order: 1}
+auth: {type: bearer, token: "{{ config.api_key }}"}
+headers: {Acme-Version: "2026-01-01"}
+errors: {message: $.error.message}
+check: {stream: customers}
+params: {limit: 100}
+streams:
+  - &list
+    name: customers
+    path: customers
+    params: {"created[gte]": "{{ since }}"}
+    primary_key: [id]
+    schema: schemas/customers.json
+    records: {path: $.data}
+    pagination: {type: cursor, cursor_from: "last:id", cursor_param: starting_after, has_more: $.has_more}
+    incremental: {cursor_field: created, cursor_format: unix_s, start: "{{ config.start_date }}", lookback: 1h}
+  - <<: *list
+    name: charges
+    path: charges
+    schema:
+      type: object
+      properties:
+        id: {type: string}
+        object: {type: string}
+        amount: {type: integer}
+        currency: {type: string}
+        customer: {type: [string, "null"]}
+        created: {type: integer}
+      additionalProperties: true

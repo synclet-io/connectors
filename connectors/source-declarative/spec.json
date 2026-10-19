@@ -1,0 +1,28 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "The generic source-declarative image runs the manifest the config carries in __manifest, with the configuration that manifest's spec describes beside it. Synclet takes a builder connector's form from its stored manifest, not from this spec.",
+    "properties": {
+      "__manifest": {
+        "description": "The connector's manifest as a JSON object, schemas inline.",
+        "title": "Manifest",
+        "type": "object"
+      }
+    },
+    "required": [
+      "__manifest"
+    ],
+    "title": "Declarative HTTP Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-declarative",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": true,
+  "supportsNormalization": false
+}

@@ -1,0 +1,332 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://synclet.io/schemas/source-declarative/manifest.schema.json",
+  "title": "source-declarative manifest",
+  "description": "The manifest.yaml of a declarative HTTP source; see connectors/source-declarative/README.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "connector", "base_url", "spec", "auth", "check", "streams"],
+  "properties": {
+    "version": { "description": "Format version.", "type": "integer", "const": 1 },
+    "connector": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string", "pattern": "^source-[a-z0-9]+(-[a-z0-9]+)*$" },
+        "documentation_url": { "type": "string", "pattern": "^https?://" }
+      }
+    },
+    "base_url": { "$ref": "#/$defs/template" },
+    "spec": { "$ref": "#/$defs/spec" },
+    "auth": { "$ref": "#/$defs/auth" },
+    "headers": { "$ref": "#/$defs/headers" },
+    "params": { "$ref": "#/$defs/params" },
+    "timeout": { "$ref": "#/$defs/duration" },
+    "errors": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": { "message": { "$ref": "#/$defs/path" } }
+    },
+    "retry": { "$ref": "#/$defs/retry" },
+    "check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stream"],
+      "properties": { "stream": { "type": "string", "minLength": 1 } }
+    },
+    "streams": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/stream" } }
+  },
+  "$defs": {
+    "template": { "type": "string" },
+    "path": { "description": "A response path such as $.data or $.list[*].customer.", "type": "string", "pattern": "^\\$" },
+    "field": { "description": "A dotted record field name.", "type": "string", "pattern": "^[^.$\\[\\]]+(\\.[^.\\[\\]]+)*$" },
+    "duration": {
+      "description": "A Go duration such as 30s or 1h, or Nd days.",
+      "type": "string",
+      "pattern": "^([0-9]+(\\.[0-9]+)?d)?([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))*$",
+      "minLength": 2
+    },
+    "status": { "type": "integer", "minimum": 100, "maximum": 599 },
+    "scalar": { "type": ["string", "number", "boolean"] },
+    "headers": { "type": "object", "additionalProperties": { "$ref": "#/$defs/template" } },
+    "params": {
+      "type": "object",
+      "additionalProperties": {
+        "anyOf": [{ "$ref": "#/$defs/scalar" }, { "type": "array", "items": { "$ref": "#/$defs/scalar" } }]
+      }
+    },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "required": { "type": "array", "items": { "type": "string" } },
+        "properties": { "type": "object", "additionalProperties": { "$ref": "#/$defs/property" } }
+      }
+    },
+    "property": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type"],
+      "properties": {
+        "type": { "enum": ["string", "integer", "number", "boolean", "array"] },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "default": {},
+        "examples": { "type": "array", "items": { "$ref": "#/$defs/scalar" } },
+        "enum": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/scalar" } },
+        "format": { "enum": ["date", "date-time"] },
+        "pattern": { "type": "string" },
+        "secret": { "type": "boolean" },
+        "order": { "type": "integer" },
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type"],
+          "properties": { "type": { "const": "string" } }
+        }
+      }
+    },
+    "auth": {
+      "type": "object",
+      "required": ["type"],
+      "properties": { "type": { "enum": ["none", "api_key", "bearer", "basic", "oauth2_refresh"] } },
+      "allOf": [
+        {
+          "if": { "required": ["type"], "properties": { "type": { "const": "none" } } },
+          "then": { "additionalProperties": false, "properties": { "type": true } }
+        },
+        {
+          "if": { "required": ["type"], "properties": { "type": { "const": "api_key" } } },
+          "then": {
+            "additionalProperties": false,
+            "required": ["in", "name", "value"],
+            "properties": {
+              "type": true,
+              "in": { "enum": ["header", "query"] },
+              "name": { "type": "string", "minLength": 1 },
+              "value": { "$ref": "#/$defs/template" }
+            }
+          }
+        },
+        {
+          "if": { "required": ["type"], "properties": { "type": { "const": "bearer" } } },
+          "then": {
+            "additionalProperties": false,
+            "required": ["token"],
+            "properties": { "type": true, "token": { "$ref": "#/$defs/template" } }
+          }
+        },
+        {
+          "if": { "required": ["type"], "properties": { "type": { "const": "basic" } } },
+          "then": {
+            "additionalProperties": false,
+            "required": ["username", "password"],
+            "properties": {
+              "type": true,
+              "username": { "$ref": "#/$defs/template" },
+              "password": { "$ref": "#/$defs/template" }
+            }
+          }
+        },
+        {
+          "if": { "required": ["type"], "properties": { "type": { "const": "oauth2_refresh" } } },
+          "then": {
+            "additionalProperties": false,
+            "required": ["token_url", "client_id", "client_secret", "refresh_token"],
+            "properties": {
+              "type": true,
+              "token_url": { "$ref": "#/$defs/template" },
+              "client_id": { "$ref": "#/$defs/template" },
+              "client_secret": { "$ref": "#/$defs/template" },
+              "refresh_token": { "$ref": "#/$defs/template" },
+              "scopes": { "type": "array", "items": { "type": "string" } },
+              "body": { "enum": ["form", "json"] },
+              "access_token_path": { "$ref": "#/$defs/path" },
+              "expires_in_path": { "$ref": "#/$defs/path" }
+            }
+          }
+        }
+      ]
+    },
+    "retry": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "transient": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "statuses": { "type": "array", "items": { "$ref": "#/$defs/status" } },
+            "attempts": { "type": "integer", "minimum": 1 },
+            "backoff": { "$ref": "#/$defs/duration" }
+          }
+        },
+        "rate_limit": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "statuses": { "type": "array", "items": { "$ref": "#/$defs/status" } },
+            "also_when": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["status", "header", "equals"],
+              "properties": {
+                "status": { "$ref": "#/$defs/status" },
+                "header": { "type": "string", "minLength": 1 },
+                "equals": { "type": "string" }
+              }
+            },
+            "wait": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+            "attempts": { "type": "integer", "minimum": 1 }
+          }
+        }
+      }
+    },
+    "stream": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "path", "schema"],
+      "properties": {
+        "name": { "type": "string", "pattern": "^[A-Za-z0-9_][A-Za-z0-9_.-]*$" },
+        "path": { "$ref": "#/$defs/template" },
+        "params": { "$ref": "#/$defs/params" },
+        "headers": { "$ref": "#/$defs/headers" },
+        "primary_key": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/field" } },
+        "schema": {
+          "description": "A JSON Schema file path relative to the manifest, or the JSON Schema inline.",
+          "type": ["string", "object"]
+        },
+        "records": { "$ref": "#/$defs/records" },
+        "pagination": { "$ref": "#/$defs/pagination" },
+        "incremental": { "$ref": "#/$defs/incremental" },
+        "partition": { "$ref": "#/$defs/partition" },
+        "on_404": { "enum": ["fail", "skip"] }
+      }
+    },
+    "records": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": { "$ref": "#/$defs/path" },
+        "mode": { "enum": ["array", "object", "entries"] },
+        "key_field": { "$ref": "#/$defs/field" },
+        "value_field": { "$ref": "#/$defs/field" },
+        "add": {
+          "type": "object",
+          "propertyNames": { "$ref": "#/$defs/field" },
+          "additionalProperties": { "$ref": "#/$defs/scalar" }
+        }
+      }
+    },
+    "pagination": {
+      "type": "object",
+      "required": ["type"],
+      "allOf": [
+        {
+          "if": { "required": ["type"], "properties": { "type": { "const": "page" } } },
+          "then": {
+            "additionalProperties": false,
+            "properties": {
+              "type": true, "size": true, "size_param": true, "has_more": true, "is_last": true, "max_pages": true,
+              "page_param": { "type": "string", "minLength": 1 },
+              "first": { "type": "integer", "minimum": 0 },
+              "total": { "$ref": "#/$defs/path" },
+              "short_page": { "type": "boolean" }
+            }
+          }
+        },
+        {
+          "if": { "required": ["type"], "properties": { "type": { "const": "offset" } } },
+          "then": {
+            "additionalProperties": false,
+            "properties": {
+              "type": true, "size": true, "size_param": true, "has_more": true, "is_last": true, "max_pages": true,
+              "offset_param": { "type": "string", "minLength": 1 },
+              "total": { "$ref": "#/$defs/path" },
+              "short_page": { "type": "boolean" }
+            }
+          }
+        },
+        {
+          "if": { "required": ["type"], "properties": { "type": { "const": "cursor" } } },
+          "then": {
+            "additionalProperties": false,
+            "required": ["cursor_from", "cursor_param"],
+            "properties": {
+              "type": true, "size": true, "size_param": true, "has_more": true, "is_last": true, "max_pages": true,
+              "cursor_from": { "type": "string", "pattern": "^(\\$|header:.|last:.)" },
+              "cursor_param": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        {
+          "if": { "required": ["type"], "properties": { "type": { "const": "next_url" } } },
+          "then": {
+            "additionalProperties": false,
+            "required": ["url_from"],
+            "properties": {
+              "type": true, "size": true, "size_param": true, "has_more": true, "is_last": true, "max_pages": true,
+              "url_from": { "$ref": "#/$defs/path" }
+            }
+          }
+        },
+        {
+          "if": { "required": ["type"], "properties": { "type": { "const": "link" } } },
+          "then": {
+            "additionalProperties": false,
+            "properties": { "type": true, "size": true, "size_param": true, "has_more": true, "is_last": true, "max_pages": true }
+          }
+        }
+      ],
+      "properties": {
+        "type": { "enum": ["page", "offset", "cursor", "next_url", "link"] },
+        "size": { "type": "integer", "minimum": 1 },
+        "size_param": { "type": "string", "minLength": 1 },
+        "has_more": { "$ref": "#/$defs/path" },
+        "is_last": { "$ref": "#/$defs/path" },
+        "max_pages": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "incremental": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cursor_field", "cursor_format"],
+      "properties": {
+        "cursor_field": { "$ref": "#/$defs/field" },
+        "cursor_format": { "$ref": "#/$defs/timeFormat" },
+        "start": { "$ref": "#/$defs/template" },
+        "since_format": { "$ref": "#/$defs/timeFormat" },
+        "lookback": { "$ref": "#/$defs/duration" },
+        "window": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["step"],
+          "properties": {
+            "step": { "$ref": "#/$defs/duration" },
+            "closed_only": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "timeFormat": {
+      "description": "unix_s, unix_ms, rfc3339, date or a Go time layout.",
+      "type": "string",
+      "minLength": 1
+    },
+    "partition": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "maxProperties": 1,
+      "properties": {
+        "values": {
+          "anyOf": [{ "$ref": "#/$defs/template" }, { "type": "array", "items": { "type": "string" } }]
+        },
+        "parent": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {"type": "string"},
+    "object": {"type": "string"},
+    "email": {"type": ["string", "null"]},
+    "name": {"type": ["string", "null"]},
+    "created": {"type": "integer"}
+  },
+  "additionalProperties": true
+}

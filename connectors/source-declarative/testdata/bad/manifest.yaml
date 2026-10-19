@@ -1,0 +1,11 @@
+version: 1
+connector: {name: source-bad}
+base_url: https://api.example.com/
+spec: {properties: {}}
+auth: {type: none}
+check: {stream: items}
+streams:
+  - name: items
+    path: items
+    foo: 1
+    schema: {type: object, properties: {id: {type: string}}}
