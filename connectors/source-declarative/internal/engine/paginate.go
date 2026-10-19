@@ -49,7 +49,7 @@ func (r *run) params(st *manifest.Stream, scope manifest.Scope) (url.Values, err
 }
 
 func (r *run) streamURL(st *manifest.Stream, scope manifest.Scope) (*url.URL, error) {
-	p, err := st.Path.Render(scope, url.PathEscape)
+	p, err := st.Path.RenderPath(scope)
 	if err != nil {
 		return nil, fmt.Errorf("stream %s: path: %w", st.Name, err)
 	}

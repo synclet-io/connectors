@@ -2,7 +2,6 @@ package manifest
 
 import (
 	"encoding/json"
-	"net/url"
 	"os"
 	"strings"
 	"testing"
@@ -300,7 +299,6 @@ func TestTemplateRender(t *testing.T) {
 		{"x{{ config.missing }}y", nil, "xy"},
 		{`{{ config.accounts | join(",") }}`, nil, "a,b"},
 		{`{{config.accounts|join('|')}}`, nil, "a|b"},
-		{"repos/{{ config.region }}/issues", url.PathEscape, "repos/eu%20west%2F1/issues"},
 		{"n={{ config.n }}", nil, "n=7"},
 	}
 	for _, tt := range tests {
@@ -320,6 +318,28 @@ func TestTemplateRender(t *testing.T) {
 	require.NoError(t, err)
 	_, err = tp.Render(Scope{Config: cfg}, nil)
 	assert.ErrorContains(t, err, "join")
+}
+
+func TestTemplateRenderPath(t *testing.T) {
+	for _, tt := range []struct{ value, want, err string }{
+		{"octo/api", "repos/octo/api/issues", ""},
+		{"eu west/1", "repos/eu%20west/1/issues", ""},
+		{"a?b#c%d", "repos/a%3Fb%23c%25d/issues", ""},
+		{"..", "", `path segment ".." is not allowed`},
+		{"x/../y", "", `path segment ".." is not allowed`},
+		{"x/./y", "", `path segment "." is not allowed`},
+		{"a//b", "", "empty path segment"},
+	} {
+		tp, err := ParseTemplate("repos/{{ config.r }}/issues")
+		require.NoError(t, err)
+		got, err := tp.RenderPath(Scope{Config: map[string]any{"r": tt.value}})
+		if tt.err != "" {
+			assert.ErrorContains(t, err, tt.err, tt.value)
+			continue
+		}
+		require.NoError(t, err, tt.value)
+		assert.Equal(t, tt.want, got, tt.value)
+	}
 }
 
 func TestPathGet(t *testing.T) {

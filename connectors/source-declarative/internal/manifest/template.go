@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/url"
 	"strconv"
 	"strings"
 )
@@ -313,4 +314,25 @@ func ConfigList(config map[string]any, name string) ([]string, error) {
 		out[i] = s
 	}
 	return out, nil
+}
+
+// RenderPath renders a URL path template and escapes each of its
+// "/"-separated segments, so a substituted "owner/repo" stays two segments.
+// A "." or ".." segment or an empty one before the last fails.
+func (t *Template) RenderPath(s Scope) (string, error) {
+	p, err := t.Render(s, nil)
+	if err != nil {
+		return "", err
+	}
+	segs := strings.Split(p, "/")
+	for i, seg := range segs {
+		switch {
+		case seg == "." || seg == "..":
+			return "", fmt.Errorf("path %q: path segment %q is not allowed", p, seg)
+		case seg == "" && i < len(segs)-1:
+			return "", fmt.Errorf("path %q: empty path segment", p)
+		}
+		segs[i] = url.PathEscape(seg)
+	}
+	return strings.Join(segs, "/"), nil
 }

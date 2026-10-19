@@ -174,7 +174,7 @@ func (h *Harness) serve(t testing.TB, w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte(`{}`))
 		return
 	}
-	rel := strings.TrimPrefix(r.URL.Path, s.BasePath)
+	rel := strings.TrimPrefix(r.URL.EscapedPath(), s.BasePath)
 	status, file := http.StatusOK, ""
 	if s.Route != nil {
 		file = s.Route(rel, r.URL.Query())

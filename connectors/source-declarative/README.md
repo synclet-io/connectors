@@ -140,7 +140,7 @@ Status classification, not configurable: 401 and 403 are config errors (`failure
 | Key | Type | Required | Meaning |
 |---|---|---|---|
 | `name` | string | yes | Stream name in the catalog. |
-| `path` | template | yes | Appended to `base_url`. May use `config`, `partition`, `parent`, `since`, `until`. Path segments are URL-escaped after rendering. A path that renders empty fails. |
+| `path` | template | yes | Appended to `base_url`. May use `config`, `partition`, `parent`, `since`, `until`. Path segments are URL-escaped after rendering, so a value `owner/repo` stays two segments. A path that renders empty, or with a `.`, `..` or empty segment before the last, fails. |
 | `params` | map<string,template> | no | Query parameters, merged over the top-level `params` (stream wins). A value that renders empty is omitted, so an optional config value such as `base` or `environment` needs no condition. A YAML list value is sent as a repeated parameter (`types[]`). |
 | `headers` | map<string,template> | no | Merged over the top-level `headers`. |
 | `primary_key` | list<field> | no | Becomes `source_defined_primary_key`, one field per entry. |

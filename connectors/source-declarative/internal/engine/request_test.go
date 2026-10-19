@@ -273,18 +273,33 @@ func TestHeadersAndParams(t *testing.T) {
 }
 
 func TestPathEscaping(t *testing.T) {
-	a := newAPI(t).json("/v1/regions/eu%20west%2F1/items", `{"data":[]}`)
+	a := newAPI(t).json("/v1/regions/eu%20west/1/items", `{"data":[]}`).
+		json("/v1/regions/a%3Fb%23c%25d/items", `{"data":[]}`)
 	stream := strings.Replace(itemsStream, "path: items", `path: "regions/{{ config.region }}/items"`, 1)
-	src := newSource(t, manifestYAML("", stream), a, newClock())
-	cfg := `{"api_key":"k1","region":"eu west/1"}`
-	out := read(t, src, cfg, catalog(t, src, cfg, synclet.SyncModeFullRefresh, "items"), "")
-	require.NoError(t, out.Err)
-	assert.Equal(t, "/v1/regions/eu%20west%2F1/items", a.requests()[0].URL.EscapedPath())
+	for _, tt := range []struct{ region, want string }{
+		{"eu west/1", "/v1/regions/eu%20west/1/items"},
+		{"a?b#c%d", "/v1/regions/a%3Fb%23c%25d/items"},
+	} {
+		src := newSource(t, manifestYAML("", stream), a, newClock())
+		cfg := `{"api_key":"k1","region":"` + tt.region + `"}`
+		out := read(t, src, cfg, catalog(t, src, cfg, synclet.SyncModeFullRefresh, "items"), "")
+		require.NoError(t, out.Err, tt.region)
+		assert.Equal(t, tt.want, a.requests()[len(a.requests())-1].URL.EscapedPath())
+	}
 
-	cfg = `{"api_key":"k1","region":""}`
+	for _, region := range []string{"..", "x/../y", ".", "x/./y", "a//b", "x/"} {
+		src := newSource(t, manifestYAML("", stream), a, newClock())
+		cfg := `{"api_key":"k1","region":"` + region + `"}`
+		out := read(t, src, cfg, catalog(t, src, cfg, synclet.SyncModeFullRefresh, "items"), "")
+		msg, _ := traceMessage(out)
+		assert.Contains(t, msg, "path segment", region)
+	}
+	assert.Len(t, a.requests(), 2)
+
+	cfg := `{"api_key":"k1","region":""}`
 	stream = strings.Replace(itemsStream, "path: items", `path: "{{ config.region }}"`, 1)
-	src = newSource(t, manifestYAML("", stream), a, newClock())
-	out = read(t, src, cfg, catalog(t, src, cfg, synclet.SyncModeFullRefresh, "items"), "")
+	src := newSource(t, manifestYAML("", stream), a, newClock())
+	out := read(t, src, cfg, catalog(t, src, cfg, synclet.SyncModeFullRefresh, "items"), "")
 	msg, _ := traceMessage(out)
 	assert.Contains(t, msg, "path renders empty")
 }
