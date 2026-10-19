@@ -1,0 +1,16 @@
+{
+  "errors": [
+    {
+      "id": "00000000-0000-4000-8000-000000000000",
+      "status": 401,
+      "code": "not_authenticated",
+      "title": "Incorrect authentication credentials.",
+      "detail": "The private API key provided is not valid.",
+      "source": {
+        "pointer": "/data/"
+      },
+      "links": {},
+      "meta": {}
+    }
+  ]
+}

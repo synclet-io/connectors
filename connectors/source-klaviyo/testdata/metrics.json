@@ -1,0 +1,27 @@
+{
+  "data": [
+    {
+      "type": "metric",
+      "id": "TESTM1",
+      "attributes": {
+        "name": "Placed Order",
+        "created": "2026-01-05T00:00:00+00:00",
+        "updated": "2026-01-05T00:00:00+00:00",
+        "integration": {
+          "object": "integration",
+          "id": "0000",
+          "name": "API",
+          "category": "API"
+        }
+      },
+      "links": {
+        "self": "https://a.klaviyo.com/api/metrics/TESTM1/"
+      }
+    }
+  ],
+  "links": {
+    "self": "https://a.klaviyo.com/api/metrics/",
+    "next": "metrics?page%5Bcursor%5D=metrics-p2",
+    "prev": null
+  }
+}

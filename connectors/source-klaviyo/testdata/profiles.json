@@ -1,0 +1,138 @@
+{
+  "data": [
+    {
+      "type": "profile",
+      "id": "01TESTPROFILE0000000000001",
+      "attributes": {
+        "email": "first@example.com",
+        "phone_number": null,
+        "external_id": null,
+        "first_name": "Test",
+        "last_name": "Person 1",
+        "organization": null,
+        "locale": "en-US",
+        "title": null,
+        "image": null,
+        "created": "2026-01-02T08:00:00+00:00",
+        "updated": "2026-03-01T10:00:00+00:00",
+        "last_event_date": null,
+        "location": {
+          "address1": null,
+          "address2": null,
+          "city": "Exampleville",
+          "country": "US",
+          "latitude": 40.0,
+          "longitude": "-75.0",
+          "region": null,
+          "zip": "00000",
+          "timezone": "America/New_York",
+          "ip": null
+        },
+        "properties": {
+          "plan": "free"
+        },
+        "subscriptions": {
+          "email": {
+            "marketing": {
+              "can_receive_email_marketing": true,
+              "consent": "SUBSCRIBED"
+            }
+          },
+          "sms": null,
+          "mobile_push": null
+        },
+        "predictive_analytics": {
+          "historic_clv": 12.5,
+          "predicted_clv": 3.25,
+          "total_clv": 15.75,
+          "historic_number_of_orders": 2,
+          "predicted_number_of_orders": 0.4,
+          "average_days_between_orders": null,
+          "average_order_value": 6.25,
+          "churn_probability": 0.5,
+          "expected_date_of_next_order": null
+        },
+        "x_unlisted_attribute": "kept"
+      },
+      "links": {
+        "self": "https://a.klaviyo.com/api/profiles/01TESTPROFILE0000000000001/"
+      },
+      "relationships": {
+        "lists": {
+          "links": {
+            "self": "https://a.klaviyo.com/api/profiles/01TESTPROFILE0000000000001/relationships/lists/"
+          }
+        }
+      }
+    },
+    {
+      "type": "profile",
+      "id": "01TESTPROFILE0000000000002",
+      "attributes": {
+        "email": "second@example.com",
+        "phone_number": null,
+        "external_id": null,
+        "first_name": "Test",
+        "last_name": "Person 2",
+        "organization": null,
+        "locale": "en-US",
+        "title": null,
+        "image": null,
+        "created": "2026-01-02T08:00:00+00:00",
+        "updated": "2026-03-02T11:30:00+00:00",
+        "last_event_date": null,
+        "location": {
+          "address1": null,
+          "address2": null,
+          "city": "Exampleville",
+          "country": "US",
+          "latitude": 40.0,
+          "longitude": "-75.0",
+          "region": null,
+          "zip": "00000",
+          "timezone": "America/New_York",
+          "ip": null
+        },
+        "properties": {
+          "plan": "free"
+        },
+        "subscriptions": {
+          "email": {
+            "marketing": {
+              "can_receive_email_marketing": true,
+              "consent": "SUBSCRIBED"
+            }
+          },
+          "sms": null,
+          "mobile_push": null
+        },
+        "predictive_analytics": {
+          "historic_clv": 12.5,
+          "predicted_clv": 3.25,
+          "total_clv": 15.75,
+          "historic_number_of_orders": 2,
+          "predicted_number_of_orders": 0.4,
+          "average_days_between_orders": null,
+          "average_order_value": 6.25,
+          "churn_probability": 0.5,
+          "expected_date_of_next_order": null
+        }
+      },
+      "links": {
+        "self": "https://a.klaviyo.com/api/profiles/01TESTPROFILE0000000000002/"
+      },
+      "relationships": {
+        "lists": {
+          "links": {
+            "self": "https://a.klaviyo.com/api/profiles/01TESTPROFILE0000000000002/relationships/lists/"
+          }
+        }
+      }
+    }
+  ],
+  "links": {
+    "self": "https://a.klaviyo.com/api/profiles/",
+    "next": "profiles?page%5Bcursor%5D=profiles-p2",
+    "prev": null
+  }
+}

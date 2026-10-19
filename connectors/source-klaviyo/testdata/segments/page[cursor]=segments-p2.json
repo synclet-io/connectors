@@ -1,0 +1,25 @@
+{
+  "data": [
+    {
+      "type": "segment",
+      "id": "TESTS2",
+      "attributes": {
+        "name": "VIP",
+        "definition": null,
+        "created": "2026-01-12T00:00:00+00:00",
+        "updated": "2026-01-13T00:00:00+00:00",
+        "is_active": true,
+        "is_processing": false,
+        "is_starred": false
+      },
+      "links": {
+        "self": "https://a.klaviyo.com/api/segments/TESTS2/"
+      }
+    }
+  ],
+  "links": {
+    "self": "https://a.klaviyo.com/api/segments/",
+    "next": null,
+    "prev": null
+  }
+}

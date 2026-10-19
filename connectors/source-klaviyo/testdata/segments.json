@@ -1,0 +1,25 @@
+{
+  "data": [
+    {
+      "type": "segment",
+      "id": "TESTS1",
+      "attributes": {
+        "name": "Engaged 30 days",
+        "definition": null,
+        "created": "2026-01-12T00:00:00+00:00",
+        "updated": "2026-01-13T00:00:00+00:00",
+        "is_active": true,
+        "is_processing": false,
+        "is_starred": false
+      },
+      "links": {
+        "self": "https://a.klaviyo.com/api/segments/TESTS1/"
+      }
+    }
+  ],
+  "links": {
+    "self": "https://a.klaviyo.com/api/segments/",
+    "next": "segments?page%5Bcursor%5D=segments-p2",
+    "prev": null
+  }
+}

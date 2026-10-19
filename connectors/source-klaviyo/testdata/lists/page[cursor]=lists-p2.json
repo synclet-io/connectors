@@ -1,0 +1,22 @@
+{
+  "data": [
+    {
+      "type": "list",
+      "id": "TESTL2",
+      "attributes": {
+        "name": "Beta testers",
+        "created": "2026-01-10T00:00:00+00:00",
+        "updated": "2026-01-11T00:00:00+00:00",
+        "opt_in_process": "single_opt_in"
+      },
+      "links": {
+        "self": "https://a.klaviyo.com/api/lists/TESTL2/"
+      }
+    }
+  ],
+  "links": {
+    "self": "https://a.klaviyo.com/api/lists/",
+    "next": null,
+    "prev": null
+  }
+}

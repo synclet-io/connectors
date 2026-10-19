@@ -1,0 +1,16 @@
+{
+  "errors": [
+    {
+      "id": "00000000-0000-4000-8000-000000000000",
+      "status": 403,
+      "code": "permission_denied",
+      "title": "You do not have permission to perform this action.",
+      "detail": "This API key is missing required scopes: metrics:read.",
+      "source": {
+        "pointer": "/data/"
+      },
+      "links": {},
+      "meta": {}
+    }
+  ]
+}

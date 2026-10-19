@@ -1,0 +1,24 @@
+{
+  "data": [
+    {
+      "type": "flow",
+      "id": "TESTF2",
+      "attributes": {
+        "name": "Win-back",
+        "status": "live",
+        "archived": false,
+        "created": "2026-02-01T00:00:00+00:00",
+        "updated": "2026-02-02T00:00:00+00:00",
+        "trigger_type": "Added to List"
+      },
+      "links": {
+        "self": "https://a.klaviyo.com/api/flows/TESTF2/"
+      }
+    }
+  ],
+  "links": {
+    "self": "https://a.klaviyo.com/api/flows/",
+    "next": null,
+    "prev": null
+  }
+}

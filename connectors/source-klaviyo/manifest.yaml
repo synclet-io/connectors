@@ -1,0 +1,48 @@
+# yaml-language-server: $schema=../source-declarative/internal/manifest/manifest.schema.json
+version: 1
+connector:
+  name: source-klaviyo
+  documentation_url: https://github.com/synclet-io/connectors/tree/main/connectors/source-klaviyo
+base_url: https://a.klaviyo.com/api/
+spec:
+  title: Klaviyo Source Spec
+  description: Reads profiles, events, campaigns, flows, lists, metrics and segments from the Klaviyo API.
+  required: [api_key, start_date]
+  properties:
+    api_key:    {type: string, title: Private API key, description: "Private API key with read scopes for every stream, sent as `Authorization: Klaviyo-API-Key <key>`.", secret: true, order: 0}
+    start_date: {type: string, title: Start date, description: "Profiles updated and events that happened before it are not read.", format: date-time, examples: ["2026-01-01T00:00:00Z"], order: 1}
+auth: {type: api_key, in: header, name: Authorization, value: "Klaviyo-API-Key {{ config.api_key }}"}
+headers: {revision: "2025-07-15", Accept: "application/vnd.api+json"}
+errors: {message: "$.errors[0].detail"}
+check: {stream: metrics}
+streams:
+  - name: profiles
+    path: profiles
+    params:
+      filter: "greater-than(updated,{{ since }})"
+      "additional-fields[profile]": "subscriptions,predictive_analytics"
+    primary_key: [id]
+    schema: schemas/profiles.json
+    records: {path: $.data}
+    pagination: &next {type: next_url, url_from: $.links.next}
+    incremental: {cursor_field: attributes.updated, cursor_format: rfc3339, start: "{{ config.start_date }}", lookback: 1h}
+  - name: events
+    path: events
+    params: {filter: "greater-than(datetime,{{ since }})"}
+    primary_key: [id]
+    schema: schemas/events.json
+    records: {path: $.data}
+    pagination: *next
+    incremental: {cursor_field: attributes.datetime, cursor_format: rfc3339, start: "{{ config.start_date }}", lookback: 1h}
+  - name: campaigns
+    path: campaigns
+    params: {filter: "equals(messages.channel,'{{ partition.value }}')"}
+    partition: {values: [email, sms, mobile_push]}
+    primary_key: [id]
+    schema: schemas/campaigns.json
+    records: {path: $.data}
+    pagination: *next
+  - {name: flows, path: flows, primary_key: [id], schema: schemas/flows.json, records: {path: $.data}, pagination: *next}
+  - {name: lists, path: lists, primary_key: [id], schema: schemas/lists.json, records: {path: $.data}, pagination: *next}
+  - {name: metrics, path: metrics, primary_key: [id], schema: schemas/metrics.json, records: {path: $.data}, pagination: *next}
+  - {name: segments, path: segments, primary_key: [id], schema: schemas/segments.json, records: {path: $.data}, pagination: *next}

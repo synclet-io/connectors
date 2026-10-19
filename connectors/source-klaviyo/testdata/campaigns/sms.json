@@ -1,0 +1,51 @@
+{
+  "data": [
+    {
+      "type": "campaign",
+      "id": "TESTC3",
+      "attributes": {
+        "name": "Spring sms",
+        "status": "Draft",
+        "archived": false,
+        "audiences": {
+          "included": [
+            "TESTL1"
+          ],
+          "excluded": []
+        },
+        "send_options": {
+          "use_smart_sending": true
+        },
+        "tracking_options": {
+          "add_tracking_params": false
+        },
+        "send_strategy": {
+          "method": "static",
+          "datetime": "2026-04-01T12:00:00+00:00"
+        },
+        "created_at": "2026-03-20T09:00:00+00:00",
+        "scheduled_at": null,
+        "updated_at": "2026-03-21T09:00:00+00:00",
+        "send_time": null
+      },
+      "links": {
+        "self": "https://a.klaviyo.com/api/campaigns/TESTC3/"
+      },
+      "relationships": {
+        "campaign-messages": {
+          "data": [
+            {
+              "type": "campaign-message",
+              "id": "MSGTESTC3"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "links": {
+    "self": "https://a.klaviyo.com/api/campaigns/",
+    "next": null,
+    "prev": null
+  }
+}

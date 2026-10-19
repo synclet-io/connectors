@@ -1,0 +1,69 @@
+{
+  "data": [
+    {
+      "type": "event",
+      "id": "TESTEVENT1",
+      "attributes": {
+        "timestamp": 1772359200,
+        "event_properties": {
+          "value": 9.99,
+          "$event_id": "evt-1"
+        },
+        "datetime": "2026-03-01T10:00:00+00:00",
+        "uuid": "00000000-0000-4000-8000-000000000001"
+      },
+      "links": {
+        "self": "https://a.klaviyo.com/api/events/TESTEVENT1/"
+      },
+      "relationships": {
+        "profile": {
+          "data": {
+            "type": "profile",
+            "id": "01TESTPROFILE0000000000001"
+          }
+        },
+        "metric": {
+          "data": {
+            "type": "metric",
+            "id": "TESTM1"
+          }
+        }
+      }
+    },
+    {
+      "type": "event",
+      "id": "TESTEVENT2",
+      "attributes": {
+        "timestamp": 1772449200,
+        "event_properties": {
+          "value": 9.99,
+          "$event_id": "evt-2"
+        },
+        "datetime": "2026-03-02T11:00:00+00:00",
+        "uuid": "00000000-0000-4000-8000-000000000002"
+      },
+      "links": {
+        "self": "https://a.klaviyo.com/api/events/TESTEVENT2/"
+      },
+      "relationships": {
+        "profile": {
+          "data": {
+            "type": "profile",
+            "id": "01TESTPROFILE0000000000001"
+          }
+        },
+        "metric": {
+          "data": {
+            "type": "metric",
+            "id": "TESTM1"
+          }
+        }
+      }
+    }
+  ],
+  "links": {
+    "self": "https://a.klaviyo.com/api/events/",
+    "next": "events?page%5Bcursor%5D=events-p2",
+    "prev": null
+  }
+}

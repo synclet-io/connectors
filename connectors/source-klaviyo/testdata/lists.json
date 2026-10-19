@@ -1,0 +1,22 @@
+{
+  "data": [
+    {
+      "type": "list",
+      "id": "TESTL1",
+      "attributes": {
+        "name": "Newsletter",
+        "created": "2026-01-10T00:00:00+00:00",
+        "updated": "2026-01-11T00:00:00+00:00",
+        "opt_in_process": "single_opt_in"
+      },
+      "links": {
+        "self": "https://a.klaviyo.com/api/lists/TESTL1/"
+      }
+    }
+  ],
+  "links": {
+    "self": "https://a.klaviyo.com/api/lists/",
+    "next": "lists?page%5Bcursor%5D=lists-p2",
+    "prev": null
+  }
+}

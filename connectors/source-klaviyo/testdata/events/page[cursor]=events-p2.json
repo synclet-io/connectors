@@ -1,0 +1,39 @@
+{
+  "data": [
+    {
+      "type": "event",
+      "id": "TESTEVENT3",
+      "attributes": {
+        "timestamp": 1772704800,
+        "event_properties": {
+          "value": 9.99,
+          "$event_id": "evt-3"
+        },
+        "datetime": "2026-03-05T10:00:00+00:00",
+        "uuid": "00000000-0000-4000-8000-000000000003"
+      },
+      "links": {
+        "self": "https://a.klaviyo.com/api/events/TESTEVENT3/"
+      },
+      "relationships": {
+        "profile": {
+          "data": {
+            "type": "profile",
+            "id": "01TESTPROFILE0000000000001"
+          }
+        },
+        "metric": {
+          "data": {
+            "type": "metric",
+            "id": "TESTM1"
+          }
+        }
+      }
+    }
+  ],
+  "links": {
+    "self": "https://a.klaviyo.com/api/events/",
+    "next": null,
+    "prev": null
+  }
+}
