@@ -289,7 +289,7 @@ func scalar(v any) (string, error) {
 }
 
 // ConfigList returns the strings of a config array property, nil when it
-// is missing or null.
+// is missing or null. A value listed twice is an error.
 func ConfigList(config map[string]any, name string) ([]string, error) {
 	v, ok := config[name]
 	if !ok || v == nil {
@@ -300,11 +300,16 @@ func ConfigList(config map[string]any, name string) ([]string, error) {
 		return nil, fmt.Errorf("config.%s is not an array", name)
 	}
 	out := make([]string, len(arr))
+	seen := make(map[string]bool, len(arr))
 	for i, x := range arr {
 		s, err := scalar(x)
 		if err != nil {
 			return nil, fmt.Errorf("config.%s[%d]: %w", name, i, err)
 		}
+		if seen[s] {
+			return nil, fmt.Errorf("config.%s lists %q twice", name, s)
+		}
+		seen[s] = true
 		out[i] = s
 	}
 	return out, nil

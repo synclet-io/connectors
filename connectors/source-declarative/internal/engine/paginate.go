@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
+	"net/http"
 	"net/url"
 	"regexp"
 	"strconv"
@@ -151,14 +152,17 @@ func (r *run) pages(ctx context.Context, st *manifest.Stream, scope manifest.Sco
 				return fmt.Errorf("stream %s: %w (%s)", st.Name, err, resp.desc)
 			}
 			if v == "" {
+				if p.HasMore != nil || p.IsLast != nil {
+					return fmt.Errorf("stream %s: the page says more exist but has no next value (%s)", st.Name, resp.desc)
+				}
 				return nil
 			}
 			if p.Type != manifest.PageCursor {
 				nu, err := r.nextURL(v, static)
 				if err != nil {
-					return fmt.Errorf("stream %s: next page URL %q: %w (%s)", st.Name, v, err, resp.desc)
+					return fmt.Errorf("stream %s: %w (%s)", st.Name, err, resp.desc)
 				}
-				v = nu.String()
+				v = r.describe(http.MethodGet, nu)
 				next = nu
 			}
 			if used[v] {
@@ -235,13 +239,17 @@ func withQuery(u *url.URL, qs ...url.Values) *url.URL {
 }
 
 // nextURL resolves a next page URL against the base URL and adds the
-// static parameters it lacks.
+// static parameters it lacks. The URL must keep the base URL's scheme and
+// host, so the credential never goes to another server.
 func (r *run) nextURL(v string, static url.Values) (*url.URL, error) {
 	ref, err := url.Parse(v)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("next page URL does not parse")
 	}
 	u := r.base.ResolveReference(ref)
+	if u.Scheme != r.base.Scheme || u.Host != r.base.Host {
+		return nil, fmt.Errorf("next page URL %s is not on the base URL's scheme and host", u.Scheme+"://"+u.Host)
+	}
 	q := u.Query()
 	for k, vs := range static {
 		if !q.Has(k) {

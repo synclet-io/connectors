@@ -3,6 +3,7 @@ package manifest
 import (
 	"encoding/json"
 	"net/url"
+	"os"
 	"strings"
 	"testing"
 	"testing/fstest"
@@ -341,5 +342,21 @@ func TestPathGet(t *testing.T) {
 		got, found := p.Get(doc)
 		assert.Equal(t, tt.found, found, tt.path)
 		assert.Equal(t, tt.want, got, tt.path)
+	}
+}
+
+func TestLoadSchemaRefusesExternalRefs(t *testing.T) {
+	f := t.TempDir() + "/secret.json"
+	require.NoError(t, os.WriteFile(f, []byte(`{"type":"string","description":"TOPSECRET"}`), 0o600))
+	for _, ref := range []string{"file://" + f, "file://" + f + ".missing", "http://127.0.0.1:1/schema.json"} {
+		t.Run(ref, func(t *testing.T) {
+			doc := baseDoc(t)
+			streamOf(doc, 0)["schema"] = map[string]any{"type": "object", "properties": map[string]any{"id": map[string]any{"$ref": ref}}}
+			_, err := LoadDocument(doc, baseFS(""))
+			requireError(t, err, "streams[0].schema", "not a valid JSON Schema")
+			assert.NotContains(t, err.Error(), "TOPSECRET")
+			assert.NotContains(t, err.Error(), "no such file")
+			assert.NotContains(t, err.Error(), "connection refused")
+		})
 	}
 }

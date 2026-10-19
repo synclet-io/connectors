@@ -10,6 +10,7 @@ import (
 	"io"
 	"log/slog"
 	"math/big"
+	"net"
 	"net/http"
 	"net/url"
 	"slices"
@@ -28,6 +29,7 @@ const (
 	defaultAttempts   = 3
 	defaultWaits      = 5
 	defaultRateWait   = 60 * time.Second
+	maxRateWait       = 10 * time.Minute
 	refreshMargin     = 60 * time.Second
 	errorSnippetBytes = 200
 )
@@ -121,6 +123,9 @@ func (r *run) get(ctx context.Context, st *manifest.Stream, u *url.URL, scope ma
 		u = &cp
 	}
 	desc := r.describe(http.MethodGet, u)
+	if u.Scheme != r.base.Scheme || u.Host != r.base.Host {
+		return nil, fmt.Errorf("%s: %s is not on the base URL's scheme and host", desc, u.Scheme+"://"+u.Host)
+	}
 	return r.send(ctx, desc, true, func(ctx context.Context) (*http.Request, error) {
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
 		if err != nil {
@@ -264,7 +269,11 @@ func (r *run) send(ctx context.Context, desc string, authed bool, build func(con
 			if waits > maxWaits {
 				return nil, fmt.Errorf("%w; gave up after %d waits", he, maxWaits)
 			}
-			if err := r.o.Sleep(ctx, r.rateWait(header, body)); err != nil {
+			wait := r.rateWait(header, body)
+			if wait > maxRateWait {
+				return nil, fmt.Errorf("%w; the API asks to wait %s, more than the %s limit", he, wait, maxRateWait)
+			}
+			if err := r.o.Sleep(ctx, wait); err != nil {
 				return nil, err
 			}
 			continue
@@ -307,7 +316,7 @@ func (r *run) attempt(ctx context.Context, build func(context.Context) (*http.Re
 	}
 	resp, err := r.o.Client.Do(req)
 	if err != nil {
-		return 0, nil, nil, err
+		return 0, nil, nil, transportError(err)
 	}
 	body, rerr := io.ReadAll(resp.Body)
 	if cerr := resp.Body.Close(); rerr == nil {
@@ -317,6 +326,30 @@ func (r *run) attempt(ctx context.Context, build func(context.Context) (*http.Re
 		return 0, nil, nil, fmt.Errorf("read body: %w", rerr)
 	}
 	return resp.StatusCode, resp.Header, body, nil
+}
+
+// transportError describes a failed round trip without the request URL,
+// which may carry the credential in its query.
+func transportError(err error) error {
+	var ue *url.Error
+	if !errors.As(err, &ue) {
+		return err
+	}
+	if ue.Timeout() {
+		return errors.New("request timed out")
+	}
+	var dns *net.DNSError
+	if errors.As(ue.Err, &dns) {
+		return fmt.Errorf("DNS lookup of %s failed", dns.Name)
+	}
+	var op *net.OpError
+	if errors.As(ue.Err, &op) {
+		if op.Addr != nil {
+			return fmt.Errorf("%s %s: %v", op.Op, op.Addr, op.Err)
+		}
+		return fmt.Errorf("%s: %v", op.Op, op.Err)
+	}
+	return fmt.Errorf("request failed (%T)", ue.Err)
 }
 
 func decodeBody(b []byte, out *any) error {

@@ -29,6 +29,12 @@ func parseCursor(v any, format string) (time.Time, error) {
 		default:
 			return time.Time{}, fmt.Errorf("%v is not a %s number", v, format)
 		}
+		if n, err := strconv.ParseInt(s, 10, 64); err == nil {
+			if format == manifest.FormatUnixMS {
+				return time.UnixMilli(n).UTC(), nil
+			}
+			return time.Unix(n, 0).UTC(), nil
+		}
 		f, err := strconv.ParseFloat(s, 64)
 		if err != nil || math.IsInf(f, 0) || math.IsNaN(f) {
 			return time.Time{}, fmt.Errorf("%q is not a %s number", s, format)

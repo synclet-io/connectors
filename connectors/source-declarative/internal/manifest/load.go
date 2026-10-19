@@ -357,6 +357,7 @@ func checkSchema(raw []byte) (json.RawMessage, error) {
 	}
 	c := jsonschema.NewCompiler()
 	c.DefaultDraft(jsonschema.Draft7)
+	c.UseLoader(noLoader{})
 	const url = "mem://stream.schema.json"
 	if err := c.AddResource(url, doc); err != nil {
 		return nil, err
@@ -369,6 +370,14 @@ func checkSchema(raw []byte) (json.RawMessage, error) {
 		return nil, err
 	}
 	return canon, nil
+}
+
+// noLoader refuses every URL, so a stream schema resolves only its own
+// definitions.
+type noLoader struct{}
+
+func (noLoader) Load(string) (any, error) {
+	return nil, errors.New("a stream schema may not reference an external schema")
 }
 
 func isObjectType(t any) bool {
