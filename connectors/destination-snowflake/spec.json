@@ -1,0 +1,121 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Writes each stream into a typed table of one schema through PUT and COPY INTO: overwrite, append or append_dedup.",
+    "properties": {
+      "account": {
+        "description": "Account identifier, orgname-accountname, or the account locator with its region.",
+        "examples": [
+          "myorg-myaccount",
+          "xy12345.eu-central-1"
+        ],
+        "order": 0,
+        "title": "Account",
+        "type": "string"
+      },
+      "credentials": {
+        "description": "How the connector logs in.",
+        "oneOf": [
+          {
+            "description": "Logs in with a JWT signed by the user's RSA private key; the user's RSA_PUBLIC_KEY must be its public key.",
+            "properties": {
+              "auth_type": {
+                "const": "Key Pair Authentication",
+                "order": 0,
+                "type": "string"
+              },
+              "private_key": {
+                "airbyte_secret": true,
+                "description": "RSA private key in PEM: PKCS#8 (-----BEGIN PRIVATE KEY-----), encrypted PKCS#8 or PKCS#1.",
+                "order": 2,
+                "title": "Private Key",
+                "type": "string"
+              },
+              "private_key_password": {
+                "airbyte_secret": true,
+                "description": "Passphrase of an encrypted private key.",
+                "order": 3,
+                "title": "Private Key Password",
+                "type": "string"
+              },
+              "username": {
+                "description": "Snowflake user the connector logs in as.",
+                "examples": [
+                  "SYNCLET_LOADER"
+                ],
+                "order": 1,
+                "title": "Username",
+                "type": "string"
+              }
+            },
+            "required": [
+              "auth_type",
+              "username",
+              "private_key"
+            ],
+            "title": "Key Pair Authentication",
+            "type": "object"
+          }
+        ],
+        "order": 5,
+        "title": "Authorization Method",
+        "type": "object"
+      },
+      "database": {
+        "description": "Database the tables are written to.",
+        "examples": [
+          "RAW"
+        ],
+        "order": 2,
+        "title": "Database",
+        "type": "string"
+      },
+      "role": {
+        "description": "Role of the session; the user's default role when empty.",
+        "examples": [
+          "SYNCLET_ROLE"
+        ],
+        "order": 4,
+        "title": "Role",
+        "type": "string"
+      },
+      "schema": {
+        "default": "PUBLIC",
+        "description": "Schema every table is written to, in upper case; it is created when missing.",
+        "examples": [
+          "PUBLIC"
+        ],
+        "order": 3,
+        "title": "Default Schema",
+        "type": "string"
+      },
+      "warehouse": {
+        "description": "Warehouse that runs the loads; the role needs USAGE on it.",
+        "examples": [
+          "LOADING_WH"
+        ],
+        "order": 1,
+        "title": "Warehouse",
+        "type": "string"
+      }
+    },
+    "required": [
+      "account",
+      "warehouse",
+      "database",
+      "credentials"
+    ],
+    "title": "Snowflake Destination Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/destination-snowflake",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": false,
+  "supportsNormalization": false
+}

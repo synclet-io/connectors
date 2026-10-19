@@ -1,0 +1,36 @@
+{
+  "streams": [
+    {
+      "stream": {
+        "name": "all_types",
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "id": {"type": "integer"},
+            "flag": {"type": ["null", "boolean"]},
+            "count": {"type": "number", "airbyte_type": "integer"},
+            "big": {"type": "string", "airbyte_type": "big_integer"},
+            "amount": {"type": "number"},
+            "name": {"type": "string"},
+            "day": {"type": "string", "format": "date"},
+            "at_tz": {"type": "string", "format": "date-time"},
+            "at_tz2": {"type": "string", "airbyte_type": "timestamp_with_timezone"},
+            "at_ntz": {"type": "string", "format": "date-time", "airbyte_type": "timestamp_without_timezone"},
+            "clock": {"type": "string", "format": "time"},
+            "clock_ntz": {"type": "string", "airbyte_type": "time_without_timezone"},
+            "clock_tz": {"type": "string", "airbyte_type": "time_with_timezone"},
+            "ref_ts": {"$ref": "WellKnownTypes.json#/definitions/TimestampWithTimezone"},
+            "ref_num": {"$ref": "WellKnownTypes.json#/definitions/Number"},
+            "payload": {"type": "object", "properties": {"a": {"type": "integer"}}},
+            "tags": {"type": "array", "items": {"type": "string"}},
+            "mixed": {"type": ["string", "integer"]},
+            "union": {"oneOf": [{"type": "string"}, {"type": "integer"}]},
+            "untyped": {}
+          }
+        }
+      },
+      "sync_mode": "full_refresh",
+      "destination_sync_mode": "append"
+    }
+  ]
+}
