@@ -1,0 +1,109 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "object": {
+      "type": "string"
+    },
+    "customer_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "currency_code": {
+      "type": "string"
+    },
+    "billing_period": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "billing_period_unit": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "current_term_start": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "current_term_end": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "mrr": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "started_at": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "created_at": {
+      "type": "integer"
+    },
+    "subscription_items": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "object",
+        "properties": {
+          "item_price_id": {
+            "type": "string"
+          },
+          "item_type": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "unit_price": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "amount": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "updated_at": {
+      "type": "integer"
+    },
+    "resource_version": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "deleted": {
+      "type": "boolean"
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,22 @@
+{
+  "list": [
+    {
+      "credit_note": {
+        "id": "cn_synth_3",
+        "object": "credit_note",
+        "customer_id": "cust_synth_3",
+        "reference_invoice_id": "inv_synth_3",
+        "type": "adjustment",
+        "reason_code": "product_unsatisfactory",
+        "status": "voided",
+        "currency_code": "USD",
+        "total": 500,
+        "amount_refunded": 0,
+        "date": 1767499400,
+        "updated_at": 1767500000,
+        "resource_version": 1767500000004,
+        "deleted": true
+      }
+    }
+  ]
+}

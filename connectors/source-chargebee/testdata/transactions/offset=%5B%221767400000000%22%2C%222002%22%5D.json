@@ -1,0 +1,22 @@
+{
+  "list": [
+    {
+      "transaction": {
+        "id": "txn_synth_3",
+        "object": "transaction",
+        "customer_id": "cust_synth_3",
+        "subscription_id": "sub_synth_3",
+        "type": "payment",
+        "status": "voided",
+        "amount": 1900,
+        "currency_code": "USD",
+        "gateway": "chargebee",
+        "payment_method": "card",
+        "date": 1767499940,
+        "updated_at": 1767500000,
+        "resource_version": 1767500000005,
+        "deleted": true
+      }
+    }
+  ]
+}

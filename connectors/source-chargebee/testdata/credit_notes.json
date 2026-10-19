@@ -1,0 +1,41 @@
+{
+  "list": [
+    {
+      "credit_note": {
+        "id": "cn_synth_1",
+        "object": "credit_note",
+        "customer_id": "cust_synth_1",
+        "reference_invoice_id": "inv_synth_1",
+        "type": "adjustment",
+        "reason_code": "product_unsatisfactory",
+        "status": "adjusted",
+        "currency_code": "USD",
+        "total": 500,
+        "amount_refunded": 0,
+        "date": 1767299400,
+        "updated_at": 1767300000,
+        "resource_version": 1767300000004,
+        "deleted": false
+      }
+    },
+    {
+      "credit_note": {
+        "id": "cn_synth_2",
+        "object": "credit_note",
+        "customer_id": "cust_synth_2",
+        "reference_invoice_id": "inv_synth_2",
+        "type": "refundable",
+        "reason_code": "product_unsatisfactory",
+        "status": "refunded",
+        "currency_code": "USD",
+        "total": 500,
+        "amount_refunded": 500,
+        "date": 1767399400,
+        "updated_at": 1767400000,
+        "resource_version": 1767400000004,
+        "deleted": false
+      }
+    }
+  ],
+  "next_offset": "[\"1767400000000\",\"2002\"]"
+}

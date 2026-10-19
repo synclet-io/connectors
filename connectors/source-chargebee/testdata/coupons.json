@@ -1,0 +1,39 @@
+{
+  "list": [
+    {
+      "coupon": {
+        "id": "cpn_synth_1",
+        "object": "coupon",
+        "name": "Synthetic 10% off",
+        "discount_type": "percentage",
+        "discount_percentage": 10,
+        "discount_amount": null,
+        "duration_type": "forever",
+        "status": "active",
+        "apply_on": "invoice_amount",
+        "created_at": 1767213600,
+        "updated_at": 1767300000,
+        "resource_version": 1767300000008,
+        "deleted": false
+      }
+    },
+    {
+      "coupon": {
+        "id": "cpn_synth_2",
+        "object": "coupon",
+        "name": "Synthetic 20% off",
+        "discount_type": "percentage",
+        "discount_percentage": 20,
+        "discount_amount": null,
+        "duration_type": "forever",
+        "status": "active",
+        "apply_on": "invoice_amount",
+        "created_at": 1767313600,
+        "updated_at": 1767400000,
+        "resource_version": 1767400000008,
+        "deleted": false
+      }
+    }
+  ],
+  "next_offset": "[\"1767400000000\",\"2002\"]"
+}

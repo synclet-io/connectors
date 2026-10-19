@@ -1,0 +1,41 @@
+{
+  "list": [
+    {
+      "transaction": {
+        "id": "txn_synth_1",
+        "object": "transaction",
+        "customer_id": "cust_synth_1",
+        "subscription_id": "sub_synth_1",
+        "type": "payment",
+        "status": "success",
+        "amount": 1900,
+        "currency_code": "USD",
+        "gateway": "chargebee",
+        "payment_method": "card",
+        "date": 1767299940,
+        "updated_at": 1767300000,
+        "resource_version": 1767300000005,
+        "deleted": false
+      }
+    },
+    {
+      "transaction": {
+        "id": "txn_synth_2",
+        "object": "transaction",
+        "customer_id": "cust_synth_2",
+        "subscription_id": "sub_synth_2",
+        "type": "refund",
+        "status": "success",
+        "amount": 1900,
+        "currency_code": "USD",
+        "gateway": "chargebee",
+        "payment_method": "card",
+        "date": 1767399940,
+        "updated_at": 1767400000,
+        "resource_version": 1767400000005,
+        "deleted": false
+      }
+    }
+  ],
+  "next_offset": "[\"1767400000000\",\"2002\"]"
+}

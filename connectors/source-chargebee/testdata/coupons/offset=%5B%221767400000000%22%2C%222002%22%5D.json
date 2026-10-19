@@ -1,0 +1,21 @@
+{
+  "list": [
+    {
+      "coupon": {
+        "id": "cpn_synth_3",
+        "object": "coupon",
+        "name": "Synthetic 30% off",
+        "discount_type": "percentage",
+        "discount_percentage": 30,
+        "discount_amount": null,
+        "duration_type": "forever",
+        "status": "archived",
+        "apply_on": "invoice_amount",
+        "created_at": 1767413600,
+        "updated_at": 1767500000,
+        "resource_version": 1767500000008,
+        "deleted": true
+      }
+    }
+  ]
+}

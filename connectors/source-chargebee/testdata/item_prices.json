@@ -1,0 +1,43 @@
+{
+  "list": [
+    {
+      "item_price": {
+        "id": "iprice_synth_1",
+        "object": "item_price",
+        "name": "Plan 1 USD Monthly",
+        "item_id": "item_synth_1",
+        "item_type": "plan",
+        "pricing_model": "flat_fee",
+        "price": 1900,
+        "currency_code": "USD",
+        "period": 1,
+        "period_unit": "month",
+        "status": "active",
+        "created_at": 1767213600,
+        "updated_at": 1767300000,
+        "resource_version": 1767300000007,
+        "deleted": false
+      }
+    },
+    {
+      "item_price": {
+        "id": "iprice_synth_2",
+        "object": "item_price",
+        "name": "Plan 2 USD Monthly",
+        "item_id": "item_synth_2",
+        "item_type": "plan",
+        "pricing_model": "flat_fee",
+        "price": 3800,
+        "currency_code": "USD",
+        "period": 1,
+        "period_unit": "month",
+        "status": "active",
+        "created_at": 1767313600,
+        "updated_at": 1767400000,
+        "resource_version": 1767400000007,
+        "deleted": false
+      }
+    }
+  ],
+  "next_offset": "[\"1767400000000\",\"2002\"]"
+}

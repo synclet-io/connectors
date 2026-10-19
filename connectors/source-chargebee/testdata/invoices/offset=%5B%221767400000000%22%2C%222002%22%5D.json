@@ -1,0 +1,23 @@
+{
+  "list": [
+    {
+      "invoice": {
+        "id": "inv_synth_3",
+        "object": "invoice",
+        "customer_id": "cust_synth_3",
+        "subscription_id": null,
+        "status": "voided",
+        "currency_code": "USD",
+        "total": 1900,
+        "amount_paid": 0,
+        "amount_due": 1900,
+        "date": 1767499400,
+        "due_date": 1767499400,
+        "paid_at": null,
+        "updated_at": 1767500000,
+        "resource_version": 1767500000003,
+        "deleted": true
+      }
+    }
+  ]
+}

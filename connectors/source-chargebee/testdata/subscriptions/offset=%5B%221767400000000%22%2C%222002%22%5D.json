@@ -1,0 +1,32 @@
+{
+  "list": [
+    {
+      "subscription": {
+        "id": "sub_synth_3",
+        "object": "subscription",
+        "customer_id": "cust_synth_3",
+        "status": "cancelled",
+        "currency_code": "USD",
+        "billing_period": 1,
+        "billing_period_unit": "month",
+        "current_term_start": 1767500000,
+        "current_term_end": 1770092000,
+        "mrr": 5700,
+        "started_at": 1767496400,
+        "created_at": 1767492800,
+        "subscription_items": [
+          {
+            "item_price_id": "plan-basic-USD-monthly",
+            "item_type": "plan",
+            "quantity": 1,
+            "unit_price": 1900,
+            "amount": 1900
+          }
+        ],
+        "updated_at": 1767500000,
+        "resource_version": 1767500000002,
+        "deleted": true
+      }
+    }
+  ]
+}

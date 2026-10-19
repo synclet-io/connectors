@@ -1,0 +1,43 @@
+{
+  "list": [
+    {
+      "invoice": {
+        "id": "inv_synth_1",
+        "object": "invoice",
+        "customer_id": "cust_synth_1",
+        "subscription_id": "sub_synth_1",
+        "status": "paid",
+        "currency_code": "USD",
+        "total": 1900,
+        "amount_paid": 1900,
+        "amount_due": 0,
+        "date": 1767299400,
+        "due_date": 1767299400,
+        "paid_at": 1767300000,
+        "updated_at": 1767300000,
+        "resource_version": 1767300000003,
+        "deleted": false
+      }
+    },
+    {
+      "invoice": {
+        "id": "inv_synth_2",
+        "object": "invoice",
+        "customer_id": "cust_synth_2",
+        "subscription_id": "sub_synth_2",
+        "status": "payment_due",
+        "currency_code": "USD",
+        "total": 1900,
+        "amount_paid": 0,
+        "amount_due": 1900,
+        "date": 1767399400,
+        "due_date": 1767399400,
+        "paid_at": null,
+        "updated_at": 1767400000,
+        "resource_version": 1767400000003,
+        "deleted": false
+      }
+    }
+  ],
+  "next_offset": "[\"1767400000000\",\"2002\"]"
+}

@@ -1,0 +1,51 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Reads customers, subscriptions, invoices, credit notes, transactions, items, item prices and coupons from the Chargebee API v2, deleted objects included.",
+    "properties": {
+      "site": {
+        "description": "The site name, the subdomain of <site>.chargebee.com.",
+        "examples": [
+          "example-test"
+        ],
+        "order": 0,
+        "title": "Site",
+        "type": "string"
+      },
+      "site_api_key": {
+        "airbyte_secret": true,
+        "description": "A full-access or read-only API key of the site, sent as the Basic auth username.",
+        "order": 1,
+        "title": "API key",
+        "type": "string"
+      },
+      "start_date": {
+        "description": "Objects last updated before it are not read.",
+        "examples": [
+          "2026-01-01T00:00:00Z"
+        ],
+        "format": "date-time",
+        "order": 2,
+        "title": "Start date",
+        "type": "string"
+      }
+    },
+    "required": [
+      "site",
+      "site_api_key",
+      "start_date"
+    ],
+    "title": "Chargebee Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-chargebee",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": true,
+  "supportsNormalization": false
+}

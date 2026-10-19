@@ -1,0 +1,37 @@
+{
+  "list": [
+    {
+      "item": {
+        "id": "item_synth_1",
+        "object": "item",
+        "name": "Basic",
+        "external_name": "Basic",
+        "type": "plan",
+        "status": "active",
+        "item_family_id": "synth-family",
+        "is_shippable": false,
+        "enabled_in_portal": true,
+        "updated_at": 1767300000,
+        "resource_version": 1767300000006,
+        "deleted": false
+      }
+    },
+    {
+      "item": {
+        "id": "item_synth_2",
+        "object": "item",
+        "name": "Pro",
+        "external_name": "Pro",
+        "type": "plan",
+        "status": "active",
+        "item_family_id": "synth-family",
+        "is_shippable": false,
+        "enabled_in_portal": true,
+        "updated_at": 1767400000,
+        "resource_version": 1767400000006,
+        "deleted": false
+      }
+    }
+  ],
+  "next_offset": "[\"1767400000000\",\"2002\"]"
+}

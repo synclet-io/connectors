@@ -1,0 +1,23 @@
+{
+  "list": [
+    {
+      "customer": {
+        "id": "cust_synth_3",
+        "object": "customer",
+        "first_name": "Cleo",
+        "last_name": "Example",
+        "email": "user3@example.com",
+        "company": "Example Widgets",
+        "auto_collection": "on",
+        "net_term_days": 0,
+        "allow_direct_debit": false,
+        "taxability": "taxable",
+        "preferred_currency_code": "USD",
+        "created_at": 1767413600,
+        "updated_at": 1767500000,
+        "resource_version": 1767500000001,
+        "deleted": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "list": [
+    {
+      "customer": {
+        "id": "cust_synth_1",
+        "object": "customer",
+        "first_name": "Ada",
+        "last_name": "Example",
+        "email": "user1@example.com",
+        "company": "Example Widgets",
+        "auto_collection": "on",
+        "net_term_days": 0,
+        "allow_direct_debit": false,
+        "taxability": "taxable",
+        "preferred_currency_code": "USD",
+        "created_at": 1767213600,
+        "updated_at": 1767300000,
+        "resource_version": 1767300000001,
+        "deleted": false
+      }
+    },
+    {
+      "customer": {
+        "id": "cust_synth_2",
+        "object": "customer",
+        "first_name": "Bob",
+        "last_name": "Example",
+        "email": "user2@example.com",
+        "company": null,
+        "auto_collection": "on",
+        "net_term_days": 0,
+        "allow_direct_debit": false,
+        "taxability": "taxable",
+        "preferred_currency_code": "USD",
+        "created_at": 1767313600,
+        "updated_at": 1767400000,
+        "resource_version": 1767400000001,
+        "deleted": false
+      }
+    }
+  ],
+  "next_offset": "[\"1767400000000\",\"2002\"]"
+}

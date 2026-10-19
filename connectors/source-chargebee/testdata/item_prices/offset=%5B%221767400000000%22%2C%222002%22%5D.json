@@ -1,0 +1,23 @@
+{
+  "list": [
+    {
+      "item_price": {
+        "id": "iprice_synth_3",
+        "object": "item_price",
+        "name": "Plan 3 USD Monthly",
+        "item_id": "item_synth_3",
+        "item_type": "plan",
+        "pricing_model": "flat_fee",
+        "price": 5700,
+        "currency_code": "USD",
+        "period": 1,
+        "period_unit": "month",
+        "status": "archived",
+        "created_at": 1767413600,
+        "updated_at": 1767500000,
+        "resource_version": 1767500000007,
+        "deleted": true
+      }
+    }
+  ]
+}

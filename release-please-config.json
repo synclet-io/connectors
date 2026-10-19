@@ -110,6 +110,16 @@
         }
       ]
     },
+    "connectors/source-chargebee": {
+      "component": "source-chargebee",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "meta.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
     "connectors/source-declarative": {
       "component": "source-declarative",
       "extra-files": [
