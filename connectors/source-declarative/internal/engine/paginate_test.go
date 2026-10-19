@@ -219,3 +219,39 @@ func TestPrimaryKeyRequired(t *testing.T) {
 		})
 	}
 }
+
+func TestPaginationTotalReached(t *testing.T) {
+	tests := []struct {
+		name       string
+		pagination string
+		api        func(a *fakeAPI)
+	}{
+		{"offset empty page before total", "{type: offset, size: 1, size_param: n, total: $.total}", func(a *fakeAPI) {
+			a.json("/v1/items?n=1&offset=0", `{"data":[{"id":"a"}],"total":3}`).
+				json("/v1/items?n=1&offset=1", `{"data":[],"total":3}`)
+		}},
+		{"page short page before total", "{type: page, size: 2, size_param: n, short_page: true, total: $.total}", func(a *fakeAPI) {
+			a.json("/v1/items?n=2&page=1", `{"data":[{"id":"a"}],"total":3}`)
+		}},
+		{"page is_last before total", "{type: page, is_last: $.last, total: $.total}", func(a *fakeAPI) {
+			a.json("/v1/items?page=1", `{"data":[{"id":"a"}],"last":true,"total":3}`)
+		}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			a := newAPI(t)
+			tt.api(a)
+			_, msg := readPaged(t, tt.pagination, a)
+			assert.Contains(t, msg, "pagination stopped after 1 records of total 3")
+		})
+	}
+
+	t.Run("empty page without total stops", func(t *testing.T) {
+		a := newAPI(t).
+			json("/v1/items?n=1&offset=0", `{"data":[{"id":"a"}]}`).
+			json("/v1/items?n=1&offset=1", `{"data":[]}`)
+		ids, msg := readPaged(t, "{type: offset, size: 1, size_param: n}", a)
+		require.Empty(t, msg)
+		assert.Equal(t, []string{`"a"`}, ids)
+	})
+}

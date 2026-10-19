@@ -141,11 +141,14 @@ func (r *run) pages(ctx context.Context, st *manifest.Stream, scope manifest.Sco
 		if p == nil {
 			return nil
 		}
-		stop, err := stopped(p, resp, received)
+		stop, total, err := stopped(p, resp, received)
 		if err != nil {
 			return fmt.Errorf("stream %s: %w (%s)", st.Name, err, resp.desc)
 		}
 		if stop || len(recs) == 0 || (p.ShortPage && len(recs) < p.Size) {
+			if total != nil && new(big.Rat).SetInt64(int64(received)).Cmp(total) < 0 {
+				return fmt.Errorf("stream %s: pagination stopped after %d records of total %s (%s)", st.Name, received, total.RatString(), resp.desc)
+			}
 			return nil
 		}
 		switch p.Type {
@@ -264,40 +267,44 @@ func (r *run) nextURL(v string, static url.Values) (*url.URL, error) {
 }
 
 // stopped applies has_more, is_last and total.
-func stopped(p *manifest.Pagination, resp *response, received int) (bool, error) {
+// stopped reports whether the page's has_more, is_last or total ends the
+// pagination, and returns the total when the paginator has one.
+func stopped(p *manifest.Pagination, resp *response, received int) (bool, *big.Rat, error) {
+	var total *big.Rat
+	if p.Total != nil {
+		v, ok := p.Total.Get(resp.doc)
+		if !ok {
+			return false, nil, fmt.Errorf("total %s is not in the response", p.Total.Raw)
+		}
+		n, ok := v.(json.Number)
+		t, okRat := new(big.Rat).SetString(string(n))
+		if !ok || !okRat {
+			return false, nil, fmt.Errorf("total %s is %v, not a number", p.Total.Raw, v)
+		}
+		total = t
+	}
 	if p.HasMore != nil {
 		b, err := boolAt(resp.doc, p.HasMore, "has_more")
 		if err != nil {
-			return false, err
+			return false, nil, err
 		}
 		if !b {
-			return true, nil
+			return true, total, nil
 		}
 	}
 	if p.IsLast != nil {
 		b, err := boolAt(resp.doc, p.IsLast, "is_last")
 		if err != nil {
-			return false, err
+			return false, nil, err
 		}
 		if b {
-			return true, nil
+			return true, total, nil
 		}
 	}
-	if p.Total != nil {
-		v, ok := p.Total.Get(resp.doc)
-		if !ok {
-			return false, fmt.Errorf("total %s is not in the response", p.Total.Raw)
-		}
-		n, ok := v.(json.Number)
-		total, okRat := new(big.Rat).SetString(string(n))
-		if !ok || !okRat {
-			return false, fmt.Errorf("total %s is %v, not a number", p.Total.Raw, v)
-		}
-		if new(big.Rat).SetInt64(int64(received)).Cmp(total) >= 0 {
-			return true, nil
-		}
+	if total != nil && new(big.Rat).SetInt64(int64(received)).Cmp(total) >= 0 {
+		return true, total, nil
 	}
-	return false, nil
+	return false, total, nil
 }
 
 func boolAt(doc any, p *manifest.Path, key string) (bool, error) {
