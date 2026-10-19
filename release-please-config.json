@@ -30,6 +30,16 @@
         }
       ]
     },
+    "connectors/destination-databricks": {
+      "component": "destination-databricks",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "meta.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
     "connectors/destination-google-sheets": {
       "component": "destination-google-sheets",
       "extra-files": [
