@@ -402,3 +402,70 @@ func TestInferNeverShowsSecrets(t *testing.T) {
 	}
 	assert.Contains(t, a.keys()[0], "key="+secret, "the key is sent")
 }
+
+func TestInferChildStopsAfterLimitParents(t *testing.T) {
+	streams := `  - name: items
+    path: items
+    primary_key: [id]
+    records: {path: $.data}
+  - name: children
+    path: "items/{{ parent.id }}/children"
+    partition: {parent: items}
+    records: {path: $.data}
+`
+	var parents []string
+	a := newAPI(t)
+	for i := range 50 {
+		parents = append(parents, fmt.Sprintf(`{"id":"p%d"}`, i))
+		a.json(fmt.Sprintf("/v1/items/p%d/children", i), `{"data":[]}`)
+	}
+	a.json("/v1/items", `{"data":[`+strings.Join(parents, ",")+`]}`)
+	out := infer(t, generic(a), InferRequest{Config: json.RawMessage(withManifest(t, inferConfig, manifestYAML("", streams))), Streams: []string{"children"}, Limit: 5, Pages: 1})
+	require.NoError(t, out.err)
+	assert.Empty(t, out.traces())
+	var child int
+	for _, k := range a.keys() {
+		if strings.HasSuffix(k, "/children") {
+			child++
+		}
+	}
+	assert.LessOrEqual(t, child, 5)
+}
+
+func TestInferPageCap(t *testing.T) {
+	streams := `  - name: items
+    path: items
+    primary_key: [id]
+    records: {path: $.data}
+    pagination: {type: cursor, cursor_from: "last:id", cursor_param: after, has_more: $.has_more}
+  - name: children
+    path: "items/{{ parent.id }}/children"
+    partition: {parent: items}
+    records: {path: $.data}
+    pagination: {type: cursor, cursor_from: "last:id", cursor_param: after, has_more: $.has_more}
+`
+	a := newAPI(t).
+		on("/v1/items",
+			reply{status: 200, body: `{"data":[{"id":"p1"}],"has_more":true}`},
+			reply{status: 200, body: `{"data":[{"id":"p2"}],"has_more":true}`},
+			reply{status: 200, body: `{"data":[{"id":"p3"}],"has_more":false}`})
+	for _, p := range []string{"p1", "p2", "p3"} {
+		a.on("/v1/items/"+p+"/children",
+			reply{status: 200, body: `{"data":[{"id":"` + p + `a"}],"has_more":true}`},
+			reply{status: 200, body: `{"data":[{"id":"` + p + `b"}],"has_more":false}`})
+	}
+	cfg := json.RawMessage(withManifest(t, inferConfig, manifestYAML("", streams)))
+
+	t.Run("stream", func(t *testing.T) {
+		out := infer(t, generic(a), InferRequest{Config: cfg, Streams: []string{"items"}, Pages: 2})
+		require.NoError(t, out.err)
+		assert.Equal(t, []string{`{"id":"p1"}`, `{"id":"p2"}`}, out.records("items"))
+	})
+	t.Run("parent and child", func(t *testing.T) {
+		b := newAPI(t)
+		b.replies = a.replies
+		out := infer(t, generic(b), InferRequest{Config: cfg, Streams: []string{"children"}, Pages: 1})
+		require.NoError(t, out.err)
+		assert.Equal(t, []string{`{"id":"p1a"}`}, out.records("children"), "one parent page, one page per child")
+	})
+}

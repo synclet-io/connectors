@@ -159,7 +159,8 @@ func (inf *inferer) Discover(ctx context.Context, raw json.RawMessage) (*synclet
 // sample reads st as a full refresh from start, the first window only: a
 // partition.values stream for its first value, a child over its parent's
 // records in order; at most pages pages per scope and limit records, which
-// are emitted as read emits them and returned.
+// are emitted as read emits them and returned. A child samples its first
+// parents up to limit, whatever their children return.
 func (r *run) sample(ctx context.Context, st *manifest.Stream, desc synclet.StreamDescriptor, limit, pages int) ([]map[string]any, error) {
 	timed := st
 	parent := parentOf(st)
@@ -219,6 +220,7 @@ func (r *run) sample(ctx context.Context, st *manifest.Stream, desc synclet.Stre
 	}
 	ps := r.stream(parent)
 	pt := r.newTracker(&member{st: ps, desc: synclet.StreamDescriptor{Name: ps.Name}}, tm, nil)
+	sampled := 0
 	err = r.pages(ctx, ps, scope, false, capPages(pages, func(pg page) error {
 		for _, rec := range pg.records {
 			if pt != nil {
@@ -235,7 +237,8 @@ func (r *run) sample(ctx context.Context, st *manifest.Stream, desc synclet.Stre
 			if err := sampleErr(r.pages(ctx, st, cs, false, capPages(pages, take))); err != nil {
 				return err
 			}
-			if len(recs) >= limit {
+			sampled++
+			if len(recs) >= limit || sampled >= limit {
 				return errLimit
 			}
 		}

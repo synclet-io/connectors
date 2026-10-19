@@ -385,7 +385,7 @@ source-declarative infer --config <config.json> [--streams a,b] [--limit 100] [-
 
 A missing `--config`, an unreadable file or a value out of range is a usage error: a message on stderr and exit status 2, as for the protocol commands.
 
-The manifest is linted in a relaxed mode: `schema` may be absent on any stream. The rules that need a schema (`cursor_field`, `primary_key`, `key_field`, `value_field` and `add` keys in the schema) are checked against the drafted schema afterwards and reported as LOG warnings; a stream that has a `schema` is checked against it as usual, and an error there fails the command. There is no catalog and no state: every stream reads as full refresh from `start`, the first window only; a `partition.values` stream samples its first value, a child its parents in order until it has `--limit` records.
+The manifest is linted in a relaxed mode: `schema` may be absent on any stream. The rules that need a schema (`cursor_field`, `primary_key`, `key_field`, `value_field` and `add` keys in the schema) are checked against the drafted schema afterwards and reported as LOG warnings; a stream that has a `schema` is checked against it as usual, and an error there fails the command. There is no catalog and no state: every stream reads as full refresh from `start`, the first window only; a `partition.values` stream samples its first value, a child its first parents up to `--limit`, whatever their children return.
 
 Output on stdout, in order:
 
