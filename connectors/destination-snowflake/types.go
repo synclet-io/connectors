@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math/big"
 	"regexp"
 	"strconv"
 	"strings"
@@ -19,7 +20,7 @@ type colType string
 const (
 	colBoolean      colType = "BOOLEAN"
 	colInteger      colType = "NUMBER(38,0)"
-	colNumber       colType = "NUMBER(38,9)"
+	colNumber       colType = "FLOAT"
 	colVarchar      colType = "VARCHAR"
 	colDate         colType = "DATE"
 	colTime         colType = "TIME"
@@ -30,9 +31,14 @@ const (
 
 const (
 	numberPrecision = 38
-	numberScale     = 9
 	// maxValueBytes is the largest VARCHAR or VARIANT value Snowflake stores.
 	maxValueBytes = 16 << 20
+	// maxVariantExpDigits is the most significant digits a VARIANT number in
+	// exponent form keeps exactly, as a double.
+	maxVariantExpDigits = 15
+	// maxVariantScale is the most digits after the decimal point a VARIANT
+	// number keeps as a fixed-point decimal.
+	maxVariantScale = 37
 	// maxExponent bounds the exponent of a number before it is expanded.
 	maxExponent = 1000
 )
@@ -150,7 +156,7 @@ func castSQL(t colType, expr string) string {
 	case colInteger:
 		return fmt.Sprintf("TO_NUMBER(%s, %d, 0)", expr, numberPrecision)
 	case colNumber:
-		return fmt.Sprintf("TO_NUMBER(%s, %d, %d)", expr, numberPrecision, numberScale)
+		return "TO_DOUBLE(" + expr + ")"
 	case colBoolean:
 		return "TO_BOOLEAN(" + expr + ")"
 	case colDate:
@@ -219,7 +225,10 @@ func encodeValue(t colType, raw json.RawMessage) (val string, null bool, err err
 		} else if raw[0] != '-' && (raw[0] < '0' || raw[0] > '9') {
 			return "", false, fmt.Errorf("value %s is not a number", raw)
 		}
-		return encodeDecimal(t, s)
+		if t == colNumber {
+			return encodeDouble(s)
+		}
+		return encodeInteger(s)
 	case colDate:
 		if !isString || !validDate(str) {
 			return "", false, fmt.Errorf("value %s is not a date (YYYY-MM-DD)", raw)
@@ -241,10 +250,35 @@ func encodeValue(t colType, raw json.RawMessage) (val string, null bool, err err
 
 var decimalText = regexp.MustCompile(`^(-?)([0-9]*)(?:\.([0-9]*))?(?:[eE]([-+]?[0-9]+))?$`)
 
-// encodeDecimal expands s, a decimal number with an optional exponent, to
-// plain digits and checks that NUMBER(38,0) or NUMBER(38,9) holds it
-// exactly.
-func encodeDecimal(t colType, s string) (string, bool, error) {
+// encodeDouble accepts a number only when the float64 nearest to it prints
+// back as the same decimal value, so FLOAT holds it exactly, and renders
+// that shortest text.
+func encodeDouble(s string) (string, bool, error) {
+	m := decimalText.FindStringSubmatch(s)
+	if m == nil || m[2]+m[3] == "" {
+		return "", false, fmt.Errorf("value %q is not a number", s)
+	}
+	if m[4] != "" {
+		if exp, err := strconv.Atoi(m[4]); err != nil || exp > maxExponent || exp < -maxExponent {
+			return "", false, fmt.Errorf("value %q is outside the FLOAT range", s)
+		}
+	}
+	f, err := strconv.ParseFloat(s, 64)
+	if err != nil || (f == 0 && strings.Trim(m[2]+m[3], "0") != "") {
+		return "", false, fmt.Errorf("value %q is outside the FLOAT range", s)
+	}
+	out := strconv.FormatFloat(f, 'g', -1, 64)
+	want, ok1 := new(big.Rat).SetString(s)
+	got, ok2 := new(big.Rat).SetString(out)
+	if !ok1 || !ok2 || want.Cmp(got) != 0 {
+		return "", false, fmt.Errorf("value %q has more precision than FLOAT, which cannot hold it exactly (nearest is %s)", s, out)
+	}
+	return out, false, nil
+}
+
+// encodeInteger expands s, a decimal number with an optional exponent, to
+// plain digits and checks that NUMBER(38,0) holds it exactly.
+func encodeInteger(s string) (string, bool, error) {
 	m := decimalText.FindStringSubmatch(s)
 	if m == nil || m[2]+m[3] == "" {
 		return "", false, fmt.Errorf("value %q is not a number", s)
@@ -270,26 +304,15 @@ func encodeDecimal(t colType, s string) (string, bool, error) {
 	intPart = strings.TrimLeft(intPart, "0")
 	frac = strings.TrimRight(frac, "0")
 
-	scale := 0
-	if t == colNumber {
-		scale = numberScale
-	}
 	switch {
-	case t == colInteger && frac != "":
+	case frac != "":
 		return "", false, fmt.Errorf("value %q is not an integer", s)
-	case t == colInteger && len(intPart) > numberPrecision:
+	case len(intPart) > numberPrecision:
 		return "", false, fmt.Errorf("value %q has more than %d digits", s, numberPrecision)
-	case len(frac) > scale:
-		return "", false, fmt.Errorf("value %q has more than %d digits after the decimal point; %s would round it", s, scale, t)
-	case len(intPart) > numberPrecision-scale:
-		return "", false, fmt.Errorf("value %q has more than %d digits before the decimal point, more than %s holds", s, numberPrecision-scale, t)
 	}
 	out := intPart
 	if out == "" {
 		out = "0"
-	}
-	if frac != "" {
-		out += "." + frac
 	}
 	if m[1] == "-" && out != "0" {
 		out = "-" + out
@@ -366,8 +389,10 @@ func encodeTimestamp(t colType, s string) (string, bool, error) {
 	return out + " " + offset, false, nil
 }
 
-// checkVariantNumbers fails on a number Snowflake would store in a VARIANT
-// as a double: one with more than 38 significant digits.
+// checkVariantNumbers fails on a number PARSE_JSON would store in a VARIANT
+// as a double, so not exactly: one with more than 38 significant digits,
+// one in exponent form with more than 15, or one with more than 37 digits
+// after the decimal point.
 func checkVariantNumbers(raw json.RawMessage) error {
 	dec := json.NewDecoder(bytes.NewReader(raw))
 	dec.UseNumber()
@@ -380,11 +405,17 @@ func checkVariantNumbers(raw json.RawMessage) error {
 		if !ok {
 			continue
 		}
-		mant, _, _ := strings.Cut(strings.ToLower(n.String()), "e")
-		mant = strings.TrimLeft(strings.ReplaceAll(strings.TrimPrefix(mant, "-"), ".", ""), "0")
-		mant = strings.TrimRight(mant, "0")
-		if len(mant) > numberPrecision {
+		mant, _, hasExp := strings.Cut(strings.ToLower(n.String()), "e")
+		_, frac, _ := strings.Cut(mant, ".")
+		digits := strings.TrimLeft(strings.ReplaceAll(strings.TrimPrefix(mant, "-"), ".", ""), "0")
+		digits = strings.TrimRight(digits, "0")
+		switch {
+		case len(digits) > numberPrecision:
 			return fmt.Errorf("number %s has more than %d significant digits, which a VARIANT stores as a double", n, numberPrecision)
+		case hasExp && len(digits) > maxVariantExpDigits:
+			return fmt.Errorf("number %s has an exponent and more than %d significant digits, which a VARIANT stores as a double", n, maxVariantExpDigits)
+		case !hasExp && len(frac) > maxVariantScale:
+			return fmt.Errorf("number %s has more than %d digits after the decimal point, which a VARIANT stores as a double", n, maxVariantScale)
 		}
 	}
 }

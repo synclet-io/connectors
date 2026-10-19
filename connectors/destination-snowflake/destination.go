@@ -66,6 +66,7 @@ func (d Destination) Write(
 
 	w := newWriter(c, em, d, plans, dir)
 	defer w.warnUnknown(ctx)
+	defer w.removeStaged(ctx)
 	defer func() {
 		if rerr != nil {
 			c.dropShadows(ctx, plans)

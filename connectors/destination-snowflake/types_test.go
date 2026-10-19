@@ -35,7 +35,7 @@ func TestColumnTypesOfFixtureCatalog(t *testing.T) {
 		"FLAG":      "BOOLEAN",
 		"COUNT":     "NUMBER(38,0)",
 		"BIG":       "NUMBER(38,0)",
-		"AMOUNT":    "NUMBER(38,9)",
+		"AMOUNT":    "FLOAT",
 		"NAME":      "VARCHAR",
 		"DAY":       "DATE",
 		"AT_TZ":     "TIMESTAMP_TZ",
@@ -45,7 +45,7 @@ func TestColumnTypesOfFixtureCatalog(t *testing.T) {
 		"CLOCK_NTZ": "TIME",
 		"CLOCK_TZ":  "VARCHAR",
 		"REF_TS":    "TIMESTAMP_TZ",
-		"REF_NUM":   "NUMBER(38,9)",
+		"REF_NUM":   "FLOAT",
 		"PAYLOAD":   "VARIANT",
 		"TAGS":      "VARIANT",
 		"MIXED":     "VARIANT",
@@ -77,10 +77,15 @@ func TestEncodeValue(t *testing.T) {
 		{colNumber, `12.5`, "12.5"},
 		{colNumber, `"0.912345678"`, "0.912345678"},
 		{colNumber, `1.50000000000000`, "1.5"},
-		{colNumber, `2.5e-7`, "0.00000025"},
+		{colNumber, `2.5e-7`, "2.5e-07"},
 		{colNumber, `-1.25E2`, "-125"},
 		{colNumber, `00012.0100`, "12.01"},
-		{colNumber, `12345678901234567890123456789.123456789`, "12345678901234567890123456789.123456789"},
+		{colNumber, `0.30000000000000004`, "0.30000000000000004"},
+		{colNumber, `37.77492912345`, "37.77492912345"},
+		{colNumber, `1e-10`, "1e-10"},
+		{colNumber, `1e29`, "1e+29"},
+		{colNumber, `9007199254740992`, "9.007199254740992e+15"},
+		{colNumber, `-0`, "-0"},
 		{colVarchar, `"héllo \"q\"\n"`, "héllo \"q\"\n"},
 		{colVarchar, `15`, "15"},
 		{colVarchar, `{"a": 1}`, `{"a": 1}`},
@@ -95,6 +100,8 @@ func TestEncodeValue(t *testing.T) {
 		{colVariant, `{"a":[1,2.5,"x",null],"b":{"c":true}}`, `{"a":[1,2.5,"x",null],"b":{"c":true}}`},
 		{colVariant, `"just text"`, `"just text"`},
 		{colVariant, `12345678901234567890123456789012345678`, `12345678901234567890123456789012345678`},
+		{colVariant, `[1.5e10,123456789012345e3,-1E-300]`, `[1.5e10,123456789012345e3,-1E-300]`},
+		{colVariant, `0.` + strings.Repeat("1", 37), `0.` + strings.Repeat("1", 37)},
 	}
 	for _, c := range cases {
 		got, null, err := encodeValue(c.typ, json.RawMessage(c.in))
@@ -126,10 +133,14 @@ func TestEncodeValueFailsRatherThanChangeTheValue(t *testing.T) {
 		{colInteger, `123456789012345678901234567890123456789`, "more than 38 digits"},
 		{colInteger, `1e400`, "more than 38 digits"},
 		{colInteger, `true`, "not a number"},
-		{colNumber, `0.1234567891`, "more than 9 digits after the decimal point"},
-		{colNumber, `1e-10`, "more than 9 digits after the decimal point"},
-		{colNumber, `123456789012345678901234567890`, "more than 29 digits before the decimal point"},
-		{colNumber, `1e99999999999`, "out of range"},
+		{colNumber, `9007199254740993`, "has more precision than FLOAT, which cannot hold it exactly (nearest is 9.007199254740992e+15)"},
+		{colNumber, `0.1234567890123456789`, "has more precision than FLOAT"},
+		{colNumber, `1e400`, "outside the FLOAT range"},
+		{colNumber, `1e99999999999`, "outside the FLOAT range"},
+		{colNumber, `1e-99999999999`, "outside the FLOAT range"},
+		{colNumber, `"NaN"`, "not a number"},
+		{colNumber, `"Infinity"`, "not a number"},
+		{colNumber, `true`, "not a number"},
 		{colDate, `"2024-02-30"`, "not a date"},
 		{colDate, `"2024-01-01T00:00:00Z"`, "not a date"},
 		{colTimestampTZ, `"yesterday"`, "not a timestamp"},
@@ -145,6 +156,8 @@ func TestEncodeValueFailsRatherThanChangeTheValue(t *testing.T) {
 		{colVariant, `{"x":"\udc00"}`, "not valid UTF-8"},
 		{colVariant, `{"x":123456789012345678901234567890123456789}`, "more than 38 significant digits"},
 		{colVariant, `[0.12345678901234567890123456789012345678901]`, "more than 38 significant digits"},
+		{colVariant, `{"x":1.2345678901234567e5}`, "number 1.2345678901234567e5 has an exponent and more than 15 significant digits, which a VARIANT stores as a double"},
+		{colVariant, `[0.` + strings.Repeat("0", 37) + `1]`, "has more than 37 digits after the decimal point, which a VARIANT stores as a double"},
 	}
 	for _, c := range cases {
 		_, _, err := encodeValue(c.typ, json.RawMessage(c.in))
@@ -159,7 +172,8 @@ func TestEncodeValueFailsRatherThanChangeTheValue(t *testing.T) {
 
 func TestCastSQL(t *testing.T) {
 	assert.Equal(t, `TO_NUMBER("C", 38, 0)`, castSQL(colInteger, `"C"`))
-	assert.Equal(t, `TO_NUMBER("C", 38, 9)`, castSQL(colNumber, `"C"`))
+	assert.Equal(t, `TO_DOUBLE("C")`, castSQL(colNumber, `"C"`))
+	assert.Equal(t, colType("FLOAT"), colNumber)
 	assert.Equal(t, `TO_BOOLEAN("C")`, castSQL(colBoolean, `"C"`))
 	assert.Equal(t, `TO_DATE("C", 'YYYY-MM-DD')`, castSQL(colDate, `"C"`))
 	assert.Equal(t, `TO_TIME("C", 'HH24:MI:SS.FF9')`, castSQL(colTime, `"C"`))
@@ -171,7 +185,8 @@ func TestCastSQL(t *testing.T) {
 
 func TestInformationSchemaType(t *testing.T) {
 	assert.Equal(t, colInteger, infoSchemaType("NUMBER", 38, 0))
-	assert.Equal(t, colNumber, infoSchemaType("NUMBER", 38, 9))
+	assert.Equal(t, colNumber, infoSchemaType("FLOAT", 0, 0))
+	assert.Equal(t, colType("NUMBER(38,9)"), infoSchemaType("NUMBER", 38, 9))
 	assert.Equal(t, colType("NUMBER(10,2)"), infoSchemaType("NUMBER", 10, 2))
 	assert.Equal(t, colVarchar, infoSchemaType("TEXT", 0, 0))
 	for _, ty := range []colType{colBoolean, colDate, colTime, colTimestampTZ, colTimestampNTZ, colVariant} {

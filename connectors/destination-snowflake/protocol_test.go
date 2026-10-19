@@ -68,6 +68,7 @@ func TestProtocolWrite(t *testing.T) {
 		} else {
 			assert.Equal(t, 1, commits)
 		}
-		assert.Equal(t, `DROP TABLE IF EXISTS `+sch+`."_SYNCLET_TMP_RATES"`, sqls[len(sqls)-1])
+		assert.Equal(t, `DROP TABLE IF EXISTS `+sch+`."_SYNCLET_TMP_RATES"`, sqls[len(sqls)-2])
+		assert.Equal(t, `REMOVE @~/synclet/<run>/`, normalized(sqls)[len(sqls)-1])
 	}
 }

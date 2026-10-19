@@ -36,6 +36,9 @@ type writer struct {
 	em     *synclet.Emitter
 	limits Destination
 	dir    string
+	// runStage is the user stage path of this run's batch files.
+	runStage string
+	staged   bool
 
 	plans  []*streamPlan
 	byDesc map[synclet.StreamDescriptor]*streamPlan
@@ -59,6 +62,7 @@ func newWriter(c *conn, em *synclet.Emitter, limits Destination, plans []*stream
 		em:         em,
 		limits:     limits,
 		dir:        dir,
+		runStage:   "@~/synclet/" + strings.ReplaceAll(uuid.NewString(), "-", "") + "/",
 		plans:      plans,
 		byDesc:     map[synclet.StreamDescriptor]*streamPlan{},
 		batches:    make([]batch, len(plans)),
@@ -253,8 +257,8 @@ func (w *writer) flush(ctx context.Context) error {
 	return w.release(queued)
 }
 
-// stage writes one stream's batch to a gzip file, PUTs it to the target's
-// table stage and copies it into the staging table.
+// stage writes one stream's batch to a gzip file, PUTs it to the run's path
+// of the user stage and copies it into the staging table.
 func (w *writer) stage(ctx context.Context, p *streamPlan) error {
 	b := &w.batches[p.index]
 	name := "synclet_" + strings.ReplaceAll(uuid.NewString(), "-", "") + ".csv.gz"
@@ -264,12 +268,12 @@ func (w *writer) stage(ctx context.Context, p *streamPlan) error {
 	}
 	defer func() { _ = os.Remove(path) }()
 
-	tableStage := "@" + w.c.schemaRef() + ".%" + ident(p.target())
-	put := "PUT 'file://" + filepath.ToSlash(path) + "' " + tableStage + " SOURCE_COMPRESSION = GZIP AUTO_COMPRESS = FALSE"
+	w.staged = true
+	put := "PUT 'file://" + filepath.ToSlash(path) + "' " + w.runStage + " SOURCE_COMPRESSION = GZIP AUTO_COMPRESS = FALSE"
 	if err := w.c.put(ctx, put); err != nil {
-		return fmt.Errorf("put batch to %s: %w", tableStage, err)
+		return fmt.Errorf("put batch to %s: %w", w.runStage, err)
 	}
-	loaded, err := w.c.copyInto(ctx, copySQL(w.c.tableRef(stageTable(p.index)), tableStage, name))
+	loaded, err := w.c.copyInto(ctx, copySQL(w.c.tableRef(stageTable(p.index)), w.runStage, name))
 	if err != nil {
 		return fmt.Errorf("copy batch into %s: %w", w.c.tableRef(stageTable(p.index)), err)
 	}
@@ -346,6 +350,21 @@ func (w *writer) finish(ctx context.Context) error {
 		}
 	}
 	return nil
+}
+
+// removeStaged removes the run's files from the user stage, even when the
+// sync's context is cancelled. A failure is logged, not returned: the files
+// are already loaded or belong to a failed run.
+func (w *writer) removeStaged(ctx context.Context) {
+	if !w.staged {
+		return
+	}
+	log := synclet.Logger(ctx)
+	ctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), cleanupTimeout)
+	defer cancel()
+	if err := w.c.exec(ctx, "REMOVE "+w.runStage); err != nil {
+		log.Warn(fmt.Sprintf("remove staged files %s: %v", w.runStage, err))
+	}
 }
 
 // warnUnknown logs, once per stream, the record fields the stream's schema

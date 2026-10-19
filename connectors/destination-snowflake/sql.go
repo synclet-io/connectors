@@ -48,10 +48,9 @@ func stageDDL(p *streamPlan) string {
 	return "(" + strings.Join(defs, ", ") + ")"
 }
 
-// copySQL loads one staged file from the target's table stage into the
-// staging table.
-func copySQL(stage, tableStage, file string) string {
-	return "COPY INTO " + stage + " FROM " + tableStage + " FILES = (" + sqlString(file) + ") " + csvFormat
+// copySQL loads one file of a stage path into the staging table.
+func copySQL(stage, from, file string) string {
+	return "COPY INTO " + stage + " FROM " + from + " FILES = (" + sqlString(file) + ") " + csvFormat
 }
 
 // castList converts each staged column to its type, aliased to its name
