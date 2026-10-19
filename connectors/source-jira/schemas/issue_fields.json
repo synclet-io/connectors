@@ -4,15 +4,13 @@
     "id": {"type": "string"},
     "key": {"type": ["string", "null"]},
     "name": {"type": ["string", "null"]},
-    "description": {"type": ["string", "null"]},
     "custom": {"type": ["boolean", "null"]},
-    "isLocked": {"type": ["boolean", "null"]},
-    "searcherKey": {"type": ["string", "null"]},
-    "screensCount": {"type": ["integer", "null"]},
-    "contextsCount": {"type": ["integer", "null"]},
-    "projectsCount": {"type": ["integer", "null"]},
-    "lastUsed": {"type": ["object", "null"], "additionalProperties": true},
-    "schema": {"type": ["object", "null"], "additionalProperties": true}
+    "orderable": {"type": ["boolean", "null"]},
+    "navigable": {"type": ["boolean", "null"]},
+    "searchable": {"type": ["boolean", "null"]},
+    "clauseNames": {"type": ["array", "null"], "items": {"type": "string"}},
+    "schema": {"type": ["object", "null"], "additionalProperties": true},
+    "scope": {"type": ["object", "null"], "additionalProperties": true}
   },
   "additionalProperties": true
 }

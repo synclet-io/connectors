@@ -121,7 +121,7 @@ func TestPages(t *testing.T) {
 	}{
 		{"projects", "api/3/project/search", "startAt", []string{"0", "2"}},
 		{"users", "api/3/users/search", "startAt", []string{"0", "2", "3"}},
-		{"issue_fields", "api/3/field/search", "startAt", []string{"0", "2"}},
+		{"issue_fields", "api/3/field", "startAt", []string{""}},
 		{"boards", "agile/1.0/board", "startAt", []string{"0", "2"}},
 		{"issues", "api/3/search/jql", "nextPageToken", []string{"", "tok-page-2"}},
 	}
@@ -151,8 +151,8 @@ func TestIssuesResume(t *testing.T) {
 	if out.Err != nil {
 		t.Fatal(out.Err)
 	}
-	// saved 03:30Z minus the 1d lookback
-	want := `updated >= "2026-03-01 03:30" ORDER BY updated ASC`
+	// saved 2026-03-02T03:30Z minus the 1d lookback, in epoch ms
+	want := `updated >= 1772335800000 ORDER BY updated ASC`
 	for _, jql := range rec.values("api/3/search/jql", "jql") {
 		if jql != want {
 			t.Errorf("jql %q, want %q", jql, want)
@@ -175,5 +175,49 @@ func TestIssuesResume(t *testing.T) {
 	next := out.NextState()
 	if !strings.Contains(string(next), `"updated":"2026-03-02T10:15:30.000+0200"`) {
 		t.Errorf("state %s", next)
+	}
+}
+
+func TestIssuesFirstRead(t *testing.T) {
+	h, rec := recorded(t, suite())
+	out := h.Read(t, h.Catalog(t, synclet.SyncModeIncremental, "issues"), nil)
+	if out.Err != nil {
+		t.Fatal(out.Err)
+	}
+	// start_date 2026-01-01T00:00:00Z in epoch ms
+	want := `updated >= 1767225600000 ORDER BY updated ASC`
+	jqls := rec.values("api/3/search/jql", "jql")
+	if len(jqls) == 0 {
+		t.Fatal("no issues request")
+	}
+	for _, jql := range jqls {
+		if jql != want {
+			t.Errorf("jql %q, want %q", jql, want)
+		}
+	}
+}
+
+func TestPageSize(t *testing.T) {
+	h, rec := recorded(t, suite())
+	out := h.Read(t, h.Catalog(t, synclet.SyncModeFullRefresh), nil)
+	if out.Err != nil {
+		t.Fatal(out.Err)
+	}
+	cases := []struct{ stream, path, want string }{
+		{"projects", "api/3/project/search", "50"},
+		{"users", "api/3/users/search", "50"},
+		{"boards", "agile/1.0/board", "50"},
+		{"issues", "api/3/search/jql", "100"},
+	}
+	for _, c := range cases {
+		got := rec.values(c.path, "maxResults")
+		if len(got) == 0 {
+			t.Errorf("%s: no requests", c.stream)
+		}
+		for _, v := range got {
+			if v != c.want {
+				t.Errorf("%s: maxResults %q, want %q", c.stream, v, c.want)
+			}
+		}
 	}
 }

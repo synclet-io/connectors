@@ -34,9 +34,16 @@ without access (HTTP 403).
 |---|---|---|---|---|
 | `projects` | `GET /rest/api/3/project/search` (expanded with description, lead, issue types, URL, keys, insight) | full refresh | `id` | `startAt` until `isLast` |
 | `users` | `GET /rest/api/3/users/search` | full refresh | `accountId` | `startAt` until an empty page |
-| `issue_fields` | `GET /rest/api/3/field/search` | full refresh | `id` | `startAt` until `isLast` |
+| `issue_fields` | `GET /rest/api/3/field` | full refresh | `id` | none, one response |
 | `boards` | `GET /rest/agile/1.0/board` | full refresh | `id` | `startAt` until `isLast` |
 | `issues` | `GET /rest/api/3/search/jql` with `fields=*all` | full refresh, incremental | `id` | `nextPageToken` until `isLast` |
+
+`issue_fields` holds the system and custom fields of company-managed and team-managed projects alike;
+team-managed fields carry a `scope` naming their project. Fields used only in projects the account cannot
+browse are left out.
+
+`boards` needs Jira Software: on a site without it Jira answers `/rest/agile/1.0/board` with HTTP 404 or
+403 and the sync fails, so deselect `boards` there.
 
 Records are passed through as Jira sends them; an issue keeps its fields, custom fields included, under
 `fields`.
@@ -52,12 +59,13 @@ Not read in this version:
 `issues` uses the source-defined cursor `fields.updated` and asks Jira for
 
 ```
-updated >= "<since>" ORDER BY updated ASC
+updated >= <since> ORDER BY updated ASC
 ```
 
-where `since` is `start_date` on the first read, else the saved cursor minus one day, rendered as
-`YYYY-MM-DD HH:MM` in UTC. JQL reads that time in the account's time zone; the one-day lookback covers
-every zone offset, and the issues it reads again are deduplicated by `id` downstream. Issues updated before
+where `since` is `start_date` on the first read, else the saved cursor minus one day, as milliseconds since
+the Unix epoch. JQL reads an unquoted number as an instant, so the query does not depend on the account's
+time zone. The one-day lookback covers issues that `/search/jql` indexes late (its results are eventually
+consistent); the issues it reads again are deduplicated by `id` downstream. Issues updated before
 `since` are dropped even if Jira returns them. After the last issue the connector saves the greatest
 `updated` it read, as Jira sent it:
 

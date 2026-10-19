@@ -36,11 +36,9 @@ streams:
     schema: schemas/users.json
     pagination: {type: offset, offset_param: startAt, size: 50, size_param: maxResults}
   - name: issue_fields
-    path: api/3/field/search
+    path: api/3/field
     primary_key: [id]
     schema: schemas/issue_fields.json
-    records: {path: $.values}
-    pagination: *values
   - name: boards
     path: agile/1.0/board
     primary_key: [id]
@@ -50,7 +48,7 @@ streams:
   - name: issues
     path: api/3/search/jql
     params:
-      jql: "updated >= \"{{ since }}\" ORDER BY updated ASC"
+      jql: "updated >= {{ since }} ORDER BY updated ASC"
       fields: "*all"
     primary_key: [id]
     schema: schemas/issues.json
@@ -59,6 +57,6 @@ streams:
     incremental:
       cursor_field: fields.updated
       cursor_format: "2006-01-02T15:04:05.000-0700"
-      since_format: "2006-01-02 15:04"
+      since_format: unix_ms
       start: "{{ config.start_date }}"
       lookback: 1d

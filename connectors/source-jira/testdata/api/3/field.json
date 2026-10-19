@@ -1,0 +1,5 @@
+[
+ {"id":"summary","key":"summary","name":"Summary","custom":false,"orderable":true,"navigable":true,"searchable":true,"clauseNames":["summary"],"schema":{"type":"string","system":"summary"}},
+ {"id":"customfield_10010","key":"customfield_10010","name":"Story points","custom":true,"orderable":true,"navigable":true,"searchable":true,"clauseNames":["cf[10010]","Story points"],"schema":{"type":"number","custom":"com.atlassian.jira.plugin.system.customfieldtypes:float","customId":10010}},
+ {"id":"customfield_10020","key":"customfield_10020","name":"Severity","custom":true,"orderable":true,"navigable":true,"searchable":true,"clauseNames":["cf[10020]","Severity"],"schema":{"type":"option","custom":"com.atlassian.jira.plugin.system.customfieldtypes:select","customId":10020},"scope":{"type":"PROJECT","project":{"id":"10001"}}}
+]

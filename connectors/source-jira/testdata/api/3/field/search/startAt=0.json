@@ -1,4 +1,0 @@
-{"maxResults":2,"startAt":0,"total":3,"isLast":false,"values":[
- {"id":"summary","key":"summary","name":"Summary","custom":false,"isLocked":true,"searcherKey":"com.atlassian.jira.plugin.system.customfieldtypes:textsearcher","schema":{"type":"string","system":"summary"},"lastUsed":{"type":"NOT_TRACKED"}},
- {"id":"customfield_10010","key":"customfield_10010","name":"Story points","description":"Synthetic estimate field.","custom":true,"isLocked":false,"searcherKey":"com.atlassian.jira.plugin.system.customfieldtypes:exactnumber","screensCount":2,"contextsCount":1,"projectsCount":0,"schema":{"type":"number","custom":"com.atlassian.jira.plugin.system.customfieldtypes:float","customId":10010},"lastUsed":{"type":"TRACKED","value":"2026-03-02T10:15:30.000+0200"}}
-]}
