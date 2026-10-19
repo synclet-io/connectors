@@ -136,6 +136,12 @@ func (s *source) Spec(context.Context) (*synclet.ConnectorSpecification, error) 
 // prepare resolves the manifest of one command and validates the rest of
 // the config against its spec.
 func (s *source) prepare(raw json.RawMessage) (*manifest.Manifest, map[string]any, error) {
+	return s.resolve(raw, false)
+}
+
+// resolve is prepare; relaxed loads an injected manifest whose streams may
+// have no schema, for infer.
+func (s *source) resolve(raw json.RawMessage, relaxed bool) (*manifest.Manifest, map[string]any, error) {
 	var top map[string]json.RawMessage
 	if err := json.Unmarshal(raw, &top); err != nil {
 		return nil, nil, synclet.ConfigError(fmt.Errorf("config is not a JSON object: %w", err))
@@ -150,7 +156,7 @@ func (s *source) prepare(raw json.RawMessage) (*manifest.Manifest, map[string]an
 		return nil, nil, synclet.ConfigError(errors.New("`__manifest` is required on the generic source-declarative image"))
 	case m == nil:
 		var err error
-		if m, err = loadInjected(injected); err != nil {
+		if m, err = loadInjected(injected, relaxed); err != nil {
 			return nil, nil, err
 		}
 	}
@@ -170,7 +176,7 @@ func (s *source) prepare(raw json.RawMessage) (*manifest.Manifest, map[string]an
 	return m, cfg, nil
 }
 
-func loadInjected(raw json.RawMessage) (*manifest.Manifest, error) {
+func loadInjected(raw json.RawMessage, relaxed bool) (*manifest.Manifest, error) {
 	var compact bytes.Buffer
 	if err := json.Compact(&compact, raw); err != nil {
 		return nil, synclet.ConfigError(fmt.Errorf("`__manifest`: %w", err))
@@ -188,7 +194,13 @@ func loadInjected(raw json.RawMessage) (*manifest.Manifest, error) {
 	if !ok {
 		return nil, synclet.ConfigError(errors.New("`__manifest` must be a JSON object, the parsed manifest"))
 	}
-	m, err := manifest.LoadDocument(obj, nil)
+	var m *manifest.Manifest
+	var err error
+	if relaxed {
+		m, err = manifest.LoadDocumentRelaxed(obj)
+	} else {
+		m, err = manifest.LoadDocument(obj, nil)
+	}
 	if err != nil {
 		var lines []string
 		for _, e := range manifest.List(err) {
@@ -272,23 +284,28 @@ func (s *source) Discover(_ context.Context, raw json.RawMessage) (*synclet.Cata
 		return nil, err
 	}
 	cat := &synclet.Catalog{}
-	for _, st := range m.Streams {
-		cs := synclet.Stream{
-			Name:               st.Name,
-			JSONSchema:         st.Schema,
-			SupportedSyncModes: []synclet.SyncMode{synclet.SyncModeFullRefresh},
-		}
-		if st.Incremental != nil {
-			cs.SupportedSyncModes = append(cs.SupportedSyncModes, synclet.SyncModeIncremental)
-			cs.SourceDefinedCursor = true
-			cs.DefaultCursorField = st.Incremental.CursorField.Parts
-		}
-		for _, f := range st.PrimaryKey {
-			cs.SourceDefinedPrimaryKey = append(cs.SourceDefinedPrimaryKey, f.Parts)
-		}
-		cat.Streams = append(cat.Streams, cs)
+	for i := range m.Streams {
+		cat.Streams = append(cat.Streams, catalogStream(&m.Streams[i], m.Streams[i].Schema))
 	}
 	return cat, nil
+}
+
+// catalogStream is st in a catalog, with schema as its JSON Schema.
+func catalogStream(st *manifest.Stream, schema json.RawMessage) synclet.Stream {
+	cs := synclet.Stream{
+		Name:               st.Name,
+		JSONSchema:         schema,
+		SupportedSyncModes: []synclet.SyncMode{synclet.SyncModeFullRefresh},
+	}
+	if st.Incremental != nil {
+		cs.SupportedSyncModes = append(cs.SupportedSyncModes, synclet.SyncModeIncremental)
+		cs.SourceDefinedCursor = true
+		cs.DefaultCursorField = st.Incremental.CursorField.Parts
+	}
+	for _, f := range st.PrimaryKey {
+		cs.SourceDefinedPrimaryKey = append(cs.SourceDefinedPrimaryKey, f.Parts)
+	}
+	return cs
 }
 
 // Read emits the configured streams in catalog order; a parent and its

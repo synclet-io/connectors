@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
+	"slices"
 	"strings"
 	"time"
 )
@@ -240,9 +241,7 @@ func (l *linter) stream(i int, names map[string]int) {
 	l.params(at+".params", st.Params, allowed)
 	l.templates(at+".headers", st.Headers, allowed)
 
-	for k, f := range st.PrimaryKey {
-		l.field(at+fmt.Sprintf(".primary_key[%d]", k), st, f)
-	}
+	l.fields(at, st)
 	l.records(at+".records", st, allowed)
 	l.pagination(at+".pagination", st)
 	l.incremental(at+".incremental", st, parent)
@@ -270,11 +269,6 @@ func (l *linter) records(at string, st *Stream, allowed roots) {
 	case ModeEntries:
 		if r.KeyField == nil {
 			l.add(at+".key_field", "mode entries needs key_field")
-		} else {
-			l.field(at+".key_field", st, *r.KeyField)
-		}
-		if r.ValueField != nil {
-			l.field(at+".value_field", st, *r.ValueField)
 		}
 	default:
 		if r.KeyField != nil {
@@ -286,7 +280,6 @@ func (l *linter) records(at string, st *Stream, allowed roots) {
 	}
 	for name, src := range r.Add {
 		fat := joinKey(at+".add", name)
-		l.field(fat, st, Field{Raw: name, Parts: strings.Split(name, ".")})
 		switch {
 		case src.Path != nil:
 			l.path(fat, src.Path)
@@ -337,7 +330,6 @@ func (l *linter) incremental(at string, st *Stream, parent *Stream) {
 	if inc == nil {
 		return
 	}
-	l.field(at+".cursor_field", st, inc.CursorField)
 	if !ValidTimeFormat(inc.CursorFormat) {
 		l.add(at+".cursor_format", "%q is not unix_s, unix_ms, rfc3339, date or a Go time layout", inc.CursorFormat)
 	}
@@ -366,6 +358,41 @@ func (l *linter) incremental(at string, st *Stream, parent *Stream) {
 	if inc.Window != nil && inc.Window.Step <= 0 {
 		l.add(at+".window.step", "must be positive")
 	}
+}
+
+// fields checks every field of st that must be in its schema; a stream
+// without a schema (infer mode) skips them.
+func (l *linter) fields(at string, st *Stream) {
+	if st.Schema == nil {
+		return
+	}
+	for k, f := range st.PrimaryKey {
+		l.field(at+fmt.Sprintf(".primary_key[%d]", k), st, f)
+	}
+	r := &st.Records
+	if r.Mode == ModeEntries {
+		if r.KeyField != nil {
+			l.field(at+".records.key_field", st, *r.KeyField)
+		}
+		if r.ValueField != nil {
+			l.field(at+".records.value_field", st, *r.ValueField)
+		}
+	}
+	for _, name := range sortedNames(r.Add) {
+		l.field(joinKey(at+".records.add", name), st, Field{Raw: name, Parts: strings.Split(name, ".")})
+	}
+	if st.Incremental != nil {
+		l.field(at+".incremental.cursor_field", st, st.Incremental.CursorField)
+	}
+}
+
+func sortedNames[V any](m map[string]V) []string {
+	out := make([]string, 0, len(m))
+	for k := range m {
+		out = append(out, k)
+	}
+	slices.Sort(out)
+	return out
 }
 
 // field checks that a dotted field is declared in the stream's schema.

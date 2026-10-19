@@ -33,7 +33,7 @@ Rules:
 
 1. Anything a manifest cannot say is written in Go on the SDK. The engine never grows for one connector; a feature joins the DSL when at least two connectors in the catalog or its candidates need it.
 2. A manifest fails at load on any key the format does not know, any value of the wrong type and any reference that does not resolve (a config key not in the spec, a parent stream that does not exist, a field not in the schema). Errors name the path (`streams[2].pagination.cursor_from`).
-3. Records are passed through as the API sends them. The engine decodes with exact numbers, adds the fields `records.add` names and nothing else. Schemas are hand-written JSON Schema, in a file or inline (3.5); the engine does not rewrite them, and a published connector never infers them. Only the builder's infer mode (C-56) drafts a schema, for a human to edit.
+3. Records are passed through as the API sends them. The engine decodes with exact numbers, adds the fields `records.add` names and nothing else. Schemas are hand-written JSON Schema, in a file or inline (3.5); the engine does not rewrite them, and a published connector never infers them. Only the builder's infer mode (section 14) drafts a schema, for a human to edit.
 4. The engine is loud about loops: a cursor or next URL that repeats, a page identical to the previous one, or more than `max_pages` pages fails the stream with the request that caused it.
 5. Templates are a fixed set of substitutions, not a language (section 4).
 6. Requests are sequential: one stream at a time, one request in flight. A rate limit is honoured by waiting for what the API says, never by pacing.
@@ -367,3 +367,34 @@ The same manifest therefore behaves identically baked or injected: one loader (`
 The `spec` command receives no config, so the generic image cannot know a builder connector's form. Its `spec` returns a placeholder: `connectionSpecification` with one required object property `__manifest`; JSON Schema's default lets every other key through (the SDK's spec type has no `additionalProperties` field). Synclet never shows it as a form.
 
 Synclet takes a builder connector's spec from the stored manifest instead: the mapping of 3.2 (`secret` becomes `airbyte_secret`, the fixed `supportsIncremental` and protocol version) is a pure function of the manifest's `spec` block. Synclet computes it when a manifest version is saved, stores it with that version and serves it like any connector's spec. The mapping is `Manifest.ConnectorSpec` and the validation `manifest.LoadDocument`, both in `internal/manifest`; how Synclet reaches them (an exported package, its own copy, or a command of the image) is settled with T-43.
+
+### 14. Builder infer mode
+
+For the builder only: a test read that returns sampled records and a draft JSON Schema per stream, which the user edits and saves inline. Published connectors never run it, and nothing in `check`, `discover` or `read` changes.
+
+```text
+source-declarative infer --config <config.json> [--streams a,b] [--limit 100] [--pages 3]
+```
+
+| Input | Meaning |
+|---|---|
+| `--config` | The source config with `__manifest`, as for `read`. The command exists in generic mode only; a catalog image answers it with a config error. |
+| `--streams` | Streams to sample, comma-separated; default all. An unknown name is a config error. |
+| `--limit` | Records per stream, default 100, 1 to 1000. |
+| `--pages` | Pages per stream (and per partition value or parent), default 3, 1 to 10. |
+
+A missing `--config`, an unreadable file or a value out of range is a usage error: a message on stderr and exit status 2, as for the protocol commands.
+
+The manifest is linted in a relaxed mode: `schema` may be absent on any stream. The rules that need a schema (`cursor_field`, `primary_key`, `key_field`, `value_field` and `add` keys in the schema) are checked against the drafted schema afterwards and reported as LOG warnings; a stream that has a `schema` is checked against it as usual, and an error there fails the command. There is no catalog and no state: every stream reads as full refresh from `start`, the first window only; a `partition.values` stream samples its first value, a child its parents in order until it has `--limit` records.
+
+Output on stdout, in order:
+
+- RECORD messages, at most `--limit` per stream, exactly as `read` would emit them (with `add`, records older than `start` left out);
+- a LOG message naming each request (method and path, without the query when `auth.in: query`); secret config values never appear in a LOG or TRACE message;
+- per stream that fails (HTTP error, extraction error, pagination guard): a TRACE error with its `stream_descriptor` and message; the other streams continue, and the failed stream is left out of the CATALOG;
+- LOG warnings for the relaxed-lint findings and for a stream with no records;
+- last, one CATALOG message whose streams carry the draft `json_schema`, the stream's `source_defined_primary_key` and cursor from the manifest, as `discover` reports them.
+
+Exit status 0 when the manifest and config load, whatever the streams did; 1 on a config error (catalog image, missing or invalid `__manifest`, invalid config, unknown stream), reported as a TRACE error as for `read`.
+
+Draft schema rules: an object schema with `properties` for every field seen in any sample, nested objects recursively; a field's `type` is the union of the JSON types seen, `null` first and the rest by name, plus `null` when it was null or missing in some sample; `integer` when every number seen is integral, else `number`; `format: date` or `date-time` (RFC 3339) on a string field when every sample parses as one; array `items` merged the same way; no `required`; `additionalProperties: true`; properties sorted by name, so the same samples give the same draft. A stream with no records gets `{type: object, properties: {}, additionalProperties: true}` and a warning.

@@ -191,6 +191,12 @@ func LoadDocument(doc map[string]any, files fs.FS) (*Manifest, error) {
 	if err != nil {
 		return nil, err
 	}
+	return loadDocument(jv, files, nil)
+}
+
+// loadDocument loads a JSON value; the streams at the indexes in schemaless
+// carry a placeholder schema, which is dropped after decoding.
+func loadDocument(jv any, files fs.FS, schemaless []int) (*Manifest, error) {
 	raw, err := json.Marshal(jv)
 	if err != nil {
 		return nil, &Error{Message: err.Error()}
@@ -212,6 +218,9 @@ func LoadDocument(doc map[string]any, files fs.FS) (*Manifest, error) {
 	dec.UseNumber()
 	if err := dec.Decode(&m); err != nil {
 		return nil, &Error{Message: "decode: " + err.Error()}
+	}
+	for _, i := range schemaless {
+		m.Streams[i].Schema = nil
 	}
 	errs := resolveSchemas(&m, files)
 	errs = append(errs, lint(&m)...)
@@ -305,6 +314,9 @@ func resolveSchemas(m *Manifest, files fs.FS) []*Error {
 	var errs []*Error
 	for i := range m.Streams {
 		st := &m.Streams[i]
+		if st.Schema == nil {
+			continue
+		}
 		at := fmt.Sprintf("streams[%d].schema", i)
 		raw := []byte(st.Schema)
 		var file string
