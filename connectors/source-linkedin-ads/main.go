@@ -21,6 +21,7 @@ type Source struct {
 	client     *http.Client
 	retryDelay time.Duration
 	wait       func(ctx context.Context, d time.Duration) error
+	rowCap     int
 }
 
 func main() { cli.RunSource(Source{}) }

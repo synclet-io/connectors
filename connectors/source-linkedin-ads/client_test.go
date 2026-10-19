@@ -96,3 +96,18 @@ func TestListFollowsPageTokens(t *testing.T) {
 	assert.Equal(t, "p2", reqs[1].params["pageToken"])
 	assert.Equal(t, "100", reqs[0].params["pageSize"])
 }
+
+func TestTokenResponseWithoutUsableExpiryHidesTheToken(t *testing.T) {
+	for file, want := range map[string]string{
+		"token/string_expires_in": "expires_in",
+		"token/no_expires_in":     "expires_in",
+	} {
+		t.Run(file, func(t *testing.T) {
+			c, _, _ := testClient(t, map[string][]fixture{tokenRoute: {{file: file}}})
+			err := c.get(t.Context(), "adAccounts/1001", nil, &map[string]any{})
+			require.Error(t, err)
+			assert.Contains(t, err.Error(), want)
+			assert.NotContains(t, err.Error(), "SECRET-ACCESS")
+		})
+	}
+}

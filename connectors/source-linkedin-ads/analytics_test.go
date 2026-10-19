@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -129,4 +130,39 @@ func TestAnalyticsBadStateIsConfigError(t *testing.T) {
 		"stream_state":{"accounts":{"1001":{"date":"12/10/2026"}}}}}]`)
 	out := runRead(t, src, testConfig(t, onlyAccountA), configured(t, src, synclet.SyncModeIncremental, streamAnalyticsCampaign), state)
 	require.ErrorContains(t, out.Err, `saved date "12/10/2026" is not a YYYY-MM-DD date`)
+}
+
+func TestAnalyticsSplitsAWindowAtTheRowCap(t *testing.T) {
+	srv, h := fixtureServer(t, nil)
+	src, _ := testSource(srv)
+	whole := runRead(t, src, testConfig(t, onlyAccountA), configured(t, src, synclet.SyncModeIncremental, streamAnalyticsCampaign), nil)
+	require.NoError(t, whole.Err)
+	unsplit := len(h.of("adAnalytics"))
+
+	src.rowCap = 3
+	out := runRead(t, src, testConfig(t, onlyAccountA), configured(t, src, synclet.SyncModeIncremental, streamAnalyticsCampaign), nil)
+	require.NoError(t, out.Err)
+	assert.Greater(t, len(h.of("adAnalytics"))-unsplit, unsplit, "windows at the cap are read again in halves")
+	assert.Equal(t, records(t, whole, streamAnalyticsCampaign), records(t, out, streamAnalyticsCampaign), "same rows, once each, in order")
+	assert.Equal(t, len(whole.States()), len(out.States()), "state is saved per window, not per half")
+}
+
+func TestAnalyticsOneDayAtTheRowCapFails(t *testing.T) {
+	srv, _ := fixtureServer(t, nil)
+	src, _ := testSource(srv)
+	src.rowCap = 2
+	out := runRead(t, src, testConfig(t, onlyAccountA), configured(t, src, synclet.SyncModeFullRefresh, streamAnalyticsCampaign), nil)
+	require.EqualError(t, out.Err, "ad_analytics_by_campaign: account 1001 2026-08-01..2026-08-30: "+
+		"pivot CAMPAIGN day 2026-08-01 returned 2 rows, LinkedIn's limit for one response, so rows may be missing; no shorter window is possible")
+}
+
+func TestLookbackCoversTheLongestConversionWindow(t *testing.T) {
+	for n, ok := range map[int]bool{0: true, 7: true, 90: true, 91: false, -1: false} {
+		cfg := decodeConfig(t, testConfig(t, func(c *Config) { c.LookbackDays = &n }))
+		if ok {
+			assert.NoError(t, cfg.validate(), "lookback_days %d", n)
+		} else {
+			assert.EqualError(t, cfg.validate(), "lookback_days "+strconv.Itoa(n)+" is not between 0 and 90")
+		}
+	}
 }

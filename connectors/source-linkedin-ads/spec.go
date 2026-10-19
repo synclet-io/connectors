@@ -62,7 +62,7 @@ func (Source) Spec(_ context.Context) (*synclet.ConnectorSpecification, error) {
 				},
 				"lookback_days": {
 					Title:        "Lookback Days",
-					Description:  "Days, 0 to 30, before the saved date an incremental analytics read starts again, since LinkedIn still updates recent days.",
+					Description:  "Days, 0 to 90, before the saved date an incremental analytics read starts again. LinkedIn credits a conversion to the day of its click or view and keeps updating that day for the length of the conversion window, up to 90 days; set this to the longest conversion window in use.",
 					PropertyType: typed(synclet.Integer), Default: defaultLookbackDays, Order: order(6),
 				},
 			}},

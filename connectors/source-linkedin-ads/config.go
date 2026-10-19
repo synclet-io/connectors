@@ -10,7 +10,7 @@ import (
 const (
 	dateLayout          = "2006-01-02"
 	defaultLookbackDays = 7
-	maxLookbackDays     = 30
+	maxLookbackDays     = 90
 )
 
 // Config is the connector configuration.

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -10,8 +11,17 @@ import (
 	synclet "github.com/synclet-io/synclet-go-sdk"
 )
 
-// windowDays is the longest date range of one analytics request.
-const windowDays = 30
+const (
+	// windowDays is the longest date range of one analytics request.
+	windowDays = 30
+	// analyticsRowCap is the most elements LinkedIn returns in one analytics
+	// response; the finder is not paged, so a response of that size may be
+	// missing rows.
+	analyticsRowCap = 15000
+)
+
+// errRowCap marks an analytics response that reached the row cap.
+var errRowCap = errors.New("analytics response reached the row cap")
 
 // analyticsState is the STREAM state of an analytics stream.
 type analyticsState struct {
@@ -92,7 +102,7 @@ func (s Source) readAnalytics(ctx context.Context, c *apiClient, cfg Config, ids
 			if end.After(until) {
 				end = until
 			}
-			if err := readWindow(ctx, c, d, id, start, end, func(rec map[string]any) error {
+			if err := readSpan(ctx, c, d, id, start, end, s.analyticsRowCap(), func(rec map[string]any) error {
 				return em.Record(desc, rec)
 			}); err != nil {
 				return fmt.Errorf("%s: account %s %s..%s: %w", d.name, id, start.Format(dateLayout), end.Format(dateLayout), err)
@@ -109,6 +119,33 @@ func (s Source) readAnalytics(ctx context.Context, c *apiClient, cfg Config, ids
 	return nil
 }
 
+func (s Source) analyticsRowCap() int {
+	if s.rowCap > 0 {
+		return s.rowCap
+	}
+	return analyticsRowCap
+}
+
+// readSpan reads the analytics rows of one account from start to end. A
+// response that reaches rowCap is read again as two halves, down to one day;
+// a single day at the cap fails.
+func readSpan(ctx context.Context, c *apiClient, d streamDef, account string, start, end time.Time, rowCap int, fn func(map[string]any) error) error {
+	err := readWindow(ctx, c, d, account, start, end, rowCap, fn)
+	if !errors.Is(err, errRowCap) {
+		return err
+	}
+	days := int(end.Sub(start).Hours()/24) + 1
+	if days == 1 {
+		return fmt.Errorf("pivot %s day %s returned %d rows, LinkedIn's limit for one response, so rows may be missing; no shorter window is possible",
+			d.pivot, start.Format(dateLayout), rowCap)
+	}
+	mid := start.AddDate(0, 0, days/2-1)
+	if err := readSpan(ctx, c, d, account, start, mid, rowCap, fn); err != nil {
+		return err
+	}
+	return readSpan(ctx, c, d, account, mid.AddDate(0, 0, 1), end, rowCap, fn)
+}
+
 // analyticsRow is one element of an analytics finder response.
 type analyticsRow struct {
 	DateRange struct {
@@ -118,9 +155,10 @@ type analyticsRow struct {
 }
 
 // readWindow calls fn with the record of every analytics row of one account
-// from start to end. A row without a day or pivot, or outside that range,
+// from start to end. A response of rowCap rows or more returns errRowCap
+// before any record; a row without a day or pivot, or outside that range,
 // fails the window.
-func readWindow(ctx context.Context, c *apiClient, d streamDef, account string, start, end time.Time, fn func(map[string]any) error) error {
+func readWindow(ctx context.Context, c *apiClient, d streamDef, account string, start, end time.Time, rowCap int, fn func(map[string]any) error) error {
 	q := query{
 		{key: "q", value: "analytics"},
 		{key: "pivot", value: d.pivot},
@@ -134,6 +172,9 @@ func readWindow(ctx context.Context, c *apiClient, d streamDef, account string, 
 	}
 	if err := c.get(ctx, "adAnalytics", q, &resp); err != nil {
 		return err
+	}
+	if len(resp.Elements) >= rowCap {
+		return errRowCap
 	}
 	first, last := start.Format(dateLayout), end.Format(dateLayout)
 	for _, raw := range resp.Elements {

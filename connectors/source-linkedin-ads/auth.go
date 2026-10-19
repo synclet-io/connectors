@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -90,16 +91,14 @@ func (s *tokenSource) fetch(ctx context.Context) (_ string, _ time.Duration, rer
 	if err != nil {
 		return "", 0, retryable{err: fmt.Errorf("linkedin token endpoint: read body: %w", err)}
 	}
+	if resp.StatusCode == http.StatusOK {
+		return parseToken(raw)
+	}
 	var body struct {
-		AccessToken string `json:"access_token"`
-		ExpiresIn   int64  `json:"expires_in"`
 		Error       string `json:"error"`
 		Description string `json:"error_description"`
 	}
-	decErr := json.Unmarshal(raw, &body)
-	if resp.StatusCode == http.StatusOK && decErr == nil && body.AccessToken != "" && body.ExpiresIn > 0 {
-		return body.AccessToken, time.Duration(body.ExpiresIn) * time.Second, nil
-	}
+	_ = json.Unmarshal(raw, &body)
 	detail := body.Error + ": " + body.Description
 	if body.Error == "" {
 		detail = snippet(raw)
@@ -113,8 +112,28 @@ func (s *tokenSource) fetch(ctx context.Context) (_ string, _ time.Duration, rer
 		return "", 0, synclet.ConfigError(fmt.Errorf("refresh_token is invalid or expired; authorize the app again for a new one (%w)", cause))
 	case resp.StatusCode == http.StatusTooManyRequests, resp.StatusCode >= 500:
 		return "", 0, retryable{err: cause}
-	case resp.StatusCode == http.StatusOK:
-		return "", 0, fmt.Errorf("linkedin token endpoint: response without access_token and expires_in: %s", snippet(raw))
 	}
 	return "", 0, cause
+}
+
+// parseToken reads the access token and its lifetime from a 200 token
+// response. Its errors name the field at fault and never quote the body,
+// which holds the token.
+func parseToken(raw []byte) (string, time.Duration, error) {
+	var fields struct {
+		AccessToken json.RawMessage `json:"access_token"`
+		ExpiresIn   json.RawMessage `json:"expires_in"`
+	}
+	if err := json.Unmarshal(raw, &fields); err != nil {
+		return "", 0, errors.New("linkedin token endpoint: HTTP 200 response is not a JSON object")
+	}
+	var token string
+	if json.Unmarshal(fields.AccessToken, &token) != nil || token == "" {
+		return "", 0, errors.New("linkedin token endpoint: HTTP 200 response without a string access_token")
+	}
+	var ttl int64
+	if json.Unmarshal(fields.ExpiresIn, &ttl) != nil || ttl <= 0 {
+		return "", 0, errors.New("linkedin token endpoint: HTTP 200 response without a positive integer expires_in")
+	}
+	return token, time.Duration(ttl) * time.Second, nil
 }

@@ -27,7 +27,7 @@ for the fields in `streams.go`, and re-run the tests.
 | `account_ids` | no | Ad accounts to read; empty reads every account the authorizing user has a role on |
 | `start_date` | yes | First day of the analytics streams, `YYYY-MM-DD` |
 | `end_date` | no | Last day of the analytics streams; empty reads up to today (UTC) |
-| `lookback_days` | no | Days, 0 to 30, before the saved date an incremental read starts again (default 7) |
+| `lookback_days` | no | Days, 0 to 90, before the saved date an incremental read starts again (default 7) |
 
 ```json
 {
@@ -88,6 +88,10 @@ URN as `pivot_value`, the day as `date` and the metrics `impressions`, `clicks`,
 `totalEngagements`, `likes`, `comments`, `shares`, `follows`, `videoViews`, `videoCompletions`.
 With `dateRange` and `pivotValues` that is 19 fields, within LinkedIn's limit of 20.
 
+`creatives.id` is the creative URN (`urn:li:sponsoredCreative:<n>`), while `creative_id` in
+`ad_analytics_by_creative` is its numeric id. Join the two on `pivot_value`, which holds the same URN;
+`campaign_id` joins `campaigns.id` directly, since campaign ids are numeric.
+
 ## Analytics requests
 
 Analytics use Rest.li 2.0 finder parameters, written without escaping their structure and with every
@@ -100,9 +104,14 @@ adAnalytics?q=analytics&pivot=CAMPAIGN&timeGranularity=DAILY
   &fields=dateRange,pivotValues,impressions,...
 ```
 
-Each account is read on its own, in windows of up to 30 days. The finder is not paged; a window that
-would return more rows than LinkedIn allows fails with LinkedIn's error rather than returning a partial
-result.
+Each account is read on its own, in windows of up to 30 days. The finder is not paged and LinkedIn
+returns at most 15,000 rows per response, so a response of 15,000 rows may be missing some. The connector
+then reads that window again as two halves, and halves again until each part is under the cap. A single
+day still at the cap fails the stream with the account, pivot and day, since no shorter window exists.
+
+LinkedIn omits rows whose metrics are all zero. When LinkedIn restates a day of a campaign or creative
+to zero, the next read returns no row for it, and a deduplicated destination keeps the old row with its
+old numbers. Run a full refresh of the analytics stream to correct it.
 
 ## Incremental sync
 
@@ -113,8 +122,15 @@ The state of an analytics stream holds, per account, the last day of the last wi
 ```
 
 It is saved after every window. The next read starts `lookback_days` before the saved date, never
-before `start_date`, because LinkedIn still updates the most recent days. An account without a saved
-date starts at `start_date`.
+before `start_date`, because LinkedIn still updates past days. An account without a saved date starts at
+`start_date`.
+
+LinkedIn credits a conversion to the day of the click or view that led to it, not to the day it
+happened. A day's conversion metrics therefore keep changing for as long as the conversion window of its
+campaigns: up to 90 days, depending on the conversion action. The default of 7 days catches late
+reporting of clicks and spend but not conversions that arrive later; set `lookback_days` to the longest
+post-click or post-view window of the conversion actions in use (90 at most) to keep conversion metrics
+current.
 
 ## Errors and throttling
 
