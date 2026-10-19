@@ -122,13 +122,13 @@ written.
 
 Values are put in canonical form before staging, so `COPY` never has to round, cut or guess:
 
-- A `number` is accepted only when `DOUBLE PRECISION` holds it exactly as written. The nearest
-  float64 must print back as the same decimal value: `41.25`, `0.30000000000000004` and `1e-30`
-  pass. `0.912345678901234567890` fails the sync, with an error that names the stream, the record's
+- **Exact number rule.** A `number` lands in `DOUBLE PRECISION` and is accepted only when it holds
+  the value exactly as written: the nearest float64 must print back as the same decimal value.
+  `41.25`, `0.30000000000000004` and `1e-30` pass. `0.912345678901234567890` fails the sync, with an error that names the stream, the record's
   position in the stream and the column. `DECIMAL(38,9)` is not used instead, since it would round.
-- `BIGINT` takes a number that is an exact integer in any notation, such as `1.0` or `1e3`. A
-  fraction or a value outside the `BIGINT` range fails.
-- `NUMERIC(38,0)` takes integers of at most 38 digits.
+- `BIGINT` and `NUMERIC(38,0)` take a number that is an exact integer in any notation, such as
+  `1.0` or `1e3`. A fraction fails, and so does a value outside the `BIGINT` range or with more than
+  38 digits for `NUMERIC(38,0)`.
 - Timestamps and times are parsed in Go.
   - Up to 6 fractional digits are kept, and a non-zero 7th or later digit fails.
   - A `TIMESTAMPTZ` is converted to UTC. A value without a zone is read as UTC.

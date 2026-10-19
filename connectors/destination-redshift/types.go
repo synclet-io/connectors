@@ -134,11 +134,10 @@ func schemaTypes(v any) []string {
 }
 
 var (
-	numberText  = regexp.MustCompile(`^-?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][-+]?[0-9]+)?$`)
-	integerText = regexp.MustCompile(`^-?[0-9]+$`)
-	dateText    = regexp.MustCompile(`^([0-9]{4}-[0-9]{2}-[0-9]{2})$`)
-	tsText      = regexp.MustCompile(`^([0-9]{4}-[0-9]{2}-[0-9]{2})[Tt ]([0-9]{2}:[0-9]{2}(?::[0-9]{2})?)(?:\.([0-9]+))?(Z|z|[+-][0-9]{2}(?::?[0-9]{2})?)?$`)
-	timeText    = regexp.MustCompile(`^([0-9]{2}:[0-9]{2}(?::[0-9]{2})?)(?:\.([0-9]+))?(Z|z|[+-][0-9]{2}(?::?[0-9]{2})?)?$`)
+	numberText = regexp.MustCompile(`^-?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][-+]?[0-9]+)?$`)
+	dateText   = regexp.MustCompile(`^([0-9]{4}-[0-9]{2}-[0-9]{2})$`)
+	tsText     = regexp.MustCompile(`^([0-9]{4}-[0-9]{2}-[0-9]{2})[Tt ]([0-9]{2}:[0-9]{2}(?::[0-9]{2})?)(?:\.([0-9]+))?(Z|z|[+-][0-9]{2}(?::?[0-9]{2})?)?$`)
+	timeText   = regexp.MustCompile(`^([0-9]{2}:[0-9]{2}(?::[0-9]{2})?)(?:\.([0-9]+))?(Z|z|[+-][0-9]{2}(?::?[0-9]{2})?)?$`)
 )
 
 // encodeValue renders one JSON value as the text COPY parses into a column
@@ -188,13 +187,14 @@ func encodeValue(t colType, raw json.RawMessage) (val string, null bool, truncat
 		}
 		return n, false, nil, nil
 	case colNumeric:
-		if !integerText.MatchString(text) {
-			return "", false, nil, fmt.Errorf("value %s is not an integer", raw)
+		n, ok, err := exactInteger(text, maxNumericDigits)
+		if err != nil {
+			return "", false, nil, fmt.Errorf("value %s %w", raw, err)
 		}
-		if len(strings.TrimLeft(strings.TrimPrefix(text, "-"), "0")) > maxNumericDigits {
+		if !ok {
 			return "", false, nil, fmt.Errorf("value %s has more than %d digits, which NUMERIC(38,0) cannot hold", raw, maxNumericDigits)
 		}
-		return text, false, nil, nil
+		return n, false, nil, nil
 	case colDouble:
 		return encodeDouble(raw, text)
 	case colVarchar:
