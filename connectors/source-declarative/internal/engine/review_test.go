@@ -142,3 +142,35 @@ func TestParseCursorUnixIsExact(t *testing.T) {
 		assert.True(t, tt.want.Equal(got), "%v %s: got %s, want %s", tt.v, tt.format, got.Format(time.RFC3339Nano), tt.want.Format(time.RFC3339Nano))
 	}
 }
+
+func TestRedirectStaysOnBaseHost(t *testing.T) {
+	var hits atomic.Int32
+	other := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		hits.Add(1)
+		_, _ = w.Write([]byte(`{"data":[]}`))
+	}))
+	t.Cleanup(other.Close)
+	for _, auth := range []string{
+		`auth: {type: api_key, in: query, name: key, value: "{{ config.api_key }}"}`,
+		`auth: {type: api_key, in: header, name: X-Api-Key, value: "{{ config.api_key }}"}`,
+	} {
+		t.Run(auth, func(t *testing.T) {
+			hits.Store(0)
+			a := newAPI(t).on("/v1/items", reply{status: http.StatusFound, headers: map[string]string{"Location": other.URL + "/v1/items"}})
+			msg, _, _ := readItems(t, auth+"\n", a, newClock())
+			assert.Contains(t, msg, "redirect to "+other.URL+" is not on the base URL's scheme and host")
+			assert.NotContains(t, msg, "k1")
+			assert.Equal(t, int32(0), hits.Load())
+			assert.Len(t, a.keys(), 1)
+		})
+	}
+
+	t.Run("same host is followed", func(t *testing.T) {
+		a := newAPI(t).
+			on("/v1/items", reply{status: http.StatusFound, headers: map[string]string{"Location": "/v1/items2"}}).
+			json("/v1/items2", `{"data":[{"id":"a"}]}`)
+		msg, _, ids := readItems(t, "", a, newClock())
+		require.Empty(t, msg)
+		assert.Equal(t, []string{`"a"`}, ids)
+	})
+}

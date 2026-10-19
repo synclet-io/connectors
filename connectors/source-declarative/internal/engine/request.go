@@ -52,6 +52,11 @@ type run struct {
 }
 
 func newRun(m *manifest.Manifest, cfg map[string]any, o Options, em *synclet.Emitter) *run {
+	if o.Client != nil {
+		c := *o.Client
+		c.CheckRedirect = sameHostRedirect
+		o.Client = &c
+	}
 	r := &run{m: m, cfg: cfg, o: o, em: em}
 	base := o.BaseURL
 	if base == "" {
@@ -316,6 +321,10 @@ func (r *run) attempt(ctx context.Context, build func(context.Context) (*http.Re
 	}
 	resp, err := r.o.Client.Do(req)
 	if err != nil {
+		var re *redirectError
+		if errors.As(err, &re) || errors.Is(err, errTooManyRedirects) {
+			return 0, nil, nil, fatal{fmt.Errorf("%s %s: %w", req.Method, req.URL.EscapedPath(), errors.Unwrap(err))}
+		}
 		return 0, nil, nil, transportError(err)
 	}
 	body, rerr := io.ReadAll(resp.Body)
@@ -326,6 +335,29 @@ func (r *run) attempt(ctx context.Context, build func(context.Context) (*http.Re
 		return 0, nil, nil, fmt.Errorf("read body: %w", rerr)
 	}
 	return resp.StatusCode, resp.Header, body, nil
+}
+
+var errTooManyRedirects = errors.New("stopped after 10 redirects")
+
+// redirectError is a redirect that would leave the host of the request,
+// carrying the credential of the query or headers with it.
+type redirectError struct{ target string }
+
+func (e *redirectError) Error() string {
+	return fmt.Sprintf("redirect to %s is not on the base URL's scheme and host", e.target)
+}
+
+// sameHostRedirect follows a redirect only to the scheme and host of the
+// first request, at most 10 times.
+func sameHostRedirect(req *http.Request, via []*http.Request) error {
+	first := via[0].URL
+	if req.URL.Scheme != first.Scheme || req.URL.Host != first.Host {
+		return &redirectError{target: req.URL.Scheme + "://" + req.URL.Host}
+	}
+	if len(via) >= 10 {
+		return errTooManyRedirects
+	}
+	return nil
 }
 
 // transportError describes a failed round trip without the request URL,
