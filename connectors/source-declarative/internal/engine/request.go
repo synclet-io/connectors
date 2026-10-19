@@ -43,6 +43,7 @@ type run struct {
 	cfg map[string]any
 	o   Options
 	em  *synclet.Emitter
+	red redactor
 
 	base     *url.URL
 	baseErr  error
@@ -57,7 +58,7 @@ func newRun(m *manifest.Manifest, cfg map[string]any, o Options, em *synclet.Emi
 		c.CheckRedirect = sameHostRedirect
 		o.Client = &c
 	}
-	r := &run{m: m, cfg: cfg, o: o, em: em}
+	r := &run{m: m, cfg: cfg, o: o, em: em, red: newRedactor(m, cfg)}
 	base := o.BaseURL
 	if base == "" {
 		var err error

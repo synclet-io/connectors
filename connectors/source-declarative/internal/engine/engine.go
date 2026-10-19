@@ -241,14 +241,16 @@ func validateConfig(m *manifest.Manifest, cfg map[string]any) error {
 	if err := sch.Validate(inst); err != nil {
 		var ve *jsonschema.ValidationError
 		if errors.As(err, &ve) {
-			return fmt.Errorf("invalid config: %s", configErrors(ve))
+			return fmt.Errorf("invalid config: %s", configErrors(m, ve))
 		}
 		return fmt.Errorf("invalid config: %w", err)
 	}
 	return nil
 }
 
-func configErrors(ve *jsonschema.ValidationError) string {
+// configErrors lists the leaf errors of ve; an error at a secret property
+// names the rule it fails and never the value.
+func configErrors(m *manifest.Manifest, ve *jsonschema.ValidationError) string {
 	var out []string
 	var walk func(*jsonschema.ValidationError)
 	walk = func(e *jsonschema.ValidationError) {
@@ -261,6 +263,11 @@ func configErrors(ve *jsonschema.ValidationError) string {
 		at := "config"
 		if len(e.InstanceLocation) > 0 {
 			at += "." + strings.Join(e.InstanceLocation, ".")
+		}
+		loc := e.InstanceLocation
+		if len(loc) > 0 && m.Spec.Properties[loc[0]].Secret {
+			out = append(out, fmt.Sprintf("%s: the secret value does not satisfy %q", at, strings.Join(e.ErrorKind.KeywordPath(), "/")))
+			return
 		}
 		out = append(out, at+": "+e.ErrorKind.LocalizedString(printer))
 	}

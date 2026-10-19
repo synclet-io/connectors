@@ -104,16 +104,16 @@ func (inf *inferer) Discover(ctx context.Context, raw json.RawMessage) (*synclet
 		}
 		selected[name] = true
 	}
-	red := newRedactor(m, cfg)
 	o := inf.s.o
 	base := http.DefaultTransport
 	if o.Client.Transport != nil {
 		base = o.Client.Transport
 	}
 	c := *o.Client
-	c.Transport = &requestLog{base: base, queryKey: m.Auth.Type == manifest.AuthAPIKey && m.Auth.In == "query", red: red}
+	c.Transport = &requestLog{base: base, queryKey: m.Auth.Type == manifest.AuthAPIKey && m.Auth.In == "query", red: newRedactor(m, cfg)}
 	o.Client = &c
 	r := newRun(m, cfg, o, inf.em)
+	red := r.red
 	log := r.logger(ctx)
 
 	cat := &synclet.Catalog{}
@@ -302,8 +302,13 @@ func newRedactor(m *manifest.Manifest, cfg map[string]any) redactor {
 		if !p.Secret {
 			continue
 		}
-		if v, ok := cfg[name].(string); ok && v != "" {
-			out = append(out, v)
+		switch v := cfg[name].(type) {
+		case string:
+			if v != "" {
+				out = append(out, v)
+			}
+		case json.Number:
+			out = append(out, v.String())
 		}
 	}
 	sort.Slice(out, func(i, j int) bool { return len(out[i]) > len(out[j]) })

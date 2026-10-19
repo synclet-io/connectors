@@ -110,7 +110,7 @@ func (r *run) pages(ctx context.Context, st *manifest.Stream, scope manifest.Sco
 		if err != nil {
 			var he *httpError
 			if errors.As(err, &he) && he.status == 404 && st.On404 == manifest.On404Skip {
-				r.logger(ctx).Warn(fmt.Sprintf("stream %s: %s answered 404, skipping it (on_404: skip): %s", st.Name, he.desc, he.detail))
+				r.logger(ctx).Warn(r.red.apply(fmt.Sprintf("stream %s: %s answered 404, skipping it (on_404: skip): %s", st.Name, he.desc, he.detail)))
 				return errSkipped
 			}
 			return err
