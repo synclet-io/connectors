@@ -1,0 +1,12 @@
+{"type":"RECORD","record":{"stream":"events","data":{"id":1,"kind":"click","payload":{"x":1}},"emitted_at":1704164645000}}
+{"type":"RECORD","record":{"stream":"users","data":{"id":1,"name":"Ann","updated_at":"2024-01-01T00:00:00Z"},"emitted_at":1704164645000}}
+{"type":"RECORD","record":{"stream":"rates","data":{"code":"EUR","rate":0.912345678,"day":"2024-01-02"},"emitted_at":1704164645000}}
+{"type":"LOG","log":{"level":"INFO","message":"page 1 done"}}
+{"type":"RECORD","record":{"stream":"events","data":{"id":2,"kind":"view","payload":null},"emitted_at":1704164645000}}
+{"type":"STATE","state":{"type":"STREAM","stream":{"stream_descriptor":{"name":"events"},"stream_state":{"id":2}}}}
+{"type":"RECORD","record":{"stream":"users","data":{"id":2,"name":"Bob","updated_at":"2024-01-15T00:00:00Z"},"emitted_at":1704164645000}}
+{"type":"RECORD","record":{"stream":"users","data":{"id":1,"name":"Ann B","updated_at":"2024-02-01T00:00:00Z"},"emitted_at":1704164645000}}
+{"type":"STATE","state":{"type":"STREAM","stream":{"stream_descriptor":{"name":"users"},"stream_state":{"updated_at":"2024-02-01T00:00:00Z"}}}}
+{"type":"RECORD","record":{"stream":"rates","data":{"code":"UAH","rate":"41.25","day":"2024-01-02"},"emitted_at":1704164645000}}
+{"type":"STATE","state":{"type":"STREAM","stream":{"stream_descriptor":{"name":"rates"},"stream_state":{}}}}
+{"type":"STATE","state":{"type":"GLOBAL","global":{"shared_state":{"lsn":7},"stream_states":[]}}}

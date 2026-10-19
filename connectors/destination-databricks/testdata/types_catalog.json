@@ -1,0 +1,48 @@
+{
+  "streams": [
+    {
+      "stream": {
+        "name": "types",
+        "supported_sync_modes": ["full_refresh"],
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "bool": {"type": "boolean"},
+            "bool_nullable": {"type": ["null", "boolean"]},
+            "int": {"type": "integer"},
+            "int_number": {"type": "number", "airbyte_type": "integer"},
+            "int_string": {"type": "string", "airbyte_type": "integer"},
+            "num": {"type": "number"},
+            "big_int": {"type": "string", "airbyte_type": "big_integer"},
+            "str": {"type": "string"},
+            "date": {"type": "string", "format": "date"},
+            "ts": {"type": "string", "format": "date-time"},
+            "ts_tz": {"type": "string", "format": "date-time", "airbyte_type": "timestamp_with_timezone"},
+            "ts_ntz": {"type": "string", "format": "date-time", "airbyte_type": "timestamp_without_timezone"},
+            "time": {"type": "string", "format": "time"},
+            "time_tz": {"type": "string", "format": "time", "airbyte_type": "time_with_timezone"},
+            "time_ntz": {"type": "string", "format": "time", "airbyte_type": "time_without_timezone"},
+            "obj": {"type": "object", "properties": {"a": {"type": "integer"}}},
+            "arr": {"type": "array", "items": {"type": "string"}},
+            "union": {"type": ["string", "integer"]},
+            "one_of": {"oneOf": [{"type": "string"}, {"type": "integer"}]},
+            "untyped": {},
+            "ref_string": {"$ref": "WellKnownTypes.json#/definitions/String"},
+            "ref_binary": {"$ref": "WellKnownTypes.json#/definitions/BinaryData"},
+            "ref_bool": {"$ref": "WellKnownTypes.json#/definitions/Boolean"},
+            "ref_int": {"$ref": "WellKnownTypes.json#/definitions/Integer"},
+            "ref_num": {"$ref": "WellKnownTypes.json#/definitions/Number"},
+            "ref_date": {"$ref": "WellKnownTypes.json#/definitions/Date"},
+            "ref_ts_tz": {"$ref": "WellKnownTypes.json#/definitions/TimestampWithTimezone"},
+            "ref_ts_ntz": {"$ref": "WellKnownTypes.json#/definitions/TimestampWithoutTimezone"},
+            "ref_time_tz": {"$ref": "WellKnownTypes.json#/definitions/TimeWithTimezone"},
+            "ref_time_ntz": {"$ref": "WellKnownTypes.json#/definitions/TimeWithoutTimezone"},
+            "ref_unknown": {"$ref": "WellKnownTypes.json#/definitions/Nope"}
+          }
+        }
+      },
+      "sync_mode": "full_refresh",
+      "destination_sync_mode": "append"
+    }
+  ]
+}

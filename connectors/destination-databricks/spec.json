@@ -1,0 +1,140 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Writes each stream into a Delta table of one Unity Catalog schema, staging batches in a Unity Catalog volume: overwrite, append or append_dedup.",
+    "properties": {
+      "authentication": {
+        "description": "Personal access token or OAuth machine-to-machine service principal.",
+        "oneOf": [
+          {
+            "properties": {
+              "auth_type": {
+                "const": "BASIC",
+                "order": 0,
+                "type": "string"
+              },
+              "personal_access_token": {
+                "airbyte_secret": true,
+                "description": "Personal access token of a user or service principal.",
+                "order": 1,
+                "title": "Access Token",
+                "type": "string"
+              }
+            },
+            "required": [
+              "auth_type",
+              "personal_access_token"
+            ],
+            "title": "Personal Access Token",
+            "type": "object"
+          },
+          {
+            "properties": {
+              "auth_type": {
+                "const": "OAUTH",
+                "order": 0,
+                "type": "string"
+              },
+              "client_id": {
+                "description": "Application ID of the service principal.",
+                "order": 1,
+                "title": "Client ID",
+                "type": "string"
+              },
+              "secret": {
+                "airbyte_secret": true,
+                "description": "OAuth secret of the service principal.",
+                "order": 2,
+                "title": "OAuth Secret",
+                "type": "string"
+              }
+            },
+            "required": [
+              "auth_type",
+              "client_id",
+              "secret"
+            ],
+            "title": "OAuth (service principal)",
+            "type": "object"
+          }
+        ],
+        "order": 6,
+        "title": "Authentication",
+        "type": "object"
+      },
+      "database": {
+        "description": "Unity Catalog catalog the schema belongs to.",
+        "order": 3,
+        "title": "Catalog",
+        "type": "string"
+      },
+      "hostname": {
+        "description": "Workspace host name, from the SQL warehouse's connection details.",
+        "examples": [
+          "dbc-a1b2c3d4-e5f6.cloud.databricks.com"
+        ],
+        "order": 0,
+        "title": "Server Hostname",
+        "type": "string"
+      },
+      "http_path": {
+        "description": "HTTP path of the SQL warehouse, from its connection details.",
+        "examples": [
+          "/sql/1.0/warehouses/0123456789abcdef"
+        ],
+        "order": 1,
+        "title": "HTTP Path",
+        "type": "string"
+      },
+      "port": {
+        "default": 443,
+        "description": "HTTPS port of the workspace.",
+        "examples": [
+          "443"
+        ],
+        "order": 2,
+        "title": "Port",
+        "type": "integer"
+      },
+      "schema": {
+        "default": "default",
+        "description": "Schema every table is written to; it must exist.",
+        "examples": [
+          "default"
+        ],
+        "order": 4,
+        "title": "Schema",
+        "type": "string"
+      },
+      "volume": {
+        "description": "Unity Catalog volume in the schema where batches are staged before COPY INTO; it must exist.",
+        "examples": [
+          "synclet_staging"
+        ],
+        "order": 5,
+        "title": "Staging Volume",
+        "type": "string"
+      }
+    },
+    "required": [
+      "hostname",
+      "http_path",
+      "database",
+      "schema",
+      "volume",
+      "authentication"
+    ],
+    "title": "Databricks Destination Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/destination-databricks",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": false,
+  "supportsNormalization": false
+}
