@@ -1,0 +1,24 @@
+[
+  {
+    "starred_at": "2026-01-20T10:00:00Z",
+    "user": {
+      "login": "ada-example",
+      "id": 9001,
+      "node_id": "U_example9001",
+      "type": "User",
+      "site_admin": false,
+      "html_url": "https://github.com/ada-example"
+    }
+  },
+  {
+    "starred_at": "2026-02-20T10:00:00Z",
+    "user": {
+      "login": "bob-example",
+      "id": 9002,
+      "node_id": "U_example9002",
+      "type": "User",
+      "site_admin": false,
+      "html_url": "https://github.com/bob-example"
+    }
+  }
+]

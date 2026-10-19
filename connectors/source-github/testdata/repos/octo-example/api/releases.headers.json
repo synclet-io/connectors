@@ -1,0 +1,3 @@
+{
+  "Link": "<repos/octo-example/api/releases?page=2>; rel=\"next\", <repos/octo-example/api/releases?page=2>; rel=\"last\""
+}

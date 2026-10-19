@@ -1,0 +1,118 @@
+{
+  "type": "object",
+  "properties": {
+    "repository": {
+      "type": "string"
+    },
+    "id": {
+      "type": "integer"
+    },
+    "node_id": {
+      "type": "string"
+    },
+    "number": {
+      "type": "integer"
+    },
+    "title": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string"
+    },
+    "draft": {
+      "type": "boolean"
+    },
+    "user": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "login": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer"
+        },
+        "node_id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "site_admin": {
+          "type": "boolean"
+        },
+        "html_url": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "body": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "head": {
+      "type": "object",
+      "properties": {
+        "ref": {
+          "type": "string"
+        },
+        "sha": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "base": {
+      "type": "object",
+      "properties": {
+        "ref": {
+          "type": "string"
+        },
+        "sha": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "author_association": {
+      "type": "string"
+    },
+    "html_url": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "closed_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "merged_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "merge_commit_sha": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

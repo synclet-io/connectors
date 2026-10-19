@@ -1,0 +1,38 @@
+[
+  {
+    "id": 100040,
+    "node_id": "IC_example100000",
+    "user": {
+      "login": "cy-example",
+      "id": 9003,
+      "node_id": "U_example9003",
+      "type": "User",
+      "site_admin": false,
+      "html_url": "https://github.com/cy-example"
+    },
+    "body": "Synthetic comment 1.",
+    "author_association": "CONTRIBUTOR",
+    "issue_url": "https://api.github.com/repos/octo-example/api/issues/1",
+    "html_url": "https://github.com/octo-example/api/issues/1#issuecomment-100040",
+    "created_at": "2026-06-01T10:00:00Z",
+    "updated_at": "2026-06-05T10:00:00Z"
+  },
+  {
+    "id": 100041,
+    "node_id": "IC_example100001",
+    "user": {
+      "login": "ada-example",
+      "id": 9001,
+      "node_id": "U_example9001",
+      "type": "User",
+      "site_admin": false,
+      "html_url": "https://github.com/ada-example"
+    },
+    "body": "Synthetic comment 2.",
+    "author_association": "CONTRIBUTOR",
+    "issue_url": "https://api.github.com/repos/octo-example/api/issues/2",
+    "html_url": "https://github.com/octo-example/api/issues/2#issuecomment-100041",
+    "created_at": "2026-06-02T10:00:00Z",
+    "updated_at": "2026-07-06T10:00:00Z"
+  }
+]

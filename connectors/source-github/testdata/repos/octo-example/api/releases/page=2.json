@@ -1,0 +1,23 @@
+[
+  {
+    "id": 100032,
+    "node_id": "RE_example100002",
+    "tag_name": "v0.1.0",
+    "target_commitish": "main",
+    "name": "v0.1.0",
+    "draft": false,
+    "prerelease": false,
+    "author": {
+      "login": "cy-example",
+      "id": 9003,
+      "node_id": "U_example9003",
+      "type": "User",
+      "site_admin": false,
+      "html_url": "https://github.com/cy-example"
+    },
+    "body": "Release notes 1.",
+    "html_url": "https://github.com/octo-example/api/releases/tag/v0.1.0",
+    "created_at": "2026-07-01T10:00:00Z",
+    "published_at": "2026-07-02T10:00:00Z"
+  }
+]

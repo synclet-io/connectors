@@ -1,0 +1,13 @@
+[
+  {
+    "starred_at": "2026-03-20T10:00:00Z",
+    "user": {
+      "login": "cy-example",
+      "id": 9003,
+      "node_id": "U_example9003",
+      "type": "User",
+      "site_admin": false,
+      "html_url": "https://github.com/cy-example"
+    }
+  }
+]

@@ -1,0 +1,131 @@
+{
+  "type": "object",
+  "properties": {
+    "repository": {
+      "type": "string"
+    },
+    "sha": {
+      "type": "string"
+    },
+    "node_id": {
+      "type": "string"
+    },
+    "commit": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "author": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string"
+            },
+            "date": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          "additionalProperties": true
+        },
+        "committer": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string"
+            },
+            "date": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "author": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "login": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer"
+        },
+        "node_id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "site_admin": {
+          "type": "boolean"
+        },
+        "html_url": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "committer": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "login": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer"
+        },
+        "node_id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "site_admin": {
+          "type": "boolean"
+        },
+        "html_url": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "parents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "sha": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "html_url": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}

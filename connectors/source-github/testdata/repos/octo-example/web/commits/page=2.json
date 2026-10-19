@@ -1,0 +1,41 @@
+[
+  {
+    "sha": "0000000000000000000000000000000000030e0a",
+    "node_id": "C_example200002",
+    "commit": {
+      "message": "Synthetic commit 1",
+      "author": {
+        "name": "cy-example",
+        "email": "cy-example@example.com",
+        "date": "2026-07-13T09:00:00Z"
+      },
+      "committer": {
+        "name": "cy-example",
+        "email": "cy-example@example.com",
+        "date": "2026-07-13T09:00:00Z"
+      }
+    },
+    "author": {
+      "login": "cy-example",
+      "id": 9003,
+      "node_id": "U_example9003",
+      "type": "User",
+      "site_admin": false,
+      "html_url": "https://github.com/cy-example"
+    },
+    "committer": {
+      "login": "cy-example",
+      "id": 9003,
+      "node_id": "U_example9003",
+      "type": "User",
+      "site_admin": false,
+      "html_url": "https://github.com/cy-example"
+    },
+    "parents": [
+      {
+        "sha": "0000000000000000000000000000000000030e0b"
+      }
+    ],
+    "html_url": "https://github.com/octo-example/web/commit/0000000000000000000000000000000000030e0a"
+  }
+]

@@ -1,0 +1,37 @@
+{
+  "type": "object",
+  "properties": {
+    "repository": {
+      "type": "string"
+    },
+    "starred_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "user": {
+      "type": "object",
+      "properties": {
+        "login": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer"
+        },
+        "node_id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "site_admin": {
+          "type": "boolean"
+        },
+        "html_url": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,99 @@
+{
+  "type": "object",
+  "properties": {
+    "repository": {
+      "type": "string"
+    },
+    "id": {
+      "type": "integer"
+    },
+    "node_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "full_name": {
+      "type": "string"
+    },
+    "private": {
+      "type": "boolean"
+    },
+    "owner": {
+      "type": "object",
+      "properties": {
+        "login": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer"
+        },
+        "node_id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "site_admin": {
+          "type": "boolean"
+        },
+        "html_url": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "fork": {
+      "type": "boolean"
+    },
+    "archived": {
+      "type": "boolean"
+    },
+    "visibility": {
+      "type": "string"
+    },
+    "default_branch": {
+      "type": "string"
+    },
+    "language": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "stargazers_count": {
+      "type": "integer"
+    },
+    "forks_count": {
+      "type": "integer"
+    },
+    "open_issues_count": {
+      "type": "integer"
+    },
+    "html_url": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "pushed_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": true
+}

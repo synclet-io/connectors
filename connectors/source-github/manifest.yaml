@@ -1,0 +1,76 @@
+# yaml-language-server: $schema=../source-declarative/internal/manifest/manifest.schema.json
+version: 1
+connector:
+  name: source-github
+  documentation_url: https://github.com/synclet-io/connectors/tree/main/connectors/source-github
+base_url: https://api.github.com/
+spec:
+  title: GitHub Source Spec
+  description: Reads repositories, issues, pull requests, commits, releases, issue comments and stargazers of the configured GitHub repositories.
+  required: [access_token, repositories, start_date]
+  properties:
+    access_token: {type: string, title: Personal access token, description: "Fine-grained or classic personal access token with read access to the repositories, sent as a Bearer token.", secret: true, order: 0}
+    repositories: {type: array, items: {type: string}, title: Repositories, description: "Repositories to read, as owner/name.", examples: ["octo/api"], order: 1}
+    start_date: {type: string, title: Start date, description: "Issues, commits and issue comments updated before it are not read.", format: date-time, examples: ["2026-01-01T00:00:00Z"], order: 2}
+auth: {type: bearer, token: "{{ config.access_token }}"}
+headers: {Accept: application/vnd.github+json, X-GitHub-Api-Version: "2022-11-28"}
+errors: {message: $.message}
+retry:
+  rate_limit:
+    statuses: [429]
+    also_when: {status: 403, header: x-ratelimit-remaining, equals: "0"}
+    wait: ["header:Retry-After", "header-epoch:x-ratelimit-reset", 60s]
+check: {stream: repositories}
+streams:
+  - name: repositories
+    path: "repos/{{ partition.value }}"
+    partition: {values: "{{ config.repositories }}"}
+    primary_key: [id]
+    schema: schemas/repositories.json
+    records: {mode: object, add: {repository: "{{ partition.value }}"}}
+
+  - &list
+    name: pull_requests
+    path: "repos/{{ partition.value }}/pulls"
+    partition: {values: "{{ config.repositories }}"}
+    params: {state: all, sort: updated, direction: asc}
+    primary_key: [id]
+    schema: schemas/pull_requests.json
+    records: {add: {repository: "{{ partition.value }}"}}
+    pagination: {type: link, size: 100, size_param: per_page}
+
+  - <<: *list
+    name: releases
+    path: "repos/{{ partition.value }}/releases"
+    params: {}
+    schema: schemas/releases.json
+
+  - <<: *list
+    name: stargazers
+    path: "repos/{{ partition.value }}/stargazers"
+    params: {}
+    headers: {Accept: application/vnd.github.star+json}
+    primary_key: [repository, user.id]
+    schema: schemas/stargazers.json
+
+  - <<: *list
+    name: issues
+    path: "repos/{{ partition.value }}/issues"
+    params: {state: all, sort: updated, direction: asc, since: "{{ since }}"}
+    schema: schemas/issues.json
+    incremental: &since {cursor_field: updated_at, cursor_format: rfc3339, start: "{{ config.start_date }}", lookback: 1h}
+
+  - <<: *list
+    name: issue_comments
+    path: "repos/{{ partition.value }}/issues/comments"
+    params: {sort: updated, direction: asc, since: "{{ since }}"}
+    schema: schemas/issue_comments.json
+    incremental: *since
+
+  - <<: *list
+    name: commits
+    path: "repos/{{ partition.value }}/commits"
+    params: {since: "{{ since }}"}
+    primary_key: [repository, sha]
+    schema: schemas/commits.json
+    incremental: {<<: *since, cursor_field: commit.committer.date}

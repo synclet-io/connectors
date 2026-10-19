@@ -1,0 +1,73 @@
+[
+  {
+    "sha": "0000000000000000000000000000000000030e08",
+    "node_id": "C_example200000",
+    "commit": {
+      "message": "Synthetic commit 3",
+      "author": {
+        "name": "ada-example",
+        "email": "ada-example@example.com",
+        "date": "2026-09-15T09:00:00Z"
+      },
+      "committer": {
+        "name": "ada-example",
+        "email": "ada-example@example.com",
+        "date": "2026-09-15T09:00:00Z"
+      }
+    },
+    "author": {
+      "login": "ada-example",
+      "id": 9001,
+      "node_id": "U_example9001",
+      "type": "User",
+      "site_admin": false,
+      "html_url": "https://github.com/ada-example"
+    },
+    "committer": null,
+    "parents": [
+      {
+        "sha": "0000000000000000000000000000000000030e09"
+      }
+    ],
+    "html_url": "https://github.com/octo-example/web/commit/0000000000000000000000000000000000030e08"
+  },
+  {
+    "sha": "0000000000000000000000000000000000030e09",
+    "node_id": "C_example200001",
+    "commit": {
+      "message": "Synthetic commit 2",
+      "author": {
+        "name": "bob-example",
+        "email": "bob-example@example.com",
+        "date": "2026-08-14T09:00:00Z"
+      },
+      "committer": {
+        "name": "bob-example",
+        "email": "bob-example@example.com",
+        "date": "2026-08-14T09:00:00Z"
+      }
+    },
+    "author": {
+      "login": "bob-example",
+      "id": 9002,
+      "node_id": "U_example9002",
+      "type": "User",
+      "site_admin": false,
+      "html_url": "https://github.com/bob-example"
+    },
+    "committer": {
+      "login": "bob-example",
+      "id": 9002,
+      "node_id": "U_example9002",
+      "type": "User",
+      "site_admin": false,
+      "html_url": "https://github.com/bob-example"
+    },
+    "parents": [
+      {
+        "sha": "0000000000000000000000000000000000030e0a"
+      }
+    ],
+    "html_url": "https://github.com/octo-example/web/commit/0000000000000000000000000000000000030e09"
+  }
+]

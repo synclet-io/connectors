@@ -1,0 +1,54 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Reads repositories, issues, pull requests, commits, releases, issue comments and stargazers of the configured GitHub repositories.",
+    "properties": {
+      "access_token": {
+        "airbyte_secret": true,
+        "description": "Fine-grained or classic personal access token with read access to the repositories, sent as a Bearer token.",
+        "order": 0,
+        "title": "Personal access token",
+        "type": "string"
+      },
+      "repositories": {
+        "description": "Repositories to read, as owner/name.",
+        "examples": [
+          "octo/api"
+        ],
+        "items": {
+          "type": "string"
+        },
+        "order": 1,
+        "title": "Repositories",
+        "type": "array"
+      },
+      "start_date": {
+        "description": "Issues, commits and issue comments updated before it are not read.",
+        "examples": [
+          "2026-01-01T00:00:00Z"
+        ],
+        "format": "date-time",
+        "order": 2,
+        "title": "Start date",
+        "type": "string"
+      }
+    },
+    "required": [
+      "access_token",
+      "repositories",
+      "start_date"
+    ],
+    "title": "GitHub Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-github",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": true,
+  "supportsNormalization": false
+}

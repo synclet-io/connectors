@@ -1,0 +1,62 @@
+{
+  "type": "object",
+  "properties": {
+    "repository": {
+      "type": "string"
+    },
+    "id": {
+      "type": "integer"
+    },
+    "node_id": {
+      "type": "string"
+    },
+    "user": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "login": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer"
+        },
+        "node_id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "site_admin": {
+          "type": "boolean"
+        },
+        "html_url": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "body": {
+      "type": "string"
+    },
+    "author_association": {
+      "type": "string"
+    },
+    "issue_url": {
+      "type": "string"
+    },
+    "html_url": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": true
+}

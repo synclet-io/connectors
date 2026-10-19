@@ -150,6 +150,16 @@
         }
       ]
     },
+    "connectors/source-github": {
+      "component": "source-github",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "meta.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
     "connectors/source-google-ads": {
       "component": "source-google-ads",
       "extra-files": [
