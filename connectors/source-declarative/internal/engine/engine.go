@@ -282,15 +282,17 @@ func (s *source) Check(ctx context.Context, raw json.RawMessage) error {
 		return err
 	}
 	r := newRun(m, cfg, s.o, nil)
+	defer r.red.repanic()
 	return r.red.wrap(r.check(ctx))
 }
 
 // Discover returns the manifest's streams; it sends no request.
 func (s *source) Discover(_ context.Context, raw json.RawMessage) (*synclet.Catalog, error) {
-	m, _, err := s.prepare(raw)
+	m, cfg, err := s.prepare(raw)
 	if err != nil {
 		return nil, err
 	}
+	defer newRedactor(m, cfg).repanic()
 	cat := &synclet.Catalog{}
 	for i := range m.Streams {
 		cat.Streams = append(cat.Streams, catalogStream(&m.Streams[i], m.Streams[i].Schema))
@@ -324,5 +326,6 @@ func (s *source) Read(ctx context.Context, raw json.RawMessage, catalog *synclet
 		return err
 	}
 	r := newRun(m, cfg, s.o, em)
+	defer r.red.repanic()
 	return r.red.wrap(r.read(ctx, catalog, state))
 }

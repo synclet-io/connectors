@@ -369,6 +369,7 @@ func (h *Harness) brokenConfig(t *testing.T) {
 			}
 		}
 	}
+	want = maskSecrets(h.Manifest, s.BrokenConfig, want)
 	out, err := testkit.RunSource(context.Background(), h.Source, synclet.Request{Command: synclet.CommandCheck, Config: s.BrokenConfig})
 	if err != nil {
 		t.Fatal(err)
@@ -590,4 +591,19 @@ func cursorTime(v any, format string) (time.Time, error) {
 		layout = "2006-01-02"
 	}
 	return time.Parse(layout, s)
+}
+
+// maskSecrets replaces in s the values cfg gives m's secret string
+// properties with "***", as the engine shows them.
+func maskSecrets(m *manifest.Manifest, cfg json.RawMessage, s string) string {
+	var values map[string]any
+	if json.Unmarshal(cfg, &values) != nil {
+		return s
+	}
+	for name, p := range m.Spec.Properties {
+		if v, ok := values[name].(string); ok && p.Secret && v != "" {
+			s = strings.ReplaceAll(s, v, "***")
+		}
+	}
+	return s
 }

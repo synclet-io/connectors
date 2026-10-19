@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log/slog"
+	"net/http"
 	"net/url"
 	"strings"
 	"testing"
@@ -205,7 +206,6 @@ func TestRedactorShortSecret(t *testing.T) {
 	red := redactor{}
 	red.add("k1")
 	red.add("long-secret-1")
-	red.finish()
 	tests := []struct{ in, want string }{
 		{"bad key k1", "bad key ***"},
 		{"k1", "***"},
@@ -223,7 +223,6 @@ func TestRedactingLogger(t *testing.T) {
 	var buf strings.Builder
 	red := redactor{}
 	red.add("long-secret-1")
-	red.finish()
 	log := slog.New(redactHandler{h: slog.NewTextHandler(&buf, nil), red: &red})
 	log.With("k", "long-secret-1").Warn("echo long-secret-1", "v", "x long-secret-1")
 	assert.NotContains(t, buf.String(), "long-secret-1")
@@ -264,4 +263,127 @@ func TestRedactsRuntimeOAuthTokens(t *testing.T) {
 		require.Len(t, out.traces(), 1)
 		masked(t, texts(out.msgs))
 	})
+}
+
+func TestRedactsAPIErrorMessage(t *testing.T) {
+	const secret = "sk-FULL-ECHO-5a6b7c"
+	cfg := fmt.Sprintf(`{"api_key":%q}`, secret)
+	yaml := manifestYAML("errors: {message: $.error.message}\n", itemsStream)
+	api := func() *fakeAPI {
+		return newAPI(t).on("/v1/items", reply{status: 401, body: fmt.Sprintf(`{"error":{"message":"Invalid API Key provided: %s"}}`, secret)})
+	}
+	t.Run("check", func(t *testing.T) {
+		st := checkStatus(t, newSource(t, yaml, api(), newClock()), cfg)
+		assert.Equal(t, synclet.ConnectionStatusFailed, st.Status)
+		assert.Contains(t, st.Message, "Invalid API Key provided: ***")
+		assert.NotContains(t, st.Message, secret)
+	})
+	t.Run("read", func(t *testing.T) {
+		src := newSource(t, yaml, api(), newClock())
+		out := read(t, src, cfg, catalog(t, src, cfg, synclet.SyncModeFullRefresh, "items"), "")
+		require.Error(t, out.Err)
+		assert.Contains(t, texts(out.Messages), "Invalid API Key provided: ***")
+		assert.NotContains(t, dump(t, out), secret)
+	})
+}
+
+func TestRedactorForms(t *testing.T) {
+	const user, secret = "svc-user", `pa"ss\wo rd/+<&>'?~`
+	yaml := manifestYAML(`auth: {type: basic, username: "{{ config.user }}", password: "{{ config.api_key }}"}`+"\n", itemsStream)
+	red := newRedactor(load(t, yaml), map[string]any{"api_key": secret, "user": user})
+	b64 := func(s string) map[string]string {
+		return map[string]string{
+			"std": base64.StdEncoding.EncodeToString([]byte(s)), "raw": base64.RawStdEncoding.EncodeToString([]byte(s)),
+			"url": base64.URLEncoding.EncodeToString([]byte(s)), "rawurl": base64.RawURLEncoding.EncodeToString([]byte(s)),
+		}
+	}
+	u := func(hex ...string) string {
+		var b strings.Builder
+		for _, h := range hex {
+			b.WriteString(`\` + "u00" + h)
+		}
+		return b.String()
+	}
+	forms := map[string]string{
+		"json slash":      `pa\"ss\\wo rd\/+<&>'?~`,
+		"json html slash": `pa\"ss\\wo rd\/+` + u("3c", "26", "3e") + `'?~`,
+		"json upper":      `pa\"ss\\wo rd/+` + u("3C", "26", "3E") + `'?~`,
+		"query lower":     lowerPercent(url.QueryEscape(secret)),
+		"path lower":      lowerPercent(url.PathEscape(secret)),
+		"html":            `pa&quot;ss\wo rd/+&lt;&amp;&gt;&#39;?~`,
+	}
+	for k, v := range b64(secret) {
+		forms["password base64 "+k] = v
+	}
+	for k, v := range b64(user + ":" + secret) {
+		forms["basic base64 "+k] = v
+	}
+	for _, k := range sortedKeys(forms) {
+		assert.Equal(t, "x *** y", red.apply("x "+forms[k]+" y"), "form %s: %s", k, forms[k])
+	}
+}
+
+func TestRedactorOverlappingSecrets(t *testing.T) {
+	red := redactor{}
+	red.add("AAAABBBB")
+	red.add("BBBBCCCC")
+	for _, in := range []string{"AAAABBBBCCCC", "x AAAABBBBCCCC y", "BBBBCCCCAAAABBBB"} {
+		out := red.apply(in)
+		for _, part := range []string{"AAAA", "BBBB", "CCCC"} {
+			assert.NotContains(t, out, part, in)
+		}
+	}
+	assert.Equal(t, "x *** y", red.apply("x AAAABBBBCCCC y"))
+}
+
+func TestRedactingLoggerGroups(t *testing.T) {
+	var buf strings.Builder
+	red := redactor{}
+	red.add("long-secret-1")
+	log := slog.New(redactHandler{h: slog.NewTextHandler(&buf, nil), red: &red})
+	log.Warn("m", slog.Group("g", "k", "long-secret-1", slog.Group("h", "k", "x long-secret-1")))
+	log.With(slog.Group("w", "k", "long-secret-1")).Warn("m")
+	assert.NotContains(t, buf.String(), "long-secret-1")
+	assert.Contains(t, buf.String(), "g.k=***")
+	assert.Contains(t, buf.String(), `g.h.k="x ***"`)
+	assert.Contains(t, buf.String(), "w.k=***")
+}
+
+type panicTransport struct{}
+
+func (panicTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	panic("transport broke on " + req.Header.Get("Authorization"))
+}
+
+func TestRedactsPanics(t *testing.T) {
+	const secret = "sk-PANIC-ECHO-1a2b3c"
+	cfg := fmt.Sprintf(`{"api_key":%q}`, secret)
+	src := func() synclet.Source[json.RawMessage] {
+		o := newAPI(t).options(newClock())
+		o.Client = &http.Client{Transport: panicTransport{}}
+		return New(load(t, manifestYAML("", itemsStream)), o)
+	}
+	t.Run("check", func(t *testing.T) {
+		out := runCmd(t, src(), synclet.Request{Command: synclet.CommandCheck, Config: json.RawMessage(cfg)})
+		s := dump(t, out)
+		assert.Contains(t, s, "transport broke on Bearer ***")
+		assert.NotContains(t, s, secret)
+	})
+	t.Run("read", func(t *testing.T) {
+		s := src()
+		out := read(t, s, cfg, catalog(t, s, cfg, synclet.SyncModeFullRefresh, "items"), "")
+		require.Error(t, out.Err)
+		d := dump(t, out)
+		assert.Contains(t, d, "transport broke on Bearer ***")
+		assert.NotContains(t, d, secret)
+	})
+}
+
+func TestRedactPanicValue(t *testing.T) {
+	red := redactor{}
+	red.add("long-secret-1")
+	assert.PanicsWithValue(t, "boom ***", func() { defer red.repanic(); panic("boom long-secret-1") })
+	assert.PanicsWithError(t, "boom ***", func() { defer red.repanic(); panic(fmt.Errorf("boom %s", "long-secret-1")) })
+	var nilRed *redactor
+	assert.PanicsWithValue(t, "boom", func() { defer nilRed.repanic(); panic("boom") })
 }
