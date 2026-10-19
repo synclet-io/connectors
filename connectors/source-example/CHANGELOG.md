@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.1](https://github.com/synclet-io/connectors/compare/source-example-v0.2.0...source-example-v0.2.1) (2026-10-19)
+
+
+### Bug Fixes
+
+* **deps:** bump the gomod group across 2 directories with 6 updates ([#17](https://github.com/synclet-io/connectors/issues/17)) ([4fbf3ed](https://github.com/synclet-io/connectors/commit/4fbf3eda00e0a76bc0d714b1733391a5adebdf56))
+* sources send sourceStats on every state through synclet-go-sdk v0.4.0 ([4eb0e12](https://github.com/synclet-io/connectors/commit/4eb0e12e66e7b8f3b529996a03f08497fa6500e8))
+
 ## 0.2.0 (2026-10-18)
 
 ### Changes

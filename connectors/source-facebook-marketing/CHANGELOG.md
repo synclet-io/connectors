@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/synclet-io/connectors/compare/source-facebook-marketing-v0.1.0...source-facebook-marketing-v0.1.1) (2026-10-19)
+
+
+### Bug Fixes
+
+* sources send sourceStats on every state through synclet-go-sdk v0.4.0 ([4eb0e12](https://github.com/synclet-io/connectors/commit/4eb0e12e66e7b8f3b529996a03f08497fa6500e8))
+
 ## 0.1.0 (2026-10-18)
 
 
