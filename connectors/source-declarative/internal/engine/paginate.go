@@ -122,7 +122,10 @@ func (r *run) pages(ctx context.Context, st *manifest.Stream, scope manifest.Sco
 		if err != nil {
 			return err
 		}
-		keys := primaryKeys(st, recs)
+		keys, err := primaryKeys(st, recs)
+		if err != nil {
+			return fmt.Errorf("stream %s: %w (%s)", st.Name, err, resp.desc)
+		}
 		if n > 1 {
 			if bytes.Equal(resp.body, prevBody) {
 				return fmt.Errorf("stream %s: page %d repeated page %d (%s)", st.Name, n, n-1, resp.desc)
@@ -365,21 +368,26 @@ func textValue(v any, what string) (string, error) {
 	return "", fmt.Errorf("%s is %v, not a string or number", what, v)
 }
 
-// primaryKeys returns the encoded primary key of every record.
-func primaryKeys(st *manifest.Stream, recs []map[string]any) map[string]bool {
+// primaryKeys returns the encoded primary key of every record. A record
+// without a value, or with null, at a primary key field fails.
+func primaryKeys(st *manifest.Stream, recs []map[string]any) (map[string]bool, error) {
 	if len(st.PrimaryKey) == 0 || len(recs) == 0 {
-		return nil
+		return nil, nil
 	}
 	keys := map[string]bool{}
-	for _, rec := range recs {
+	for i, rec := range recs {
 		parts := make([]any, len(st.PrimaryKey))
-		for i, f := range st.PrimaryKey {
-			parts[i], _ = manifest.GetField(rec, f)
+		for j, f := range st.PrimaryKey {
+			v, ok := manifest.GetField(rec, f)
+			if !ok || v == nil {
+				return nil, fmt.Errorf("record %d has no value at primary key field %s", i, f.Raw)
+			}
+			parts[j] = v
 		}
 		b, _ := json.Marshal(parts)
 		keys[string(b)] = true
 	}
-	return keys
+	return keys, nil
 }
 
 func allSeen(keys, prev map[string]bool) bool {

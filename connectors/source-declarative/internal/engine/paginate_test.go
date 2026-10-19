@@ -198,3 +198,24 @@ func TestRecords(t *testing.T) {
 		assert.JSONEq(t, `{"id":"EUR","value":1,"base":"USD","account":"k1","day":7}`, string(recs[0].Data))
 	})
 }
+
+func TestPrimaryKeyRequired(t *testing.T) {
+	tests := []struct {
+		name string
+		body string
+		msg  string
+	}{
+		{"missing", `{"data":[{"id":"a"},{"name":"b"}]}`, "stream items: record 1 has no value at primary key field id (GET /v1/items)"},
+		{"null", `{"data":[{"id":"a"},{"id":null}]}`, "stream items: record 1 has no value at primary key field id (GET /v1/items)"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			a := newAPI(t).json("/v1/items", tt.body)
+			src := newSource(t, manifestYAML("", itemsStream), a, newClock())
+			out := read(t, src, testConfig, catalog(t, src, testConfig, synclet.SyncModeFullRefresh, "items"), "")
+			msg, _ := traceMessage(out)
+			assert.Contains(t, msg, tt.msg)
+			assert.Empty(t, out.Records(synclet.StreamDescriptor{Name: "items"}))
+		})
+	}
+}

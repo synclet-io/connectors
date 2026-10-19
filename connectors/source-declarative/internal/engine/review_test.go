@@ -74,8 +74,8 @@ func TestMoreWithoutNextValueFails(t *testing.T) {
 		body       string
 		msg        string
 	}{
-		{"last record without the cursor field", `{type: cursor, cursor_from: "last:id", cursor_param: after, has_more: $.has_more}`,
-			`{"data":[{"name":"x"}],"has_more":true}`, "the page says more exist but has no next value (GET /v1/items)"},
+		{"last record without the cursor field", `{type: cursor, cursor_from: "last:name", cursor_param: after, has_more: $.has_more}`,
+			`{"data":[{"id":"a"}],"has_more":true}`, "the page says more exist but has no next value (GET /v1/items)"},
 		{"missing body cursor with is_last false", "{type: cursor, cursor_from: $.next, cursor_param: after, is_last: $.last}",
 			`{"data":[{"id":"a"}],"last":false}`, "the page says more exist but has no next value"},
 		{"missing next_url with has_more", "{type: next_url, url_from: $.next, has_more: $.more}",
