@@ -1,0 +1,22 @@
+{
+  "$schema": "../../schema/meta.schema.json",
+  "name": "Intercom",
+  "connector_type": "source",
+  "version": "0.1.0",
+  "release_stage": "alpha",
+  "support_level": "community",
+  "source_type": "api",
+  "license": "MIT",
+  "documentation_url": "https://github.com/synclet-io/connectors/tree/main/connectors/source-intercom",
+  "icon_url": "",
+  "language": "declarative",
+  "tags": [
+    "api",
+    "declarative"
+  ],
+  "allowed_hosts": [
+    "api.intercom.io"
+  ],
+  "breaking_changes": {},
+  "external_documentation_urls": []
+}

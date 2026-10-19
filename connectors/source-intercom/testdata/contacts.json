@@ -1,0 +1,9 @@
+{
+  "type": "list",
+  "data": [
+    {"type": "contact", "id": "6b0000000000000000000001", "workspace_id": "app00001", "external_id": "user-1", "role": "user", "email": "carol@example.com", "phone": null, "name": "Carol Example", "avatar": null, "owner_id": 1000001, "has_hard_bounced": false, "marked_email_as_spam": false, "unsubscribed_from_emails": false, "created_at": 1767225600, "updated_at": 1767312000, "signed_up_at": 1767225600, "last_seen_at": 1767312000, "browser": "firefox", "os": "Linux", "custom_attributes": {"plan_tier": "pro"}, "location": {"type": "location", "country": "Exampleland", "region": null, "city": null}, "social_profiles": {"type": "list", "data": []}, "tags": {"type": "list", "data": [], "url": "/contacts/6b0000000000000000000001/tags", "total_count": 0, "has_more": false}, "notes": {"type": "list", "data": [], "url": "/contacts/6b0000000000000000000001/notes", "total_count": 0, "has_more": false}, "companies": {"type": "list", "data": [], "url": "/contacts/6b0000000000000000000001/companies", "total_count": 0, "has_more": false}},
+    {"type": "contact", "id": "6b0000000000000000000002", "workspace_id": "app00001", "external_id": null, "role": "lead", "email": null, "phone": null, "name": null, "avatar": null, "owner_id": null, "has_hard_bounced": false, "marked_email_as_spam": false, "unsubscribed_from_emails": false, "created_at": 1767230000, "updated_at": 1767230000, "signed_up_at": null, "last_seen_at": null, "browser": null, "os": null, "custom_attributes": {}, "location": null, "social_profiles": {"type": "list", "data": []}, "tags": null, "notes": null, "companies": null}
+  ],
+  "total_count": 3,
+  "pages": {"type": "pages", "next": {"page": 2, "starting_after": "c3ludGhldGljLWN1cnNvci0y"}, "page": 1, "per_page": 2, "total_pages": 2}
+}

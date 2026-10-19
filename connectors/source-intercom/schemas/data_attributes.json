@@ -1,0 +1,23 @@
+{
+  "type": "object",
+  "properties": {
+    "type": {"type": "string"},
+    "id": {"type": ["integer", "null"]},
+    "model": {"type": "string"},
+    "name": {"type": "string"},
+    "full_name": {"type": "string"},
+    "label": {"type": ["string", "null"]},
+    "description": {"type": ["string", "null"]},
+    "data_type": {"type": ["string", "null"]},
+    "options": {"type": ["array", "null"], "items": {"type": "string"}},
+    "api_writable": {"type": ["boolean", "null"]},
+    "ui_writable": {"type": ["boolean", "null"]},
+    "messenger_writable": {"type": ["boolean", "null"]},
+    "custom": {"type": ["boolean", "null"]},
+    "archived": {"type": ["boolean", "null"]},
+    "admin_id": {"type": ["string", "null"]},
+    "created_at": {"type": ["integer", "null"]},
+    "updated_at": {"type": ["integer", "null"]}
+  },
+  "additionalProperties": true
+}

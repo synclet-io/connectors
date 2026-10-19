@@ -1,0 +1,7 @@
+{
+  "type": "admin.list",
+  "admins": [
+    {"type": "admin", "id": "1000001", "name": "Ada Example", "email": "ada@example.com", "email_verified": true, "job_title": "Support lead", "away_mode_enabled": false, "away_mode_reassign": false, "has_inbox_seat": true, "team_ids": [2000001], "avatar": {"type": "avatar", "image_url": null}},
+    {"type": "admin", "id": "1000002", "name": "Bob Example", "email": "bob@example.com", "email_verified": false, "job_title": null, "away_mode_enabled": true, "away_mode_reassign": true, "has_inbox_seat": false, "team_ids": [], "avatar": null}
+  ]
+}

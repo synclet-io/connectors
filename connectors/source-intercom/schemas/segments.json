@@ -1,0 +1,13 @@
+{
+  "type": "object",
+  "properties": {
+    "type": {"type": "string"},
+    "id": {"type": "string"},
+    "name": {"type": ["string", "null"]},
+    "created_at": {"type": ["integer", "null"]},
+    "updated_at": {"type": ["integer", "null"]},
+    "person_type": {"type": ["string", "null"]},
+    "count": {"type": ["integer", "null"]}
+  },
+  "additionalProperties": true
+}

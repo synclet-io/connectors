@@ -1,0 +1,8 @@
+{
+  "type": "list",
+  "data": [
+    {"type": "company", "id": "6a0000000000000000000003", "name": "Example Three Ltd", "app_id": "app00001", "company_id": "co-3", "remote_created_at": 1767240000, "created_at": 1767240000, "updated_at": 1767250000, "last_request_at": 1767250000, "monthly_spend": 120, "session_count": 4, "user_count": 2, "size": 50, "website": "https://three.example.com", "industry": "Retail", "plan": {"type": "plan", "id": "7000002", "name": "Basic"}, "custom_attributes": {}, "tags": {"type": "tag.list", "tags": []}, "segments": {"type": "segment.list", "segments": []}}
+  ],
+  "pages": {"type": "pages", "next": null, "page": 2, "per_page": 2, "total_pages": 2},
+  "total_count": 3
+}

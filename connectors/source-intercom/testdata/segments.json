@@ -1,0 +1,7 @@
+{
+  "type": "segment.list",
+  "segments": [
+    {"type": "segment", "id": "5f0000000000000000000001", "name": "Active", "created_at": 1767225600, "updated_at": 1767312000, "person_type": "user"},
+    {"type": "segment", "id": "5f0000000000000000000002", "name": "New leads", "created_at": 1767225600, "updated_at": 1767225600, "person_type": "lead"}
+  ]
+}

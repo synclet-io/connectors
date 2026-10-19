@@ -1,0 +1,8 @@
+{
+  "type": "list",
+  "data": [
+    {"type": "data_attribute", "model": "contact", "name": "email", "full_name": "email", "label": "Email", "description": "The contact's email address.", "data_type": "string", "api_writable": true, "ui_writable": false, "messenger_writable": true, "custom": false, "archived": false},
+    {"type": "data_attribute", "id": 4000001, "model": "contact", "name": "plan_tier", "full_name": "custom_attributes.plan_tier", "label": "Plan tier", "description": "", "data_type": "string", "options": ["free", "pro"], "api_writable": true, "ui_writable": true, "messenger_writable": false, "custom": true, "archived": false, "admin_id": "1000001", "created_at": 1767225600, "updated_at": 1767312000},
+    {"type": "data_attribute", "model": "company", "name": "name", "full_name": "name", "label": "Company name", "description": "The company's name.", "data_type": "string", "api_writable": true, "ui_writable": false, "messenger_writable": false, "custom": false, "archived": false}
+  ]
+}

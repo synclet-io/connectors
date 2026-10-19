@@ -1,0 +1,17 @@
+{
+  "type": "object",
+  "properties": {
+    "type": {"type": "string"},
+    "id": {"type": "string"},
+    "name": {"type": ["string", "null"]},
+    "email": {"type": ["string", "null"]},
+    "email_verified": {"type": ["boolean", "null"]},
+    "job_title": {"type": ["string", "null"]},
+    "away_mode_enabled": {"type": ["boolean", "null"]},
+    "away_mode_reassign": {"type": ["boolean", "null"]},
+    "has_inbox_seat": {"type": ["boolean", "null"]},
+    "team_ids": {"type": ["array", "null"], "items": {"type": "integer"}},
+    "avatar": {"type": ["object", "null"], "additionalProperties": true}
+  },
+  "additionalProperties": true
+}

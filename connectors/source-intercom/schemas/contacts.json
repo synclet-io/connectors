@@ -1,0 +1,31 @@
+{
+  "type": "object",
+  "properties": {
+    "type": {"type": "string"},
+    "id": {"type": "string"},
+    "workspace_id": {"type": ["string", "null"]},
+    "external_id": {"type": ["string", "null"]},
+    "role": {"type": ["string", "null"]},
+    "email": {"type": ["string", "null"]},
+    "phone": {"type": ["string", "null"]},
+    "name": {"type": ["string", "null"]},
+    "avatar": {"type": ["string", "null"]},
+    "owner_id": {"type": ["integer", "null"]},
+    "has_hard_bounced": {"type": ["boolean", "null"]},
+    "marked_email_as_spam": {"type": ["boolean", "null"]},
+    "unsubscribed_from_emails": {"type": ["boolean", "null"]},
+    "created_at": {"type": ["integer", "null"]},
+    "updated_at": {"type": ["integer", "null"]},
+    "signed_up_at": {"type": ["integer", "null"]},
+    "last_seen_at": {"type": ["integer", "null"]},
+    "browser": {"type": ["string", "null"]},
+    "os": {"type": ["string", "null"]},
+    "custom_attributes": {"type": ["object", "null"], "additionalProperties": true},
+    "location": {"type": ["object", "null"], "additionalProperties": true},
+    "social_profiles": {"type": ["object", "null"], "additionalProperties": true},
+    "tags": {"type": ["object", "null"], "additionalProperties": true},
+    "notes": {"type": ["object", "null"], "additionalProperties": true},
+    "companies": {"type": ["object", "null"], "additionalProperties": true}
+  },
+  "additionalProperties": true
+}

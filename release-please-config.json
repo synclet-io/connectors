@@ -190,6 +190,16 @@
         }
       ]
     },
+    "connectors/source-intercom": {
+      "component": "source-intercom",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "meta.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
     "connectors/source-mongodb": {
       "component": "source-mongodb",
       "extra-files": [

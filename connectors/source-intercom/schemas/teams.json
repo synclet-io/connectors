@@ -1,0 +1,11 @@
+{
+  "type": "object",
+  "properties": {
+    "type": {"type": "string"},
+    "id": {"type": "string"},
+    "name": {"type": ["string", "null"]},
+    "admin_ids": {"type": ["array", "null"], "items": {"type": "integer"}},
+    "admin_priority_level": {"type": ["object", "null"], "additionalProperties": true}
+  },
+  "additionalProperties": true
+}

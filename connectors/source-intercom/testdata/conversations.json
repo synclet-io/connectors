@@ -1,0 +1,9 @@
+{
+  "type": "conversation.list",
+  "conversations": [
+    {"type": "conversation", "id": "8000000001", "title": "Billing question", "created_at": 1767225600, "updated_at": 1767312000, "waiting_since": null, "snoozed_until": null, "open": false, "state": "closed", "read": true, "priority": "not_priority", "admin_assignee_id": 1000001, "team_assignee_id": "2000002", "source": {"type": "conversation", "id": "9000000001", "delivered_as": "customer_initiated", "subject": "", "body": "<p>How do I change my plan?</p>", "author": {"type": "user", "id": "6b0000000000000000000001", "name": "Carol Example", "email": "carol@example.com"}}, "contacts": {"type": "contact.list", "contacts": [{"type": "contact", "id": "6b0000000000000000000001"}]}, "teammates": {"type": "admin.list", "admins": [{"type": "admin", "id": "1000001"}]}, "tags": {"type": "tag.list", "tags": []}, "custom_attributes": {}, "statistics": null, "sla_applied": null},
+    {"type": "conversation", "id": "8000000002", "title": null, "created_at": 1767230000, "updated_at": 1767230000, "waiting_since": 1767230000, "snoozed_until": null, "open": true, "state": "open", "read": false, "priority": "priority", "admin_assignee_id": null, "team_assignee_id": null, "source": {"type": "conversation", "id": "9000000002", "delivered_as": "customer_initiated", "subject": "", "body": "<p>Hello</p>", "author": {"type": "lead", "id": "6b0000000000000000000002", "name": null, "email": null}}, "contacts": {"type": "contact.list", "contacts": [{"type": "contact", "id": "6b0000000000000000000002"}]}, "teammates": null, "tags": {"type": "tag.list", "tags": []}, "custom_attributes": {}, "statistics": null, "sla_applied": null}
+  ],
+  "total_count": 3,
+  "pages": {"type": "pages", "next": {"page": 2, "starting_after": "c3ludGhldGljLWN1cnNvci1j"}, "page": 1, "per_page": 2, "total_pages": 2}
+}

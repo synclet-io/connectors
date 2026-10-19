@@ -1,0 +1,7 @@
+{
+  "type": "list",
+  "data": [
+    {"type": "tag", "id": "3000001", "name": "vip"},
+    {"type": "tag", "id": "3000002", "name": "trial"}
+  ]
+}

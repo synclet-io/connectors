@@ -1,0 +1,26 @@
+{
+  "type": "object",
+  "properties": {
+    "type": {"type": "string"},
+    "id": {"type": "string"},
+    "title": {"type": ["string", "null"]},
+    "created_at": {"type": ["integer", "null"]},
+    "updated_at": {"type": ["integer", "null"]},
+    "waiting_since": {"type": ["integer", "null"]},
+    "snoozed_until": {"type": ["integer", "null"]},
+    "open": {"type": ["boolean", "null"]},
+    "state": {"type": ["string", "null"]},
+    "read": {"type": ["boolean", "null"]},
+    "priority": {"type": ["string", "null"]},
+    "admin_assignee_id": {"type": ["integer", "null"]},
+    "team_assignee_id": {"type": ["string", "null"]},
+    "source": {"type": ["object", "null"], "additionalProperties": true},
+    "contacts": {"type": ["object", "null"], "additionalProperties": true},
+    "teammates": {"type": ["object", "null"], "additionalProperties": true},
+    "tags": {"type": ["object", "null"], "additionalProperties": true},
+    "custom_attributes": {"type": ["object", "null"], "additionalProperties": true},
+    "statistics": {"type": ["object", "null"], "additionalProperties": true},
+    "sla_applied": {"type": ["object", "null"], "additionalProperties": true}
+  },
+  "additionalProperties": true
+}

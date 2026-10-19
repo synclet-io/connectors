@@ -1,0 +1,30 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Reads admins, teams, tags, segments, data attributes, companies, contacts and conversations from the Intercom REST API.",
+    "properties": {
+      "access_token": {
+        "airbyte_secret": true,
+        "description": "Access token of an Intercom app, sent as a Bearer token. It needs read access to every selected stream.",
+        "order": 0,
+        "title": "Access token",
+        "type": "string"
+      }
+    },
+    "required": [
+      "access_token"
+    ],
+    "title": "Intercom Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-intercom",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": false,
+  "supportsNormalization": false
+}

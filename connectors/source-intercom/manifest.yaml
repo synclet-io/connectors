@@ -1,0 +1,66 @@
+# yaml-language-server: $schema=../source-declarative/internal/manifest/manifest.schema.json
+version: 1
+connector:
+  name: source-intercom
+  documentation_url: https://github.com/synclet-io/connectors/tree/main/connectors/source-intercom
+base_url: https://api.intercom.io/
+spec:
+  title: Intercom Source Spec
+  description: Reads admins, teams, tags, segments, data attributes, companies, contacts and conversations from the Intercom REST API.
+  required: [access_token]
+  properties:
+    access_token: {type: string, title: Access token, description: "Access token of an Intercom app, sent as a Bearer token. It needs read access to every selected stream.", secret: true, order: 0}
+auth: {type: bearer, token: "{{ config.access_token }}"}
+headers: {Intercom-Version: "2.11"}
+errors: {message: "$.errors[0].message"}
+retry:
+  transient: {statuses: [500, 502, 503, 504], attempts: 3, backoff: 1s}
+  rate_limit:
+    statuses: [429]
+    wait: ["header:Retry-After", "header-epoch:X-RateLimit-Reset", 10s]
+    attempts: 5
+check: {stream: admins}
+streams:
+  - name: admins
+    path: admins
+    primary_key: [id]
+    schema: schemas/admins.json
+    records: {path: $.admins}
+  - name: teams
+    path: teams
+    primary_key: [id]
+    schema: schemas/teams.json
+    records: {path: $.teams}
+  - name: tags
+    path: tags
+    primary_key: [id]
+    schema: schemas/tags.json
+    records: {path: $.data}
+  - name: segments
+    path: segments
+    primary_key: [id]
+    schema: schemas/segments.json
+    records: {path: $.segments}
+  - name: data_attributes
+    path: data_attributes
+    primary_key: [model, full_name]
+    schema: schemas/data_attributes.json
+    records: {path: $.data}
+  - name: companies
+    path: companies
+    primary_key: [id]
+    schema: schemas/companies.json
+    records: {path: $.data}
+    pagination: {type: page, page_param: page, first: 1, size: 60, size_param: per_page, total: $.total_count}
+  - name: contacts
+    path: contacts
+    primary_key: [id]
+    schema: schemas/contacts.json
+    records: {path: $.data}
+    pagination: {type: cursor, cursor_from: $.pages.next.starting_after, cursor_param: starting_after, size: 150, size_param: per_page}
+  - name: conversations
+    path: conversations
+    primary_key: [id]
+    schema: schemas/conversations.json
+    records: {path: $.conversations}
+    pagination: {type: cursor, cursor_from: $.pages.next.starting_after, cursor_param: starting_after, size: 150, size_param: per_page}
