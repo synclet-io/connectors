@@ -1,0 +1,37 @@
+{
+  "object": "list",
+  "url": "/v1/balance_transactions",
+  "data": [
+    {
+      "id": "txn_test3",
+      "object": "balance_transaction",
+      "created": 1767330000,
+      "amount": 2000,
+      "available_on": 1767502800,
+      "currency": "usd",
+      "fee": 88,
+      "net": 1912,
+      "status": "available",
+      "type": "charge",
+      "reporting_category": "charge",
+      "source": "ch_test3",
+      "description": null
+    },
+    {
+      "id": "txn_test2",
+      "object": "balance_transaction",
+      "created": 1767320000,
+      "amount": -1500,
+      "available_on": 1767492800,
+      "currency": "usd",
+      "fee": 0,
+      "net": -1500,
+      "status": "available",
+      "type": "refund",
+      "reporting_category": "refund",
+      "source": "re_test2",
+      "description": null
+    }
+  ],
+  "has_more": true
+}

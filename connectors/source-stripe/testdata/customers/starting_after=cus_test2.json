@@ -1,0 +1,20 @@
+{
+  "object": "list",
+  "url": "/v1/customers",
+  "data": [
+    {
+      "id": "cus_test1",
+      "object": "customer",
+      "created": 1767310000,
+      "livemode": false,
+      "metadata": {},
+      "email": "ada@example.com",
+      "name": "Ada Example",
+      "description": null,
+      "currency": "usd",
+      "balance": 0,
+      "delinquent": false
+    }
+  ],
+  "has_more": false
+}

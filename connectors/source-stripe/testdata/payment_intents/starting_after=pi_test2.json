@@ -1,0 +1,21 @@
+{
+  "object": "list",
+  "url": "/v1/payment_intents",
+  "data": [
+    {
+      "id": "pi_test1",
+      "object": "payment_intent",
+      "created": 1767310000,
+      "livemode": false,
+      "metadata": {},
+      "amount": 2000,
+      "amount_received": 2000,
+      "currency": "usd",
+      "customer": "cus_test1",
+      "description": null,
+      "latest_charge": "ch_test1",
+      "status": "succeeded"
+    }
+  ],
+  "has_more": false
+}

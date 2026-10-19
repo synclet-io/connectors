@@ -1,0 +1,54 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "object": {
+      "type": "string"
+    },
+    "created": {
+      "type": "integer"
+    },
+    "livemode": {
+      "type": "boolean"
+    },
+    "metadata": {
+      "type": "object"
+    },
+    "email": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "currency": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "balance": {
+      "type": "integer"
+    },
+    "delinquent": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

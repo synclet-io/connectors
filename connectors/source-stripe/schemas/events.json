@@ -1,0 +1,47 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "object": {
+      "type": "string"
+    },
+    "created": {
+      "type": "integer"
+    },
+    "livemode": {
+      "type": "boolean"
+    },
+    "type": {
+      "type": "string"
+    },
+    "api_version": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "pending_webhooks": {
+      "type": "integer"
+    },
+    "data": {
+      "type": "object",
+      "properties": {
+        "object": {
+          "type": "object"
+        },
+        "previous_attributes": {
+          "type": "object"
+        }
+      }
+    },
+    "request": {
+      "type": [
+        "object",
+        "null"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

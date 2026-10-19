@@ -1,0 +1,45 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "object": {
+      "type": "string"
+    },
+    "created": {
+      "type": "integer"
+    },
+    "livemode": {
+      "type": "boolean"
+    },
+    "metadata": {
+      "type": "object"
+    },
+    "product": {
+      "type": "string"
+    },
+    "active": {
+      "type": "boolean"
+    },
+    "currency": {
+      "type": "string"
+    },
+    "unit_amount": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "type": {
+      "type": "string"
+    },
+    "recurring": {
+      "type": [
+        "object",
+        "null"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,6 @@
+{
+  "error": {
+    "type": "invalid_request_error",
+    "message": "The provided key 'rk_test_example' does not have the required permissions for this endpoint on account 'acct_test1'."
+  }
+}

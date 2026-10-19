@@ -1,0 +1,48 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "object": {
+      "type": "string"
+    },
+    "created": {
+      "type": "integer"
+    },
+    "metadata": {
+      "type": "object"
+    },
+    "amount": {
+      "type": "integer"
+    },
+    "currency": {
+      "type": "string"
+    },
+    "charge": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "payment_intent": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "status": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

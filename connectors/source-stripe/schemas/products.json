@@ -1,0 +1,36 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "object": {
+      "type": "string"
+    },
+    "created": {
+      "type": "integer"
+    },
+    "livemode": {
+      "type": "boolean"
+    },
+    "metadata": {
+      "type": "object"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "active": {
+      "type": "boolean"
+    },
+    "updated": {
+      "type": "integer"
+    }
+  },
+  "additionalProperties": true
+}

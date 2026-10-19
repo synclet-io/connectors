@@ -1,0 +1,20 @@
+{
+  "object": "list",
+  "url": "/v1/prices",
+  "data": [
+    {
+      "id": "price_test1",
+      "object": "price",
+      "created": 1767310000,
+      "livemode": false,
+      "metadata": {},
+      "product": "prod_test1",
+      "active": true,
+      "currency": "usd",
+      "unit_amount": 2000,
+      "type": "one_time",
+      "recurring": null
+    }
+  ],
+  "has_more": false
+}

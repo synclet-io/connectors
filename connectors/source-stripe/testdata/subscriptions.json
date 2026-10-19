@@ -1,0 +1,65 @@
+{
+  "object": "list",
+  "url": "/v1/subscriptions",
+  "data": [
+    {
+      "id": "sub_test3",
+      "object": "subscription",
+      "created": 1767330000,
+      "livemode": false,
+      "metadata": {},
+      "customer": "cus_test3",
+      "status": "active",
+      "currency": "usd",
+      "cancel_at_period_end": false,
+      "canceled_at": null,
+      "ended_at": null,
+      "start_date": 1767330000,
+      "items": {
+        "object": "list",
+        "data": [
+          {
+            "id": "si_test3",
+            "object": "subscription_item",
+            "price": {
+              "id": "price_test1",
+              "object": "price"
+            },
+            "quantity": 1
+          }
+        ],
+        "has_more": false
+      }
+    },
+    {
+      "id": "sub_test2",
+      "object": "subscription",
+      "created": 1767320000,
+      "livemode": false,
+      "metadata": {},
+      "customer": "cus_test2",
+      "status": "canceled",
+      "currency": "usd",
+      "cancel_at_period_end": false,
+      "canceled_at": 1767325000,
+      "ended_at": 1767325000,
+      "start_date": 1767320000,
+      "items": {
+        "object": "list",
+        "data": [
+          {
+            "id": "si_test2",
+            "object": "subscription_item",
+            "price": {
+              "id": "price_test1",
+              "object": "price"
+            },
+            "quantity": 1
+          }
+        ],
+        "has_more": false
+      }
+    }
+  ],
+  "has_more": true
+}

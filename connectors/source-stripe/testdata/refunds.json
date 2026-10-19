@@ -1,0 +1,31 @@
+{
+  "object": "list",
+  "url": "/v1/refunds",
+  "data": [
+    {
+      "id": "re_test3",
+      "object": "refund",
+      "created": 1767330500,
+      "metadata": {},
+      "amount": 500,
+      "currency": "usd",
+      "charge": "ch_test2",
+      "payment_intent": "pi_test2",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "id": "re_test2",
+      "object": "refund",
+      "created": 1767320500,
+      "metadata": {},
+      "amount": 500,
+      "currency": "usd",
+      "charge": "ch_test2",
+      "payment_intent": "pi_test2",
+      "reason": "requested_by_customer",
+      "status": "succeeded"
+    }
+  ],
+  "has_more": true
+}

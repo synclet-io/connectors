@@ -1,0 +1,18 @@
+{
+  "object": "list",
+  "url": "/v1/products",
+  "data": [
+    {
+      "id": "prod_test1",
+      "object": "product",
+      "created": 1767310000,
+      "livemode": false,
+      "metadata": {},
+      "name": "Example Basic",
+      "description": null,
+      "active": true,
+      "updated": 1767310000
+    }
+  ],
+  "has_more": false
+}

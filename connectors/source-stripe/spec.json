@@ -1,0 +1,41 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Reads billing objects and events from the Stripe API.",
+    "properties": {
+      "api_key": {
+        "airbyte_secret": true,
+        "description": "Secret key (sk_...) or restricted key (rk_...) with read access to every selected stream, sent as a Bearer token.",
+        "order": 0,
+        "title": "API key",
+        "type": "string"
+      },
+      "start_date": {
+        "description": "Objects and events created before it are not read. Stripe keeps events for 30 days.",
+        "examples": [
+          "2026-01-01T00:00:00Z"
+        ],
+        "format": "date-time",
+        "order": 1,
+        "title": "Start date",
+        "type": "string"
+      }
+    },
+    "required": [
+      "api_key",
+      "start_date"
+    ],
+    "title": "Stripe Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-stripe",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": true,
+  "supportsNormalization": false
+}

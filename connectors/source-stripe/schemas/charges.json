@@ -1,0 +1,60 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "object": {
+      "type": "string"
+    },
+    "created": {
+      "type": "integer"
+    },
+    "livemode": {
+      "type": "boolean"
+    },
+    "metadata": {
+      "type": "object"
+    },
+    "amount": {
+      "type": "integer"
+    },
+    "amount_captured": {
+      "type": "integer"
+    },
+    "amount_refunded": {
+      "type": "integer"
+    },
+    "currency": {
+      "type": "string"
+    },
+    "customer": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "payment_intent": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "paid": {
+      "type": "boolean"
+    },
+    "refunded": {
+      "type": "boolean"
+    },
+    "status": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}

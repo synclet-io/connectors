@@ -1,0 +1,25 @@
+{
+  "object": "list",
+  "url": "/v1/invoices",
+  "data": [
+    {
+      "id": "in_test1",
+      "object": "invoice",
+      "created": 1767310000,
+      "livemode": false,
+      "metadata": {},
+      "customer": "cus_test1",
+      "number": "EXMPL-0001",
+      "status": "paid",
+      "currency": "usd",
+      "amount_due": 2000,
+      "amount_paid": 2000,
+      "amount_remaining": 0,
+      "subtotal": 2000,
+      "total": 2000,
+      "period_start": 1764718000,
+      "period_end": 1767310000
+    }
+  ],
+  "has_more": false
+}

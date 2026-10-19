@@ -1,0 +1,19 @@
+{
+  "object": "list",
+  "url": "/v1/refunds",
+  "data": [
+    {
+      "id": "re_test1",
+      "object": "refund",
+      "created": 1767310500,
+      "metadata": {},
+      "amount": 500,
+      "currency": "usd",
+      "charge": "ch_test2",
+      "payment_intent": "pi_test2",
+      "reason": "duplicate",
+      "status": "succeeded"
+    }
+  ],
+  "has_more": false
+}

@@ -1,0 +1,41 @@
+{
+  "object": "list",
+  "url": "/v1/charges",
+  "data": [
+    {
+      "id": "ch_test3",
+      "object": "charge",
+      "created": 1767330000,
+      "livemode": false,
+      "metadata": {},
+      "amount": 2000,
+      "amount_captured": 2000,
+      "amount_refunded": 0,
+      "currency": "usd",
+      "customer": "cus_test3",
+      "description": null,
+      "payment_intent": "pi_test3",
+      "paid": true,
+      "refunded": false,
+      "status": "succeeded"
+    },
+    {
+      "id": "ch_test2",
+      "object": "charge",
+      "created": 1767320000,
+      "livemode": false,
+      "metadata": {},
+      "amount": 1500,
+      "amount_captured": 1500,
+      "amount_refunded": 1500,
+      "currency": "usd",
+      "customer": null,
+      "description": null,
+      "payment_intent": "pi_test2",
+      "paid": true,
+      "refunded": true,
+      "status": "succeeded"
+    }
+  ],
+  "has_more": true
+}

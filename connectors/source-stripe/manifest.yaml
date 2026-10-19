@@ -1,0 +1,53 @@
+# yaml-language-server: $schema=../source-declarative/internal/manifest/manifest.schema.json
+version: 1
+connector:
+  name: source-stripe
+  documentation_url: https://github.com/synclet-io/connectors/tree/main/connectors/source-stripe
+base_url: https://api.stripe.com/v1/
+spec:
+  title: Stripe Source Spec
+  description: Reads billing objects and events from the Stripe API.
+  required: [api_key, start_date]
+  properties:
+    api_key:
+      type: string
+      title: API key
+      description: "Secret key (sk_...) or restricted key (rk_...) with read access to every selected stream, sent as a Bearer token."
+      secret: true
+      order: 0
+    start_date:
+      type: string
+      title: Start date
+      description: "Objects and events created before it are not read. Stripe keeps events for 30 days."
+      format: date-time
+      examples: ["2026-01-01T00:00:00Z"]
+      order: 1
+auth: {type: bearer, token: "{{ config.api_key }}"}
+headers: {Stripe-Version: "2025-08-27.basil"}
+errors: {message: $.error.message}
+retry:
+  transient: {statuses: [500, 502, 503, 504], attempts: 3, backoff: 1s}
+check: {stream: customers}
+streams:
+  - &list
+    name: customers
+    path: customers
+    params: {"created[gte]": "{{ since }}"}
+    primary_key: [id]
+    schema: schemas/customers.json
+    records: {path: $.data}
+    pagination: {type: cursor, size: 100, size_param: limit, cursor_from: "last:id", cursor_param: starting_after, has_more: $.has_more}
+    incremental: {cursor_field: created, cursor_format: unix_s, start: "{{ config.start_date }}", lookback: 1h}
+  - {<<: *list, name: charges, path: charges, schema: schemas/charges.json}
+  - {<<: *list, name: invoices, path: invoices, schema: schemas/invoices.json}
+  - <<: *list
+    name: subscriptions
+    path: subscriptions
+    params: {"created[gte]": "{{ since }}", status: all}
+    schema: schemas/subscriptions.json
+  - {<<: *list, name: payment_intents, path: payment_intents, schema: schemas/payment_intents.json}
+  - {<<: *list, name: refunds, path: refunds, schema: schemas/refunds.json}
+  - {<<: *list, name: products, path: products, schema: schemas/products.json}
+  - {<<: *list, name: prices, path: prices, schema: schemas/prices.json}
+  - {<<: *list, name: balance_transactions, path: balance_transactions, schema: schemas/balance_transactions.json}
+  - {<<: *list, name: events, path: events, schema: schemas/events.json}

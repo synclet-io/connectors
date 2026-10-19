@@ -1,0 +1,71 @@
+{
+  "object": "list",
+  "url": "/v1/events",
+  "data": [
+    {
+      "id": "evt_test3",
+      "object": "event",
+      "created": 1767340000,
+      "livemode": false,
+      "type": "customer.updated",
+      "api_version": "2025-08-27.basil",
+      "pending_webhooks": 0,
+      "request": {
+        "id": "req_test3",
+        "idempotency_key": null
+      },
+      "data": {
+        "object": {
+          "id": "cus_test1",
+          "object": "customer",
+          "created": 1767310000,
+          "livemode": false,
+          "metadata": {},
+          "email": "ada.new@example.com",
+          "name": "Ada Example",
+          "description": null,
+          "currency": "usd",
+          "balance": 0,
+          "delinquent": false
+        },
+        "previous_attributes": {
+          "email": "ada@example.com"
+        }
+      }
+    },
+    {
+      "id": "evt_test2",
+      "object": "event",
+      "created": 1767335000,
+      "livemode": false,
+      "type": "invoice.updated",
+      "api_version": "2025-08-27.basil",
+      "pending_webhooks": 0,
+      "request": null,
+      "data": {
+        "object": {
+          "id": "in_test2",
+          "object": "invoice",
+          "created": 1767320000,
+          "livemode": false,
+          "metadata": {},
+          "customer": "cus_test2",
+          "number": "EXMPL-0002",
+          "status": "open",
+          "currency": "usd",
+          "amount_due": 2000,
+          "amount_paid": 0,
+          "amount_remaining": 2000,
+          "subtotal": 2000,
+          "total": 2000,
+          "period_start": 1764728000,
+          "period_end": 1767320000
+        },
+        "previous_attributes": {
+          "status": "draft"
+        }
+      }
+    }
+  ],
+  "has_more": true
+}

@@ -1,0 +1,39 @@
+{
+  "object": "list",
+  "url": "/v1/prices",
+  "data": [
+    {
+      "id": "price_test3",
+      "object": "price",
+      "created": 1767330000,
+      "livemode": false,
+      "metadata": {},
+      "product": "prod_test3",
+      "active": true,
+      "currency": "usd",
+      "unit_amount": 5000,
+      "type": "recurring",
+      "recurring": {
+        "interval": "month",
+        "interval_count": 1
+      }
+    },
+    {
+      "id": "price_test2",
+      "object": "price",
+      "created": 1767320000,
+      "livemode": false,
+      "metadata": {},
+      "product": "prod_test2",
+      "active": true,
+      "currency": "usd",
+      "unit_amount": 3000,
+      "type": "recurring",
+      "recurring": {
+        "interval": "year",
+        "interval_count": 1
+      }
+    }
+  ],
+  "has_more": true
+}

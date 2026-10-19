@@ -1,0 +1,51 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "object": {
+      "type": "string"
+    },
+    "created": {
+      "type": "integer"
+    },
+    "amount": {
+      "type": "integer"
+    },
+    "available_on": {
+      "type": "integer"
+    },
+    "currency": {
+      "type": "string"
+    },
+    "fee": {
+      "type": "integer"
+    },
+    "net": {
+      "type": "integer"
+    },
+    "status": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string"
+    },
+    "reporting_category": {
+      "type": "string"
+    },
+    "source": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

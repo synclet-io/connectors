@@ -1,0 +1,36 @@
+{
+  "object": "list",
+  "url": "/v1/subscriptions",
+  "data": [
+    {
+      "id": "sub_test1",
+      "object": "subscription",
+      "created": 1767310000,
+      "livemode": false,
+      "metadata": {},
+      "customer": "cus_test1",
+      "status": "active",
+      "currency": "usd",
+      "cancel_at_period_end": false,
+      "canceled_at": null,
+      "ended_at": null,
+      "start_date": 1767310000,
+      "items": {
+        "object": "list",
+        "data": [
+          {
+            "id": "si_test1",
+            "object": "subscription_item",
+            "price": {
+              "id": "price_test1",
+              "object": "price"
+            },
+            "quantity": 1
+          }
+        ],
+        "has_more": false
+      }
+    }
+  ],
+  "has_more": false
+}

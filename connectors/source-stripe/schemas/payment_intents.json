@@ -1,0 +1,51 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "object": {
+      "type": "string"
+    },
+    "created": {
+      "type": "integer"
+    },
+    "livemode": {
+      "type": "boolean"
+    },
+    "metadata": {
+      "type": "object"
+    },
+    "amount": {
+      "type": "integer"
+    },
+    "amount_received": {
+      "type": "integer"
+    },
+    "currency": {
+      "type": "string"
+    },
+    "customer": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "latest_charge": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "status": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}

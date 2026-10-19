@@ -1,0 +1,60 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "object": {
+      "type": "string"
+    },
+    "created": {
+      "type": "integer"
+    },
+    "livemode": {
+      "type": "boolean"
+    },
+    "metadata": {
+      "type": "object"
+    },
+    "customer": {
+      "type": "string"
+    },
+    "number": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "status": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "currency": {
+      "type": "string"
+    },
+    "amount_due": {
+      "type": "integer"
+    },
+    "amount_paid": {
+      "type": "integer"
+    },
+    "amount_remaining": {
+      "type": "integer"
+    },
+    "subtotal": {
+      "type": "integer"
+    },
+    "total": {
+      "type": "integer"
+    },
+    "period_start": {
+      "type": "integer"
+    },
+    "period_end": {
+      "type": "integer"
+    }
+  },
+  "additionalProperties": true
+}

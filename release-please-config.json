@@ -310,6 +310,16 @@
         }
       ]
     },
+    "connectors/source-stripe": {
+      "component": "source-stripe",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "meta.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
     "connectors/source-tiktok-marketing": {
       "component": "source-tiktok-marketing",
       "extra-files": [
