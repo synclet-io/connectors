@@ -1,0 +1,6 @@
+{
+  "status": 401,
+  "serviceErrorCode": 65600,
+  "code": "INVALID_ACCESS_TOKEN",
+  "message": "Invalid access token"
+}

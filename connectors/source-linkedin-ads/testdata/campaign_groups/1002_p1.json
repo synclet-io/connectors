@@ -1,0 +1,31 @@
+{
+  "elements": [
+    {
+      "id": 2101,
+      "account": "urn:li:sponsoredAccount:1002",
+      "name": "Example Group B",
+      "status": "ACTIVE",
+      "servingStatuses": [
+        "RUNNABLE"
+      ],
+      "runSchedule": {
+        "start": 1767225600000
+      },
+      "totalBudget": {
+        "amount": "1000.00",
+        "currencyCode": "USD"
+      },
+      "test": true,
+      "backfilled": false,
+      "changeAuditStamps": {
+        "created": {
+          "time": 1767225600000
+        },
+        "lastModified": {
+          "time": 1772323200000
+        }
+      }
+    }
+  ],
+  "metadata": {}
+}

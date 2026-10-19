@@ -1,0 +1,6 @@
+{
+  "status": 400,
+  "serviceErrorCode": 100,
+  "code": "ILLEGAL_ARGUMENT",
+  "message": "Invalid value for field; wrong type or other syntax error"
+}

@@ -240,6 +240,16 @@
         }
       ]
     },
+    "connectors/source-linkedin-ads": {
+      "component": "source-linkedin-ads",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "meta.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
     "connectors/source-mongodb": {
       "component": "source-mongodb",
       "extra-files": [

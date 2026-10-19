@@ -1,0 +1,172 @@
+[
+  {
+    "dateRange": {
+      "start": {
+        "year": 2026,
+        "month": 8,
+        "day": 1
+      },
+      "end": {
+        "year": 2026,
+        "month": 8,
+        "day": 1
+      }
+    },
+    "pivotValues": [
+      "urn:li:sponsoredCreative:4101"
+    ],
+    "impressions": 1000,
+    "clicks": 10,
+    "costInLocalCurrency": "5.00",
+    "costInUsd": "5.00",
+    "landingPageClicks": 8,
+    "externalWebsiteConversions": 1,
+    "externalWebsitePostClickConversions": 1,
+    "externalWebsitePostViewConversions": 0,
+    "conversionValueInLocalCurrency": "2.00",
+    "oneClickLeads": 0,
+    "totalEngagements": 12,
+    "likes": 1,
+    "comments": 0,
+    "shares": 0,
+    "follows": 0,
+    "videoViews": 0,
+    "videoCompletions": 0
+  },
+  {
+    "dateRange": {
+      "start": {
+        "year": 2026,
+        "month": 8,
+        "day": 31
+      },
+      "end": {
+        "year": 2026,
+        "month": 8,
+        "day": 31
+      }
+    },
+    "pivotValues": [
+      "urn:li:sponsoredCreative:4101"
+    ],
+    "impressions": 2000,
+    "clicks": 20,
+    "costInLocalCurrency": "10.00",
+    "costInUsd": "10.00",
+    "landingPageClicks": 16,
+    "externalWebsiteConversions": 2,
+    "externalWebsitePostClickConversions": 2,
+    "externalWebsitePostViewConversions": 0,
+    "conversionValueInLocalCurrency": "4.00",
+    "oneClickLeads": 0,
+    "totalEngagements": 24,
+    "likes": 2,
+    "comments": 0,
+    "shares": 0,
+    "follows": 0,
+    "videoViews": 0,
+    "videoCompletions": 0
+  },
+  {
+    "dateRange": {
+      "start": {
+        "year": 2026,
+        "month": 9,
+        "day": 15
+      },
+      "end": {
+        "year": 2026,
+        "month": 9,
+        "day": 15
+      }
+    },
+    "pivotValues": [
+      "urn:li:sponsoredCreative:4101"
+    ],
+    "impressions": 3000,
+    "clicks": 30,
+    "costInLocalCurrency": "15.00",
+    "costInUsd": "15.00",
+    "landingPageClicks": 24,
+    "externalWebsiteConversions": 3,
+    "externalWebsitePostClickConversions": 3,
+    "externalWebsitePostViewConversions": 0,
+    "conversionValueInLocalCurrency": "6.00",
+    "oneClickLeads": 0,
+    "totalEngagements": 36,
+    "likes": 3,
+    "comments": 0,
+    "shares": 0,
+    "follows": 0,
+    "videoViews": 0,
+    "videoCompletions": 0
+  },
+  {
+    "dateRange": {
+      "start": {
+        "year": 2026,
+        "month": 10,
+        "day": 12
+      },
+      "end": {
+        "year": 2026,
+        "month": 10,
+        "day": 12
+      }
+    },
+    "pivotValues": [
+      "urn:li:sponsoredCreative:4101"
+    ],
+    "impressions": 4000,
+    "clicks": 40,
+    "costInLocalCurrency": "20.00",
+    "costInUsd": "20.00",
+    "landingPageClicks": 32,
+    "externalWebsiteConversions": 4,
+    "externalWebsitePostClickConversions": 4,
+    "externalWebsitePostViewConversions": 0,
+    "conversionValueInLocalCurrency": "8.00",
+    "oneClickLeads": 0,
+    "totalEngagements": 48,
+    "likes": 4,
+    "comments": 0,
+    "shares": 0,
+    "follows": 0,
+    "videoViews": 0,
+    "videoCompletions": 0
+  },
+  {
+    "dateRange": {
+      "start": {
+        "year": 2026,
+        "month": 10,
+        "day": 16
+      },
+      "end": {
+        "year": 2026,
+        "month": 10,
+        "day": 16
+      }
+    },
+    "pivotValues": [
+      "urn:li:sponsoredCreative:4101"
+    ],
+    "impressions": 5000,
+    "clicks": 50,
+    "costInLocalCurrency": "25.00",
+    "costInUsd": "25.00",
+    "landingPageClicks": 40,
+    "externalWebsiteConversions": 5,
+    "externalWebsitePostClickConversions": 5,
+    "externalWebsitePostViewConversions": 0,
+    "conversionValueInLocalCurrency": "10.00",
+    "oneClickLeads": 0,
+    "totalEngagements": 60,
+    "likes": 5,
+    "comments": 0,
+    "shares": 0,
+    "follows": 0,
+    "videoViews": 0,
+    "videoCompletions": 0
+  }
+]

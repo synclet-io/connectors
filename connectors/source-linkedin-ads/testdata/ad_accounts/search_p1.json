@@ -1,0 +1,36 @@
+{
+  "elements": [
+    {
+      "id": 1001,
+      "name": "Example Account A",
+      "currency": "USD",
+      "status": "ACTIVE",
+      "type": "BUSINESS",
+      "reference": "urn:li:organization:90001",
+      "test": true,
+      "servingStatuses": [
+        "RUNNABLE"
+      ],
+      "notifiedOnCampaignOptimization": false,
+      "version": {
+        "versionTag": "2"
+      },
+      "changeAuditStamps": {
+        "created": {
+          "time": 1767225600000
+        },
+        "lastModified": {
+          "time": 1772323200000
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "nextPageToken": "p2"
+  },
+  "paging": {
+    "start": 0,
+    "count": 1,
+    "links": []
+  }
+}

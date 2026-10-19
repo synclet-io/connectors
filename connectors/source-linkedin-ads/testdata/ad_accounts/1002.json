@@ -1,0 +1,24 @@
+{
+  "id": 1002,
+  "name": "Example Account B",
+  "currency": "USD",
+  "status": "ACTIVE",
+  "type": "BUSINESS",
+  "reference": "urn:li:organization:90002",
+  "test": true,
+  "servingStatuses": [
+    "RUNNABLE"
+  ],
+  "notifiedOnCampaignOptimization": false,
+  "version": {
+    "versionTag": "2"
+  },
+  "changeAuditStamps": {
+    "created": {
+      "time": 1767225600000
+    },
+    "lastModified": {
+      "time": 1772323200000
+    }
+  }
+}

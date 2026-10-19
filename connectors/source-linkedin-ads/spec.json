@@ -1,0 +1,84 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Reads LinkedIn ad accounts, campaign groups, campaigns, creatives and daily ad analytics from the LinkedIn Marketing API.",
+    "properties": {
+      "account_ids": {
+        "description": "Ad accounts to read; empty reads every account the authorizing user has a role on.",
+        "examples": [
+          "500000001"
+        ],
+        "items": {
+          "pattern": "^[0-9]+$",
+          "type": "string"
+        },
+        "order": 3,
+        "title": "Ad Account IDs",
+        "type": "array"
+      },
+      "client_id": {
+        "airbyte_secret": true,
+        "description": "Client ID of a LinkedIn app with the Advertising API product.",
+        "order": 0,
+        "title": "Client ID",
+        "type": "string"
+      },
+      "client_secret": {
+        "airbyte_secret": true,
+        "description": "Client secret of the LinkedIn app.",
+        "order": 1,
+        "title": "Client Secret",
+        "type": "string"
+      },
+      "end_date": {
+        "description": "Last day, YYYY-MM-DD, whose analytics are read; empty reads up to today (UTC).",
+        "format": "date",
+        "order": 5,
+        "title": "End Date",
+        "type": "string"
+      },
+      "lookback_days": {
+        "default": 7,
+        "description": "Days, 0 to 30, before the saved date an incremental analytics read starts again, since LinkedIn still updates recent days.",
+        "order": 6,
+        "title": "Lookback Days",
+        "type": "integer"
+      },
+      "refresh_token": {
+        "airbyte_secret": true,
+        "description": "OAuth refresh token the app was issued with the r_ads and r_ads_reporting scopes; it is valid for a year.",
+        "order": 2,
+        "title": "Refresh Token",
+        "type": "string"
+      },
+      "start_date": {
+        "description": "First day, YYYY-MM-DD, whose analytics are read.",
+        "examples": [
+          "2026-01-01"
+        ],
+        "format": "date",
+        "order": 4,
+        "title": "Start Date",
+        "type": "string"
+      }
+    },
+    "required": [
+      "client_id",
+      "client_secret",
+      "refresh_token",
+      "start_date"
+    ],
+    "title": "LinkedIn Ads Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-linkedin-ads",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": true,
+  "supportsNormalization": false
+}

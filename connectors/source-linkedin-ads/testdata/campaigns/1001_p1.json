@@ -1,0 +1,125 @@
+{
+  "elements": [
+    {
+      "id": 3001,
+      "account": "urn:li:sponsoredAccount:1001",
+      "campaignGroup": "urn:li:sponsoredCampaignGroup:2001",
+      "name": "Example Campaign A",
+      "status": "ACTIVE",
+      "type": "SPONSORED_UPDATES",
+      "costType": "CPM",
+      "objectiveType": "WEBSITE_VISIT",
+      "format": "SINGLE_IMAGE",
+      "locale": {
+        "country": "US",
+        "language": "en"
+      },
+      "dailyBudget": {
+        "amount": "50.00",
+        "currencyCode": "USD"
+      },
+      "unitCost": {
+        "amount": "10.00",
+        "currencyCode": "USD"
+      },
+      "runSchedule": {
+        "start": 1767225600000
+      },
+      "targetingCriteria": {
+        "include": {
+          "and": [
+            {
+              "or": {
+                "urn:li:adTargetingFacet:locations": [
+                  "urn:li:geo:103644278"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "servingStatuses": [
+        "RUNNABLE"
+      ],
+      "offsiteDeliveryEnabled": false,
+      "audienceExpansionEnabled": false,
+      "test": true,
+      "creativeSelection": "OPTIMIZED",
+      "pacingStrategy": "LIFETIME",
+      "optimizationTargetType": "NONE",
+      "version": {
+        "versionTag": "3"
+      },
+      "changeAuditStamps": {
+        "created": {
+          "time": 1767225600000
+        },
+        "lastModified": {
+          "time": 1772323200000
+        }
+      }
+    },
+    {
+      "id": 3002,
+      "account": "urn:li:sponsoredAccount:1001",
+      "campaignGroup": "urn:li:sponsoredCampaignGroup:2001",
+      "name": "Example Campaign B",
+      "status": "PAUSED",
+      "type": "SPONSORED_UPDATES",
+      "costType": "CPM",
+      "objectiveType": "WEBSITE_VISIT",
+      "format": "SINGLE_IMAGE",
+      "locale": {
+        "country": "US",
+        "language": "en"
+      },
+      "dailyBudget": {
+        "amount": "50.00",
+        "currencyCode": "USD"
+      },
+      "unitCost": {
+        "amount": "10.00",
+        "currencyCode": "USD"
+      },
+      "runSchedule": {
+        "start": 1767225600000
+      },
+      "targetingCriteria": {
+        "include": {
+          "and": [
+            {
+              "or": {
+                "urn:li:adTargetingFacet:locations": [
+                  "urn:li:geo:103644278"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "servingStatuses": [
+        "RUNNABLE"
+      ],
+      "offsiteDeliveryEnabled": false,
+      "audienceExpansionEnabled": false,
+      "test": true,
+      "creativeSelection": "OPTIMIZED",
+      "pacingStrategy": "LIFETIME",
+      "optimizationTargetType": "NONE",
+      "version": {
+        "versionTag": "3"
+      },
+      "changeAuditStamps": {
+        "created": {
+          "time": 1767225600000
+        },
+        "lastModified": {
+          "time": 1772323200000
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "nextPageToken": "p2"
+  }
+}

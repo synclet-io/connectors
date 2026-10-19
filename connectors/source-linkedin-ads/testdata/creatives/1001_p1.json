@@ -1,0 +1,43 @@
+{
+  "elements": [
+    {
+      "id": "urn:li:sponsoredCreative:4001",
+      "account": "urn:li:sponsoredAccount:1001",
+      "campaign": "urn:li:sponsoredCampaign:3001",
+      "intendedStatus": "ACTIVE",
+      "isServing": true,
+      "servingHoldReasons": [],
+      "content": {
+        "reference": "urn:li:share:7000000000000000001"
+      },
+      "createdAt": 1767225600000,
+      "lastModifiedAt": 1772323200000,
+      "createdBy": "urn:li:person:example1",
+      "lastModifiedBy": "urn:li:person:example1",
+      "isTest": true,
+      "review": {
+        "status": "APPROVED"
+      }
+    },
+    {
+      "id": "urn:li:sponsoredCreative:4002",
+      "account": "urn:li:sponsoredAccount:1001",
+      "campaign": "urn:li:sponsoredCampaign:3002",
+      "intendedStatus": "ACTIVE",
+      "isServing": true,
+      "servingHoldReasons": [],
+      "content": {
+        "reference": "urn:li:share:7000000000000000002"
+      },
+      "createdAt": 1767225600000,
+      "lastModifiedAt": 1772323200000,
+      "createdBy": "urn:li:person:example1",
+      "lastModifiedBy": "urn:li:person:example1",
+      "isTest": true,
+      "review": {
+        "status": "APPROVED"
+      }
+    }
+  ],
+  "metadata": {}
+}

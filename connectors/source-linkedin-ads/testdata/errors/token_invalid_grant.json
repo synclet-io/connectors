@@ -1,0 +1,4 @@
+{
+  "error": "invalid_request",
+  "error_description": "The provided authorization grant or refresh token is invalid, expired or revoked"
+}

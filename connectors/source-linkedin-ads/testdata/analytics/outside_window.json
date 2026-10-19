@@ -1,0 +1,28 @@
+{
+  "elements": [
+    {
+      "dateRange": {
+        "start": {
+          "year": 2026,
+          "month": 7,
+          "day": 1
+        },
+        "end": {
+          "year": 2026,
+          "month": 7,
+          "day": 1
+        }
+      },
+      "pivotValues": [
+        "urn:li:sponsoredCampaign:3001"
+      ],
+      "impressions": 100,
+      "clicks": 1
+    }
+  ],
+  "paging": {
+    "start": 0,
+    "count": 10,
+    "links": []
+  }
+}
