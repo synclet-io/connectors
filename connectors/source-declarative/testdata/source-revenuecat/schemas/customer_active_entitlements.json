@@ -1,0 +1,28 @@
+{
+  "additionalProperties": true,
+  "properties": {
+    "customer_id": {
+      "description": "ID of the customer, from the customer the entitlement was listed for",
+      "type": "string"
+    },
+    "entitlement_id": {
+      "description": "ID of the entitlement",
+      "type": "string"
+    },
+    "expires_at": {
+      "description": "When access to the entitlement expires, in milliseconds since the Unix epoch",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "object": {
+      "description": "Always customer.active_entitlement",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "type": "object"
+}

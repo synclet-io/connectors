@@ -18,13 +18,13 @@ func TestLintBadManifest(t *testing.T) {
 
 func TestLintExample(t *testing.T) {
 	var out, errOut bytes.Buffer
-	require.Equal(t, 0, run([]string{"../../example"}, &out, &errOut), errOut.String())
+	require.Equal(t, 0, run([]string{"../../example/source-acme"}, &out, &errOut), errOut.String())
 	assert.Empty(t, out.String())
 }
 
 func TestSpec(t *testing.T) {
 	var out, errOut bytes.Buffer
-	require.Equal(t, 0, run([]string{"-spec", "../../example"}, &out, &errOut), errOut.String())
+	require.Equal(t, 0, run([]string{"-spec", "../../example/source-acme"}, &out, &errOut), errOut.String())
 	var spec struct {
 		SupportsIncremental     bool `json:"supportsIncremental"`
 		ConnectionSpecification struct {

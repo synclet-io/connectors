@@ -1,0 +1,122 @@
+{
+  "additionalProperties": true,
+  "properties": {
+    "country": {
+      "description": "Country of the purchase",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "customer_id": {
+      "description": "ID of the customer",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "entitlements": {
+      "description": "List of the entitlements the purchase grants",
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "environment": {
+      "description": "production or sandbox",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "id": {
+      "description": "ID of the purchase",
+      "type": "string"
+    },
+    "object": {
+      "description": "Always purchase",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "original_customer_id": {
+      "description": "ID of the original customer",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "ownership": {
+      "description": "Ownership of the purchase, such as purchased or family_shared",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "presented_offering_id": {
+      "description": "ID of the offering the customer saw when purchasing",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "product_id": {
+      "description": "ID of the product purchased",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "purchased_at": {
+      "description": "When the purchase was made, in milliseconds since the Unix epoch",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "quantity": {
+      "description": "Quantity purchased in one transaction",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "redemption": {
+      "description": "Most recent redemption of the purchase's redemption link",
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "revenue_in_usd": {
+      "description": "Revenue of the purchase in USD: currency, gross, commission, tax, proceeds",
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "status": {
+      "description": "owned or refunded",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "store": {
+      "description": "Store of the purchase, such as app_store, play_store or stripe",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "store_purchase_identifier": {
+      "description": "Purchase identifier in the store",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "type": "object"
+}

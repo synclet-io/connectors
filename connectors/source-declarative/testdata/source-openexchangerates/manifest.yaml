@@ -1,0 +1,38 @@
+# Proof manifest: source-openexchangerates re-expressed for source-declarative.
+# yaml-language-server: $schema=../../internal/manifest/manifest.schema.json
+version: 1
+connector:
+  name: source-openexchangerates
+  documentation_url: https://github.com/synclet-io/connectors/tree/main/connectors/source-openexchangerates
+base_url: https://openexchangerates.org/api/
+spec:
+  title: Open Exchange Rates Source Spec
+  description: Reads currencies, the latest exchange rates and daily historical rates from Open Exchange Rates.
+  required: [app_id, start_date]
+  properties:
+    app_id:     {type: string, title: App ID, description: App ID of your Open Exchange Rates account. It is sent in the Authorization header., secret: true, order: 0}
+    start_date: {type: string, title: Start Date, description: "First day, YYYY-MM-DD in UTC, whose historical rates are read.", format: date, examples: ["2026-01-01"], order: 1}
+    base:       {type: string, title: Base Currency, description: "Currency the rates are quoted against. Changing it needs a paid plan; empty uses USD.", examples: [EUR], order: 2}
+    symbols:    {type: array, items: {type: string}, title: Symbols, description: "Currencies to read rates for; empty reads every currency. Needs a paid plan.", order: 3}
+auth: {type: api_key, in: header, name: Authorization, value: "Token {{ config.app_id }}"}
+errors: {message: $.description}
+check: {stream: latest_rates}
+params: {base: "{{ config.base }}", symbols: "{{ config.symbols | join(\",\") }}"}
+streams:
+  - name: currencies
+    path: currencies.json
+    params: {base: "", symbols: ""}
+    primary_key: [code]
+    schema: schemas/currencies.json
+    records: {mode: entries, key_field: code, value_field: name}
+  - name: latest_rates
+    path: latest.json
+    primary_key: [base, currency]
+    schema: schemas/latest_rates.json
+    records: {path: $.rates, mode: entries, key_field: currency, value_field: rate, add: {base: $.base, timestamp: $.timestamp}}
+  - name: historical_rates
+    path: "historical/{{ since }}.json"
+    primary_key: [date, base, currency]
+    schema: schemas/historical_rates.json
+    records: {path: $.rates, mode: entries, key_field: currency, value_field: rate, add: {date: "{{ since }}", base: $.base, timestamp: $.timestamp}}
+    incremental: {cursor_field: date, cursor_format: date, start: "{{ config.start_date }}", window: {step: 1d, closed_only: true}}

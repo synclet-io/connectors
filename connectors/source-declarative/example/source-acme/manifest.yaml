@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=../internal/manifest/manifest.schema.json
+# yaml-language-server: $schema=../../internal/manifest/manifest.schema.json
 version: 1
 connector:
   name: source-acme

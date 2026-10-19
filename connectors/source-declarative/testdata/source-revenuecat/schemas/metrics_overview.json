@@ -1,0 +1,73 @@
+{
+  "additionalProperties": true,
+  "properties": {
+    "currency": {
+      "description": "Currency of the monetary metrics, from the response",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "description": {
+      "description": "Description of the metric",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "id": {
+      "description": "ID of the metric, such as active_trials or mrr",
+      "type": "string"
+    },
+    "last_updated_at": {
+      "description": "When the metric was last updated, in milliseconds since the Unix epoch",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "last_updated_at_iso8601": {
+      "description": "When the metric was last updated, as the API formats it (such as 2026-10-18 09:45:00.000000+00:00)",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "description": "Display name of the metric",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "object": {
+      "description": "Always overview_metric",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "period": {
+      "description": "Period the metric covers, ISO 8601: P0D for now, P28D for the last 28 days",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "unit": {
+      "description": "Unit of the metric",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "value": {
+      "description": "Value of the metric",
+      "type": [
+        "number",
+        "null"
+      ]
+    }
+  },
+  "type": "object"
+}

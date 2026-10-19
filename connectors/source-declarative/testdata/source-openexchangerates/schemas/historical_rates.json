@@ -1,0 +1,21 @@
+{
+  "properties": {
+    "base": {
+      "type": "string"
+    },
+    "currency": {
+      "type": "string"
+    },
+    "date": {
+      "format": "date",
+      "type": "string"
+    },
+    "rate": {
+      "type": "number"
+    },
+    "timestamp": {
+      "type": "integer"
+    }
+  },
+  "type": "object"
+}

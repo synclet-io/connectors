@@ -1,0 +1,7 @@
+{
+  "object": "list",
+  "data": [
+    {"id": "ch_2", "object": "charge", "amount": 2500, "currency": "usd", "customer": null, "created": 1767410000}
+  ],
+  "has_more": false
+}

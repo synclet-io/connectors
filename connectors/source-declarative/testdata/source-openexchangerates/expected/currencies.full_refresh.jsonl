@@ -1,0 +1,4 @@
+{"data":{"code":"EUR","name":"Euro"},"type":"RECORD"}
+{"data":{"code":"GBP","name":"British Pound Sterling"},"type":"RECORD"}
+{"data":{"code":"JPY","name":"Japanese Yen"},"type":"RECORD"}
+{"data":{"code":"USD","name":"United States Dollar"},"type":"RECORD"}

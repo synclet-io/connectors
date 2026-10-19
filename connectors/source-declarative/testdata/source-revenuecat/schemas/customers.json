@@ -1,0 +1,87 @@
+{
+  "additionalProperties": true,
+  "properties": {
+    "active_entitlements": {
+      "description": "List of the customer's active entitlements, when the API includes it",
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "attributes": {
+      "description": "List of the customer's attributes, when the API includes it",
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "experiment": {
+      "description": "Experiment enrollment of the customer",
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "first_seen_at": {
+      "description": "Earliest date known for the customer, in milliseconds since the Unix epoch",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "id": {
+      "description": "ID of the customer (app user ID)",
+      "type": "string"
+    },
+    "last_seen_app_version": {
+      "description": "App version the customer was last seen on",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "last_seen_at": {
+      "description": "When the customer was last seen, in milliseconds since the Unix epoch",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "last_seen_country": {
+      "description": "Country the customer was last seen in",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "last_seen_platform": {
+      "description": "Platform the customer was last seen on",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "last_seen_platform_version": {
+      "description": "Platform version the customer was last seen on",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "object": {
+      "description": "Always customer",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "project_id": {
+      "description": "ID of the project",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "type": "object"
+}

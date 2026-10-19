@@ -13,7 +13,7 @@ go run ./cmd/manifest-lint <dir>                         # every problem of <dir
 go run ./cmd/manifest-lint -spec <dir>                   # the spec.json the manifest maps to
 ```
 
-[`example/`](example) is a complete two-stream manifest connector, one schema in a file and one inline. The format's JSON Schema is
+[`example/source-acme`](example/source-acme) is a complete two-stream manifest connector (one schema in a file, one inline) with fixtures and its `declarativetest` entry. `testdata/source-openexchangerates` and `testdata/source-revenuecat` re-express two Go connectors and are diffed against them by `proof_test.go`. The format's JSON Schema is
 [`internal/manifest/manifest.schema.json`](internal/manifest/manifest.schema.json); editors that read
 `yaml-language-server` comments validate a manifest with
 `# yaml-language-server: $schema=../source-declarative/internal/manifest/manifest.schema.json`.
@@ -344,7 +344,7 @@ At start, `main.go` looks for `$SYNCLET_MANIFEST_DIR/manifest.yaml` (default `/m
 1. **Baked file present: catalog mode.** The file is the manifest. A config that carries `__manifest` fails with a config error ("this connector's manifest is built into its image; remove `__manifest`"), at `check`, `discover` and `read`. It is rejected, not ignored, so a misconfigured platform never runs a manifest other than the one the user edited, or the reverse.
 2. **No baked file: generic mode.** The config must carry `__manifest`; a config without it fails with a config error ("`__manifest` is required on the generic source-declarative image").
 
-The engine image ships no manifest (its example lives in `example/`), so the released `source-declarative` image is the generic image. A catalog image whose `COPY` misses the manifest fails `docker build`, and its `spec.json` check fails, so a broken catalog image cannot silently become generic.
+The engine image ships no manifest (its example lives in `example/source-acme`), so the released `source-declarative` image is the generic image. A catalog image whose `COPY` misses the manifest fails `docker build`, and its `spec.json` check fails, so a broken catalog image cannot silently become generic.
 
 #### 13.2 `__manifest`
 

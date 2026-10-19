@@ -1,0 +1,80 @@
+{
+  "additionalProperties": true,
+  "properties": {
+    "created_at": {
+      "description": "When the offering was created, in milliseconds since the Unix epoch",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "display_name": {
+      "description": "Display name of the offering",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "id": {
+      "description": "ID of the offering",
+      "type": "string"
+    },
+    "is_current": {
+      "description": "Whether the offering is the current offering",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "lookup_key": {
+      "description": "Custom identifier of the offering",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "metadata": {
+      "description": "Custom metadata of the offering",
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "object": {
+      "description": "Always offering",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "packages": {
+      "description": "List of the offering's packages, when expanded",
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "paywall_id": {
+      "description": "ID of the paywall attached to the offering",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "project_id": {
+      "description": "ID of the project",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "state": {
+      "description": "active or inactive (archived)",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "type": "object"
+}

@@ -1,0 +1,2 @@
+{"data":{"created_at":1790000000000,"display_name":"Premium","id":"entl_test_premium","lookup_key":"premium","object":"entitlement","project_id":"proj_test1","state":"active"},"type":"RECORD"}
+{"data":{"created_at":1790000001000,"display_name":"Pro","id":"entl_test_pro","lookup_key":"pro","object":"entitlement","project_id":"proj_test1","state":"inactive"},"type":"RECORD"}

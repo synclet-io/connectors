@@ -1,0 +1,8 @@
+{
+  "object": "list",
+  "data": [
+    {"id": "cus_1", "object": "customer", "email": "ada@example.com", "name": "Ada Example", "created": 1767300000},
+    {"id": "cus_2", "object": "customer", "email": null, "name": null, "created": 1767310000}
+  ],
+  "has_more": true
+}

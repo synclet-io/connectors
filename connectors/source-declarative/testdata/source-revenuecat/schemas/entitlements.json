@@ -1,0 +1,59 @@
+{
+  "additionalProperties": true,
+  "properties": {
+    "created_at": {
+      "description": "When the entitlement was created, in milliseconds since the Unix epoch",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "display_name": {
+      "description": "Display name of the entitlement",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "id": {
+      "description": "ID of the entitlement",
+      "type": "string"
+    },
+    "lookup_key": {
+      "description": "Custom identifier of the entitlement",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "object": {
+      "description": "Always entitlement",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "products": {
+      "description": "List of the products attached to the entitlement, when expanded",
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "project_id": {
+      "description": "ID of the project",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "state": {
+      "description": "active or inactive (archived)",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "type": "object"
+}

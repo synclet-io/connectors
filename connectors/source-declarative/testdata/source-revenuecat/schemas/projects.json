@@ -1,0 +1,45 @@
+{
+  "additionalProperties": true,
+  "properties": {
+    "created_at": {
+      "description": "When the project was created, in milliseconds since the Unix epoch",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "icon_url": {
+      "description": "URL of the project's small icon",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "icon_url_large": {
+      "description": "URL of the project's large icon",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "id": {
+      "description": "ID of the project",
+      "type": "string"
+    },
+    "name": {
+      "description": "Name of the project",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "object": {
+      "description": "Always project",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "type": "object"
+}

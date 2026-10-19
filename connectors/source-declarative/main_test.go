@@ -20,7 +20,7 @@ func spec(t *testing.T, src synclet.Source[json.RawMessage]) *testkit.Output {
 }
 
 func TestResolveBaked(t *testing.T) {
-	out := spec(t, resolve("example"))
+	out := spec(t, resolve("example/source-acme"))
 	require.NoError(t, out.Err)
 	assert.Equal(t, "Acme Source Spec", out.Spec().ConnectionSpecification.Title)
 }

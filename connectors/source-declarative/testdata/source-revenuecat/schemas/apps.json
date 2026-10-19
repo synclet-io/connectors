@@ -1,0 +1,115 @@
+{
+  "additionalProperties": true,
+  "properties": {
+    "amazon": {
+      "description": "Amazon details, for type amazon",
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "app_store": {
+      "description": "App Store details, for type app_store",
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "created_at": {
+      "description": "When the app was created, in milliseconds since the Unix epoch",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "custom_url_scheme": {
+      "description": "Custom URL scheme of the app",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "id": {
+      "description": "ID of the app",
+      "type": "string"
+    },
+    "mac_app_store": {
+      "description": "Legacy Mac App Store details, for type mac_app_store",
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "name": {
+      "description": "Name of the app",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "object": {
+      "description": "Always app",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "paddle": {
+      "description": "Paddle details, for type paddle",
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "play_store": {
+      "description": "Google Play details, for type play_store",
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "project_id": {
+      "description": "ID of the project",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "rc_billing": {
+      "description": "Web Billing details, for type rc_billing",
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "roku": {
+      "description": "Roku details, for type roku",
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "stripe": {
+      "description": "Stripe details, for type stripe",
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "test_store": {
+      "description": "Test Store details, for type test_store",
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "type": {
+      "description": "Platform of the app, such as app_store, play_store, stripe or rc_billing",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "type": "object"
+}

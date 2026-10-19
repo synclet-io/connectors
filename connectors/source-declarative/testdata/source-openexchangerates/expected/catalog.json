@@ -1,0 +1,100 @@
+{
+  "streams": [
+    {
+      "name": "currencies",
+      "json_schema": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "supported_sync_modes": [
+        "full_refresh"
+      ],
+      "source_defined_primary_key": [
+        [
+          "code"
+        ]
+      ]
+    },
+    {
+      "name": "latest_rates",
+      "json_schema": {
+        "type": "object",
+        "properties": {
+          "base": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "rate": {
+            "type": "number"
+          },
+          "timestamp": {
+            "type": "integer"
+          }
+        }
+      },
+      "supported_sync_modes": [
+        "full_refresh"
+      ],
+      "source_defined_primary_key": [
+        [
+          "base"
+        ],
+        [
+          "currency"
+        ]
+      ]
+    },
+    {
+      "name": "historical_rates",
+      "json_schema": {
+        "type": "object",
+        "properties": {
+          "base": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "rate": {
+            "type": "number"
+          },
+          "timestamp": {
+            "type": "integer"
+          }
+        }
+      },
+      "supported_sync_modes": [
+        "full_refresh",
+        "incremental"
+      ],
+      "source_defined_cursor": true,
+      "default_cursor_field": [
+        "date"
+      ],
+      "source_defined_primary_key": [
+        [
+          "date"
+        ],
+        [
+          "base"
+        ],
+        [
+          "currency"
+        ]
+      ]
+    }
+  ]
+}

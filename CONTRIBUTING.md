@@ -112,6 +112,64 @@ drift from the real API, so start them from the response examples in the API's d
   that fails first and then succeeds, and test that errors which must not be retried (auth, plan,
   quota) are requested once.
 
+### A manifest connector
+
+A simple REST/JSON source is a `manifest.yaml` plus schemas and fixtures, run by the
+[source-declarative](connectors/source-declarative) engine; the manifest format is in its README. It stays
+its own directory, image, version, release and registry entry. Start from
+[`connectors/source-declarative/example/source-acme`](connectors/source-declarative/example/source-acme):
+
+```
+connectors/source-acme/
+├── manifest.yaml        # the format of connectors/source-declarative/README.md
+├── schemas/<stream>.json
+├── testdata/            # fixtures served by declarativetest (below)
+├── manifest_test.go     # the test entry
+├── go.mod               # module source-acme; require source-declarative v0.0.0; replace source-declarative => ../source-declarative
+├── Dockerfile
+├── meta.json, spec.json, README.md, CHANGELOG.md, .gitignore, .dockerignore
+```
+
+```dockerfile
+ARG BASE=ghcr.io/synclet-io/connectors/source-declarative:0.1.0
+FROM ${BASE}
+COPY manifest.yaml /manifest/manifest.yaml
+COPY schemas/ /manifest/schemas/
+```
+
+The `FROM` pin is the engine version the connector runs; bumping it is a `fix(source-acme):` commit and a
+patch release. Before the engine's first release, build locally with `task build CONNECTOR=source-declarative`
+and `docker build --build-arg BASE=ghcr.io/synclet-io/connectors/source-declarative:dev connectors/source-acme`.
+A catalog image whose `COPY` misses the manifest fails `spec`, so it cannot silently run as the generic image.
+
+- **Test entry.** `manifest_test.go` calls `declarativetest.Run` with a working config, a config `check`
+  must reject, the credential every request carries (`declarativetest.Header` or `declarativetest.Query`),
+  a fixed `Now` and `MinPages`. It loads and lints the manifest (and checks `connector.name` against the
+  directory), runs the SDK conformance suite for full refresh over every stream and once per incremental
+  stream, checks that `check` with the broken config reports the text of `testdata/errors/401.json`, and that
+  every paginated stream's fixtures span `MinPages` pages. `Overrides` replaces the response of one route;
+  `RateLimitOnce` answers one read's first request with 429. Because the connector has a `go.mod`, CI runs
+  `go vet`, `golangci-lint` and `go test -race` in it as for Go connectors.
+- **Fixtures.** A request is answered by `testdata/<path>.json`; one that carries pagination parameters (a
+  query key that is not a static `params` key, `size_param`, a `{{ since }}`/`{{ until }}` parameter or a
+  query credential) by `testdata/<path>/<k=v&k=v>.json`, keys sorted; `<file>.headers.json` next to a body
+  sets response headers (such as `Link`). A request without the credential gets `testdata/errors/401.json`
+  with HTTP 401. Relative next-page URLs resolve against the test server. The rules of
+  [recorded HTTP](#testing-api-sources-with-recorded-http) apply: synthetic data only, no secret in a URL.
+- **Schemas.** Hand-written JSON Schema per stream, in `schemas/` or inline. The conformance suite rejects a
+  record field the schema does not declare unless the schema sets `additionalProperties`.
+- **Lint.** `go run ./cmd/manifest-lint ../source-acme` (from `connectors/source-declarative`) prints every
+  problem of the manifest with its path.
+- **spec.json.** `task spec CONNECTOR=source-acme` builds the image and writes its spec, as for any connector,
+  and `task spec:check` compares it. Without Docker, `go run ./cmd/manifest-lint -spec ../source-acme`
+  prints the same spec.
+- **Release.** `meta.json` has `"language": "declarative"` and `declarative` in `tags`; the connector gets its
+  own package in `release-please-config.json` like every connector.
+- **When to write Go instead.** Anything the manifest cannot say: POST bodies, rotating OAuth, request
+  signing, request pacing, CSV/JSONL bodies, record transformations, integer cursors, nested fan-out beyond
+  one parent level. The engine never grows for a single connector; section 6 of the engine's README is the
+  decision table.
+
 ## 2. Fill in meta.json
 
 ```json

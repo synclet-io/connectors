@@ -1,0 +1,57 @@
+# Proof manifest: source-revenuecat re-expressed for source-declarative.
+# yaml-language-server: $schema=../../internal/manifest/manifest.schema.json
+version: 1
+connector:
+  name: source-revenuecat
+  documentation_url: https://github.com/synclet-io/connectors/tree/main/connectors/source-revenuecat
+base_url: https://api.revenuecat.com/v2/
+spec:
+  title: RevenueCat Source Spec
+  description: Reads project configuration, customers with their subscriptions, purchases and active entitlements, and overview metrics from the RevenueCat REST API v2 with a v2 secret API key.
+  required: [api_key, project_id]
+  properties:
+    api_key:     {type: string, title: Secret API Key (v2), description: A RevenueCat secret API key of version V2. It is sent in the Authorization header., secret: true, order: 0}
+    project_id:  {type: string, title: Project ID, description: ID of the RevenueCat project to read., examples: [proj1ab2c3d4], order: 1}
+    environment: {type: string, title: Environment, description: "Store environment of the customer subscriptions and purchases to read: sandbox or production. Leave empty to read both.", enum: [sandbox, production], order: 2}
+auth: {type: bearer, token: "{{ config.api_key }}"}
+errors: {message: $.message}
+check: {stream: projects}
+params: {limit: 100}
+retry:
+  rate_limit: {wait: ["header:Retry-After", "body:$.backoff_ms", 60s]}
+streams:
+  - &list
+    name: projects
+    path: projects
+    primary_key: [id]
+    schema: schemas/projects.json
+    records: {path: $.items}
+    pagination: {type: next_url, url_from: $.next_page}
+  - {<<: *list, name: apps, path: "projects/{{ config.project_id }}/apps", schema: schemas/apps.json}
+  - {<<: *list, name: products, path: "projects/{{ config.project_id }}/products", schema: schemas/products.json}
+  - {<<: *list, name: entitlements, path: "projects/{{ config.project_id }}/entitlements", schema: schemas/entitlements.json}
+  - {<<: *list, name: offerings, path: "projects/{{ config.project_id }}/offerings", schema: schemas/offerings.json}
+  - {<<: *list, name: customers, path: "projects/{{ config.project_id }}/customers", schema: schemas/customers.json}
+  - &child
+    name: customer_subscriptions
+    path: "projects/{{ config.project_id }}/customers/{{ parent.id }}/subscriptions"
+    partition: {parent: customers}
+    params: {environment: "{{ config.environment }}"}
+    primary_key: [id]
+    schema: schemas/customer_subscriptions.json
+    records: {path: $.items, add: {customer_id: "{{ parent.id }}"}}
+    pagination: {type: next_url, url_from: $.next_page}
+    on_404: skip
+  - {<<: *child, name: customer_purchases, path: "projects/{{ config.project_id }}/customers/{{ parent.id }}/purchases", schema: schemas/customer_purchases.json}
+  - <<: *child
+    name: customer_active_entitlements
+    path: "projects/{{ config.project_id }}/customers/{{ parent.id }}/active_entitlements"
+    params: {}
+    primary_key: [customer_id, entitlement_id]
+    schema: schemas/customer_active_entitlements.json
+  - name: metrics_overview
+    path: "projects/{{ config.project_id }}/metrics/overview"
+    params: {limit: ""}
+    primary_key: [id]
+    schema: schemas/metrics_overview.json
+    records: {path: $.metrics, add: {currency: $.currency}}

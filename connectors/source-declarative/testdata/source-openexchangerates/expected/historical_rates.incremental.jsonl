@@ -1,0 +1,16 @@
+{"data":{"date":"2026-10-14","base":"USD","currency":"EUR","rate":0.9114,"timestamp":1792018800},"type":"RECORD"}
+{"data":{"date":"2026-10-14","base":"USD","currency":"GBP","rate":0.7814,"timestamp":1792018800},"type":"RECORD"}
+{"data":{"date":"2026-10-14","base":"USD","currency":"JPY","rate":149.14,"timestamp":1792018800},"type":"RECORD"}
+{"state":{"type":"STREAM","stream":{"stream_descriptor":{"name":"historical_rates"},"stream_state":{"date":"2026-10-14"}},"sourceStats":{"recordCount":3}},"type":"STATE"}
+{"data":{"date":"2026-10-15","base":"USD","currency":"EUR","rate":0.9115,"timestamp":1792105200},"type":"RECORD"}
+{"data":{"date":"2026-10-15","base":"USD","currency":"GBP","rate":0.7815,"timestamp":1792105200},"type":"RECORD"}
+{"data":{"date":"2026-10-15","base":"USD","currency":"JPY","rate":149.15,"timestamp":1792105200},"type":"RECORD"}
+{"state":{"type":"STREAM","stream":{"stream_descriptor":{"name":"historical_rates"},"stream_state":{"date":"2026-10-15"}},"sourceStats":{"recordCount":3}},"type":"STATE"}
+{"data":{"date":"2026-10-16","base":"USD","currency":"EUR","rate":0.9116,"timestamp":1792191600},"type":"RECORD"}
+{"data":{"date":"2026-10-16","base":"USD","currency":"GBP","rate":0.7816,"timestamp":1792191600},"type":"RECORD"}
+{"data":{"date":"2026-10-16","base":"USD","currency":"JPY","rate":149.16,"timestamp":1792191600},"type":"RECORD"}
+{"state":{"type":"STREAM","stream":{"stream_descriptor":{"name":"historical_rates"},"stream_state":{"date":"2026-10-16"}},"sourceStats":{"recordCount":3}},"type":"STATE"}
+{"data":{"date":"2026-10-17","base":"USD","currency":"EUR","rate":0.9117,"timestamp":1792278000},"type":"RECORD"}
+{"data":{"date":"2026-10-17","base":"USD","currency":"GBP","rate":0.7817,"timestamp":1792278000},"type":"RECORD"}
+{"data":{"date":"2026-10-17","base":"USD","currency":"JPY","rate":149.17,"timestamp":1792278000},"type":"RECORD"}
+{"state":{"type":"STREAM","stream":{"stream_descriptor":{"name":"historical_rates"},"stream_state":{"date":"2026-10-17"}},"sourceStats":{"recordCount":3}},"type":"STATE"}

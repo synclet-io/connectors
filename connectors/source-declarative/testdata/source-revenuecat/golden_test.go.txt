@@ -1,0 +1,87 @@
+package main
+
+// Throwaway snapshot generator for source-declarative's proof test. Copy it
+// to golden_test.go in this connector's directory, run
+//   GOLDEN_OUT=$PWD/../source-declarative/testdata/<proof> go test -run TestGolden -count=1 .
+// and delete it again; it is not part of this connector.
+
+import (
+	"encoding/json"
+	"os"
+	"path/filepath"
+	"testing"
+
+	synclet "github.com/synclet-io/synclet-go-sdk"
+	"github.com/synclet-io/synclet-go-sdk/testkit"
+)
+
+func TestGolden(t *testing.T) {
+	dir := os.Getenv("GOLDEN_OUT")
+	if dir == "" {
+		t.Skip("GOLDEN_OUT not set")
+	}
+	srv, _ := fixtureServer(t, nil)
+	src := testSource(srv, newClock())
+	out, err := testkit.RunSource(t.Context(), src, synclet.Request{Command: synclet.CommandDiscover, Config: json.RawMessage(testConfig)})
+	if err != nil || out.Err != nil {
+		t.Fatal(err, out.Err)
+	}
+	cat := out.Catalog()
+	writeJSON(t, filepath.Join(dir, "expected", "catalog.json"), cat)
+	for _, s := range cat.Streams {
+		var schema any
+		if err := json.Unmarshal(s.JSONSchema, &schema); err != nil {
+			t.Fatal(err)
+		}
+		writeJSON(t, filepath.Join(dir, "schemas", s.Name+".json"), schema)
+		golden(t, src, dir, s, synclet.SyncModeFullRefresh, "", "full_refresh")
+	}
+	for _, s := range cat.Streams {
+		_ = s
+
+	}
+}
+
+func golden(t *testing.T, src Source, dir string, s synclet.Stream, mode synclet.SyncMode, state, name string) {
+	t.Helper()
+	cat, err := json.Marshal(synclet.ConfiguredCatalog{Streams: []synclet.ConfiguredStream{{Stream: s, SyncMode: mode, DestinationSyncMode: synclet.DestinationSyncModeAppend}}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	req := synclet.Request{Command: synclet.CommandRead, Config: json.RawMessage(testConfig), Catalog: cat}
+	if state != "" {
+		req.State = json.RawMessage(state)
+	}
+	out, err := testkit.RunSource(t.Context(), src, req)
+	if err != nil || out.Err != nil {
+		t.Fatal(err, out.Err)
+	}
+	f, err := os.Create(filepath.Join(dir, "expected", s.Name+"."+name+".jsonl"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+	enc := json.NewEncoder(f)
+	for _, m := range out.Messages {
+		switch m.Type {
+		case synclet.MessageTypeRecord:
+			err = enc.Encode(map[string]any{"type": "RECORD", "data": m.Record.Data})
+		case synclet.MessageTypeState:
+			err = enc.Encode(map[string]any{"type": "STATE", "state": m.State})
+		}
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
+func writeJSON(t *testing.T, path string, v any) {
+	t.Helper()
+	b, err := json.MarshalIndent(v, "", "  ")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(path, append(b, '\n'), 0o644); err != nil {
+		t.Fatal(err)
+	}
+}

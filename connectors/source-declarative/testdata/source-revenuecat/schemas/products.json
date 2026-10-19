@@ -1,0 +1,87 @@
+{
+  "additionalProperties": true,
+  "properties": {
+    "app": {
+      "description": "The app, when expanded",
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "app_id": {
+      "description": "ID of the app",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "created_at": {
+      "description": "When the product was created, in milliseconds since the Unix epoch",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "display_name": {
+      "description": "Display name of the product",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "id": {
+      "description": "ID of the product",
+      "type": "string"
+    },
+    "indicative_price": {
+      "description": "Indicative price, when expanded",
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "object": {
+      "description": "Always product",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "one_time": {
+      "description": "Details of a one-time product",
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "state": {
+      "description": "active or inactive (archived)",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "store_identifier": {
+      "description": "Product identifier in the store",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "subscription": {
+      "description": "Durations of a subscription product, ISO 8601",
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "type": {
+      "description": "subscription, one_time, consumable, non_consumable or non_renewing_subscription",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "type": "object"
+}

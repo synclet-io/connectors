@@ -1,0 +1,2 @@
+{"data":{"created_at":1790000000000,"display_name":"Default","id":"ofrng_test_default","is_current":true,"lookup_key":"default","metadata":{"color":"blue"},"object":"offering","paywall_id":null,"project_id":"proj_test1","state":"active"},"type":"RECORD"}
+{"data":{"created_at":1790000001000,"display_name":"Promo","id":"ofrng_test_promo","is_current":false,"lookup_key":"promo","metadata":null,"object":"offering","paywall_id":"pw_test_1","project_id":"proj_test1","state":"active"},"type":"RECORD"}
