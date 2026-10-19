@@ -154,7 +154,9 @@ A catalog image whose `COPY` misses the manifest fails `spec`, so it cannot sile
   query key that is not a static `params` key, `size_param`, a `{{ since }}`/`{{ until }}` parameter or a
   query credential) by `testdata/<path>/<k=v&k=v>.json`, keys sorted; `<file>.headers.json` next to a body
   sets response headers (such as `Link`). A request without the credential gets `testdata/errors/401.json`
-  with HTTP 401. Relative next-page URLs resolve against the test server. The rules of
+  with HTTP 401. Relative next-page URLs resolve against the test server, and in a `.headers.json` value a
+  literal `base_url` (one without a template) is replaced by the test server's URL, so a fixture `Link` can be
+  absolute as the API sends it. The rules of
   [recorded HTTP](#testing-api-sources-with-recorded-http) apply: synthetic data only, no secret in a URL.
 - **Schemas.** Hand-written JSON Schema per stream, in `schemas/` or inline. The conformance suite rejects a
   record field the schema does not declare unless the schema sets `additionalProperties`.

@@ -116,6 +116,7 @@ type Harness struct {
 	Source   synclet.Source[json.RawMessage]
 
 	suite     Suite
+	server    string
 	mu        sync.Mutex
 	pages     map[string]int
 	rateLimit bool
@@ -140,6 +141,7 @@ func New(t testing.TB, s Suite) *Harness {
 	h := &Harness{Manifest: m, suite: s, pages: map[string]int{}}
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { h.serve(t, w, r) }))
 	t.Cleanup(srv.Close)
+	h.server = srv.URL + s.BasePath
 	h.Source = engine.New(m, engine.Options{
 		BaseURL: srv.URL + s.BasePath,
 		Client:  srv.Client(),
@@ -199,12 +201,23 @@ func (h *Harness) serve(t testing.TB, w http.ResponseWriter, r *http.Request) {
 			t.Errorf("%s.headers.json: %v", file, err)
 		}
 		for k, v := range hs {
-			w.Header().Set(k, v)
+			w.Header().Set(k, h.local(v))
 		}
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	_, _ = w.Write(body)
+}
+
+// local points the manifest's base URL in a fixture header value, such as
+// an absolute Link URL, at the fixture server. A base URL with a template
+// stays as it is.
+func (h *Harness) local(v string) string {
+	base := h.Manifest.BaseURL.Raw
+	if base == "" || strings.Contains(base, "{{") {
+		return v
+	}
+	return strings.ReplaceAll(v, base, h.server)
 }
 
 // route is the fixture convention: testdata/<path>.json, or with

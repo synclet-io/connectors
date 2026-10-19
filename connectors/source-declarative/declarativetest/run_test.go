@@ -50,3 +50,44 @@ func TestFixturesMatchTheEscapedPath(t *testing.T) {
 		t.Errorf("records: got %d, want 2", n)
 	}
 }
+
+const linkManifest = `version: 1
+connector: {name: source-links}
+base_url: https://api.example.com/v1/
+spec: {properties: {}}
+auth: {type: none}
+check: {stream: items}
+streams:
+  - name: items
+    path: items
+    primary_key: [id]
+    records: {}
+    pagination: {type: link}
+    schema: {type: object, properties: {id: {type: integer}}}
+`
+
+func TestAbsoluteLinksOnTheBaseURLReachTheFixtureServer(t *testing.T) {
+	dir := filepath.Join(t.TempDir(), "source-links")
+	write := func(name, body string) {
+		p := filepath.Join(dir, filepath.FromSlash(name))
+		if err := os.MkdirAll(filepath.Dir(p), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(p, []byte(body), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	write("manifest.yaml", linkManifest)
+	write("testdata/items.json", `[{"id": 1}]`)
+	write("testdata/items.headers.json", `{"Link": "<https://api.example.com/v1/lists/7/items?page=2>; rel=\"next\""}`)
+	write("testdata/lists/7/items/page=2.json", `[{"id": 2}]`)
+
+	h := New(t, Suite{Dir: dir, Config: json.RawMessage(`{}`)})
+	out := h.Read(t, h.Catalog(t, synclet.SyncModeFullRefresh), nil)
+	if out.Err != nil {
+		t.Fatalf("read: %v", out.Err)
+	}
+	if n := len(out.Records(synclet.StreamDescriptor{Name: "items"})); n != 2 {
+		t.Errorf("records: got %d, want 2", n)
+	}
+}
