@@ -3,6 +3,7 @@ package sourcechargebee
 import (
 	"context"
 	"encoding/json"
+	"maps"
 	"net/url"
 	"slices"
 	"strings"
@@ -130,20 +131,63 @@ func TestIncrementalResume(t *testing.T) {
 			if got := q.Get("updated_at[after]"); got != "1767396400" {
 				t.Errorf("%s: updated_at[after]=%q, want the saved 1767400000 minus the 1h lookback, 1767396400", st.Name, got)
 			}
-			if got := q.Get("include_deleted"); got != "true" {
-				t.Errorf("%s: include_deleted=%q, want true", st.Name, got)
-			}
-			if got := q.Get("sort_by[asc]"); got != "updated_at" {
-				t.Errorf("%s: sort_by[asc]=%q, want updated_at", st.Name, got)
-			}
 		}
 		recs := out.Records(synclet.StreamDescriptor{Name: st.Name})
 		got := ids(t, recs)
 		if len(got) != 2 {
 			t.Errorf("%s: resumed read emitted %v, want the 2 records updated at or after 1767396400", st.Name, got)
 		}
-		if !slices.ContainsFunc(recs, deleted(t)) {
+		if want := wantDeleted[st.Name]; want != nil && !slices.ContainsFunc(recs, want(t)) {
 			t.Errorf("%s: resumed read emitted no deleted object", st.Name)
+		}
+	}
+}
+
+// wantDeleted says how each stream's deleted objects arrive; items and
+// item_prices lists return none.
+var wantDeleted = map[string]func(*testing.T) func(synclet.RecordMessage) bool{
+	"customers":     deleted,
+	"subscriptions": deleted,
+	"invoices":      deleted,
+	"credit_notes":  deleted,
+	"transactions":  deleted,
+	"coupons":       statusDeleted,
+}
+
+func TestStreamParams(t *testing.T) {
+	want := map[string]url.Values{
+		"customers":     {"sort_by[asc]": {"updated_at"}, "include_deleted": {"true"}},
+		"subscriptions": {"sort_by[asc]": {"updated_at"}, "include_deleted": {"true"}},
+		"invoices":      {"sort_by[asc]": {"updated_at"}, "include_deleted": {"true"}},
+		"credit_notes":  {"sort_by[asc]": {"date"}, "include_deleted": {"true"}},
+		"transactions":  {"sort_by[asc]": {"updated_at"}, "include_deleted": {"true"}},
+		"items":         {"sort_by[asc]": {"updated_at"}},
+		"item_prices":   {"sort_by[asc]": {"updated_at"}},
+		"coupons":       {"sort_by[asc]": {"created_at"}},
+	}
+	reqs := &requests{seen: map[string][]url.Values{}}
+	h := declarativetest.New(t, declarativetest.Suite{Config: config, Auth: auth, Now: now, Route: reqs.route})
+	out := h.Read(t, h.Catalog(t, synclet.SyncModeIncremental), nil)
+	if out.Err != nil {
+		t.Fatalf("read: %v", out.Err)
+	}
+	if len(want) != len(h.Manifest.Streams) {
+		t.Fatalf("%d streams, want params for %d", len(h.Manifest.Streams), len(want))
+	}
+	for name, w := range want {
+		w.Set("limit", "100")
+		w.Set("updated_at[after]", "1767225600")
+		qs := reqs.seen[name]
+		if len(qs) == 0 {
+			t.Errorf("%s: no request", name)
+			continue
+		}
+		for _, q := range qs {
+			q = maps.Clone(q)
+			delete(q, "offset")
+			if got := q.Encode(); got != w.Encode() {
+				t.Errorf("%s: query %s, want %s", name, got, w.Encode())
+			}
 		}
 	}
 }
@@ -185,5 +229,17 @@ func deleted(t *testing.T) func(synclet.RecordMessage) bool {
 			t.Fatal(err)
 		}
 		return v.Deleted
+	}
+}
+
+func statusDeleted(t *testing.T) func(synclet.RecordMessage) bool {
+	return func(r synclet.RecordMessage) bool {
+		var v struct {
+			Status string `json:"status"`
+		}
+		if err := json.Unmarshal(r.Data, &v); err != nil {
+			t.Fatal(err)
+		}
+		return v.Status == "deleted"
 	}
 }

@@ -1,7 +1,7 @@
 {
   "changelogUrl": "",
   "connectionSpecification": {
-    "description": "Reads customers, subscriptions, invoices, credit notes, transactions, items, item prices and coupons from the Chargebee API v2, deleted objects included.",
+    "description": "Reads customers, subscriptions, invoices, credit notes, transactions, items, item prices and coupons from the Chargebee API v2.",
     "properties": {
       "site": {
         "description": "The site name, the subdomain of <site>.chargebee.com.",

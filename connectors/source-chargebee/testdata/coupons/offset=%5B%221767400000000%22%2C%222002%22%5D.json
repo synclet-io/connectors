@@ -9,7 +9,7 @@
         "discount_percentage": 30,
         "discount_amount": null,
         "duration_type": "forever",
-        "status": "archived",
+        "status": "deleted",
         "apply_on": "invoice_amount",
         "created_at": 1767413600,
         "updated_at": 1767500000,

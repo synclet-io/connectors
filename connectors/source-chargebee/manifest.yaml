@@ -6,7 +6,7 @@ connector:
 base_url: https://{{ config.site }}.chargebee.com/api/v2/
 spec:
   title: Chargebee Source Spec
-  description: Reads customers, subscriptions, invoices, credit notes, transactions, items, item prices and coupons from the Chargebee API v2, deleted objects included.
+  description: Reads customers, subscriptions, invoices, credit notes, transactions, items, item prices and coupons from the Chargebee API v2.
   required: [site, site_api_key, start_date]
   properties:
     site:         {type: string, title: Site, description: "The site name, the subdomain of <site>.chargebee.com.", pattern: "^[a-z0-9][a-z0-9-]*$", examples: ["example-test"], order: 0}
@@ -15,12 +15,11 @@ spec:
 auth: {type: basic, username: "{{ config.site_api_key }}", password: ""}
 errors: {message: $.message}
 check: {stream: customers}
-params: {"sort_by[asc]": updated_at, include_deleted: "true"}
 streams:
   - &list
     name: customers
     path: customers
-    params: {"updated_at[after]": "{{ since }}"}
+    params: {"sort_by[asc]": updated_at, include_deleted: "true", "updated_at[after]": "{{ since }}"}
     primary_key: [id]
     schema: schemas/customers.json
     records: {path: "$.list[*].customer"}
@@ -39,6 +38,7 @@ streams:
   - <<: *list
     name: credit_notes
     path: credit_notes
+    params: {"sort_by[asc]": date, include_deleted: "true", "updated_at[after]": "{{ since }}"}
     schema: schemas/credit_notes.json
     records: {path: "$.list[*].credit_note"}
   - <<: *list
@@ -49,15 +49,18 @@ streams:
   - <<: *list
     name: items
     path: items
+    params: &catalog {"sort_by[asc]": updated_at, "updated_at[after]": "{{ since }}"}
     schema: schemas/items.json
     records: {path: "$.list[*].item"}
   - <<: *list
     name: item_prices
     path: item_prices
+    params: *catalog
     schema: schemas/item_prices.json
     records: {path: "$.list[*].item_price"}
   - <<: *list
     name: coupons
     path: coupons
+    params: {"sort_by[asc]": created_at, "updated_at[after]": "{{ since }}"}
     schema: schemas/coupons.json
     records: {path: "$.list[*].coupon"}
