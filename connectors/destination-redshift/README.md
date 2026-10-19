@@ -124,24 +124,31 @@ Values are put in canonical form before staging, so `COPY` never has to round, c
 
 - A `number` is accepted only when `DOUBLE PRECISION` holds it exactly as written. The nearest
   float64 must print back as the same decimal value: `41.25`, `0.30000000000000004` and `1e-30`
-  pass, while `0.912345678901234567890` fails the record.
+  pass. `0.912345678901234567890` fails the sync, with an error that names the stream, the record's
+  position in the stream and the column. `DECIMAL(38,9)` is not used instead, since it would round.
+- `BIGINT` takes a number that is an exact integer in any notation, such as `1.0` or `1e3`. A
+  fraction or a value outside the `BIGINT` range fails.
 - `NUMERIC(38,0)` takes integers of at most 38 digits.
 - Timestamps and times are parsed in Go.
   - Up to 6 fractional digits are kept, and a non-zero 7th or later digit fails.
   - A `TIMESTAMPTZ` is converted to UTC. A value without a zone is read as UTC.
   - A zone in a `TIMESTAMP` or `TIME` value fails.
-- `SUPER` values are compacted JSON.
+- `SUPER` values are compacted JSON. Numbers keep the text the source wrote.
 
 ### Strings over 65535 bytes
 
 `VARCHAR(65535)` is Redshift's largest string column (Airbyte
-[#14441](https://github.com/airbytehq/airbyte/issues/14441)). A longer string does not fail the load:
+[#14441](https://github.com/airbytehq/airbyte/issues/14441)), and a string inside a `SUPER` value
+holds at most 65535 bytes too ([SUPER limitations](https://docs.aws.amazon.com/redshift/latest/dg/limitations-super.html)).
+`COPY`'s `TRUNCATECOLUMNS` does not apply to `SUPER`. A longer string, in a `VARCHAR` column or
+anywhere in a `SUPER` value, does not fail the load:
 
 - It is cut to the longest UTF-8 prefix of at most 65535 bytes.
 - The record's `_airbyte_meta` gets
-  `{"field":"<name>","change":"TRUNCATED","reason":"DESTINATION_FIELD_SIZE_LIMITATION"}` in
-  `changes`.
-- The sync logs one warning per stream with the count and the fields.
+  `{"field":"<path>","change":"TRUNCATED","reason":"DESTINATION_FIELD_SIZE_LIMITATION"}` in
+  `changes`. The path is the column name, followed by `.key` and `[index]` steps for a string
+  inside a `SUPER` value, as in `payload.items[0].body`.
+- The sync logs one warning per stream with the count and the paths.
 
 To find the truncated rows, use `WHERE _airbyte_meta.changes[0] IS NOT NULL`.
 
@@ -174,7 +181,7 @@ below.
     no `WHEN MATCHED AND …`.
   - **No cursor.** The latest record wins.
   - **Key and cursor fields.** They must be top-level scalar fields. A `SUPER` field cannot be
-    compared, and a `NULL` key fails its record.
+    compared, and a `NULL` key fails the sync.
 
 ## Batching and state
 
@@ -198,13 +205,15 @@ names the stream, the record's position in the stream and the column. These caus
 - `\u0000` in a `VARCHAR` value;
 - a string that is not valid UTF-8 or holds a lone UTF-16 surrogate;
 - a value equal to the staging NULL marker `__synclet_null__`;
+- a `SUPER` value over 16 MB, the largest Redshift holds (`SUPER value is larger than 16 MB`);
 - a CSV row over 4 MiB, the largest row `COPY` loads;
 - a `NULL` primary key in `append_dedup`;
 - a changed column type;
 - a record of a stream that is not in the catalog.
 
 When `COPY` itself rejects a row, the connector rolls back and reads `sys_load_error_detail`. It then
-reports the record and the column Redshift names.
+reports the record whose CSV row spans the line Redshift names, counting the lines of quoted values
+that hold a newline, and the column.
 
 On failure:
 

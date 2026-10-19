@@ -58,6 +58,16 @@ func TestEncodeValue(t *testing.T) {
 		{typ: colBigint, raw: `"42"`, want: "42"},
 		{typ: colBigint, raw: `9223372036854775808`, err: "outside the BIGINT range"},
 		{typ: colBigint, raw: `1.5`, err: "is not an integer"},
+		{typ: colBigint, raw: `1.0`, want: "1"},
+		{typ: colBigint, raw: `1e3`, want: "1000"},
+		{typ: colBigint, raw: `-2.50E1`, want: "-25"},
+		{typ: colBigint, raw: `"12.000"`, want: "12"},
+		{typ: colBigint, raw: `1.25e1`, err: "is not an integer"},
+		{typ: colBigint, raw: `1e-3`, err: "is not an integer"},
+		{typ: colBigint, raw: `1e19`, err: "outside the BIGINT range"},
+		{typ: colBigint, raw: `1e999999999999`, err: "outside the BIGINT range"},
+		{typ: colBigint, raw: `0e999999999999`, want: "0"},
+		{typ: colBigint, raw: `"1e"`, err: "is not an integer"},
 		{typ: colNumeric, raw: `"12345678901234567890123456789012345678"`, want: "12345678901234567890123456789012345678"},
 		{typ: colNumeric, raw: `123456789012345678901234567890123456789`, err: "more than 38 digits"},
 		{typ: colNumeric, raw: `"1.5"`, err: "is not an integer"},
@@ -105,7 +115,7 @@ func TestEncodeValue(t *testing.T) {
 		}
 		require.NoError(t, err, name)
 		assert.Equal(t, c.null, null, name)
-		assert.Equal(t, c.truncated, truncated, name)
+		assert.Equal(t, c.truncated, len(truncated) > 0, name)
 		assert.Equal(t, c.want, val, name)
 	}
 }
@@ -116,6 +126,37 @@ func TestEncodeTruncatesAtRuneBoundary(t *testing.T) {
 	require.NoError(t, err)
 	val, _, truncated, err := encodeValue(colVarchar, raw)
 	require.NoError(t, err)
-	assert.True(t, truncated)
+	assert.Equal(t, []string{""}, truncated)
 	assert.Equal(t, maxVarcharBytes-1, len(val), "the 3-byte rune that crosses the limit is dropped whole")
+}
+
+func TestEncodeSuperTruncatesLongStrings(t *testing.T) {
+	long := strings.Repeat("a", maxVarcharBytes-1) + "€tail"
+	cut := strings.Repeat("a", maxVarcharBytes-1)
+	nested := `{"keep":"<&>","n":1.50,"list":[1,{"s":"` + long + `"}],"d":{"x":"` + long + `"}}`
+	val, null, truncated, err := encodeValue(colSuper, json.RawMessage(nested))
+	require.NoError(t, err)
+	assert.False(t, null)
+	assert.Equal(t, []string{".list[1].s", ".d.x"}, truncated)
+	assert.Equal(t, `{"keep":"<&>","n":1.50,"list":[1,{"s":"`+cut+`"}],"d":{"x":"`+cut+`"}}`, val)
+
+	val, _, truncated, err = encodeValue(colSuper, json.RawMessage(`"`+long+`"`))
+	require.NoError(t, err)
+	assert.Equal(t, []string{""}, truncated)
+	assert.Equal(t, `"`+cut+`"`, val)
+
+	exact := `{"s":"` + strings.Repeat("a", maxVarcharBytes) + `"}`
+	val, _, truncated, err = encodeValue(colSuper, json.RawMessage(exact))
+	require.NoError(t, err)
+	assert.Empty(t, truncated)
+	assert.Equal(t, exact, val)
+}
+
+func TestEncodeSuperTooLarge(t *testing.T) {
+	parts := make([]string, maxSuperBytes/maxVarcharBytes+1)
+	for i := range parts {
+		parts[i] = `"` + strings.Repeat("a", maxVarcharBytes) + `"`
+	}
+	_, _, _, err := encodeValue(colSuper, json.RawMessage("["+strings.Join(parts, ",")+"]"))
+	require.ErrorIs(t, err, errSuperTooLarge)
 }

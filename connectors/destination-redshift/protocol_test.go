@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"strings"
 	"testing"
 
@@ -69,4 +70,25 @@ func TestProtocolWrite(t *testing.T) {
 	assert.Contains(t, log, `INSERT INTO "s"."events" (`)
 	assert.Contains(t, log, `MERGE INTO "s"."users" USING "_synclet_dedup_1" AS src ON "s"."users"."id" = src."id"`)
 	assert.Contains(t, log, `ALTER TABLE "s"."_synclet_tmp_rates" RENAME TO "rates"`)
+}
+
+// TestProtocolWriteFailedSwap fails the overwrite swap: the overwrite
+// stream's state stays unechoed while the others' are echoed.
+func TestProtocolWriteFailedSwap(t *testing.T) {
+	m := startMinio(t)
+	bucket := m.newBucket(t)
+	r := &recorder{fail: func(sql string) error {
+		if strings.HasPrefix(sql, "ALTER TABLE") {
+			return errors.New("swap failed")
+		}
+		return nil
+	}}
+	out := runWriteRaw(t, recordingDestination(m, r), m.destConfig(bucket),
+		readTestdata(t, "protocol_catalog.json"), readTestdata(t, "protocol_messages.jsonl"))
+	require.Error(t, out.Err)
+	var got []string
+	for _, st := range out.States() {
+		got = append(got, st.Stream.StreamDescriptor.Name)
+	}
+	assert.Equal(t, []string{"events", "users"}, got)
 }

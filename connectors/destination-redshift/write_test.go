@@ -142,7 +142,7 @@ func TestWriteValueThatDoesNotFit(t *testing.T) {
 		{`{"x": 0.912345678901234567890}`, `stream "nums": record 1: column "x": value 0.912345678901234567890 has more precision than DOUBLE PRECISION`},
 		{`{"n": 99999999999999999999}`, `stream "nums": record 1: column "n": value 99999999999999999999 is outside the BIGINT range`},
 		{`{"s": "__synclet_null__"}`, `stream "nums": record 1: column "s": value equals the staging NULL marker`},
-		{`{"o": {"k": "` + strings.Repeat("ü", 2_200_000) + `"}}`, `stream "nums": record 1: row is larger than 4 MiB`},
+		{`{"o": {"k": ["` + strings.Repeat(strings.Repeat("a", 60000)+`","`, 80) + `"]}}`, `stream "nums": record 1: row is larger than 4 MiB`},
 	} {
 		r := &recorder{}
 		out := runWrite(t, recordingDestination(m, r), m.destConfig(bucket), []synclet.ConfiguredStream{s}, rec("nums", c.data), state("nums", `1`))
@@ -427,4 +427,125 @@ func TestStateHeldUntilSwap(t *testing.T) {
 	assert.Contains(t, out.Err.Error(), "swap failed")
 	assert.Equal(t, []string{`"e"`}, stateValues(out), "states of the overwrite stream and GLOBAL states wait for the swap")
 	assert.Len(t, out.States(), 1)
+}
+
+func TestWriteTruncatesLongStringsInSuper(t *testing.T) {
+	m := startMinio(t)
+	bucket := m.newBucket(t)
+	staged := &stagedRows{}
+	r := &recorder{onExec: staged.hook(t, m)}
+	s := stream("docs", `{"type":"object","properties":{"o":{"type":"object"},"u":{}}}`, synclet.DestinationSyncModeAppend, nil, nil)
+	long := strings.Repeat("x", maxVarcharBytes+10)
+	out := runWrite(t, recordingDestination(m, r), m.destConfig(bucket), []synclet.ConfiguredStream{s},
+		rec("docs", `{"o":{"items":[{"body":"`+long+`"}]},"u":"`+long+`"}`))
+	require.NoError(t, out.Err)
+	rows := staged.rows["stage/sync1/docs/1.csv.gz"]
+	require.Len(t, rows, 1)
+	assert.JSONEq(t, `{"changes":[
+		{"field":"o.items[0].body","change":"TRUNCATED","reason":"DESTINATION_FIELD_SIZE_LIMITATION"},
+		{"field":"u","change":"TRUNCATED","reason":"DESTINATION_FIELD_SIZE_LIMITATION"}]}`, rows[0][3])
+	cut := strings.Repeat("x", maxVarcharBytes)
+	assert.Equal(t, `{"items":[{"body":"`+cut+`"}]}`, rows[0][4])
+	assert.Equal(t, `"`+cut+`"`, rows[0][5])
+}
+
+// TestCopyErrorNamesRecordAcrossEmbeddedNewlines maps the physical line
+// sys_load_error_detail reports to the record whose CSV row spans it.
+func TestCopyErrorNamesRecordAcrossEmbeddedNewlines(t *testing.T) {
+	m := startMinio(t)
+	bucket := m.newBucket(t)
+	r := &recorder{
+		fail: func(sql string) error {
+			if strings.HasPrefix(sql, "COPY ") {
+				return &pgconn.PgError{Severity: "ERROR", Code: "XX000", Message: "Load failed."}
+			}
+			return nil
+		},
+		rows: func(sql string) ([][]any, error) {
+			if strings.Contains(sql, "sys_load_error_detail") {
+				return [][]any{{int64(4), "kind", "bad value"}}, nil
+			}
+			return nil, nil
+		},
+	}
+	s := stream("my_events", `{"type":"object","properties":{"id":{"type":"integer"},"kind":{"type":"string"}}}`, synclet.DestinationSyncModeAppend, nil, nil)
+	out := runWrite(t, recordingDestination(m, r), m.destConfig(bucket), []synclet.ConfiguredStream{s},
+		rec("my_events", `{"id":1,"kind":"a\nb\nc"}`), rec("my_events", `{"id":2,"kind":"x"}`), rec("my_events", `{"id":3}`))
+	require.Error(t, out.Err)
+	assert.Contains(t, out.Err.Error(), `stream "my_events": record 2: column "kind": bad value`)
+	var detailQuery string
+	for _, q := range r.queries {
+		if strings.Contains(q, "sys_load_error_detail") {
+			detailQuery = q
+		}
+	}
+	assert.Contains(t, detailQuery, `file_name LIKE '%stage/sync1/my\\_events/1.csv.gz'`)
+}
+
+// swapsAtState records, for each echoed STREAM state, how many tables were
+// renamed into place before it.
+type swapsAtState struct {
+	r   *recorder
+	got []string
+}
+
+func (c *swapsAtState) Write(p []byte) (int, error) {
+	line := string(p)
+	if strings.Contains(line, `"type":"STATE"`) {
+		what := "global"
+		if mm := regexp.MustCompile(`"stream_state":("[^"]*")`).FindStringSubmatch(line); mm != nil {
+			what = mm[1]
+		}
+		renames := 0
+		for _, sql := range c.r.log() {
+			if strings.HasPrefix(sql, "ALTER TABLE") {
+				renames++
+			}
+		}
+		c.got = append(c.got, fmt.Sprintf("%s after %d renames", what, renames))
+	}
+	return len(p), nil
+}
+
+func TestStateEchoedAfterSwap(t *testing.T) {
+	m := startMinio(t)
+	bucket := m.newBucket(t)
+	r := &recorder{}
+	d := recordingDestination(m, r)
+	d.maxRows = 1
+	ow := stream("rates", `{"type":"object","properties":{"code":{"type":"string"}}}`, synclet.DestinationSyncModeOverwrite, nil, nil)
+	ap := stream("events", `{"type":"object","properties":{"id":{"type":"integer"}}}`, synclet.DestinationSyncModeAppend, nil, nil)
+	lines := []string{
+		rec("rates", `{"code":"EUR"}`), state("rates", `"r"`),
+		rec("events", `{"id":1}`), state("events", `"e"`),
+		`{"type":"STATE","state":{"type":"GLOBAL","global":{"shared_state":{"g":1},"stream_states":[]}}}`,
+	}
+	em := &swapsAtState{r: r}
+	err := d.Write(t.Context(), m.destConfig(bucket), &synclet.ConfiguredCatalog{Streams: []synclet.ConfiguredStream{ow, ap}},
+		synclet.NewMessageReader(strings.NewReader(strings.Join(lines, "\n")+"\n")), synclet.NewEmitter(em))
+	require.NoError(t, err)
+	assert.Equal(t, []string{`"e" after 0 renames`, `"r" after 1 renames`, `global after 1 renames`}, em.got)
+}
+
+func TestIsHeld(t *testing.T) {
+	plans, err := planStreams(&synclet.ConfiguredCatalog{Streams: []synclet.ConfiguredStream{
+		stream("rates", `{"type":"object"}`, synclet.DestinationSyncModeOverwrite, nil, nil),
+		stream("events", `{"type":"object"}`, synclet.DestinationSyncModeAppend, nil, nil),
+	}})
+	require.NoError(t, err)
+	w := newWriter(nil, nil, Config{}, nil, Destination{}, "s", plans)
+	streamState := func(name, ns string) synclet.StateMessage {
+		return synclet.StateMessage{Type: synclet.StateTypeStream, Stream: &synclet.StreamState{
+			StreamDescriptor: synclet.StreamDescriptor{Name: name, Namespace: ns}}}
+	}
+	assert.True(t, w.isHeld(streamState("rates", "")))
+	assert.True(t, w.isHeld(streamState("rates", "public")), "a namespace the catalog lacks matches by name")
+	assert.False(t, w.isHeld(streamState("events", "")))
+	assert.False(t, w.isHeld(streamState("events", "public")))
+	assert.True(t, w.isHeld(streamState("other", "")), "a state of no catalog stream may cover the overwrite stream")
+	assert.True(t, w.isHeld(synclet.StateMessage{Type: synclet.StateTypeGlobal}))
+	assert.True(t, w.isHeld(synclet.StateMessage{Type: synclet.StateTypeLegacy}))
+
+	appendOnly := newWriter(nil, nil, Config{}, nil, Destination{}, "s", plans[1:])
+	assert.False(t, appendOnly.isHeld(synclet.StateMessage{Type: synclet.StateTypeGlobal}))
 }

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"math/big"
 	"regexp"
 	"strconv"
@@ -35,6 +36,12 @@ const (
 // maxVarcharBytes is the largest VARCHAR Redshift has; longer strings are
 // truncated and the truncation is recorded in _airbyte_meta.
 const maxVarcharBytes = 65535
+
+// maxSuperBytes is the largest SUPER value Redshift holds.
+const maxSuperBytes = 16_000_000
+
+// errSuperTooLarge is the error of a SUPER value over maxSuperBytes.
+var errSuperTooLarge = errors.New("SUPER value is larger than 16 MB, the most Redshift holds")
 
 // maxNumericDigits is the precision of NUMERIC(38,0).
 const maxNumericDigits = 38
@@ -138,20 +145,20 @@ var (
 // of type t; null reports a JSON null and truncated a VARCHAR value cut to
 // maxVarcharBytes. Every other value Redshift could not hold as given is an
 // error, so COPY never rounds, truncates or reinterprets a value.
-func encodeValue(t colType, raw json.RawMessage) (val string, null, truncated bool, err error) {
+func encodeValue(t colType, raw json.RawMessage) (val string, null bool, truncated []string, err error) {
 	raw = bytes.TrimSpace(raw)
 	if len(raw) == 0 || string(raw) == "null" {
-		return "", true, false, nil
+		return "", true, nil, nil
 	}
 	isString := raw[0] == '"'
 	var s string
 	if isString {
 		if err := json.Unmarshal(raw, &s); err != nil {
-			return "", false, false, fmt.Errorf("invalid JSON string: %w", err)
+			return "", false, nil, fmt.Errorf("invalid JSON string: %w", err)
 		}
 	}
 	if badUnicode(raw) {
-		return "", false, false, errors.New("value is not valid UTF-8 (invalid bytes or a lone UTF-16 surrogate)")
+		return "", false, nil, errors.New("value is not valid UTF-8 (invalid bytes or a lone UTF-16 surrogate)")
 	}
 	text := s
 	if !isString {
@@ -159,63 +166,59 @@ func encodeValue(t colType, raw json.RawMessage) (val string, null, truncated bo
 	}
 	switch t {
 	case colSuper:
-		var b bytes.Buffer
-		if err := json.Compact(&b, raw); err != nil {
-			return "", false, false, fmt.Errorf("invalid JSON: %w", err)
-		}
-		return b.String(), false, false, nil
+		return encodeSuper(raw)
 	case colBoolean:
 		switch strings.ToLower(text) {
 		case "true":
-			return "true", false, false, nil
+			return "true", false, nil, nil
 		case "false":
-			return "false", false, false, nil
+			return "false", false, nil, nil
 		}
-		return "", false, false, fmt.Errorf("value %s is not a boolean", raw)
+		return "", false, nil, fmt.Errorf("value %s is not a boolean", raw)
 	case colBigint:
-		if !integerText.MatchString(text) {
-			return "", false, false, fmt.Errorf("value %s is not an integer", raw)
+		n, ok, err := exactInteger(text, 19)
+		if err != nil {
+			return "", false, nil, fmt.Errorf("value %s %w", raw, err)
 		}
-		if _, err := strconv.ParseInt(text, 10, 64); err != nil {
-			return "", false, false, fmt.Errorf("value %s is outside the BIGINT range", raw)
+		if !ok {
+			return "", false, nil, fmt.Errorf("value %s is outside the BIGINT range", raw)
 		}
-		return text, false, false, nil
+		if _, err := strconv.ParseInt(n, 10, 64); err != nil {
+			return "", false, nil, fmt.Errorf("value %s is outside the BIGINT range", raw)
+		}
+		return n, false, nil, nil
 	case colNumeric:
 		if !integerText.MatchString(text) {
-			return "", false, false, fmt.Errorf("value %s is not an integer", raw)
+			return "", false, nil, fmt.Errorf("value %s is not an integer", raw)
 		}
 		if len(strings.TrimLeft(strings.TrimPrefix(text, "-"), "0")) > maxNumericDigits {
-			return "", false, false, fmt.Errorf("value %s has more than %d digits, which NUMERIC(38,0) cannot hold", raw, maxNumericDigits)
+			return "", false, nil, fmt.Errorf("value %s has more than %d digits, which NUMERIC(38,0) cannot hold", raw, maxNumericDigits)
 		}
-		return text, false, false, nil
+		return text, false, nil, nil
 	case colDouble:
 		return encodeDouble(raw, text)
 	case colVarchar:
 		if strings.ContainsRune(text, 0) {
-			return "", false, false, errors.New(`value contains \u0000, which VARCHAR cannot hold`)
+			return "", false, nil, errors.New(`value contains \u0000, which VARCHAR cannot hold`)
 		}
 		if len(text) <= maxVarcharBytes {
-			return text, false, false, nil
+			return text, false, nil, nil
 		}
-		cut := maxVarcharBytes
-		for cut > 0 && !utf8.RuneStart(text[cut]) {
-			cut--
-		}
-		return text[:cut], false, true, nil
+		return cutUTF8(text, maxVarcharBytes), false, []string{""}, nil
 	}
 	if !isString {
-		return "", false, false, fmt.Errorf("value %s is not a string", raw)
+		return "", false, nil, fmt.Errorf("value %s is not a string", raw)
 	}
 	switch t {
 	case colDate:
 		if !dateText.MatchString(s) {
-			return "", false, false, fmt.Errorf("value %s is not a date (YYYY-MM-DD)", raw)
+			return "", false, nil, fmt.Errorf("value %s is not a date (YYYY-MM-DD)", raw)
 		}
 		d, err := time.Parse(time.DateOnly, s)
 		if err != nil || d.Year() < 1 {
-			return "", false, false, fmt.Errorf("value %s is not a date (YYYY-MM-DD)", raw)
+			return "", false, nil, fmt.Errorf("value %s is not a date (YYYY-MM-DD)", raw)
 		}
-		return s, false, false, nil
+		return s, false, nil, nil
 	case colTimestamptz, colTimestamp:
 		return encodeTimestamp(t, raw, s)
 	default:
@@ -223,30 +226,210 @@ func encodeValue(t colType, raw json.RawMessage) (val string, null, truncated bo
 	}
 }
 
+// errNotInteger is the error of a value that is not a number or has a
+// fractional part.
+var errNotInteger = errors.New("is not an integer")
+
+// exactInteger returns the integer a JSON number text denotes, in any
+// notation, as canonical decimal digits. A fraction or a text that is not a
+// number is errNotInteger; ok is false when the integer has more than
+// maxDigits digits.
+func exactInteger(text string, maxDigits int) (n string, ok bool, err error) {
+	if !numberText.MatchString(text) {
+		return "", false, errNotInteger
+	}
+	neg := strings.HasPrefix(text, "-")
+	text = strings.TrimPrefix(text, "-")
+	mantissa, expText, hasExp := strings.Cut(strings.ToLower(text), "e")
+	whole, frac, _ := strings.Cut(mantissa, ".")
+	digits := strings.TrimLeft(whole+frac, "0")
+	if digits == "" {
+		return "0", true, nil
+	}
+	exp := -len(frac)
+	if hasExp {
+		e, err := strconv.Atoi(expText)
+		if err != nil {
+			if strings.HasPrefix(expText, "-") {
+				return "", false, errNotInteger
+			}
+			return "", false, nil
+		}
+		exp += e
+	}
+	if exp < 0 {
+		if -exp > len(digits) || strings.Trim(digits[len(digits)+exp:], "0") != "" {
+			return "", false, errNotInteger
+		}
+		digits = digits[:len(digits)+exp]
+		exp = 0
+	}
+	if len(digits)+exp > maxDigits {
+		return "", false, nil
+	}
+	n = digits + strings.Repeat("0", exp)
+	if neg {
+		n = "-" + n
+	}
+	return n, true, nil
+}
+
+// cutUTF8 returns the longest prefix of s of at most max bytes that ends
+// on a rune boundary.
+func cutUTF8(s string, max int) string {
+	if len(s) <= max {
+		return s
+	}
+	cut := max
+	for cut > 0 && !utf8.RuneStart(s[cut]) {
+		cut--
+	}
+	return s[:cut]
+}
+
+// encodeSuper renders a JSON value as compacted JSON for a SUPER column.
+// Every string over maxVarcharBytes, the most a string in a SUPER value
+// holds, is cut at a rune boundary; truncated lists the path of each, ""
+// for the value itself, then ".key" and "[index]" steps. A value over
+// maxSuperBytes is errSuperTooLarge.
+func encodeSuper(raw json.RawMessage) (string, bool, []string, error) {
+	var b bytes.Buffer
+	if err := json.Compact(&b, raw); err != nil {
+		return "", false, nil, fmt.Errorf("invalid JSON: %w", err)
+	}
+	if b.Len() <= maxVarcharBytes+2 {
+		return b.String(), false, nil, nil
+	}
+	val, truncated, err := cutSuperStrings(b.Bytes())
+	if err != nil {
+		return "", false, nil, err
+	}
+	if len(val) > maxSuperBytes {
+		return "", false, nil, fmt.Errorf("%w (%d bytes)", errSuperTooLarge, len(val))
+	}
+	return val, false, truncated, nil
+}
+
+// superFrame is an open object or array while a SUPER value is rewritten.
+type superFrame struct {
+	object bool
+	n      int
+	key    string
+	isKey  bool
+}
+
+// cutSuperStrings rewrites compact JSON token by token, keeping numbers
+// as written and keys in order, and cuts each string over
+// maxVarcharBytes.
+func cutSuperStrings(compact []byte) (string, []string, error) {
+	dec := json.NewDecoder(bytes.NewReader(compact))
+	dec.UseNumber()
+	var out bytes.Buffer
+	var stack []*superFrame
+	var truncated []string
+	path := func() string {
+		var p strings.Builder
+		for _, f := range stack {
+			if f.object {
+				p.WriteString("." + f.key)
+			} else {
+				p.WriteString("[" + strconv.Itoa(f.n) + "]")
+			}
+		}
+		return p.String()
+	}
+	next := func() {
+		if len(stack) == 0 {
+			return
+		}
+		top := stack[len(stack)-1]
+		top.n++
+		top.isKey = top.object
+	}
+	for {
+		tok, err := dec.Token()
+		if errors.Is(err, io.EOF) {
+			break
+		}
+		if err != nil {
+			return "", nil, fmt.Errorf("invalid JSON: %w", err)
+		}
+		if d, ok := tok.(json.Delim); ok && (d == '}' || d == ']') {
+			out.WriteByte(byte(d))
+			stack = stack[:len(stack)-1]
+			next()
+			continue
+		}
+		var top *superFrame
+		if len(stack) > 0 {
+			top = stack[len(stack)-1]
+			if top.n > 0 && (top.isKey || !top.object) {
+				out.WriteByte(',')
+			}
+		}
+		if top != nil && top.isKey {
+			key, _ := tok.(string)
+			writeJSONString(&out, key)
+			out.WriteByte(':')
+			top.key, top.isKey = key, false
+			continue
+		}
+		switch v := tok.(type) {
+		case json.Delim:
+			out.WriteByte(byte(v))
+			stack = append(stack, &superFrame{object: v == '{', isKey: v == '{'})
+			continue
+		case string:
+			if len(v) > maxVarcharBytes {
+				v = cutUTF8(v, maxVarcharBytes)
+				truncated = append(truncated, path())
+			}
+			writeJSONString(&out, v)
+		case json.Number:
+			out.WriteString(v.String())
+		case bool:
+			out.WriteString(strconv.FormatBool(v))
+		case nil:
+			out.WriteString("null")
+		}
+		next()
+	}
+	return out.String(), truncated, nil
+}
+
+// writeJSONString appends s as a JSON string without escaping HTML
+// characters.
+func writeJSONString(b *bytes.Buffer, s string) {
+	enc := json.NewEncoder(b)
+	enc.SetEscapeHTML(false)
+	_ = enc.Encode(s)
+	b.Truncate(b.Len() - 1)
+}
+
 // encodeDouble accepts a number only when the float64 nearest to it prints
 // back as the same decimal value, so DOUBLE PRECISION holds it exactly as
 // the source wrote it.
-func encodeDouble(raw json.RawMessage, text string) (string, bool, bool, error) {
+func encodeDouble(raw json.RawMessage, text string) (string, bool, []string, error) {
 	if !numberText.MatchString(text) {
-		return "", false, false, fmt.Errorf("value %s is not a number", raw)
+		return "", false, nil, fmt.Errorf("value %s is not a number", raw)
 	}
 	f, err := strconv.ParseFloat(text, 64)
 	if err != nil {
-		return "", false, false, fmt.Errorf("value %s is outside the DOUBLE PRECISION range", raw)
+		return "", false, nil, fmt.Errorf("value %s is outside the DOUBLE PRECISION range", raw)
 	}
 	out := strconv.FormatFloat(f, 'g', -1, 64)
 	want, ok1 := new(big.Rat).SetString(text)
 	got, ok2 := new(big.Rat).SetString(out)
 	if !ok1 || !ok2 || want.Cmp(got) != 0 {
-		return "", false, false, fmt.Errorf("value %s has more precision than DOUBLE PRECISION, which cannot hold it exactly (nearest is %s)", raw, out)
+		return "", false, nil, fmt.Errorf("value %s has more precision than DOUBLE PRECISION, which cannot hold it exactly (nearest is %s)", raw, out)
 	}
-	return out, false, false, nil
+	return out, false, nil, nil
 }
 
-func encodeTimestamp(t colType, raw json.RawMessage, s string) (string, bool, bool, error) {
+func encodeTimestamp(t colType, raw json.RawMessage, s string) (string, bool, []string, error) {
 	m := tsText.FindStringSubmatch(s)
 	if m == nil {
-		return "", false, false, fmt.Errorf("value %s is not a timestamp (YYYY-MM-DDTHH:MM:SS[.ffffff][zone])", raw)
+		return "", false, nil, fmt.Errorf("value %s is not a timestamp (YYYY-MM-DDTHH:MM:SS[.ffffff][zone])", raw)
 	}
 	clock := m[2]
 	if len(clock) == 5 {
@@ -254,64 +437,64 @@ func encodeTimestamp(t colType, raw json.RawMessage, s string) (string, bool, bo
 	}
 	frac, err := fraction(raw, m[3])
 	if err != nil {
-		return "", false, false, err
+		return "", false, nil, err
 	}
 	if t == colTimestamp {
 		if m[4] != "" {
-			return "", false, false, fmt.Errorf("value %s carries a time zone, which TIMESTAMP cannot hold", raw)
+			return "", false, nil, fmt.Errorf("value %s carries a time zone, which TIMESTAMP cannot hold", raw)
 		}
 		v, err := time.Parse(time.DateTime, m[1]+" "+clock)
 		if err != nil || v.Year() < 1 {
-			return "", false, false, fmt.Errorf("value %s is not a timestamp: %v", raw, err)
+			return "", false, nil, fmt.Errorf("value %s is not a timestamp: %v", raw, err)
 		}
-		return v.Format(time.DateTime) + frac, false, false, nil
+		return v.Format(time.DateTime) + frac, false, nil, nil
 	}
 	off, err := zoneOffset(m[4])
 	if err != nil {
-		return "", false, false, fmt.Errorf("value %s: %w", raw, err)
+		return "", false, nil, fmt.Errorf("value %s: %w", raw, err)
 	}
 	v, err := time.Parse(time.DateTime, m[1]+" "+clock)
 	if err != nil {
-		return "", false, false, fmt.Errorf("value %s is not a timestamp: %v", raw, err)
+		return "", false, nil, fmt.Errorf("value %s is not a timestamp: %v", raw, err)
 	}
 	v = v.Add(-time.Duration(off) * time.Second)
 	if v.Year() < 1 {
-		return "", false, false, fmt.Errorf("value %s is before year 1", raw)
+		return "", false, nil, fmt.Errorf("value %s is before year 1", raw)
 	}
-	return v.Format(time.DateTime) + frac + "+00", false, false, nil
+	return v.Format(time.DateTime) + frac + "+00", false, nil, nil
 }
 
-func encodeTime(t colType, raw json.RawMessage, s string) (string, bool, bool, error) {
+func encodeTime(t colType, raw json.RawMessage, s string) (string, bool, []string, error) {
 	m := timeText.FindStringSubmatch(s)
 	if m == nil {
-		return "", false, false, fmt.Errorf("value %s is not a time (HH:MM:SS[.ffffff][zone])", raw)
+		return "", false, nil, fmt.Errorf("value %s is not a time (HH:MM:SS[.ffffff][zone])", raw)
 	}
 	clock := m[1]
 	if len(clock) == 5 {
 		clock += ":00"
 	}
 	if _, err := time.Parse(time.TimeOnly, clock); err != nil {
-		return "", false, false, fmt.Errorf("value %s is not a time (HH:MM:SS[.ffffff][zone])", raw)
+		return "", false, nil, fmt.Errorf("value %s is not a time (HH:MM:SS[.ffffff][zone])", raw)
 	}
 	frac, err := fraction(raw, m[2])
 	if err != nil {
-		return "", false, false, err
+		return "", false, nil, err
 	}
 	if t == colTime {
 		if m[3] != "" {
-			return "", false, false, fmt.Errorf("value %s carries a time zone, which TIME cannot hold", raw)
+			return "", false, nil, fmt.Errorf("value %s carries a time zone, which TIME cannot hold", raw)
 		}
-		return clock + frac, false, false, nil
+		return clock + frac, false, nil, nil
 	}
 	off, err := zoneOffset(m[3])
 	if err != nil {
-		return "", false, false, fmt.Errorf("value %s: %w", raw, err)
+		return "", false, nil, fmt.Errorf("value %s: %w", raw, err)
 	}
 	sign := '+'
 	if off < 0 {
 		sign, off = '-', -off
 	}
-	return fmt.Sprintf("%s%s%c%02d:%02d", clock, frac, sign, off/3600, off%3600/60), false, false, nil
+	return fmt.Sprintf("%s%s%c%02d:%02d", clock, frac, sign, off/3600, off%3600/60), false, nil, nil
 }
 
 // fraction returns the fractional seconds as ".dddddd" without trailing

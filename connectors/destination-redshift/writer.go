@@ -30,12 +30,15 @@ const (
 // altering it; the writer only stages values the column holds exactly.
 const copyOptions = "FORMAT AS CSV GZIP NULL AS " + "'" + nullMarker + "'" + " DATEFORMAT 'YYYY-MM-DD' TIMEFORMAT 'auto'"
 
-// batch holds the rows of one stream not yet committed, as gzipped CSV, and
-// the position of each row's record in the stream.
+// batch holds the rows of one stream not yet committed, as gzipped CSV, the
+// position of each row's record in the stream and the physical line of the
+// file each row ends on; a quoted value with a newline spans several lines.
 type batch struct {
-	data    bytes.Buffer
-	gz      *gzip.Writer
-	records []int
+	data     bytes.Buffer
+	gz       *gzip.Writer
+	records  []int
+	lastLine []int
+	lines    int
 }
 
 // change is one entry of _airbyte_meta.changes.
@@ -169,8 +172,8 @@ func (w *writer) addRecord(ctx context.Context, r *synclet.RecordMessage) error 
 		if !null && val == nullMarker {
 			return fail("column %q: value equals the staging NULL marker %s", c.name, nullMarker)
 		}
-		if truncated {
-			changes = append(changes, change{Field: c.name, Change: "TRUNCATED", Reason: "DESTINATION_FIELD_SIZE_LIMITATION"})
+		for _, path := range truncated {
+			changes = append(changes, change{Field: c.name + path, Change: "TRUNCATED", Reason: "DESTINATION_FIELD_SIZE_LIMITATION"})
 		}
 		values[i], nulls[i] = val, null
 	}
@@ -212,6 +215,8 @@ func (w *writer) addRecord(ctx context.Context, r *synclet.RecordMessage) error 
 		w.truncated[p.index][ch.Field]++
 	}
 	b.records = append(b.records, pos)
+	b.lines += bytes.Count(row.Bytes(), []byte{'\n'})
+	b.lastLine = append(b.lastLine, b.lines)
 	w.rows++
 	w.size += len(r.Data)
 
@@ -416,8 +421,9 @@ func (w *writer) load(ctx context.Context, f staged) error {
 
 // copyError names the stream, the record and the column of a value COPY
 // rejected, from sys_load_error_detail; the failed transaction is rolled
-// back first so the session can query it. Without a detail row the COPY
-// error is returned as it is.
+// back first so the session can query it. The physical line the detail row
+// names is mapped to the record whose CSV row spans it. Without a detail
+// row the COPY error is returned as it is.
 func (w *writer) copyError(ctx context.Context, p *streamPlan, key string, err error) error {
 	msg := err.Error()
 	var pgErr *pgconn.PgError
@@ -430,7 +436,7 @@ func (w *writer) copyError(ctx context.Context, p *streamPlan, key string, err e
 		return base
 	}
 	rows, qerr := w.w.query(ctx, "SELECT line_number, TRIM(column_name), TRIM(error_message) FROM sys_load_error_detail WHERE file_name LIKE "+
-		literal("%"+key)+" ORDER BY start_time DESC LIMIT 1")
+		literal("%"+likeEscaper.Replace(key))+" ORDER BY start_time DESC LIMIT 1")
 	if qerr != nil || len(rows) != 1 || len(rows[0]) != 3 {
 		return base
 	}
@@ -438,8 +444,8 @@ func (w *writer) copyError(ctx context.Context, p *streamPlan, key string, err e
 	col, detail := fmt.Sprint(rows[0][1]), fmt.Sprint(rows[0][2])
 	b := &w.batches[p.index]
 	where := "a record"
-	if line >= 1 && line <= len(b.records) {
-		where = "record " + strconv.Itoa(b.records[line-1])
+	if i, _ := slices.BinarySearch(b.lastLine, line); line >= 1 && i < len(b.records) {
+		where = "record " + strconv.Itoa(b.records[i])
 	}
 	if orig, ok := p.byIdent[col]; ok {
 		col = orig
@@ -449,6 +455,10 @@ func (w *writer) copyError(ctx context.Context, p *streamPlan, key string, err e
 	}
 	return fmt.Errorf("stream %q: %s: column %q: %s", p.desc.Name, where, col, detail)
 }
+
+// likeEscaper escapes the wildcards of a LIKE pattern for the default
+// escape character.
+var likeEscaper = strings.NewReplacer(`\`, `\\`, `_`, `\_`, `%`, `\%`)
 
 // finish commits the remaining rows, replaces the tables of overwrite
 // streams and echoes the held states.
