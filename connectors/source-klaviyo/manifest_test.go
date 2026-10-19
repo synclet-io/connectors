@@ -3,6 +3,7 @@ package sourceklaviyo
 import (
 	"context"
 	"encoding/json"
+	"maps"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -44,6 +45,14 @@ func (r *requests) route(t *testing.T) func(string, url.Values) string {
 		r.mu.Lock()
 		r.filters[path] = append(r.filters[path], q.Get("filter"))
 		r.mu.Unlock()
+		if path == "profiles" {
+			if got, want := q.Get("additional-fields[profile]"), "subscriptions,predictive_analytics"; got != want {
+				t.Errorf("profiles additional-fields[profile] %q, want %q", got, want)
+			}
+			if got := q.Get("page[size]"); got != "100" {
+				t.Errorf("profiles page[size] %q, want 100", got)
+			}
+		}
 		dir := path
 		if path == "campaigns" {
 			channel, ok := strings.CutPrefix(q.Get("filter"), "equals(messages.channel,'")
@@ -65,6 +74,7 @@ func suite(t *testing.T, r *requests) declarativetest.Suite {
 		Config:        config,
 		BrokenConfig:  brokenConfig,
 		Auth:          declarativetest.Header("Authorization", "Klaviyo-API-Key pk_test_key"),
+		Headers:       map[string]string{"revision": "2025-07-15"},
 		Now:           time.Date(2026, 10, 18, 12, 0, 0, 0, time.UTC),
 		MinPages:      2,
 		RateLimitOnce: true,
@@ -93,10 +103,30 @@ func TestCheckForbidden(t *testing.T) {
 	}
 }
 
+func TestCampaignChannels(t *testing.T) {
+	h := declarativetest.New(t, suite(t, &requests{filters: map[string][]string{}}))
+	out := h.Read(t, h.Catalog(t, synclet.SyncModeFullRefresh, "campaigns"), nil)
+	if out.Err != nil {
+		t.Fatal(out.Err)
+	}
+	want := map[string]string{"TESTC1": "email", "TESTC2": "email", "TESTC3": "sms", "TESTC4": "mobile_push"}
+	got := map[string]string{}
+	for _, rec := range out.Records(synclet.StreamDescriptor{Name: "campaigns"}) {
+		var c struct{ ID, Channel string }
+		if err := json.Unmarshal(rec.Data, &c); err != nil {
+			t.Fatal(err)
+		}
+		got[c.ID] = c.Channel
+	}
+	if !maps.Equal(got, want) {
+		t.Errorf("campaign channels %v, want %v", got, want)
+	}
+}
+
 func TestIncrementalFilter(t *testing.T) {
-	for _, tc := range []struct{ stream, field, top string }{
-		{"profiles", "updated", "2026-03-05T09:15:00+00:00"},
-		{"events", "datetime", "2026-03-05T10:00:00+00:00"},
+	for _, tc := range []struct{ stream, op, field, top string }{
+		{"profiles", "greater-than", "updated", "2026-03-05T09:15:00+00:00"},
+		{"events", "greater-or-equal", "datetime", "2026-03-05T10:00:00+00:00"},
 	} {
 		t.Run(tc.stream, func(t *testing.T) {
 			r := &requests{filters: map[string][]string{}}
@@ -108,7 +138,7 @@ func TestIncrementalFilter(t *testing.T) {
 			if first.Err != nil {
 				t.Fatal(first.Err)
 			}
-			want := "greater-than(" + tc.field + ",2026-01-01T00:00:00Z)"
+			want := tc.op + "(" + tc.field + ",2026-01-01T00:00:00Z)"
 			if got := r.take(tc.stream); len(got) != 2 || got[0] != want || got[1] != want {
 				t.Errorf("first read filters %q, want %q on both pages", got, want)
 			}
@@ -125,7 +155,7 @@ func TestIncrementalFilter(t *testing.T) {
 				t.Fatal(second.Err)
 			}
 			top, _ := time.Parse(time.RFC3339, tc.top)
-			want = "greater-than(" + tc.field + "," + top.Add(-time.Hour).UTC().Format(time.RFC3339) + ")"
+			want = tc.op + "(" + tc.field + "," + top.Add(-time.Hour).UTC().Format(time.RFC3339) + ")"
 			if got := r.take(tc.stream); len(got) == 0 || got[0] != want {
 				t.Errorf("resumed read filters %q, want %q", got, want)
 			}

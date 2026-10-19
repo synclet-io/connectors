@@ -21,6 +21,7 @@ streams:
     params:
       filter: "greater-than(updated,{{ since }})"
       "additional-fields[profile]": "subscriptions,predictive_analytics"
+      "page[size]": "100"
     primary_key: [id]
     schema: schemas/profiles.json
     records: {path: $.data}
@@ -28,7 +29,7 @@ streams:
     incremental: {cursor_field: attributes.updated, cursor_format: rfc3339, start: "{{ config.start_date }}", lookback: 1h}
   - name: events
     path: events
-    params: {filter: "greater-than(datetime,{{ since }})"}
+    params: {filter: "greater-or-equal(datetime,{{ since }})"}
     primary_key: [id]
     schema: schemas/events.json
     records: {path: $.data}
@@ -40,7 +41,7 @@ streams:
     partition: {values: [email, sms, mobile_push]}
     primary_key: [id]
     schema: schemas/campaigns.json
-    records: {path: $.data}
+    records: {path: $.data, add: {channel: "{{ partition.value }}"}}
     pagination: *next
   - {name: flows, path: flows, primary_key: [id], schema: schemas/flows.json, records: {path: $.data}, pagination: *next}
   - {name: lists, path: lists, primary_key: [id], schema: schemas/lists.json, records: {path: $.data}, pagination: *next}

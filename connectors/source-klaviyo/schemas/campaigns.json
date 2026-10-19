@@ -9,6 +9,15 @@
     "id": {
       "type": "string"
     },
+    "channel": {
+      "type": "string",
+      "enum": [
+        "email",
+        "sms",
+        "mobile_push"
+      ],
+      "description": "Channel of the campaign: the `messages.channel` filter it was read with."
+    },
     "attributes": {
       "type": "object",
       "properties": {
