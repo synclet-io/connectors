@@ -27,10 +27,13 @@ jobs:
     outputs:
       connector: ${{ steps.release.outputs.connector }}
       version: ${{ steps.release.outputs.version }}
+      latest: ${{ steps.release.outputs.latest }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: refs/tags/${{ env.TAG }}
+          fetch-depth: 0
+          fetch-tags: true
 
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
@@ -39,13 +42,18 @@ jobs:
       - name: Validate
         run: go run ./scripts validate
 
+      # latest is true only when no other release tag of the connector has a higher version, so re-running
+      # an older tag leaves :latest on the newest release.
       - name: Resolve the tag to a connector
         id: release
         run: |
           RELEASE=$(go run ./scripts release --tag "$TAG")
           echo "$RELEASE" | jq .
-          echo "connector=$(echo "$RELEASE" | jq -r .connector)" >> "$GITHUB_OUTPUT"
-          echo "version=$(echo "$RELEASE" | jq -r .version)" >> "$GITHUB_OUTPUT"
+          {
+            echo "connector=$(echo "$RELEASE" | jq -r .connector)"
+            echo "version=$(echo "$RELEASE" | jq -r .version)"
+            echo "latest=$(echo "$RELEASE" | jq -r .latest)"
+          } >> "$GITHUB_OUTPUT"
 
   image:
     needs: plan
@@ -117,7 +125,7 @@ jobs:
           push: true
           tags: |
             ${{ steps.image.outputs.repo }}:${{ env.VERSION }}
-            ${{ steps.image.outputs.repo }}:latest
+            ${{ needs.plan.outputs.latest == 'true' && format('{0}:latest', steps.image.outputs.repo) || '' }}
           labels: |
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}

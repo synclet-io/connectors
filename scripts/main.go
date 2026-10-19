@@ -2,7 +2,7 @@
 //
 //	go run ./scripts validate
 //	go run ./scripts registry [--image-prefix ghcr.io/org/repo] [--out dist/registry.json] [--released]
-//	go run ./scripts release --tag <dir>-v<version>   # JSON {connector, version, tag}; fails unless meta.json has that version
+//	go run ./scripts release --tag <dir>-v<version>   # JSON {connector, version, tag, latest}; fails unless meta.json has that version
 //	go run ./scripts entry --connector <dir> [--image-prefix ghcr.io/org/repo]   # one registry entry as JSON
 //	go run ./scripts changed --base <git-ref>   # JSON list of connectors touched since <git-ref>
 //
@@ -110,32 +110,59 @@ func writeRegistry(root, imagePrefix, out string, released bool) error {
 	return nil
 }
 
-// release resolves a <dir>-v<version> tag to its connector and fails when the
-// connector's meta.json does not declare that version, so a tag can only
-// release the code it points at.
-func release(root, tag string) error {
-	if tag == "" {
-		return errors.New("--tag is required")
-	}
+// Release is a <dir>-v<version> tag resolved to its connector. Latest is true when
+// no other release tag of the connector has a higher version.
+type Release struct {
+	Connector string `json:"connector"`
+	Version   string `json:"version"`
+	Tag       string `json:"tag"`
+	Latest    bool   `json:"latest"`
+}
 
-	connectors, err := loadConnectors(root)
+func release(root, tag string) error {
+	r, err := resolveRelease(root, tag)
 	if err != nil {
 		return err
 	}
 
+	return printJSON(r)
+}
+
+// resolveRelease fails when the connector's meta.json does not declare the
+// tag's version, so a tag can only release the code it points at.
+func resolveRelease(root, tag string) (Release, error) {
+	if tag == "" {
+		return Release{}, errors.New("--tag is required")
+	}
+
+	connectors, err := loadConnectors(root)
+	if err != nil {
+		return Release{}, err
+	}
+
 	for _, c := range connectors {
-		if c.ReleaseTag() == tag {
-			return printJSON(map[string]string{"connector": c.Dir, "version": c.Meta.Version, "tag": tag})
+		if c.ReleaseTag() != tag {
+			continue
 		}
+
+		out, err := git(root, "tag", "--list", c.Dir+"-v*")
+		if err != nil {
+			return Release{}, err
+		}
+
+		versions := releasedVersions(strings.Fields(out), c.Dir)
+		latest := len(versions) > 0 && versions[0] == c.Meta.Version
+
+		return Release{Connector: c.Dir, Version: c.Meta.Version, Tag: tag, Latest: latest}, nil
 	}
 
 	for _, c := range connectors {
 		if strings.HasPrefix(tag, c.Dir+"-v") {
-			return fmt.Errorf("tag %s does not match %s/meta.json version %s", tag, c.Dir, c.Meta.Version)
+			return Release{}, fmt.Errorf("tag %s does not match %s/meta.json version %s", tag, c.Dir, c.Meta.Version)
 		}
 	}
 
-	return fmt.Errorf("tag %s matches no connector directory", tag)
+	return Release{}, fmt.Errorf("tag %s matches no connector directory", tag)
 }
 
 func entry(root, dir, imagePrefix string) error {

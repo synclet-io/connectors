@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/santhosh-tekuri/jsonschema/v6"
 )
 
 // imageChecker reports whether repo:tag can be pulled without credentials.
@@ -17,7 +19,8 @@ type imageChecker func(repo, tag string) (bool, error)
 // loadReleased returns, for every connector directory, the connector as of its
 // newest <dir>-v<version> tag whose image is published. A tag whose image is not
 // pullable yet (its release is still running, or failed) is skipped in favour of
-// the previous one; a connector with no published tag is left out.
+// the previous one, and so is a tag whose files are invalid; a connector with no
+// published tag is left out.
 func loadReleased(root, imagePrefix string, published imageChecker) ([]Connector, error) {
 	schema, err := compileSchema(root)
 	if err != nil {
@@ -55,9 +58,11 @@ func loadReleased(root, imagePrefix string, published imageChecker) ([]Connector
 
 			tag := dir + "-v" + v
 
-			c, err := parseConnector(dir, schema, tagReader(root, tag, dir))
+			c, err := parseReleased(root, tag, dir, schema)
 			if err != nil {
-				return nil, fmt.Errorf("%s: %w", tag, err)
+				fmt.Printf("warning: skip %s: %v\n", tag, err)
+
+				continue
 			}
 
 			if c.Meta.Version != v {
@@ -71,6 +76,58 @@ func loadReleased(root, imagePrefix string, published imageChecker) ([]Connector
 	}
 
 	return connectors, nil
+}
+
+// parseReleased validates a tag's meta.json against the current schema and,
+// when that fails, against the schema as of the tag, so tightening the schema
+// does not invalidate releases that were valid when they were made.
+func parseReleased(root, tag, dir string, schema *jsonschema.Schema) (Connector, error) {
+	read := tagReader(root, tag, dir)
+
+	c, err := parseConnector(dir, schema, read)
+	if err == nil {
+		return c, nil
+	}
+
+	tagSchema, serr := compileTagSchema(root, tag)
+	if serr != nil {
+		return Connector{}, errors.Join(err, serr)
+	}
+
+	c, terr := parseConnector(dir, tagSchema, read)
+	if terr != nil {
+		return Connector{}, fmt.Errorf("against the schema at %s: %w", tag, terr)
+	}
+
+	return c, nil
+}
+
+func compileTagSchema(root, tag string) (*jsonschema.Schema, error) {
+	out, err := git(root, "show", tag+":"+schemaPath)
+	if err != nil {
+		return nil, err
+	}
+
+	doc, err := jsonschema.UnmarshalJSON(strings.NewReader(out))
+	if err != nil {
+		return nil, fmt.Errorf("parsing %s at %s: %w", schemaPath, tag, err)
+	}
+
+	url := "tag:" + tag + "/" + schemaPath
+
+	c := jsonschema.NewCompiler()
+	c.AssertFormat()
+
+	if err := c.AddResource(url, doc); err != nil {
+		return nil, fmt.Errorf("%s at %s: %w", schemaPath, tag, err)
+	}
+
+	schema, err := c.Compile(url)
+	if err != nil {
+		return nil, fmt.Errorf("compiling %s at %s: %w", schemaPath, tag, err)
+	}
+
+	return schema, nil
 }
 
 func tagReader(root, tag, dir string) fileReader {

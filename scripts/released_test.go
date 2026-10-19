@@ -145,3 +145,87 @@ func runGit(t *testing.T, root string, args ...string) {
 		t.Fatalf("git %v: %v\n%s", args, err, out)
 	}
 }
+
+func TestResolveReleaseLatestOnlyForNewestTag(t *testing.T) {
+	root := t.TempDir()
+
+	schema, err := os.ReadFile(filepath.Join("..", schemaPath))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	writeFile(t, root, schemaPath, string(schema))
+	writeFile(t, root, "connectors/source-acme/Dockerfile", "FROM scratch\n")
+	writeFile(t, root, "connectors/source-acme/spec.json", `{"connectionSpecification":{}}`)
+
+	runGit(t, root, "init", "-q")
+
+	for _, v := range []string{"0.1.0", "0.2.0", "0.10.0"} {
+		commitAcme(t, root, v, `"license":"MIT"`)
+		runGit(t, root, "tag", "source-acme-v"+v)
+	}
+
+	runGit(t, root, "tag", "source-acme-extra-v9.0.0")
+
+	for _, tt := range []struct {
+		version string
+		latest  bool
+	}{{"0.1.0", false}, {"0.2.0", false}, {"0.10.0", true}} {
+		tag := "source-acme-v" + tt.version
+		runGit(t, root, "checkout", "-q", tag)
+
+		got, err := resolveRelease(root, tag)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		want := Release{Connector: "source-acme", Version: tt.version, Tag: tag, Latest: tt.latest}
+		if got != want {
+			t.Errorf("resolveRelease(%s) = %+v, want %+v", tag, got, want)
+		}
+	}
+}
+
+func TestLoadReleasedOldTagFailingTodaysSchema(t *testing.T) {
+	root := t.TempDir()
+
+	schema, err := os.ReadFile(filepath.Join("..", schemaPath))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	writeFile(t, root, "connectors/source-acme/Dockerfile", "FROM scratch\n")
+	writeFile(t, root, "connectors/source-acme/spec.json", `{"connectionSpecification":{}}`)
+
+	runGit(t, root, "init", "-q")
+
+	// 0.1.0 has no license, which its own schema allowed.
+	writeFile(t, root, schemaPath, `{"$schema":"https://json-schema.org/draft/2020-12/schema","type":"object","required":["name","version"]}`)
+	commitAcme(t, root, "0.1.0", `"tags":[]`)
+	runGit(t, root, "tag", "source-acme-v0.1.0")
+
+	// 0.2.0 has no license although its schema already required one.
+	writeFile(t, root, schemaPath, string(schema))
+	commitAcme(t, root, "0.2.0", `"tags":[]`)
+	runGit(t, root, "tag", "source-acme-v0.2.0")
+
+	commitAcme(t, root, "0.3.0", `"license":"MIT"`)
+
+	connectors, err := loadReleased(root, "ghcr.io/org/repo", func(string, string) (bool, error) { return true, nil })
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(connectors) != 1 || connectors[0].Meta.Version != "0.1.0" {
+		t.Fatalf("loadReleased = %+v, want source-acme at 0.1.0", connectors)
+	}
+}
+
+func commitAcme(t *testing.T, root, version, extra string) {
+	t.Helper()
+
+	writeFile(t, root, "connectors/source-acme/meta.json", `{"name":"Acme","connector_type":"source","version":"`+version+
+		`","release_stage":"alpha","support_level":"community",`+extra+`}`)
+	runGit(t, root, "add", ".")
+	runGit(t, root, "-c", "user.name=t", "-c", "user.email=t@example.com", "commit", "-q", "-m", version)
+}
