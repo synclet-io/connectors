@@ -1,7 +1,7 @@
 {
   "changelogUrl": "",
   "connectionSpecification": {
-    "description": "Reads admins, teams, tags, segments, data attributes, companies, contacts and conversations from the Intercom REST API.",
+    "description": "Reads admins, teams, tags, segments, data attributes, contacts and conversations from the Intercom REST API.",
     "properties": {
       "access_token": {
         "airbyte_secret": true,

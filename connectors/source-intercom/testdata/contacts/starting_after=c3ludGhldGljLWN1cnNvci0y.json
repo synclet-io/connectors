@@ -1,8 +1,45 @@
 {
   "type": "list",
   "data": [
-    {"type": "contact", "id": "6b0000000000000000000003", "workspace_id": "app00001", "external_id": "user-3", "role": "user", "email": "dave@example.com", "phone": "+10000000000", "name": "Dave Example", "avatar": "https://static.example.com/avatar.png", "owner_id": null, "has_hard_bounced": false, "marked_email_as_spam": false, "unsubscribed_from_emails": true, "created_at": 1767240000, "updated_at": 1767250000, "signed_up_at": 1767240000, "last_seen_at": 1767250000, "browser": null, "os": null, "custom_attributes": {}, "location": null, "social_profiles": {"type": "list", "data": []}, "tags": null, "notes": null, "companies": null}
+    {
+      "type": "contact",
+      "id": "6b0000000000000000000003",
+      "workspace_id": "app00001",
+      "external_id": "user-3",
+      "role": "user",
+      "email": "dave@example.com",
+      "phone": "+10000000000",
+      "name": "Dave Example",
+      "avatar": {
+        "type": "avatar",
+        "image_url": "https://static.example.com/avatar.png"
+      },
+      "owner_id": null,
+      "has_hard_bounced": false,
+      "marked_email_as_spam": false,
+      "unsubscribed_from_emails": true,
+      "created_at": 1767240000,
+      "updated_at": 1767250000,
+      "signed_up_at": 1767240000,
+      "last_seen_at": 1767250000,
+      "browser": null,
+      "os": null,
+      "custom_attributes": {},
+      "location": null,
+      "social_profiles": {
+        "type": "list",
+        "data": []
+      },
+      "tags": null,
+      "notes": null,
+      "companies": null
+    }
   ],
   "total_count": 3,
-  "pages": {"type": "pages", "page": 2, "per_page": 2, "total_pages": 2}
+  "pages": {
+    "type": "pages",
+    "page": 2,
+    "per_page": 2,
+    "total_pages": 2
+  }
 }

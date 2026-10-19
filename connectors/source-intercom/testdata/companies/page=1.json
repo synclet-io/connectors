@@ -1,9 +1,0 @@
-{
-  "type": "list",
-  "data": [
-    {"type": "company", "id": "6a0000000000000000000001", "name": "Example One Ltd", "app_id": "app00001", "company_id": "co-1", "remote_created_at": 1767225600, "created_at": 1767225600, "updated_at": 1767312000, "last_request_at": 1767312000, "monthly_spend": 49.5, "session_count": 12, "user_count": 3, "size": 10, "website": "https://one.example.com", "industry": "Software", "plan": {"type": "plan", "id": "7000001", "name": "Pro"}, "custom_attributes": {"region": "north"}, "tags": {"type": "tag.list", "tags": []}, "segments": {"type": "segment.list", "segments": []}},
-    {"type": "company", "id": "6a0000000000000000000002", "name": "Example Two Ltd", "app_id": "app00001", "company_id": "co-2", "remote_created_at": null, "created_at": 1767230000, "updated_at": 1767230000, "last_request_at": null, "monthly_spend": 0, "session_count": 0, "user_count": 1, "size": null, "website": null, "industry": null, "plan": null, "custom_attributes": {}, "tags": {"type": "tag.list", "tags": [{"type": "tag", "id": "3000002", "name": "trial"}]}, "segments": {"type": "segment.list", "segments": []}}
-  ],
-  "pages": {"type": "pages", "next": "https://api.intercom.io/companies?per_page=2&page=2", "page": 1, "per_page": 2, "total_pages": 2},
-  "total_count": 3
-}

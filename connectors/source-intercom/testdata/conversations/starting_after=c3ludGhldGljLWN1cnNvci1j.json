@@ -1,8 +1,71 @@
 {
   "type": "conversation.list",
   "conversations": [
-    {"type": "conversation", "id": "8000000003", "title": "Feature request", "created_at": 1767240000, "updated_at": 1767250000, "waiting_since": null, "snoozed_until": 1767400000, "open": true, "state": "snoozed", "read": true, "priority": "not_priority", "admin_assignee_id": 1000002, "team_assignee_id": "2000001", "source": {"type": "email", "id": "9000000003", "delivered_as": "customer_initiated", "subject": "Export", "body": "<p>Can I export to CSV?</p>", "author": {"type": "user", "id": "6b0000000000000000000003", "name": "Dave Example", "email": "dave@example.com"}}, "contacts": {"type": "contact.list", "contacts": [{"type": "contact", "id": "6b0000000000000000000003"}]}, "teammates": {"type": "admin.list", "admins": []}, "tags": {"type": "tag.list", "tags": [{"type": "tag", "id": "3000001", "name": "vip"}]}, "custom_attributes": {"topic": "export"}, "statistics": {"type": "conversation_statistics", "time_to_admin_reply": 600}, "sla_applied": null}
+    {
+      "type": "conversation",
+      "id": "8000000003",
+      "title": "Feature request",
+      "created_at": 1767240000,
+      "updated_at": 1767250000,
+      "waiting_since": null,
+      "snoozed_until": 1767400000,
+      "open": true,
+      "state": "snoozed",
+      "read": true,
+      "priority": "not_priority",
+      "admin_assignee_id": 1000002,
+      "team_assignee_id": 2000001,
+      "source": {
+        "type": "email",
+        "id": "9000000003",
+        "delivered_as": "customer_initiated",
+        "subject": "Export",
+        "body": "<p>Can I export to CSV?</p>",
+        "author": {
+          "type": "user",
+          "id": "6b0000000000000000000003",
+          "name": "Dave Example",
+          "email": "dave@example.com"
+        }
+      },
+      "contacts": {
+        "type": "contact.list",
+        "contacts": [
+          {
+            "type": "contact",
+            "id": "6b0000000000000000000003"
+          }
+        ]
+      },
+      "teammates": {
+        "type": "admin.list",
+        "admins": []
+      },
+      "tags": {
+        "type": "tag.list",
+        "tags": [
+          {
+            "type": "tag",
+            "id": "3000001",
+            "name": "vip"
+          }
+        ]
+      },
+      "custom_attributes": {
+        "topic": "export"
+      },
+      "statistics": {
+        "type": "conversation_statistics",
+        "time_to_admin_reply": 600
+      },
+      "sla_applied": null
+    }
   ],
   "total_count": 3,
-  "pages": {"type": "pages", "page": 2, "per_page": 2, "total_pages": 2}
+  "pages": {
+    "type": "pages",
+    "page": 2,
+    "per_page": 2,
+    "total_pages": 2
+  }
 }
