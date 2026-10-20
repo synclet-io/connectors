@@ -1,0 +1,238 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Accepts every record and stores none of them; for testing sources and pipelines.",
+    "properties": {
+      "test_destination": {
+        "default": {
+          "test_destination_type": "SILENT"
+        },
+        "description": "What the destination does with each record.",
+        "oneOf": [
+          {
+            "description": "Drop every record.",
+            "properties": {
+              "test_destination_type": {
+                "const": "SILENT",
+                "default": "SILENT",
+                "order": 0,
+                "type": "string"
+              }
+            },
+            "required": [
+              "test_destination_type"
+            ],
+            "title": "Silent",
+            "type": "object"
+          },
+          {
+            "description": "Drop every record and log some of them.",
+            "properties": {
+              "logging_config": {
+                "description": "Which records of each stream are logged.",
+                "oneOf": [
+                  {
+                    "description": "Log the first N records of each stream.",
+                    "properties": {
+                      "logging_type": {
+                        "const": "FirstN",
+                        "default": "FirstN",
+                        "order": 0,
+                        "type": "string"
+                      },
+                      "max_entry_count": {
+                        "default": 100,
+                        "description": "Number of entries to log per stream, from 1 to 1,000.",
+                        "examples": [
+                          "100"
+                        ],
+                        "order": 9,
+                        "title": "N",
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "logging_type",
+                      "max_entry_count"
+                    ],
+                    "title": "First N Entries",
+                    "type": "object"
+                  },
+                  {
+                    "description": "Log every N-th record of each stream, up to a maximum.",
+                    "properties": {
+                      "logging_type": {
+                        "const": "EveryNth",
+                        "default": "EveryNth",
+                        "order": 0,
+                        "type": "string"
+                      },
+                      "max_entry_count": {
+                        "default": 100,
+                        "description": "Number of entries to log per stream, from 1 to 1,000.",
+                        "examples": [
+                          "100"
+                        ],
+                        "order": 9,
+                        "title": "Max Log Entries",
+                        "type": "integer"
+                      },
+                      "nth_entry_to_log": {
+                        "description": "Log every N-th record of each stream, starting with the first one: 1 logs every record, 2 every other record. From 1 to 1,000.",
+                        "examples": [
+                          "3"
+                        ],
+                        "order": 1,
+                        "title": "N",
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "logging_type",
+                      "nth_entry_to_log",
+                      "max_entry_count"
+                    ],
+                    "title": "Every N-th Entry",
+                    "type": "object"
+                  },
+                  {
+                    "description": "Log a random share of the records of each stream, up to a maximum.",
+                    "properties": {
+                      "logging_type": {
+                        "const": "RandomSampling",
+                        "default": "RandomSampling",
+                        "order": 0,
+                        "type": "string"
+                      },
+                      "max_entry_count": {
+                        "default": 100,
+                        "description": "Number of entries to log per stream, from 1 to 1,000.",
+                        "examples": [
+                          "100"
+                        ],
+                        "order": 9,
+                        "title": "Max Log Entries",
+                        "type": "integer"
+                      },
+                      "sampling_ratio": {
+                        "default": 0.001,
+                        "description": "Probability that a record is logged, from 0 to 1.",
+                        "examples": [
+                          "0.001"
+                        ],
+                        "order": 1,
+                        "title": "Sampling Ratio",
+                        "type": "number"
+                      },
+                      "seed": {
+                        "description": "Seed of the sampling, which makes it repeatable; a random seed is used when it is unset.",
+                        "examples": [
+                          "1900"
+                        ],
+                        "order": 2,
+                        "title": "Random Number Generator Seed",
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "logging_type",
+                      "sampling_ratio",
+                      "max_entry_count"
+                    ],
+                    "title": "Random Sampling",
+                    "type": "object"
+                  }
+                ],
+                "order": 1,
+                "title": "Logging Configuration",
+                "type": "object"
+              },
+              "test_destination_type": {
+                "const": "LOGGING",
+                "default": "LOGGING",
+                "order": 0,
+                "type": "string"
+              }
+            },
+            "required": [
+              "test_destination_type",
+              "logging_config"
+            ],
+            "title": "Logging",
+            "type": "object"
+          },
+          {
+            "description": "Drop every record after waiting a fixed time for each.",
+            "properties": {
+              "millis_per_record": {
+                "description": "Milliseconds to wait for each record.",
+                "examples": [
+                  "10"
+                ],
+                "order": 1,
+                "title": "Milliseconds per Record",
+                "type": "integer"
+              },
+              "test_destination_type": {
+                "const": "THROTTLED",
+                "default": "THROTTLED",
+                "order": 0,
+                "type": "string"
+              }
+            },
+            "required": [
+              "test_destination_type",
+              "millis_per_record"
+            ],
+            "title": "Throttled",
+            "type": "object"
+          },
+          {
+            "description": "Drop records and fail the sync after a number of records of a stream.",
+            "properties": {
+              "num_messages": {
+                "description": "Records of a stream accepted before the next one fails the sync.",
+                "examples": [
+                  "100"
+                ],
+                "order": 1,
+                "title": "Number of Records",
+                "type": "integer"
+              },
+              "test_destination_type": {
+                "const": "FAILING",
+                "default": "FAILING",
+                "order": 0,
+                "type": "string"
+              }
+            },
+            "required": [
+              "test_destination_type",
+              "num_messages"
+            ],
+            "title": "Failing",
+            "type": "object"
+          }
+        ],
+        "order": 0,
+        "title": "Test Destination",
+        "type": "object"
+      }
+    },
+    "required": [
+      "test_destination"
+    ],
+    "title": "Dev Null Destination Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/destination-dev-null",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": true,
+  "supportsNormalization": false
+}
