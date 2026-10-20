@@ -28,5 +28,18 @@
   "connectors/source-salesforce": "0.1.0",
   "connectors/source-shopify": "0.1.0",
   "connectors/source-solidgate": "0.1.0",
-  "connectors/source-tiktok-marketing": "0.1.0"
+  "connectors/source-tiktok-marketing": "0.1.0",
+  "connectors/destination-databricks": "0.1.0",
+  "connectors/destination-dev-null": "0.1.0",
+  "connectors/destination-redshift": "0.1.0",
+  "connectors/destination-snowflake": "0.1.0",
+  "connectors/source-chargebee": "0.1.0",
+  "connectors/source-declarative": "0.1.0",
+  "connectors/source-github": "0.1.0",
+  "connectors/source-intercom": "0.1.0",
+  "connectors/source-jira": "0.1.0",
+  "connectors/source-klaviyo": "0.1.0",
+  "connectors/source-linkedin-ads": "0.1.0",
+  "connectors/source-snowflake": "0.1.0",
+  "connectors/source-stripe": "0.1.0"
 }
