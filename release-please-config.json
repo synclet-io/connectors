@@ -140,6 +140,16 @@
         }
       ]
     },
+    "connectors/source-amplitude": {
+      "component": "source-amplitude",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "meta.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
     "connectors/source-applovin": {
       "component": "source-applovin",
       "extra-files": [
