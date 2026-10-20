@@ -78,11 +78,14 @@ func (l *limiter) next(ctx context.Context, now func() time.Time, wait func(cont
 }
 
 // apiClient sends authenticated requests to the Mixpanel APIs. Credentials
-// travel only in the Authorization header. It is used by one goroutine at
-// a time, so at most one request is in flight, within every concurrency
-// limit of Mixpanel.
+// travel only in the Authorization header. http serves the Query API with a
+// bound on each response; export serves the Export API, whose response
+// streams a whole date window, and bounds only the wait for its headers. It
+// is used by one goroutine at a time, so at most one request is in flight,
+// within every concurrency limit of Mixpanel.
 type apiClient struct {
 	http       *http.Client
+	export     *http.Client
 	roots      map[api]string
 	auth       string
 	projectID  int64
@@ -105,6 +108,7 @@ func (s Source) apiClient(cfg Config) *apiClient {
 	}
 	c := &apiClient{
 		http:       s.client,
+		export:     s.client,
 		roots:      roots,
 		retryDelay: s.retryDelay,
 		now:        s.clock,
@@ -123,6 +127,11 @@ func (s Source) apiClient(cfg Config) *apiClient {
 	}
 	if c.http == nil {
 		c.http = &http.Client{Timeout: 30 * time.Minute}
+	}
+	if c.export == nil {
+		t := http.DefaultTransport.(*http.Transport).Clone()
+		t.ResponseHeaderTimeout = 30 * time.Minute
+		c.export = &http.Client{Transport: t}
 	}
 	if c.retryDelay == 0 {
 		c.retryDelay = defaultRetryDelay
@@ -269,7 +278,11 @@ func (c *apiClient) attempt(ctx context.Context, req request, handle func(io.Rea
 	if body != nil {
 		hr.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	}
-	resp, err := c.http.Do(hr)
+	hc := c.http
+	if req.api == exportAPI {
+		hc = c.export
+	}
+	resp, err := hc.Do(hr)
 	if err != nil {
 		return retryable{fmt.Errorf("%s %s: %w", req.api, req.path, err)}
 	}

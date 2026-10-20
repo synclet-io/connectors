@@ -127,3 +127,12 @@ func TestLimiterHourlyBudget(t *testing.T) {
 	require.NoError(t, l.next(ctx, clk.now, clk.wait))
 	assert.Equal(t, 10*time.Minute, clk.waits()[4])
 }
+
+func TestExportClientHasNoTotalTimeout(t *testing.T) {
+	c := Source{}.apiClient(Config{Credentials: Credentials{OptionTitle: authProjectSecret, APISecret: "x"}})
+	assert.NotZero(t, c.http.Timeout, "a Query API response is bounded")
+	assert.Zero(t, c.export.Timeout, "an export of a large window may stream for hours")
+	tr, ok := c.export.Transport.(*http.Transport)
+	require.True(t, ok)
+	assert.NotZero(t, tr.ResponseHeaderTimeout)
+}
