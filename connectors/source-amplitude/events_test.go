@@ -184,3 +184,20 @@ func TestNormalizeEventTimes(t *testing.T) {
 		"event_type":         "2026-10-16 08:15:00.000000",
 	}, ev)
 }
+
+func TestEventsResumeFromEventTime(t *testing.T) {
+	for _, saved := range []string{"2026-10-17T08:15:00.123Z", "2026-10-17 08:15:00.123000"} {
+		t.Run(saved, func(t *testing.T) {
+			srv, h := fixtureServer(t, nil)
+			src := testSource(srv)
+			state := stateOf(streamEvents, `{"server_upload_time":"`+saved+`"}`)
+			out := runRead(t, src, testConfig, configured(t, src, synclet.SyncModeIncremental, streamEvents), state)
+			require.NoError(t, out.Err)
+			assert.Equal(t, []string{"20261017T08-20261018T07", "20261018T08-20261018T09"}, windows(h.of(exportPath)))
+			assert.Equal(t, []string{
+				`{"server_upload_time":"2026-10-18T08:00:00Z"}`,
+				`{"server_upload_time":"2026-10-18T10:00:00Z"}`,
+			}, streamStates(out, streamEvents), "a saved time inside an hour resumes at the start of that hour")
+		})
+	}
+}

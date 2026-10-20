@@ -57,12 +57,12 @@ func (s Source) readEvents(ctx context.Context, cfg Config, c *apiClient, cs syn
 			return err
 		}
 		if st.ServerUploadTime != "" {
-			saved, err := time.Parse(time.RFC3339, st.ServerUploadTime)
+			saved, err := parseStateTime(st.ServerUploadTime)
 			if err != nil {
-				return fmt.Errorf("state server_upload_time %q is not an RFC 3339 time", st.ServerUploadTime)
+				return err
 			}
 			if saved.After(from) {
-				from = saved.UTC()
+				from = saved
 			}
 		}
 	}
@@ -84,6 +84,19 @@ func (s Source) readEvents(ctx context.Context, cfg Config, c *apiClient, cs syn
 		}
 	}
 	return nil
+}
+
+// parseStateTime returns the hour of a saved server_upload_time in UTC. It
+// is an RFC 3339 time or Amplitude's event time layout; a time inside an hour
+// resumes at the start of that hour.
+func parseStateTime(s string) (time.Time, error) {
+	t, err := time.Parse(time.RFC3339, s)
+	if err != nil {
+		if t, err = time.Parse(eventTimeLayout, s); err != nil {
+			return time.Time{}, fmt.Errorf("state server_upload_time %q is not an RFC 3339 time", s)
+		}
+	}
+	return t.UTC().Truncate(time.Hour), nil
 }
 
 // readEventWindow emits the events uploaded in [from, to). A 404 means the
