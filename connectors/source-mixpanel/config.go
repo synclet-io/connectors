@@ -35,14 +35,15 @@ type Credentials struct {
 
 // Config is the connector configuration.
 type Config struct {
-	Credentials       Credentials `json:"credentials"`
-	Region            string      `json:"region,omitempty"`
-	ProjectTimezone   string      `json:"project_timezone,omitempty"`
-	StartDate         string      `json:"start_date,omitempty"`
-	EndDate           string      `json:"end_date,omitempty"`
-	AttributionWindow *int        `json:"attribution_window,omitempty"`
-	DateWindowSize    *int        `json:"date_window_size,omitempty"`
-	PageSize          *int        `json:"page_size,omitempty"`
+	Credentials          Credentials `json:"credentials"`
+	Region               string      `json:"region,omitempty"`
+	ProjectTimezone      string      `json:"project_timezone,omitempty"`
+	StartDate            string      `json:"start_date,omitempty"`
+	EndDate              string      `json:"end_date,omitempty"`
+	AttributionWindow    *int        `json:"attribution_window,omitempty"`
+	ExportLookbackWindow *int        `json:"export_lookback_window,omitempty"`
+	DateWindowSize       *int        `json:"date_window_size,omitempty"`
+	PageSize             *int        `json:"page_size,omitempty"`
 }
 
 // kind returns option_title, or for a configuration without it, as
@@ -112,6 +113,9 @@ func (c Config) validate() error {
 	if c.AttributionWindow != nil && *c.AttributionWindow < 0 {
 		errs = append(errs, fmt.Errorf("attribution_window %d is negative", *c.AttributionWindow))
 	}
+	if c.ExportLookbackWindow != nil && *c.ExportLookbackWindow < 0 {
+		errs = append(errs, fmt.Errorf("export_lookback_window %d is negative", *c.ExportLookbackWindow))
+	}
 	if c.DateWindowSize != nil && *c.DateWindowSize < 1 {
 		errs = append(errs, fmt.Errorf("date_window_size %d is less than 1", *c.DateWindowSize))
 	}
@@ -147,6 +151,15 @@ func (c Config) attributionWindow() int {
 		return defaultAttributionWindow
 	}
 	return *c.AttributionWindow
+}
+
+// exportLookback is how long before the saved time an incremental read of
+// export starts again.
+func (c Config) exportLookback() time.Duration {
+	if c.ExportLookbackWindow == nil {
+		return 0
+	}
+	return time.Duration(*c.ExportLookbackWindow) * time.Second
 }
 
 func (c Config) dateWindowSize() int {

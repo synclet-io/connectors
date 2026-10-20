@@ -26,8 +26,9 @@ type rawEvent struct {
 }
 
 // export streams the raw events of each date window. An incremental read
-// starts attribution_window days before the project day of the saved time
-// and emits the latest event time after each window.
+// emits only the events from export_lookback_window before the saved time
+// on, starting at the project day of that moment, and emits the latest
+// event time after each window.
 func (r *reader) export(ctx context.Context, cs synclet.ConfiguredStream, inc bool, saved json.RawMessage) error {
 	desc := cs.Stream.Descriptor()
 	var st exportState
@@ -35,22 +36,26 @@ func (r *reader) export(ctx context.Context, cs synclet.ConfiguredStream, inc bo
 		return err
 	}
 	from := r.days.start
-	var cursor time.Time
+	var cursor, since time.Time
 	if st.Time != "" {
 		t, err := time.Parse(time.RFC3339Nano, st.Time)
 		if err != nil {
 			return synclet.ConfigError(fmt.Errorf("state of %s: time %q is not an RFC 3339 timestamp", desc.Name, st.Time))
 		}
 		cursor = t
+		since = t.Add(-r.cfg.exportLookback())
 		loc, _ := r.cfg.location()
-		local := t.In(loc)
-		if d := civil(local.Year(), local.Month(), local.Day()).AddDate(0, 0, -r.cfg.attributionWindow()); d.After(from) {
+		local := since.In(loc)
+		if d := civil(local.Year(), local.Month(), local.Day()); d.After(from) {
 			from = d
 		}
 	}
 	ren, hints := exportRenamer(), schemaHints(cs.Stream.JSONSchema)
 	for _, w := range r.windowsFrom(from) {
 		params := url.Values{"from_date": {w.fromDate()}, "to_date": {w.toDate()}}
+		if !since.IsZero() {
+			params.Set("where", fmt.Sprintf(`properties["$time"]>=datetime(%d)`, since.Unix()))
+		}
 		err := r.c.send(ctx, request{api: exportAPI, method: http.MethodGet, path: "export", params: params}, func(body io.Reader) error {
 			dec := json.NewDecoder(body)
 			dec.UseNumber()
@@ -69,6 +74,9 @@ func (r *reader) export(ctx context.Context, cs synclet.ConfiguredStream, inc bo
 				rec, t, err := exportRecord(ev, ren, hints)
 				if err != nil {
 					return fmt.Errorf("event %d: %w", n, err)
+				}
+				if t.Before(since) {
+					continue
 				}
 				if err := r.em.Record(desc, rec); err != nil {
 					return err

@@ -5,7 +5,7 @@
     "properties": {
       "attribution_window": {
         "default": 5,
-        "description": "Days before the saved cursor an incremental read of export, funnels and revenue starts again, since Mixpanel keeps accepting late events for recent days.",
+        "description": "Days before the saved day an incremental read of funnels and revenue starts again, since Mixpanel keeps updating recent days.",
         "order": 5,
         "title": "Attribution Window",
         "type": "integer"
@@ -92,6 +92,13 @@
         "order": 4,
         "title": "End Date",
         "type": "string"
+      },
+      "export_lookback_window": {
+        "default": 0,
+        "description": "Seconds before the latest saved event time from which an incremental read of export emits events again, for events Mixpanel records late. 0 emits only events at or after that time.",
+        "order": 8,
+        "title": "Export Lookback Window",
+        "type": "integer"
       },
       "page_size": {
         "default": 1000,

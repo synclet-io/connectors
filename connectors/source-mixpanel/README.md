@@ -21,7 +21,8 @@ docker run --rm -v "$PWD:/data" ghcr.io/synclet-io/connectors/source-mixpanel:de
 | `project_timezone` | no | `US/Pacific` | IANA zone of the project. `from_date` and `to_date` are days of this zone, and so is "today" |
 | `start_date` | no | a year before today | First day read by `export`, `funnels`, `revenue` and `annotations`; `YYYY-MM-DD` or `YYYY-MM-DDTHH:MM:SSZ` (the date is used) |
 | `end_date` | no | today | Last day read; a later day reads to today |
-| `attribution_window` | no | `5` | Days before the saved cursor an incremental read of `export`, `funnels` and `revenue` starts again |
+| `attribution_window` | no | `5` | Days before the saved day an incremental read of `funnels` and `revenue` starts again |
+| `export_lookback_window` | no | `0` | Seconds before the saved event time from which an incremental read of `export` emits events again |
 | `date_window_size` | no | `30` | Days per request of the date-ranged endpoints; a state is emitted after each window |
 | `page_size` | no | `1000` | Profiles per `engage` request, 1 to 1000 |
 
@@ -37,8 +38,7 @@ docker run --rm -v "$PWD:/data" ghcr.io/synclet-io/connectors/source-mixpanel:de
 Credentials travel only as HTTP Basic auth (`username:secret`, or `api_secret:` for a project secret), never
 in a URL. A service account sends `project_id` as a query parameter on every request and needs a project
 role of Analyst or above. The keys match Airbyte's Mixpanel source, so an
-Airbyte configuration works unchanged; Airbyte's `select_properties_by_default` and `export_lookback_window`
-are not read. A `credentials` object without `option_title`, which Airbyte accepts, is a project secret
+Airbyte configuration works unchanged; Airbyte's `select_properties_by_default` is not read. A `credentials` object without `option_title`, which Airbyte accepts, is a project secret
 when it has `api_secret` and a service account otherwise.
 
 ### Check
@@ -86,9 +86,11 @@ still writes `$browser` to `_browser`.
 
 ### Incremental reads
 
-- `export` saves the latest event `time`. The next read starts `attribution_window` days before that
-  time's project day, so late events of recent days are read again; Mixpanel deduplicates on
-  `event`, `distinct_id`, `time` and `insert_id`, and a destination can do the same with `insert_id`.
+- `export` saves the latest event `time`. The next read requests from the project day of that time minus
+  `export_lookback_window` seconds, sends `where=properties["$time"]>=datetime(<that moment>)` and emits
+  only events at or after it. With the default `0` only the events at the saved time itself are emitted
+  again; a larger window re-reads late events, which a destination can deduplicate on `insert_id`
+  (Mixpanel deduplicates on `event`, `distinct_id`, `time` and `insert_id`).
 - `funnels` saves the last day per funnel and `revenue` the last day; both start again `attribution_window`
   days before it.
 - These three stream their date range in windows of `date_window_size` days and emit the state after each
@@ -136,7 +138,8 @@ Tests replay HTTP from hand-written fixtures; they need no network and no creden
   `Source` at it through its unexported fields (`queryURL`, `exportURL`, `client`, `now`, `retryDelay`,
   `wait`) on a fake clock whose `wait` records each duration and moves the clock instead of sleeping.
 - `TestConformance` runs the SDK conformance suite in full refresh and incremental mode (with the
-  attribution window as its lookback); the read, discover, client and check tests cover every stream and
-  mode, the property renaming, the windows, pagination, retries and the hourly budget.
+  attribution window as the lookback of `funnels` and `revenue`); the read, discover, client and check
+  tests cover every stream and mode, the property renaming, the windows, pagination, retries and the
+  hourly budget.
 - `TestLive` runs check, discover and a full refresh of `cohorts` and `annotations` against a real project
   when `MIXPANEL_TEST_CONFIG` names a config file, and is skipped otherwise.

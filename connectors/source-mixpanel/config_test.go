@@ -26,8 +26,8 @@ func TestConfigValidate(t *testing.T) {
 		{cfg: Config{Credentials: sa, StartDate: "10/01/2026"}, want: []string{`start_date "10/01/2026"`}},
 		{cfg: Config{Credentials: sa, StartDate: "2026-10-02", EndDate: "2026-10-01"}, want: []string{"end_date 2026-10-01 is before start_date 2026-10-02"}},
 		{
-			cfg:  Config{Credentials: sa, AttributionWindow: &neg, DateWindowSize: &zero, PageSize: &big},
-			want: []string{"attribution_window -1 is negative", "date_window_size 0 is less than 1", "page_size 1001 is not between 1 and 1000"},
+			cfg:  Config{Credentials: sa, AttributionWindow: &neg, ExportLookbackWindow: &neg, DateWindowSize: &zero, PageSize: &big},
+			want: []string{"attribution_window -1 is negative", "export_lookback_window -1 is negative", "date_window_size 0 is less than 1", "page_size 1001 is not between 1 and 1000"},
 		},
 	}
 	for _, tc := range cases {

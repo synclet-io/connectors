@@ -99,7 +99,7 @@ func (Source) Spec(_ context.Context) (*synclet.ConnectorSpecification, error) {
 				},
 				"attribution_window": {
 					Title:        "Attribution Window",
-					Description:  "Days before the saved cursor an incremental read of export, funnels and revenue starts again, since Mixpanel keeps accepting late events for recent days.",
+					Description:  "Days before the saved day an incremental read of funnels and revenue starts again, since Mixpanel keeps updating recent days.",
 					PropertyType: typed(synclet.Integer), Default: defaultAttributionWindow, Order: order(5),
 				},
 				"date_window_size": {
@@ -111,6 +111,11 @@ func (Source) Spec(_ context.Context) (*synclet.ConnectorSpecification, error) {
 					Title:        "Profiles Page Size",
 					Description:  "Profiles per request of engage and cohort_members, at most 1000.",
 					PropertyType: typed(synclet.Integer), Default: defaultPageSize, Order: order(7),
+				},
+				"export_lookback_window": {
+					Title:        "Export Lookback Window",
+					Description:  "Seconds before the latest saved event time from which an incremental read of export emits events again, for events Mixpanel records late. 0 emits only events at or after that time.",
+					PropertyType: typed(synclet.Integer), Default: 0, Order: order(8),
 				},
 			}},
 		},

@@ -51,26 +51,49 @@ func TestExportIncremental(t *testing.T) {
 	assert.Equal(t, []string{`{"time":"2026-10-13T18:00:00Z"}`, `{"time":"2026-10-17T18:00:00Z"}`}, streamStates(out, streamExport))
 
 	// 2026-10-17 18:00Z is 11:00 on 2026-10-17 in US/Pacific: the read
-	// starts 5 days before that day.
+	// starts that day and emits nothing older than the saved time.
 	before := len(h.list())
 	out = read(t, src, cfg, cat, stateOf(t, streamExport, `{"time":"2026-10-17T18:00:00Z"}`))
 	require.NoError(t, out.Err)
 	assert.Equal(t, []string{
-		"export export?from_date=2026-10-12&to_date=2026-10-16",
-		"export export?from_date=2026-10-17&to_date=2026-10-18",
+		`export export?from_date=2026-10-17&to_date=2026-10-18&where=properties%5B%22%24time%22%5D%3E%3Ddatetime%281792260000%29`,
 	}, h.list()[before:])
-	assert.Equal(t, []any{"Purchase", "Page View", "Purchase"}, field(records(t, out, streamExport), "event"))
-	assert.Equal(t, []string{`{"time":"2026-10-17T18:00:00Z"}`, `{"time":"2026-10-17T18:00:00Z"}`}, streamStates(out, streamExport),
+	assert.Equal(t, []any{"2026-10-17T18:00:00Z"}, field(records(t, out, streamExport), "time"))
+	assert.Equal(t, []string{`{"time":"2026-10-17T18:00:00Z"}`}, streamStates(out, streamExport),
 		"the state never goes below the saved time")
 
-	t.Run("attribution window and timezone", func(t *testing.T) {
-		zero := 0
-		cfg := testConfig(t, func(c *Config) { c.AttributionWindow = &zero; c.ProjectTimezone = "Asia/Tokyo" })
+	t.Run("export lookback window", func(t *testing.T) {
+		// 79200 s before the saved time is 2026-10-16 20:00Z, 13:00 on
+		// 2026-10-16 in US/Pacific: the event of 18:00Z that day is older.
+		lookback := 79200
+		cfg := testConfig(t, func(c *Config) { c.ExportLookbackWindow = &lookback })
 		before := len(h.list())
 		out := read(t, src, cfg, cat, stateOf(t, streamExport, `{"time":"2026-10-17T18:00:00Z"}`))
 		require.NoError(t, out.Err)
-		// 18:00Z is 03:00 on 2026-10-18 in Tokyo, which is also today there.
-		assert.Equal(t, []string{"export export?from_date=2026-10-18&to_date=2026-10-19"}, h.list()[before:])
+		assert.Equal(t, []string{
+			`export export?from_date=2026-10-16&to_date=2026-10-18&where=properties%5B%22%24time%22%5D%3E%3Ddatetime%281792180800%29`,
+		}, h.list()[before:])
+		assert.Equal(t, []any{"2026-10-17T18:00:00Z"}, field(records(t, out, streamExport), "time"))
+
+		lookback = 100000
+		cfg = testConfig(t, func(c *Config) { c.ExportLookbackWindow = &lookback })
+		out = read(t, src, cfg, cat, stateOf(t, streamExport, `{"time":"2026-10-17T18:00:00Z"}`))
+		require.NoError(t, out.Err)
+		assert.Equal(t, []any{"2026-10-16T18:00:00.25Z", "2026-10-17T18:00:00Z"}, field(records(t, out, streamExport), "time"),
+			"the lookback window is read again")
+	})
+
+	t.Run("attribution window and timezone", func(t *testing.T) {
+		days := 30
+		cfg := testConfig(t, func(c *Config) { c.AttributionWindow = &days; c.ProjectTimezone = "Asia/Tokyo" })
+		before := len(h.list())
+		out := read(t, src, cfg, cat, stateOf(t, streamExport, `{"time":"2026-10-17T18:00:00Z"}`))
+		require.NoError(t, out.Err)
+		// 18:00Z is 03:00 on 2026-10-18 in Tokyo, which is also today there;
+		// attribution_window does not move the start of export.
+		assert.Equal(t, []string{
+			`export export?from_date=2026-10-18&to_date=2026-10-19&where=properties%5B%22%24time%22%5D%3E%3Ddatetime%281792260000%29`,
+		}, h.list()[before:])
 	})
 }
 
