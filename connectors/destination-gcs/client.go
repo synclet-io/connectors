@@ -26,7 +26,7 @@ func newGCSClientWithTokenURL(ctx context.Context, cfg Config, tokenURL string) 
 	var err error
 	switch cfg.Credentials.AuthType {
 	case authServiceAccount:
-		key, keyErr := checkServiceAccountKey([]byte(cfg.Credentials.ServiceAccountInfo), tokenURL)
+		key, _, keyErr := checkGoogleKey([]byte(cfg.Credentials.ServiceAccountInfo), tokenURL, serviceAccountType)
 		if keyErr != nil {
 			return nil, fmt.Errorf("credentials: parsing service_account_info: %w", keyErr)
 		}

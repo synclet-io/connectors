@@ -25,7 +25,7 @@ func parseServiceAccountKey(raw string) (*jwt.Config, error) {
 	invalid := func(err error) error {
 		return fmt.Errorf("service_account_key is not a valid service account key: %w", err)
 	}
-	key, err := checkServiceAccountKey([]byte(raw), googleTokenURL)
+	key, _, err := checkGoogleKey([]byte(raw), googleTokenURL, serviceAccountType)
 	if err != nil {
 		return nil, invalid(err)
 	}

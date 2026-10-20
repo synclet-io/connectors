@@ -35,9 +35,11 @@ BigQuery Metadata Viewer fails. It names the cause of a failure: a `service_acco
 valid key, a project or dataset that does not exist, no visible dataset, or the missing Job User or Data
 Viewer role. Quota, rate-limit and billing errors are reported as they are, not as a missing role.
 
-`service_account_info` must be a key of type `service_account` whose `token_uri`, when set, is
+`service_account_info` must be a service account key (`"type": "service_account"`) or the user credentials
+`gcloud auth application-default login` writes (`"type": "authorized_user"`), whose `token_uri`, when set, is
 `https://oauth2.googleapis.com/token` (or the legacy `https://accounts.google.com/o/oauth2/token`) and whose
-`universe_domain`, when set, is `googleapis.com`; any other key is rejected before a request is sent.
+`universe_domain`, when set, is `googleapis.com`; any other credential JSON, such as `external_account`, is
+rejected before a request is sent.
 
 ## Types
 

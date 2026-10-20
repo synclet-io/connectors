@@ -18,13 +18,22 @@ func TestCreateClientOptionRejectsForeignTokenURI(t *testing.T) {
 	assert.Zero(t, hits.Load())
 }
 
-func TestCreateClientOptionRejectsOtherCredentialTypes(t *testing.T) {
+func TestCreateClientOptionAcceptsAuthorizedUser(t *testing.T) {
 	creds := CredentialsConfig{
 		AuthType:           "Service",
 		ServiceAccountInfo: `{"type":"authorized_user","client_id":"c","client_secret":"s","refresh_token":"r"}`,
 	}
 	_, err := createClientOption(t.Context(), creds, bigqueryScope)
-	require.EqualError(t, err, `service_account_info is not a valid service account key: type is "authorized_user", a service account key has type service_account`)
+	require.NoError(t, err)
+}
+
+func TestCreateClientOptionRejectsExternalAccount(t *testing.T) {
+	creds := CredentialsConfig{
+		AuthType:           "Service",
+		ServiceAccountInfo: `{"type":"external_account","token_url":"http://127.0.0.1:1/token","credential_source":{"url":"http://127.0.0.1:1/subject"}}`,
+	}
+	_, err := createClientOption(t.Context(), creds, bigqueryScope)
+	require.EqualError(t, err, `service_account_info is not a valid service account key: type is "external_account", want service_account or authorized_user`)
 }
 
 func TestCreateClientOptionAcceptsServiceAccountKey(t *testing.T) {

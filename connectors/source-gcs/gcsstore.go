@@ -27,7 +27,7 @@ func resolveCredentials(cr Credentials, tokenURL string) (*auth.Credentials, err
 	opts := &credentials.DetectOptions{Scopes: []string{storage.ScopeReadOnly}}
 	switch cr.AuthType {
 	case authService:
-		key, err := checkServiceAccountKey([]byte(cr.ServiceAccountInfo), tokenURL)
+		key, _, err := checkGoogleKey([]byte(cr.ServiceAccountInfo), tokenURL, serviceAccountType)
 		if err != nil {
 			return nil, fmt.Errorf("service_account_info is not a valid service account key: %w", err)
 		}

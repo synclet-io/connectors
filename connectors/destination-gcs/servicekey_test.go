@@ -67,15 +67,16 @@ func foreignTokenServer(t *testing.T) (*httptest.Server, *atomic.Int32) {
 	return srv, &hits
 }
 
-func TestCheckServiceAccountKeyAcceptsGoogleTokenEndpoint(t *testing.T) {
+func TestCheckGoogleKeyAcceptsGoogleTokenEndpoint(t *testing.T) {
 	for name, uri := range map[string]string{
 		"default":  googleTokenURL,
 		"legacy":   legacyGoogleTokenURL,
 		"no field": "",
 	} {
 		t.Run(name, func(t *testing.T) {
-			got, err := checkServiceAccountKey([]byte(newTestServiceAccountKey(t, map[string]string{"token_uri": uri})), googleTokenURL)
+			got, typ, err := checkGoogleKey([]byte(newTestServiceAccountKey(t, map[string]string{"token_uri": uri})), googleTokenURL, serviceAccountType)
 			require.NoError(t, err)
+			assert.Equal(t, serviceAccountType, typ)
 			var key map[string]string
 			require.NoError(t, json.Unmarshal(got, &key))
 			assert.Equal(t, googleTokenURL, key["token_uri"])
@@ -85,15 +86,15 @@ func TestCheckServiceAccountKeyAcceptsGoogleTokenEndpoint(t *testing.T) {
 	}
 }
 
-func TestCheckServiceAccountKeySetsTokenURL(t *testing.T) {
-	got, err := checkServiceAccountKey([]byte(newTestServiceAccountKey(t, nil)), "http://127.0.0.1:1/token")
+func TestCheckGoogleKeySetsTokenURL(t *testing.T) {
+	got, _, err := checkGoogleKey([]byte(newTestServiceAccountKey(t, nil)), "http://127.0.0.1:1/token", serviceAccountType)
 	require.NoError(t, err)
 	var key map[string]string
 	require.NoError(t, json.Unmarshal(got, &key))
 	assert.Equal(t, "http://127.0.0.1:1/token", key["token_uri"])
 }
 
-func TestCheckServiceAccountKeyRejects(t *testing.T) {
+func TestCheckGoogleKeyRejects(t *testing.T) {
 	srv, _ := foreignTokenServer(t)
 	cases := map[string]struct {
 		key, message string
@@ -116,11 +117,11 @@ func TestCheckServiceAccountKeyRejects(t *testing.T) {
 		},
 		"another type": {
 			key:     `{"type":"external_account","token_url":"` + srv.URL + `"}`,
-			message: `type is "external_account", a service account key has type service_account`,
+			message: `type is "external_account", want service_account`,
 		},
 		"no type": {
 			key:     `{"token_uri":"` + googleTokenURL + `"}`,
-			message: `type is "", a service account key has type service_account`,
+			message: `type is "", want service_account`,
 		},
 		"not an object": {
 			key:     `"key"`,
@@ -129,9 +130,54 @@ func TestCheckServiceAccountKeyRejects(t *testing.T) {
 	}
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
-			_, err := checkServiceAccountKey([]byte(tc.key), googleTokenURL)
+			_, _, err := checkGoogleKey([]byte(tc.key), googleTokenURL, serviceAccountType)
 			require.EqualError(t, err, tc.message)
 			assert.NotContains(t, err.Error(), "PRIVATE KEY")
 		})
 	}
+}
+
+func TestCheckGoogleKeyDropsMembersOfOtherFlows(t *testing.T) {
+	raw := newTestServiceAccountKey(t, nil)
+	raw = raw[:len(raw)-1] + `,"installed":{"redirect_uris":["http://127.0.0.1:1/cb"]},"source_credentials":{},"auth_uri":"http://127.0.0.1:1/auth","quota_project_id":"synclet-billing"}`
+	got, _, err := checkGoogleKey([]byte(raw), googleTokenURL, serviceAccountType)
+	require.NoError(t, err)
+	var key map[string]string
+	require.NoError(t, json.Unmarshal(got, &key))
+	assert.Equal(t, map[string]string{
+		"type":             "service_account",
+		"project_id":       "synclet-test",
+		"private_key_id":   "0000",
+		"private_key":      testKeyPEM(),
+		"client_email":     "reader@synclet-test.iam.gserviceaccount.com",
+		"token_uri":        googleTokenURL,
+		"universe_domain":  googleUniverseDomain,
+		"quota_project_id": "synclet-billing",
+	}, key)
+}
+
+func TestCheckGoogleKeyAuthorizedUser(t *testing.T) {
+	user := `{"type":"authorized_user","client_id":"c","client_secret":"s","refresh_token":"r","account":"a"}`
+	got, typ, err := checkGoogleKey([]byte(user), "http://127.0.0.1:1/token", serviceAccountType, authorizedUserType)
+	require.NoError(t, err)
+	assert.Equal(t, authorizedUserType, typ)
+	var key map[string]string
+	require.NoError(t, json.Unmarshal(got, &key))
+	assert.Equal(t, map[string]string{
+		"type":          "authorized_user",
+		"client_id":     "c",
+		"client_secret": "s",
+		"refresh_token": "r",
+		"token_uri":     "http://127.0.0.1:1/token",
+	}, key)
+
+	_, _, err = checkGoogleKey([]byte(user), googleTokenURL, serviceAccountType)
+	require.EqualError(t, err, `type is "authorized_user", want service_account`)
+
+	foreign := `{"type":"authorized_user","client_secret":"s","refresh_token":"r","token_uri":"http://127.0.0.1:1/token"}`
+	_, _, err = checkGoogleKey([]byte(foreign), googleTokenURL, serviceAccountType, authorizedUserType)
+	require.EqualError(t, err, "token_uri must be https://oauth2.googleapis.com/token")
+
+	_, _, err = checkGoogleKey([]byte(`{"type":"external_account"}`), googleTokenURL, serviceAccountType, authorizedUserType)
+	require.EqualError(t, err, `type is "external_account", want service_account or authorized_user`)
 }

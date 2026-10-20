@@ -27,11 +27,11 @@ func createClientOption(ctx context.Context, creds CredentialsConfig, scopes ...
 		return option.WithTokenSource(ts), nil
 
 	case "Service":
-		key, err := checkServiceAccountKey([]byte(creds.ServiceAccountInfo), googleTokenURL)
+		key, typ, err := checkGoogleKey([]byte(creds.ServiceAccountInfo), googleTokenURL, serviceAccountType, authorizedUserType)
 		if err != nil {
 			return nil, fmt.Errorf("service_account_info is not a valid service account key: %w", err)
 		}
-		cred, err := google.CredentialsFromJSONWithType(ctx, key, google.ServiceAccount, scopes...)
+		cred, err := google.CredentialsFromJSONWithType(ctx, key, google.CredentialsType(typ), scopes...)
 		if err != nil {
 			return nil, fmt.Errorf("parsing service account: %w", err)
 		}

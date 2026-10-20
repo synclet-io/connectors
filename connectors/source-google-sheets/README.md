@@ -52,10 +52,11 @@ The access token travels only in the `Authorization` header; a 401 answer fetche
   spreadsheet, authorized with `https://www.googleapis.com/auth/spreadsheets.readonly`, and with
   `https://www.googleapis.com/auth/drive.metadata.readonly` too for `incremental: true`.
 - **`Service`**: `service_account_info` is the JSON key of a service account (`"type": "service_account"`),
-  which requests both scopes above; share the spreadsheet with its `client_email`. The key's `token_uri`
-  must be `https://oauth2.googleapis.com/token` (or the legacy `https://accounts.google.com/o/oauth2/token`,
-  or absent) and its `universe_domain` `googleapis.com` (or absent), so the signed assertion goes only to
-  Google.
+  which requests both scopes above; share the spreadsheet with its `client_email`. User credentials
+  (`"type": "authorized_user"`) are accepted too. The `token_uri` must be `https://oauth2.googleapis.com/token`
+  (or the legacy `https://accounts.google.com/o/oauth2/token`, or absent) and the `universe_domain`
+  `googleapis.com` (or absent), so the credentials go only to Google; other credential JSON, such as
+  `external_account`, is rejected.
 - **`ApplicationDefault`**: Google Application Default Credentials of the environment, with both scopes.
 
 `check` gets an access token and reads the sheet list of every configured spreadsheet. A failed `check`
@@ -63,8 +64,9 @@ names the cause:
 
 | Message | Cause |
 |---|---|
-| `service_account_info is not a valid service account key` | The key is not JSON, is not of type `service_account`, has a `token_uri` other than Google's token endpoint or a `universe_domain` other than `googleapis.com`, or has no PEM private key |
+| `service_account_info is not a valid service account key` | The key is not JSON, is not of type `service_account` or `authorized_user`, has a `token_uri` other than Google's token endpoint or a `universe_domain` other than `googleapis.com`, or has no PEM private key |
 | `service account key is invalid, disabled or deleted` | The token endpoint rejected the signed assertion (`invalid_grant`, `invalid_client`) |
+| `the credentials in service_account_info are invalid or revoked` | The token endpoint rejected `authorized_user` credentials |
 | `refresh_token is invalid or revoked` | The token endpoint answered `invalid_grant` |
 | `client_id or client_secret is invalid` | The token endpoint answered `invalid_client` or `unauthorized_client` |
 | `the credentials lack the https://www.googleapis.com/auth/spreadsheets.readonly scope` | 403 with reason `ACCESS_TOKEN_SCOPE_INSUFFICIENT` |

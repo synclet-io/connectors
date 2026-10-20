@@ -18,13 +18,22 @@ func TestCredentialsOptionRejectsForeignTokenURI(t *testing.T) {
 	assert.Zero(t, hits.Load())
 }
 
-func TestCredentialsOptionRejectsOtherCredentialTypes(t *testing.T) {
+func TestCredentialsOptionAcceptsAuthorizedUser(t *testing.T) {
 	creds := CredentialsConfig{
 		AuthType:           authService,
 		ServiceAccountInfo: `{"type":"authorized_user","client_id":"c","client_secret":"s","refresh_token":"r"}`,
 	}
 	_, err := credentialsOption(t.Context(), creds)
-	require.EqualError(t, err, `service_account_info is not a valid service account key: type is "authorized_user", a service account key has type service_account`)
+	require.NoError(t, err)
+}
+
+func TestCredentialsOptionRejectsExternalAccount(t *testing.T) {
+	creds := CredentialsConfig{
+		AuthType:           authService,
+		ServiceAccountInfo: `{"type":"external_account","token_url":"http://127.0.0.1:1/token","credential_source":{"url":"http://127.0.0.1:1/subject"}}`,
+	}
+	_, err := credentialsOption(t.Context(), creds)
+	require.EqualError(t, err, `service_account_info is not a valid service account key: type is "external_account", want service_account or authorized_user`)
 }
 
 func TestCredentialsOptionAcceptsServiceAccountKey(t *testing.T) {

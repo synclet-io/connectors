@@ -48,7 +48,7 @@ func TestCheck(t *testing.T) {
 		{
 			name:     "malformed service account key",
 			edit:     func(c *Config) { c.Credentials.ServiceAccountKey = `{"type":"authorized_user"}` },
-			message:  `service_account_key is not a valid service account key: type is "authorized_user", a service account key has type service_account`,
+			message:  `service_account_key is not a valid service account key: type is "authorized_user", want service_account`,
 			requests: []string{},
 		},
 		{

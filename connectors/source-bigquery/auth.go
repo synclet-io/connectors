@@ -17,11 +17,11 @@ const bigqueryScope = "https://www.googleapis.com/auth/bigquery"
 func credentialsOption(ctx context.Context, creds CredentialsConfig) (option.ClientOption, error) {
 	switch creds.AuthType {
 	case authService:
-		key, err := checkServiceAccountKey([]byte(creds.ServiceAccountInfo), googleTokenURL)
+		key, typ, err := checkGoogleKey([]byte(creds.ServiceAccountInfo), googleTokenURL, serviceAccountType, authorizedUserType)
 		if err != nil {
 			return nil, fmt.Errorf("service_account_info is not a valid service account key: %w", err)
 		}
-		cred, err := google.CredentialsFromJSONWithType(ctx, key, google.ServiceAccount, bigqueryScope)
+		cred, err := google.CredentialsFromJSONWithType(ctx, key, google.CredentialsType(typ), bigqueryScope)
 		if err != nil {
 			return nil, fmt.Errorf("service_account_info is not a valid service account key: %w", err)
 		}
