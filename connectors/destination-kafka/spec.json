@@ -1,0 +1,282 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Produces every record as a JSON message to a Kafka topic per stream.",
+    "properties": {
+      "acks": {
+        "default": "1",
+        "description": "Acknowledgments the leader must receive before a write counts: 0 (none), 1 (the leader) or all (every in-sync replica).",
+        "examples": [
+          "0",
+          "1",
+          "all"
+        ],
+        "order": 6,
+        "title": "ACKs",
+        "type": "string"
+      },
+      "bootstrap_servers": {
+        "description": "Comma-separated host:port pairs of the brokers the client first connects to; it discovers the rest of the cluster from them.",
+        "examples": [
+          "kafka-broker1:9092,kafka-broker2:9092"
+        ],
+        "order": 0,
+        "title": "Bootstrap Servers",
+        "type": "string"
+      },
+      "buffer_memory": {
+        "default": "33554432",
+        "description": "Bytes of records buffered while waiting to be sent; producing waits while the buffer is full.",
+        "examples": [
+          "33554432"
+        ],
+        "order": 15,
+        "title": "Buffer Memory",
+        "type": "string"
+      },
+      "client_id": {
+        "default": "synclet-producer",
+        "description": "Name the client gives the brokers, for their logs and quotas.",
+        "examples": [
+          "synclet-producer"
+        ],
+        "order": 5,
+        "title": "Client ID",
+        "type": "string"
+      },
+      "compression_type": {
+        "default": "none",
+        "description": "Compression of the produced batches: none, gzip, snappy, lz4, zstd.",
+        "examples": [
+          "none",
+          "gzip",
+          "snappy",
+          "lz4",
+          "zstd"
+        ],
+        "order": 8,
+        "title": "Compression Type",
+        "type": "string"
+      },
+      "delivery_timeout_ms": {
+        "default": 120000,
+        "description": "Milliseconds a record may take from being produced to being acknowledged, retries included; 0 is no limit.",
+        "order": 14,
+        "title": "Delivery Timeout",
+        "type": "integer"
+      },
+      "enable_idempotence": {
+        "default": false,
+        "description": "Let the brokers drop duplicates of retried writes; needs acks all.",
+        "order": 7,
+        "title": "Enable Idempotence",
+        "type": "boolean"
+      },
+      "linger_ms": {
+        "default": "0",
+        "description": "Milliseconds a partition waits for more records before its batch is sent.",
+        "examples": [
+          "0",
+          "5"
+        ],
+        "order": 9,
+        "title": "Linger ms",
+        "type": "string"
+      },
+      "max_in_flight_requests_per_connection": {
+        "default": 5,
+        "description": "Unacknowledged produce requests per broker. With idempotence the client allows 5.",
+        "order": 11,
+        "title": "Max in Flight Requests per Connection",
+        "type": "integer"
+      },
+      "max_request_size": {
+        "default": 1048576,
+        "description": "Largest record batch in bytes, before compression; a record larger than it fails the sync. Up to 1 GiB.",
+        "order": 10,
+        "title": "Max Request Size",
+        "type": "integer"
+      },
+      "protocol": {
+        "default": {
+          "security_protocol": "PLAINTEXT"
+        },
+        "description": "Protocol used to communicate with the brokers.",
+        "oneOf": [
+          {
+            "properties": {
+              "security_protocol": {
+                "const": "PLAINTEXT",
+                "default": "PLAINTEXT",
+                "order": 0,
+                "type": "string"
+              }
+            },
+            "required": [
+              "security_protocol"
+            ],
+            "title": "PLAINTEXT",
+            "type": "object"
+          },
+          {
+            "properties": {
+              "sasl_jaas_config": {
+                "airbyte_secret": true,
+                "default": "",
+                "description": "Kafka sasl.jaas.config value whose username and password are used when SASL Username is empty, as in Airbyte's destination-kafka.",
+                "examples": [
+                  "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"alice\" password=\"secret\";"
+                ],
+                "order": 4,
+                "title": "SASL JAAS Config",
+                "type": "string"
+              },
+              "sasl_mechanism": {
+                "default": "PLAIN",
+                "description": "One of PLAIN, SCRAM-SHA-256, SCRAM-SHA-512.",
+                "examples": [
+                  "PLAIN",
+                  "SCRAM-SHA-256",
+                  "SCRAM-SHA-512"
+                ],
+                "order": 1,
+                "title": "SASL Mechanism",
+                "type": "string"
+              },
+              "sasl_password": {
+                "airbyte_secret": true,
+                "order": 3,
+                "title": "SASL Password",
+                "type": "string"
+              },
+              "sasl_username": {
+                "order": 2,
+                "title": "SASL Username",
+                "type": "string"
+              },
+              "security_protocol": {
+                "const": "SASL_PLAINTEXT",
+                "default": "SASL_PLAINTEXT",
+                "order": 0,
+                "type": "string"
+              }
+            },
+            "required": [
+              "security_protocol",
+              "sasl_mechanism"
+            ],
+            "title": "SASL PLAINTEXT",
+            "type": "object"
+          },
+          {
+            "properties": {
+              "sasl_jaas_config": {
+                "airbyte_secret": true,
+                "default": "",
+                "description": "Kafka sasl.jaas.config value whose username and password are used when SASL Username is empty, as in Airbyte's destination-kafka.",
+                "examples": [
+                  "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"alice\" password=\"secret\";"
+                ],
+                "order": 4,
+                "title": "SASL JAAS Config",
+                "type": "string"
+              },
+              "sasl_mechanism": {
+                "default": "PLAIN",
+                "description": "One of PLAIN, SCRAM-SHA-256, SCRAM-SHA-512.",
+                "examples": [
+                  "PLAIN",
+                  "SCRAM-SHA-256",
+                  "SCRAM-SHA-512"
+                ],
+                "order": 1,
+                "title": "SASL Mechanism",
+                "type": "string"
+              },
+              "sasl_password": {
+                "airbyte_secret": true,
+                "order": 3,
+                "title": "SASL Password",
+                "type": "string"
+              },
+              "sasl_username": {
+                "order": 2,
+                "title": "SASL Username",
+                "type": "string"
+              },
+              "security_protocol": {
+                "const": "SASL_SSL",
+                "default": "SASL_SSL",
+                "order": 0,
+                "type": "string"
+              }
+            },
+            "required": [
+              "security_protocol",
+              "sasl_mechanism"
+            ],
+            "title": "SASL SSL",
+            "type": "object"
+          }
+        ],
+        "order": 4,
+        "title": "Protocol",
+        "type": "object"
+      },
+      "request_timeout_ms": {
+        "default": 30000,
+        "description": "Milliseconds the brokers have to answer a produce request.",
+        "order": 13,
+        "title": "Request Timeout",
+        "type": "integer"
+      },
+      "retries": {
+        "default": 2147483647,
+        "description": "Times a failed batch is retried; the default retries until the delivery timeout.",
+        "order": 12,
+        "title": "Retries",
+        "type": "integer"
+      },
+      "sync_producer": {
+        "default": false,
+        "description": "Wait for each record to be acknowledged before producing the next one. Slow; records are acknowledged before each state either way.",
+        "order": 3,
+        "title": "Sync Producer",
+        "type": "boolean"
+      },
+      "test_topic": {
+        "description": "Topic check produces one message to; empty only connects to the brokers.",
+        "examples": [
+          "test.topic"
+        ],
+        "order": 2,
+        "title": "Test Topic",
+        "type": "string"
+      },
+      "topic_pattern": {
+        "description": "Topic of each stream; {namespace} and {stream} are replaced by the stream's namespace and name. As in Airbyte's destination-kafka, every character of the result other than letters, digits and underscores becomes an underscore.",
+        "examples": [
+          "sample.topic",
+          "{namespace}.{stream}.sample"
+        ],
+        "order": 1,
+        "title": "Topic Pattern",
+        "type": "string"
+      }
+    },
+    "required": [
+      "bootstrap_servers",
+      "topic_pattern"
+    ],
+    "title": "Kafka Destination Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/destination-kafka",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "append"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": true,
+  "supportsNormalization": false
+}
