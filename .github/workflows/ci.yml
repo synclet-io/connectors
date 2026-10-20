@@ -38,7 +38,7 @@ jobs:
           go-version-file: go.mod
 
       - name: Test scripts
-        run: go test ./scripts -count=1
+        run: go test ./scripts/... -count=1
 
       - name: Validate meta.json and spec.json
         run: go run ./scripts validate

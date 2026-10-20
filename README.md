@@ -100,6 +100,10 @@ tag <dir>-v<version> ──► release.yml
 Release succeeded ────► registry.yml (on main)
                         └─ rebuild registry.json from every connector's newest published release and
                            deploy it to GitHub Pages
+
+Mondays 06:00 UTC ────► api-watch.yml
+                        ├─ check every pinned upstream API version, one issue per finding
+                        └─ with ANTHROPIC_API_KEY: Claude drafts a bump pull request per new version
 ```
 
 Each connector is versioned and released on its own, by [release-please](https://github.com/googleapis/release-please)
@@ -123,7 +127,7 @@ token minted from a GitHub App. The workflow reads two repository (or organizati
 
 | Secret | Value |
 |---|---|
-| `REGISTRY_DISPATCH_APP_ID` | App ID of a GitHub App installed on `synclet-io/connectors` with **Contents**, **Pull requests** and **Issues: Read and write** |
+| `REGISTRY_DISPATCH_APP_ID` | App ID of a GitHub App installed on `synclet-io/connectors` with **Contents**, **Pull requests** and **Issues: Read and write** (the API watch uses it too) |
 | `REGISTRY_DISPATCH_APP_PRIVATE_KEY` | A private key (PEM) of that App |
 
 ### Image visibility
@@ -132,6 +136,32 @@ The first push of a connector creates a **private** GHCR package. Synclet pulls 
 release fails at "Image is publicly pullable" until the package is public: open **synclet-io → Packages →
 connectors/\<name\> → Package settings → Change visibility → Public** once per connector, then re-run the
 release for the same tag.
+
+## Upstream API versions
+
+Connectors that pin an upstream API version declare it in `api_versions` in `meta.json` (see
+[CONTRIBUTING.md](CONTRIBUTING.md#upstream-api-versions)). Every Monday `api-watch.yml` runs
+`go run ./scripts apiwatch`, which asks each provider for its newest version and the sunset date of the pinned one
+(a JSON endpoint or probe where there is one, the provider's versioning page otherwise) and writes the report as a
+table into the run summary. `go run ./scripts apiwatch-issues` then keeps one issue labelled `api-watch` per
+connector API that has a newer version or sunsets within 90 days (`sunset-90`, `sunset-30`), updates it as the date
+nears and closes it once the pin is current. Checks that fail (a provider page changed shape) are collected in one
+issue. The run fails while a pin is within 30 days of its sunset, or past it, without an open bump pull request.
+
+With the `ANTHROPIC_API_KEY` repository secret set, a second job hands each new version to Claude
+([claude-code-action](https://github.com/anthropics/claude-code-action), `claude-opus-5-5`, at most 60 turns), which
+reads the provider's changelog, bumps the pin and adapts the connector. Claude may only read and edit files, run
+`go build`, `go vet`, `go test` and `go run ./scripts validate`, and fetch pages of the provider's hosts; it gets no
+token that can push. The workflow then commits as the release App on `api-bump/<connector>/<version>`, opens a pull
+request labelled `api-bump` and `needs-review` (a draft when the connector's tests fail) and links it from the
+issue. Nothing is merged automatically. A branch or pull request of that name, open or closed, stops the version
+from being drafted again: to retry a rejected bump, delete the branch and run the workflow with `connector` set.
+
+**Actions → API watch → Run workflow** takes `dry_run` (summary only, no issue or pull request changes),
+`connector` and `bump`. Locally, `go run ./scripts apiwatch --report /tmp/report.json` checks the live providers and
+`--fixtures scripts/apiwatch/testdata` replays the recorded responses the tests use;
+`go run ./scripts apiwatch-issues --report /tmp/report.json --repo synclet-io/connectors --dry-run` prints the
+issue changes without making them.
 
 ## Local development
 

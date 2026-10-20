@@ -1,0 +1,237 @@
+name: API watch
+
+# Weekly check of the upstream API versions connectors pin (api_versions in meta.json). Each finding (a newer
+# version, a sunset within 90 days) keeps one issue open; the run fails while a pin is within 30 days of its
+# sunset without an open bump pull request. With the ANTHROPIC_API_KEY secret set, Claude drafts one bump pull
+# request per new version for a human to review; it never merges anything.
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Report only; open, update and close no issues and draft no pull requests
+        type: boolean
+        default: false
+      connector:
+        description: Check only this connector directory, e.g. source-intercom
+        type: string
+        default: ""
+      bump:
+        description: Draft bump pull requests when ANTHROPIC_API_KEY is set
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: api-watch
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
+    outputs:
+      bumps: ${{ steps.issues.outputs.bumps }}
+      has_key: ${{ steps.key.outputs.has_key }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+
+      - name: Check upstream API versions
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          CONNECTOR: ${{ inputs.connector }}
+        run: go run ./scripts apiwatch --report dist/api-watch.json --summary "$GITHUB_STEP_SUMMARY" ${CONNECTOR:+--connector "$CONNECTOR"}
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: api-watch-report
+          path: dist/api-watch.json
+
+      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        if: ${{ !inputs.dry_run }}
+        id: app-token
+        with:
+          app-id: ${{ secrets.REGISTRY_DISPATCH_APP_ID }}
+          private-key: ${{ secrets.REGISTRY_DISPATCH_APP_PRIVATE_KEY }}
+          permission-issues: write
+          permission-contents: read
+          permission-pull-requests: read
+
+      # Writes the bump candidates before it fails on a near sunset, so the bump job still drafts them.
+      - name: Sync issues
+        id: issues
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          args=(--report dist/api-watch.json --repo "$GITHUB_REPOSITORY" --bumps dist/bumps.json)
+          if [ "$DRY_RUN" = true ]; then args+=(--dry-run); fi
+          status=0
+          go run ./scripts apiwatch-issues "${args[@]}" || status=$?
+          bumps=$(cat dist/bumps.json 2>/dev/null || echo '[]')
+          echo "bumps=$bumps" >> "$GITHUB_OUTPUT"
+          echo "Bump candidates: $bumps"
+          exit "$status"
+
+      - name: Check for the Anthropic API key
+        id: key
+        if: ${{ !cancelled() }}
+        env:
+          HAS_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+        run: |
+          echo "has_key=$HAS_KEY" >> "$GITHUB_OUTPUT"
+          if [ "$HAS_KEY" != true ]; then echo "ANTHROPIC_API_KEY absent; bump skipped"; fi
+
+  bump:
+    needs: watch
+    if: >-
+      !cancelled() && !inputs.dry_run && (github.event_name == 'schedule' || inputs.bump) &&
+      needs.watch.outputs.has_key == 'true' && needs.watch.outputs.bumps != '' && needs.watch.outputs.bumps != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    continue-on-error: true
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        bump: ${{ fromJSON(needs.watch.outputs.bumps) }}
+    env:
+      CONNECTOR: ${{ matrix.bump.connector }}
+      API: ${{ matrix.bump.api }}
+      FROM: ${{ matrix.bump.from }}
+      TO: ${{ matrix.bump.to }}
+      PIN_FILE: ${{ matrix.bump.file }}
+      DOCS: ${{ matrix.bump.docs }}
+      HOSTS: ${{ matrix.bump.hosts }}
+      BRANCH: ${{ matrix.bump.branch }}
+      ISSUE: ${{ matrix.bump.issue }}
+    steps:
+      # Claude's step gets no credential that can push: checkout keeps none, and the App token is minted after it.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: connectors/${{ matrix.bump.connector }}/go.mod
+          cache-dependency-path: connectors/${{ matrix.bump.connector }}/go.sum
+
+      - name: Prepare the branch and the prompt
+        id: prompt
+        run: |
+          git switch -c "$BRANCH"
+          webfetch=""
+          IFS=, read -ra hosts <<<"$HOSTS"
+          for h in "${hosts[@]}"; do
+            [[ "$h" =~ ^[A-Za-z0-9.-]+$ ]] || { echo "::error::bad host $h"; exit 1; }
+            webfetch+=",WebFetch(domain:$h)"
+          done
+          {
+            echo "webfetch=$webfetch"
+            echo "prompt<<API_BUMP_PROMPT_EOF"
+            # shellcheck disable=SC2016 # envsubst expands only the variables named in single quotes
+            envsubst '$CONNECTOR $API $FROM $TO $PIN_FILE $DOCS' < .github/api-bump/prompt.md
+            echo "API_BUMP_PROMPT_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Draft the bump with Claude
+        uses: anthropics/claude-code-action@374f254f5efaf968abfe15d399fd90972e8138b9 # v1.0.251
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # Read-only: the action needs a token, and this one cannot push or comment.
+          github_token: ${{ github.token }}
+          prompt: ${{ steps.prompt.outputs.prompt }}
+          claude_args: >-
+            --model claude-opus-5-5
+            --max-turns 60
+            --allowedTools "Read,Edit,Write,Glob,Grep,Bash(go test:*),Bash(go vet:*),Bash(go build:*),Bash(go run ./scripts validate)${{ steps.prompt.outputs.webfetch }}"
+            --disallowedTools "Bash(git:*),Bash(gh:*),Bash(curl:*),Bash(wget:*)"
+
+      - name: Test the connector
+        id: test
+        run: |
+          if go test -C "connectors/$CONNECTOR" ./... -count=1 && go run ./scripts validate > /dev/null; then
+            echo "passed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "passed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Collect the changes
+        id: changes
+        run: |
+          summary=.github/api-bump/SUMMARY.md
+          if [ -f "$summary" ]; then mv "$summary" "$RUNNER_TEMP/summary.md"; else echo "Claude wrote no summary." > "$RUNNER_TEMP/summary.md"; fi
+          git add -A
+          outside=$(git diff --cached --name-only | grep -v "^connectors/$CONNECTOR/" || true)
+          if [ -n "$outside" ]; then
+            echo "::error::Claude changed files outside connectors/$CONNECTOR/: $outside"
+            exit 1
+          fi
+          if git diff --cached --quiet; then
+            echo "::warning::Claude changed nothing for $CONNECTOR $TO"
+            cat "$RUNNER_TEMP/summary.md"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git diff --cached --stat
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        if: steps.changes.outputs.changed == 'true'
+        id: app-token
+        with:
+          app-id: ${{ secrets.REGISTRY_DISPATCH_APP_ID }}
+          private-key: ${{ secrets.REGISTRY_DISPATCH_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+          permission-issues: write
+
+      # Pushed with the App's token so CI runs on the pull request; a human reviews and merges it.
+      - name: Commit, push and open the pull request
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
+          PASSED: ${{ steps.test.outputs.passed }}
+        run: |
+          bot="${APP_SLUG}[bot]"
+          bot_id=$(gh api "/users/$bot" --jq .id)
+          title="fix($CONNECTOR): bump $API to $TO"
+          git -c user.name="$bot" -c user.email="$bot_id+$bot@users.noreply.github.com" commit -q -m "$title"
+          git push "https://x-access-token:$GH_TOKEN@github.com/$GITHUB_REPOSITORY.git" "HEAD:refs/heads/$BRANCH"
+
+          {
+            cat "$RUNNER_TEMP/summary.md"
+            echo
+            echo "---"
+            echo "Drafted by Claude in the API watch workflow ([run]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)): \`$FROM\` → \`$TO\`."
+            if [ "$PASSED" = true ]; then
+              echo "\`go test\` of the connector and \`go run ./scripts validate\` pass."
+            else
+              echo "**\`go test\` of the connector or \`go run ./scripts validate\` fails**, so this pull request is a draft."
+            fi
+            if [ "$ISSUE" != 0 ]; then echo; echo "Refs #$ISSUE"; fi
+          } > "$RUNNER_TEMP/body.md"
+
+          draft=()
+          if [ "$PASSED" != true ]; then draft=(--draft); fi
+          url=$(gh pr create --repo "$GITHUB_REPOSITORY" --base main --head "$BRANCH" --title "$title" \
+            --body-file "$RUNNER_TEMP/body.md" --label api-bump --label needs-review "${draft[@]}")
+          echo "Opened $url"
+          if [ "$ISSUE" != 0 ]; then
+            gh issue comment "$ISSUE" --repo "$GITHUB_REPOSITORY" --body "Bump drafted for review: $url"
+          fi
