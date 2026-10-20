@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"maps"
 	"net/url"
 	"regexp"
 	"slices"
@@ -76,7 +77,9 @@ type Action struct {
 // Plan compares the issues the report calls for with the open api-watch
 // issues: a finding without an issue is created, a changed one updated, and
 // the issue of an entry that is ok again closed. Entries a run could not
-// check, or did not check, leave their issues alone.
+// check, or did not check, leave their issues alone. A run of every pin also
+// closes the issues of pins no longer declared and keeps the checkers issue;
+// a run of one connector touches neither.
 func Plan(report Report, open []Issue, repoURL string) []Action {
 	existing := map[string]Issue{}
 
@@ -136,6 +139,21 @@ func Plan(report Report, open []Issue, repoURL string) []Action {
 			polled++
 
 			want(Key(e), Title(e), Body(e, report.Checked, repoURL), sunsetLabels(e.Status))
+		}
+	}
+
+	if report.Connector != "" {
+		return actions
+	}
+
+	declared := map[string]bool{checkersKey: true}
+	for _, e := range report.Entries {
+		declared[Key(e)] = true
+	}
+
+	for _, key := range slices.Sorted(maps.Keys(existing)) {
+		if !declared[key] {
+			closeIssue(key, "Resolved on "+report.Checked+": the connector no longer declares this pin in `api_versions`.")
 		}
 	}
 

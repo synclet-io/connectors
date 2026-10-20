@@ -78,9 +78,12 @@ func (e Entry) Newer() bool {
 	return e.Latest != "" && e.Latest != e.Pinned && e.Status != StatusCheckerError && e.Status != StatusUnchecked
 }
 
+// Report is one run's result. Connector names the only connector checked;
+// empty means every declared pin was.
 type Report struct {
-	Checked string  `json:"checked"`
-	Entries []Entry `json:"entries"`
+	Checked   string  `json:"checked"`
+	Connector string  `json:"connector,omitempty"`
+	Entries   []Entry `json:"entries"`
 }
 
 // None is the checker id of pins that are listed but never polled.

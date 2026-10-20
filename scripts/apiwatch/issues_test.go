@@ -407,3 +407,71 @@ func TestUnsafeUpstreamVersionIsNotBumped(t *testing.T) {
 		t.Errorf("bumps = %+v, want none", bumps)
 	}
 }
+
+func TestIssuesPartialRunLeavesOtherConnectorsAlone(t *testing.T) {
+	f, gh := newFakeGitHub(t)
+	ctx := context.Background()
+
+	full := Report{Checked: "2026-10-19", Entries: []Entry{
+		entry("Stripe", StatusNewVersion, "2026-09-30.endive", "", nil),
+		entry("Shopify", StatusCheckerError, "", "", nil),
+		entry("Notion", StatusOK, "2025-01-01", "", nil),
+	}}
+	full.Entries[1].Error = "release schedule table not found"
+
+	if _, err := SyncIssues(ctx, gh, full); err != nil {
+		t.Fatal(err)
+	}
+
+	partial := Report{Checked: "2026-10-20", Connector: "source-notion", Entries: []Entry{
+		entry("Notion", StatusCheckerError, "", "", nil),
+	}}
+	partial.Entries[0].Error = "no New API version"
+
+	_, _ = SyncIssues(ctx, gh, partial)
+
+	partial.Entries[0] = entry("Notion", StatusOK, "2025-01-01", "", nil)
+
+	if _, err := SyncIssues(ctx, gh, partial); err != nil {
+		t.Fatal(err)
+	}
+
+	checkers := findIssue(t, f.open(), checkersKey)
+	if !strings.Contains(checkers.Body, "release schedule table not found") {
+		t.Errorf("a run of one connector rewrote the checkers issue: %s", checkers.Body)
+	}
+
+	findIssue(t, f.open(), "source-stripe/stripe-api")
+}
+
+func TestIssuesOfUndeclaredPinsClose(t *testing.T) {
+	f, gh := newFakeGitHub(t)
+	ctx := context.Background()
+
+	run := Report{Checked: "2026-10-19", Entries: []Entry{entry("Stripe", StatusNewVersion, "2026-09-30.endive", "", nil)}}
+	if _, err := SyncIssues(ctx, gh, run); err != nil {
+		t.Fatal(err)
+	}
+
+	stripe := findIssue(t, f.open(), "source-stripe/stripe-api")
+
+	if _, err := SyncIssues(ctx, gh, Report{Checked: "2026-10-20", Connector: "source-notion", Entries: []Entry{
+		entry("Notion", StatusOK, "2025-01-01", "", nil),
+	}}); err != nil {
+		t.Fatal(err)
+	}
+
+	if stripe.State != "open" {
+		t.Fatal("a run of one connector closed another connector's issue")
+	}
+
+	if _, err := SyncIssues(ctx, gh, Report{Checked: "2026-10-26", Entries: []Entry{
+		entry("Notion", StatusOK, "2025-01-01", "", nil),
+	}}); err != nil {
+		t.Fatal(err)
+	}
+
+	if stripe.State != "closed" || len(stripe.Comments) != 1 || !strings.Contains(stripe.Comments[0], "no longer declares") {
+		t.Errorf("stripe %s %v: want the issue of a pin no longer declared closed with a comment", stripe.State, stripe.Comments)
+	}
+}

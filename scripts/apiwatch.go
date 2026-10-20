@@ -31,6 +31,7 @@ func apiWatch(root, connector, fixtures, out, summary string) error {
 	}
 
 	report := apiwatch.Run(context.Background(), client, targets, time.Now())
+	report.Connector = connector
 
 	for _, e := range report.Entries {
 		detail := e.Error
