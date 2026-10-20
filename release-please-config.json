@@ -70,6 +70,16 @@
         }
       ]
     },
+    "connectors/destination-kafka": {
+      "component": "destination-kafka",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "meta.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
     "connectors/destination-mysql": {
       "component": "destination-mysql",
       "extra-files": [
