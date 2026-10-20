@@ -74,7 +74,7 @@ func (c Config) mode() (mode, error) {
 		return mode{kind: typeSilent}, nil
 	case typeLogging:
 		if td.LoggingConfig == nil {
-			return mode{}, errors.New("test_destination: LOGGING needs logging_config")
+			return LoggingConfig{Type: loggingFirstN}.mode()
 		}
 		return td.LoggingConfig.mode()
 	case typeThrottled:

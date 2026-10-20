@@ -26,6 +26,8 @@ func TestConfigModes(t *testing.T) {
 		{"silent", `{"test_destination":{"test_destination_type":"SILENT"}}`, mode{kind: typeSilent}},
 		{"first n", `{"test_destination":{"test_destination_type":"LOGGING","logging_config":{"logging_type":"FirstN","max_entry_count":5}}}`,
 			mode{kind: typeLogging, maxEntries: 5, every: 1, ratio: 1}},
+		{"logging without logging_config is first n", `{"test_destination":{"test_destination_type":"LOGGING"}}`,
+			mode{kind: typeLogging, maxEntries: 100, every: 1, ratio: 1}},
 		{"first n default", `{"test_destination":{"test_destination_type":"LOGGING","logging_config":{"logging_type":"FirstN"}}}`,
 			mode{kind: typeLogging, maxEntries: 100, every: 1, ratio: 1}},
 		{"every nth", `{"test_destination":{"test_destination_type":"LOGGING","logging_config":{"logging_type":"EveryNth","nth_entry_to_log":3,"max_entry_count":10.0}}}`,
@@ -50,7 +52,6 @@ func TestConfigModes(t *testing.T) {
 func TestConfigInvalid(t *testing.T) {
 	for _, c := range []struct{ raw, want string }{
 		{`{"test_destination":{"test_destination_type":"BLACKHOLE"}}`, `test_destination_type "BLACKHOLE" is not one of`},
-		{`{"test_destination":{"test_destination_type":"LOGGING"}}`, "LOGGING needs logging_config"},
 		{`{"test_destination":{"test_destination_type":"LOGGING","logging_config":{"logging_type":"LastN"}}}`, `logging_type "LastN" is not one of`},
 		{`{"test_destination":{"test_destination_type":"LOGGING","logging_config":{"logging_type":"FirstN","max_entry_count":0}}}`, "max_entry_count 0 is not"},
 		{`{"test_destination":{"test_destination_type":"LOGGING","logging_config":{"logging_type":"FirstN","max_entry_count":1001}}}`, "max_entry_count 1001 is not"},

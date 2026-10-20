@@ -17,7 +17,8 @@ echo '{"type":"RECORD","record":{"stream":"users","data":{"id":1},"emitted_at":0
 ## Configuration
 
 The keys match Airbyte's destination-dev-null, so an existing configuration carries over. A
-configuration without `test_destination` is `SILENT`.
+configuration without `test_destination` is `SILENT`, and `LOGGING` without `logging_config` logs
+the first 100 records of each stream.
 
 | `test_destination_type` | Keys | Behaviour |
 |---|---|---|
