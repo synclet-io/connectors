@@ -20,7 +20,7 @@ func (src Source) Check(ctx context.Context, cfg Config) (rerr error) {
 	if err := validConfig(&cfg); err != nil {
 		return err
 	}
-	store, err := newGCSStore(ctx, cfg, src.clientOptions...)
+	store, err := newGCSStore(ctx, cfg, src.tokenEndpoint(), src.clientOptions...)
 	if err != nil {
 		return err
 	}

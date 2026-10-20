@@ -53,7 +53,7 @@ func (src Source) open(ctx context.Context, cfg *Config) (objectStore, error) {
 	if src.store != nil {
 		return src.store, nil
 	}
-	return newGCSStore(ctx, *cfg, src.clientOptions...)
+	return newGCSStore(ctx, *cfg, src.tokenEndpoint(), src.clientOptions...)
 }
 
 func streamSchema(ctx context.Context, store objectStore, s StreamConfig) (json.RawMessage, error) {

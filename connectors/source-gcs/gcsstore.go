@@ -21,13 +21,17 @@ type gcsStore struct {
 }
 
 // resolveCredentials returns the configured credentials, scoped to read-only
-// Cloud Storage access. Tokens are fetched lazily, on the first request or on
-// fetchToken.
-func resolveCredentials(cr Credentials) (*auth.Credentials, error) {
+// Cloud Storage access. A service account key's tokens come from tokenURL.
+// Tokens are fetched lazily, on the first request or on fetchToken.
+func resolveCredentials(cr Credentials, tokenURL string) (*auth.Credentials, error) {
 	opts := &credentials.DetectOptions{Scopes: []string{storage.ScopeReadOnly}}
 	switch cr.AuthType {
 	case authService:
-		creds, err := credentials.NewCredentialsFromJSON(credentials.ServiceAccount, []byte(cr.ServiceAccountInfo), opts)
+		key, err := checkServiceAccountKey([]byte(cr.ServiceAccountInfo), tokenURL)
+		if err != nil {
+			return nil, fmt.Errorf("service_account_info is not a valid service account key: %w", err)
+		}
+		creds, err := credentials.NewCredentialsFromJSON(credentials.ServiceAccount, key, opts)
 		if err != nil {
 			return nil, fmt.Errorf("service_account_info is not a valid service account key: %w", err)
 		}
@@ -42,10 +46,11 @@ func resolveCredentials(cr Credentials) (*auth.Credentials, error) {
 	return nil, fmt.Errorf("credentials auth_type %q is not one of %v", cr.AuthType, authTypes)
 }
 
-// newGCSStore builds a client for cfg's bucket. extra goes after the
-// credentials, so tests can point the client at a fake server.
-func newGCSStore(ctx context.Context, cfg Config, extra ...apioption.ClientOption) (*gcsStore, error) {
-	creds, err := resolveCredentials(cfg.Credentials)
+// newGCSStore builds a client for cfg's bucket that fetches a service account
+// key's tokens from tokenURL. extra goes after the credentials, so tests can
+// point the client at a fake server.
+func newGCSStore(ctx context.Context, cfg Config, tokenURL string, extra ...apioption.ClientOption) (*gcsStore, error) {
+	creds, err := resolveCredentials(cfg.Credentials, tokenURL)
 	if err != nil {
 		return nil, err
 	}

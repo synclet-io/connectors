@@ -44,6 +44,10 @@ it afterwards, so the account needs to create and delete objects there.
 | `Service` | `service_account_info` | The JSON key of a service account, as the Google Cloud console downloads it |
 | `ApplicationDefault` (default) | | Application Default Credentials: `GOOGLE_APPLICATION_CREDENTIALS`, gcloud's user credentials, GKE Workload Identity or the Compute Engine metadata server |
 
+`service_account_info` must be a key of type `service_account` whose `token_uri`, when set, is
+`https://oauth2.googleapis.com/token` (or the legacy `https://accounts.google.com/o/oauth2/token`) and whose
+`universe_domain`, when set, is `googleapis.com`; any other key is rejected before a request is sent.
+
 Requests use the read-only Cloud Storage scope. The account needs `storage.objects.list` on the bucket and
 `storage.objects.get` on the objects, as the Storage Object Viewer role (`roles/storage.objectViewer`) grants.
 `check` fetches an access token, lists each stream's prefix and reads the first byte of its first matching

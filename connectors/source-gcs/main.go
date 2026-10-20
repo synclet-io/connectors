@@ -8,10 +8,20 @@ import (
 
 // Source is the Cloud Storage source connector. store is nil in main, where
 // discover and read open the configured bucket; tests set it to an in-memory
-// store, or set clientOptions to reach a fake Cloud Storage server.
+// store, or set clientOptions and tokenURL to reach a fake Cloud Storage
+// server and token endpoint.
 type Source struct {
 	store         objectStore
 	clientOptions []apioption.ClientOption
+	tokenURL      string
+}
+
+// tokenEndpoint is where a service account key's tokens come from.
+func (src Source) tokenEndpoint() string {
+	if src.tokenURL != "" {
+		return src.tokenURL
+	}
+	return googleTokenURL
 }
 
 func main() { cli.RunSource(Source{}) }

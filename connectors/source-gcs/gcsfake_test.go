@@ -101,14 +101,17 @@ func gcsError(w http.ResponseWriter, code int, msg string) {
 
 // source reaches the fake server instead of Cloud Storage.
 func (f *fakeGCS) source() Source {
-	return Source{clientOptions: []apioption.ClientOption{apioption.WithEndpoint(f.srv.URL + "/storage/v1/")}}
+	return Source{
+		clientOptions: []apioption.ClientOption{apioption.WithEndpoint(f.srv.URL + "/storage/v1/")},
+		tokenURL:      f.srv.URL + "/token",
+	}
 }
 
 // config reaches bucket as the service account user@.
 func (f *fakeGCS) config(t *testing.T, user, bucket string, streams ...StreamConfig) Config {
 	return Config{
 		Bucket:      bucket,
-		Credentials: Credentials{AuthType: authService, ServiceAccountInfo: serviceAccountKey(t, user, f.srv.URL+"/token")},
+		Credentials: Credentials{AuthType: authService, ServiceAccountInfo: serviceAccountKey(t, user, googleTokenURL)},
 		Streams:     streams,
 	}
 }

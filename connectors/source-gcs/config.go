@@ -222,5 +222,8 @@ func validServiceAccountKey(info string) error {
 	if key.ClientEmail == "" || key.PrivateKey == "" {
 		return errors.New("service_account_info needs client_email and private_key")
 	}
+	if _, err := checkServiceAccountKey([]byte(info), googleTokenURL); err != nil {
+		return fmt.Errorf("service_account_info is not a valid service account key: %w", err)
+	}
 	return nil
 }
