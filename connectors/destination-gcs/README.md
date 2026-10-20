@@ -46,6 +46,10 @@ under a random prefix it removes afterwards; it is skipped otherwise.
 | `service_account` (default) | `service_account_info`: the JSON key of a service account; a key of another type is rejected |
 | `application_default` | none: `GOOGLE_APPLICATION_CREDENTIALS`, workload identity or the metadata server |
 
+`service_account_info` must be a key of type `service_account` whose `token_uri`, when set, is
+`https://oauth2.googleapis.com/token` (or the legacy `https://accounts.google.com/o/oauth2/token`) and whose
+`universe_domain`, when set, is `googleapis.com`; any other key is rejected before a request is sent.
+
 HMAC keys are not supported. The credentials need `storage.objects.create`, `storage.objects.delete` and
 `storage.objects.list` on the bucket (`roles/storage.objectAdmin`); bucket metadata is never read. `check`
 writes and deletes a probe object `<bucket_path>/_synclet_check_<uuid>` and lists `bucket_path`, and names

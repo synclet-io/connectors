@@ -104,11 +104,10 @@ func TestClientRejectsKeyThatCannotSignIn(t *testing.T) {
 		"private_key_id": "0000",
 		"private_key":    string(pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: der})),
 		"client_email":   "writer@synclet-test.iam.gserviceaccount.com",
-		"token_uri":      tokenServer.URL,
 	})
 	require.NoError(t, err)
 	cfg := Config{Credentials: Credentials{AuthType: authServiceAccount, ServiceAccountInfo: string(key)}}
-	_, err = newGCSClient(t.Context(), cfg)
+	_, err = newGCSClientWithTokenURL(t.Context(), cfg, tokenServer.URL)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "invalid credentials")
 	assert.Contains(t, err.Error(), "invalid_grant")

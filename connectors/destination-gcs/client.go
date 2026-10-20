@@ -16,11 +16,21 @@ const readWriteScope = "https://www.googleapis.com/auth/devstorage.read_write"
 // fetches the first access token up front, so a key that cannot sign in
 // fails as invalid credentials; the client reuses that token.
 func newGCSClient(ctx context.Context, cfg Config) (*storage.Client, error) {
+	return newGCSClientWithTokenURL(ctx, cfg, googleTokenURL)
+}
+
+// newGCSClientWithTokenURL is newGCSClient with a service account key's
+// tokens fetched from tokenURL.
+func newGCSClientWithTokenURL(ctx context.Context, cfg Config, tokenURL string) (*storage.Client, error) {
 	var creds *google.Credentials
 	var err error
 	switch cfg.Credentials.AuthType {
 	case authServiceAccount:
-		creds, err = google.CredentialsFromJSONWithType(ctx, []byte(cfg.Credentials.ServiceAccountInfo), google.ServiceAccount, readWriteScope)
+		key, keyErr := checkServiceAccountKey([]byte(cfg.Credentials.ServiceAccountInfo), tokenURL)
+		if keyErr != nil {
+			return nil, fmt.Errorf("credentials: parsing service_account_info: %w", keyErr)
+		}
+		creds, err = google.CredentialsFromJSONWithType(ctx, key, google.ServiceAccount, readWriteScope)
 		if err != nil {
 			return nil, fmt.Errorf("credentials: parsing service_account_info: %w", err)
 		}
