@@ -18,6 +18,7 @@ func TestTopicName(t *testing.T) {
 		{"{stream}", "", "Ünïcödé  name", "Unicode_name"},
 		{"{stream}", "", "заказы", "______"},
 		{"{stream}", "", "a\t\nb", "a_b"},
+		{"{stream}", "", "a \u2028\u0085b", "a___b"},
 		{"{Stream}", "", "users", "_Stream_"},
 	} {
 		got, err := topicName(c.pattern, c.namespace, c.stream)

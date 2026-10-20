@@ -15,6 +15,7 @@ const maxTopicLength = 249
 // as Airbyte's destination-kafka does: accents are dropped, whitespace runs
 // become one underscore and every other character outside [A-Za-z0-9_]
 // becomes an underscore, so "{namespace}.{stream}" gives "public_users".
+// Whitespace is Java's \s: space, \t, \n, \v, \f and \r.
 func topicName(pattern, namespace, stream string) (string, error) {
 	name := strings.NewReplacer("{namespace}", namespace, "{stream}", stream).Replace(pattern)
 	name = alphanumericAndUnderscore(name)
@@ -31,7 +32,7 @@ func alphanumericAndUnderscore(s string) string {
 		switch {
 		case unicode.Is(unicode.M, r):
 			continue
-		case unicode.IsSpace(r):
+		case strings.ContainsRune(" \t\n\v\f\r", r):
 			if !space {
 				b.WriteByte('_')
 			}
