@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -244,4 +245,28 @@ func TestStoreListAndDelete(t *testing.T) {
 	require.NoError(t, store.delete(t.Context(), append(listed, "sync/a/gone.jsonl")), "a missing object is not an error")
 	left, _ := m.objects(t, bucket)
 	assert.Equal(t, []string{"sync/b/keep.jsonl"}, left)
+}
+
+func TestTransientUploadAndDeleteErrorsAreRetried(t *testing.T) {
+	m := startFakeGCS(t)
+	bucket := m.newBucket(t)
+	m.putObject(bucket, "sync/orders/2026_01_01/old.jsonl")
+	var uploads, deletes atomic.Int32
+	d := m.destination(func(r *http.Request) *http.Response {
+		if strings.HasPrefix(r.URL.Path, "/upload/") && uploads.Add(1) == 1 ||
+			r.Method == http.MethodDelete && deletes.Add(1) == 1 {
+			return apiError(http.StatusServiceUnavailable, "backendError", "try again")
+		}
+		return nil
+	})
+	d.now = func() time.Time { return testStart }
+	var out bytes.Buffer
+	in := synclet.NewMessageReader(strings.NewReader(strings.Join(fixtureLines("orders", ""), "\n") + "\n"))
+	catalog := fixtureCatalog(t, fixtureStream("orders", "", synclet.DestinationSyncModeOverwrite))
+	require.NoError(t, d.Write(t.Context(), m.config(bucket, ""), catalog, in, synclet.NewEmitter(&out)))
+	assert.Contains(t, out.String(), `"type":"STATE"`)
+	assert.Greater(t, uploads.Load(), int32(1))
+	assert.Greater(t, deletes.Load(), int32(1))
+	keys, _ := m.objects(t, bucket)
+	assert.Equal(t, []string{fmt.Sprintf("sync/orders/2026_10_18/%d_RUN_0.jsonl", testStart.UnixMilli())}, withoutRunID(keys))
 }
