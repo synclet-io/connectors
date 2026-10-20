@@ -460,6 +460,16 @@
         }
       ]
     },
+    "connectors/source-sentry": {
+      "component": "source-sentry",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "meta.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
     "connectors/source-shopify": {
       "component": "source-shopify",
       "extra-files": [

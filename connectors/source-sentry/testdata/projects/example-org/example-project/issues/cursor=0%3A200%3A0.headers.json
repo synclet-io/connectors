@@ -1,0 +1,3 @@
+{
+  "Link": "<projects/example-org/example-project/issues/?cursor=0:100:0>; rel=\"previous\"; results=\"false\"; cursor=\"0:100:0\", <projects/example-org/example-project/issues/?cursor=0:300:0>; rel=\"next\"; results=\"false\"; cursor=\"0:300:0\""
+}

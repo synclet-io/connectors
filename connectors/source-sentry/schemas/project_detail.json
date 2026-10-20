@@ -1,0 +1,631 @@
+{
+  "type": "object",
+  "properties": {
+    "access": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": [
+          "null",
+          "string"
+        ]
+      }
+    },
+    "allowedDomains": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": [
+          "null",
+          "string"
+        ]
+      }
+    },
+    "avatar": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "avatarType": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "avatarUuid": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "builtinSymbolSources": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {}
+    },
+    "color": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "dataScrubber": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "dataScrubberDefaults": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "dateCreated": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "defaultEnvironment": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "digestsMaxDelay": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "digestsMinDelay": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "dynamicSamplingBiases": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "environments": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": [
+          "null",
+          "string"
+        ]
+      }
+    },
+    "eventProcessing": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "symbolicationDegraded": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "features": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": [
+          "null",
+          "string"
+        ]
+      }
+    },
+    "filters": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "browser-extensions": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "fingerprintingRules": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "firstEvent": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "firstTransactionEvent": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "groupingConfig": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "groupingEnhancements": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "hasAccess": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "hasFeedbacks": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "hasInsightsHttp": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "hasMinifiedStackTrace": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "hasMonitors": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "hasNewFeedbacks": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "hasProfiles": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "hasReplays": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "hasSessions": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "id": {
+      "type": "string"
+    },
+    "isBookmarked": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "isInternal": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "isMember": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "isPublic": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "latestDeploys": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "latestRelease": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "version": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "options": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "sentry:resolve_age": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "organization": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "avatar": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "properties": {
+            "avatarType": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "avatarUrl": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "avatarUuid": {
+              "type": [
+                "null",
+                "string"
+              ]
+            }
+          },
+          "additionalProperties": true
+        },
+        "dateCreated": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "format": "date-time"
+        },
+        "features": {
+          "type": [
+            "null",
+            "array"
+          ],
+          "items": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "hasAuthProvider": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "isEarlyAdopter": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "links": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "properties": {
+            "organizationUrl": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "regionUrl": {
+              "type": [
+                "null",
+                "string"
+              ]
+            }
+          },
+          "additionalProperties": true
+        },
+        "name": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "require2FA": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "slug": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "status": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "properties": {
+            "id": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "name": {
+              "type": [
+                "null",
+                "string"
+              ]
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "platform": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "platforms": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": [
+          "null",
+          "string"
+        ]
+      }
+    },
+    "plugins": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {}
+    },
+    "processingIssues": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "relayPiiConfig": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "resolveAge": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "safeFields": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {}
+    },
+    "scrubIPAddresses": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "securityToken": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "securityTokenHeader": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "sensitiveFields": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {}
+    },
+    "slug": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "stats": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "status": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "storeCrashReports": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "subjectPrefix": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "subjectTemplate": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "symbolSources": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "team": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "name": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "slug": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "teams": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": [
+          "null",
+          "object"
+        ],
+        "properties": {
+          "id": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "slug": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "verifySSL": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

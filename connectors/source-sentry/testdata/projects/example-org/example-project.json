@@ -1,0 +1,120 @@
+{
+  "id": "10",
+  "slug": "example-project",
+  "name": "example-project",
+  "platform": "python",
+  "dateCreated": "2026-01-02T10:00:00.123456Z",
+  "isBookmarked": false,
+  "isMember": true,
+  "features": [
+    "alert-filters",
+    "servicehooks"
+  ],
+  "firstEvent": "2026-01-03T10:00:00Z",
+  "firstTransactionEvent": false,
+  "access": [
+    "project:read",
+    "event:read"
+  ],
+  "hasAccess": true,
+  "hasMinifiedStackTrace": false,
+  "hasMonitors": false,
+  "hasProfiles": false,
+  "hasReplays": false,
+  "hasFeedbacks": false,
+  "hasNewFeedbacks": false,
+  "hasSessions": true,
+  "hasInsightsHttp": false,
+  "isInternal": false,
+  "isPublic": false,
+  "avatar": {
+    "avatarType": "letter_avatar",
+    "avatarUuid": null
+  },
+  "color": "#3f70bf",
+  "status": "active",
+  "environments": [
+    "production"
+  ],
+  "latestRelease": {
+    "version": "1.0.2"
+  },
+  "organization": {
+    "id": "1",
+    "slug": "example-org",
+    "name": "Example Org",
+    "dateCreated": "2026-01-01T10:00:00Z",
+    "isEarlyAdopter": false,
+    "require2FA": false,
+    "avatar": {
+      "avatarType": "letter_avatar",
+      "avatarUuid": null,
+      "avatarUrl": null
+    },
+    "features": [
+      "performance-view"
+    ],
+    "links": {
+      "organizationUrl": "https://example-org.sentry.io",
+      "regionUrl": "https://us.sentry.io"
+    },
+    "hasAuthProvider": false,
+    "status": {
+      "id": "active",
+      "name": "active"
+    }
+  },
+  "team": {
+    "id": "5",
+    "slug": "backend",
+    "name": "Backend"
+  },
+  "teams": [
+    {
+      "id": "5",
+      "slug": "backend",
+      "name": "Backend"
+    }
+  ],
+  "latestDeploys": null,
+  "allowedDomains": [
+    "*"
+  ],
+  "resolveAge": 0,
+  "dataScrubber": true,
+  "dataScrubberDefaults": true,
+  "safeFields": [],
+  "sensitiveFields": [],
+  "scrubIPAddresses": false,
+  "subjectPrefix": "",
+  "subjectTemplate": "$shortID - $title",
+  "securityToken": "00000000000000000000000000000000",
+  "securityTokenHeader": null,
+  "verifySSL": false,
+  "defaultEnvironment": null,
+  "digestsMinDelay": 300,
+  "digestsMaxDelay": 1800,
+  "processingIssues": 0,
+  "plugins": [],
+  "platforms": [
+    "python"
+  ],
+  "builtinSymbolSources": [],
+  "symbolSources": "[]",
+  "dynamicSamplingBiases": null,
+  "eventProcessing": {
+    "symbolicationDegraded": false
+  },
+  "options": {
+    "sentry:resolve_age": 0
+  },
+  "stats": null,
+  "storeCrashReports": null,
+  "relayPiiConfig": null,
+  "groupingConfig": "newstyle:2023-01-11",
+  "fingerprintingRules": "",
+  "groupingEnhancements": "",
+  "filters": {
+    "browser-extensions": false
+  }
+}

@@ -1,0 +1,45 @@
+[
+  {
+    "id": 502,
+    "version": "1.0.0",
+    "shortVersion": "1.0.0",
+    "status": "open",
+    "versionInfo": {
+      "package": null,
+      "version": {
+        "raw": "1.0.0"
+      },
+      "description": "1.0.0",
+      "buildHash": null
+    },
+    "ref": null,
+    "url": null,
+    "dateReleased": "2026-03-02T12:00:00Z",
+    "dateCreated": "2026-03-02T10:00:00Z",
+    "data": {},
+    "newGroups": 2,
+    "owner": null,
+    "commitCount": 0,
+    "lastCommit": null,
+    "deployCount": 0,
+    "lastDeploy": null,
+    "authors": [],
+    "projects": [
+      {
+        "id": 10,
+        "slug": "example-project",
+        "name": "example-project",
+        "newGroups": 2,
+        "platform": "python",
+        "platforms": [
+          "python"
+        ],
+        "hasHealthData": false
+      }
+    ],
+    "firstEvent": "2026-03-02T13:00:00Z",
+    "lastEvent": "2026-03-03T10:00:00Z",
+    "currentProjectMeta": {},
+    "userAgent": null
+  }
+]

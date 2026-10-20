@@ -1,0 +1,281 @@
+{
+  "type": "object",
+  "properties": {
+    "annotations": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {}
+    },
+    "assignedTo": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "count": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "culprit": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "firstSeen": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "hasSeen": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "id": {
+      "type": "string"
+    },
+    "isBookmarked": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "isPublic": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "isSubscribed": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "isUnhandled": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "issueCategory": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "issueType": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "lastSeen": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "level": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "logger": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "metadata": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "filename": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "function": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "type": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "value": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "numComments": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "permalink": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "platform": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "priority": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "priorityLockedAt": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "project": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "name": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "platform": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "slug": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "shareId": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "shortId": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "stats": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "24h": {
+          "type": [
+            "null",
+            "array"
+          ],
+          "items": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": [
+                "null",
+                "integer"
+              ]
+            }
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "status": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "statusDetails": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {},
+      "additionalProperties": true
+    },
+    "subscriptionDetails": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "substatus": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "title": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "type": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "userCount": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,72 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Reads projects, the configured project, its issues and events, and the organization's releases from the Sentry API.",
+    "properties": {
+      "auth_token": {
+        "airbyte_secret": true,
+        "description": "Organization or user auth token with the scopes project:read, event:read and org:read, sent as a Bearer token.",
+        "order": 0,
+        "title": "Auth token",
+        "type": "string"
+      },
+      "hostname": {
+        "default": "sentry.io",
+        "description": "Host name of the Sentry instance, without https://: sentry.io, an EU region host such as de.sentry.io, or a self-hosted Sentry.",
+        "examples": [
+          "sentry.io"
+        ],
+        "order": 1,
+        "title": "Host name",
+        "type": "string"
+      },
+      "organization": {
+        "description": "Slug of the organization.",
+        "examples": [
+          "my-org"
+        ],
+        "order": 2,
+        "title": "Organization",
+        "type": "string"
+      },
+      "project": {
+        "description": "Slug of the project whose issues and events are read.",
+        "examples": [
+          "my-project"
+        ],
+        "order": 3,
+        "title": "Project",
+        "type": "string"
+      },
+      "start_date": {
+        "description": "Issues last seen, events received and releases created before it are not read.",
+        "examples": [
+          "2026-01-01T00:00:00Z"
+        ],
+        "format": "date-time",
+        "order": 4,
+        "title": "Start date",
+        "type": "string"
+      }
+    },
+    "required": [
+      "auth_token",
+      "hostname",
+      "organization",
+      "project",
+      "start_date"
+    ],
+    "title": "Sentry Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-sentry",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": true,
+  "supportsNormalization": false
+}

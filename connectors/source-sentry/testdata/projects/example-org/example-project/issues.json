@@ -1,0 +1,114 @@
+[
+  {
+    "id": "1000",
+    "shareId": null,
+    "shortId": "EXAMPLE-PROJECT-1",
+    "title": "ValueError: synthetic error 1",
+    "culprit": "app.views in index",
+    "permalink": "https://example-org.sentry.io/issues/1000/",
+    "logger": null,
+    "level": "error",
+    "status": "unresolved",
+    "statusDetails": {},
+    "substatus": "ongoing",
+    "isPublic": false,
+    "platform": "python",
+    "project": {
+      "id": "10",
+      "name": "example-project",
+      "slug": "example-project",
+      "platform": "python"
+    },
+    "type": "error",
+    "metadata": {
+      "type": "ValueError",
+      "value": "synthetic error 1",
+      "filename": "app/views.py",
+      "function": "index"
+    },
+    "numComments": 0,
+    "assignedTo": null,
+    "isBookmarked": false,
+    "isSubscribed": false,
+    "subscriptionDetails": null,
+    "hasSeen": false,
+    "annotations": [],
+    "issueType": "error",
+    "issueCategory": "error",
+    "priority": "high",
+    "priorityLockedAt": null,
+    "isUnhandled": false,
+    "count": "5",
+    "userCount": 0,
+    "firstSeen": "2026-02-01T10:00:00.500000Z",
+    "lastSeen": "2026-03-07T10:00:00.250000Z",
+    "stats": {
+      "24h": [
+        [
+          1773100800,
+          0
+        ],
+        [
+          1773104400,
+          1
+        ]
+      ]
+    }
+  },
+  {
+    "id": "1001",
+    "shareId": null,
+    "shortId": "EXAMPLE-PROJECT-2",
+    "title": "ValueError: synthetic error 2",
+    "culprit": "app.views in index",
+    "permalink": "https://example-org.sentry.io/issues/1001/",
+    "logger": null,
+    "level": "error",
+    "status": "unresolved",
+    "statusDetails": {},
+    "substatus": "ongoing",
+    "isPublic": false,
+    "platform": "python",
+    "project": {
+      "id": "10",
+      "name": "example-project",
+      "slug": "example-project",
+      "platform": "python"
+    },
+    "type": "error",
+    "metadata": {
+      "type": "ValueError",
+      "value": "synthetic error 2",
+      "filename": "app/views.py",
+      "function": "index"
+    },
+    "numComments": 0,
+    "assignedTo": null,
+    "isBookmarked": false,
+    "isSubscribed": false,
+    "subscriptionDetails": null,
+    "hasSeen": false,
+    "annotations": [],
+    "issueType": "error",
+    "issueCategory": "error",
+    "priority": "high",
+    "priorityLockedAt": null,
+    "isUnhandled": false,
+    "count": "6",
+    "userCount": 1,
+    "firstSeen": "2026-02-02T10:00:00.500000Z",
+    "lastSeen": "2026-03-06T10:00:00.250000Z",
+    "stats": {
+      "24h": [
+        [
+          1773100800,
+          0
+        ],
+        [
+          1773104400,
+          1
+        ]
+      ]
+    }
+  }
+]

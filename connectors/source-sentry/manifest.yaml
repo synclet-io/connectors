@@ -1,0 +1,63 @@
+# yaml-language-server: $schema=../source-declarative/internal/manifest/manifest.schema.json
+version: 1
+connector:
+  name: source-sentry
+  documentation_url: https://github.com/synclet-io/connectors/tree/main/connectors/source-sentry
+base_url: "https://{{ config.hostname }}/api/0/"
+spec:
+  title: Sentry Source Spec
+  description: Reads projects, the configured project, its issues and events, and the organization's releases from the Sentry API.
+  required: [auth_token, hostname, organization, project, start_date]
+  properties:
+    auth_token:   {type: string, title: Auth token, description: "Organization or user auth token with the scopes project:read, event:read and org:read, sent as a Bearer token.", secret: true, order: 0}
+    hostname:
+      type: string
+      title: Host name
+      description: "Host name of the Sentry instance, without https://: sentry.io, an EU region host such as de.sentry.io, or a self-hosted Sentry."
+      default: sentry.io
+      examples: [sentry.io]
+      pattern: "^[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?(\\.[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?)*(:[0-9]+)?$"
+      order: 1
+    organization: {type: string, title: Organization, description: "Slug of the organization.", examples: [my-org], order: 2}
+    project:      {type: string, title: Project, description: "Slug of the project whose issues and events are read.", examples: [my-project], order: 3}
+    start_date:   {type: string, title: Start date, description: "Issues last seen, events received and releases created before it are not read.", format: date-time, examples: ["2026-01-01T00:00:00Z"], order: 4}
+auth: {type: bearer, token: "{{ config.auth_token }}"}
+errors: {message: $.detail}
+retry:
+  rate_limit:
+    statuses: [429]
+    wait: ["header:Retry-After", "header-epoch:X-Sentry-Rate-Limit-Reset", 60s]
+check: {stream: project_detail}
+streams:
+  - &list
+    name: projects
+    path: projects/
+    primary_key: [id]
+    schema: schemas/projects.json
+    pagination: {type: link}
+
+  - name: project_detail
+    path: "projects/{{ config.organization }}/{{ config.project }}/"
+    primary_key: [id]
+    schema: schemas/project_detail.json
+    records: {mode: object}
+
+  - <<: *list
+    name: issues
+    path: "projects/{{ config.organization }}/{{ config.project }}/issues/"
+    params: {query: "lastSeen:>={{ since }}"}
+    schema: schemas/issues.json
+    incremental: {cursor_field: lastSeen, cursor_format: rfc3339, since_format: "2006-01-02T15:04:05", start: "{{ config.start_date }}", lookback: 1h}
+
+  - <<: *list
+    name: events
+    path: "projects/{{ config.organization }}/{{ config.project }}/events/"
+    params: {full: "true", start: "{{ since }}", end: "{{ until }}"}
+    schema: schemas/events.json
+    incremental: {cursor_field: dateCreated, cursor_format: rfc3339, since_format: "2006-01-02T15:04:05", start: "{{ config.start_date }}", lookback: 1h}
+
+  - <<: *list
+    name: releases
+    path: "organizations/{{ config.organization }}/releases/"
+    schema: schemas/releases.json
+    incremental: {cursor_field: dateCreated, cursor_format: rfc3339, start: "{{ config.start_date }}"}

@@ -1,0 +1,88 @@
+[
+  {
+    "id": 500,
+    "version": "1.0.2",
+    "shortVersion": "1.0.2",
+    "status": "open",
+    "versionInfo": {
+      "package": null,
+      "version": {
+        "raw": "1.0.2"
+      },
+      "description": "1.0.2",
+      "buildHash": null
+    },
+    "ref": null,
+    "url": null,
+    "dateReleased": "2026-03-04T12:00:00Z",
+    "dateCreated": "2026-03-04T10:00:00Z",
+    "data": {},
+    "newGroups": 0,
+    "owner": null,
+    "commitCount": 0,
+    "lastCommit": null,
+    "deployCount": 0,
+    "lastDeploy": null,
+    "authors": [],
+    "projects": [
+      {
+        "id": 10,
+        "slug": "example-project",
+        "name": "example-project",
+        "newGroups": 0,
+        "platform": "python",
+        "platforms": [
+          "python"
+        ],
+        "hasHealthData": false
+      }
+    ],
+    "firstEvent": "2026-03-04T13:00:00Z",
+    "lastEvent": "2026-03-05T10:00:00Z",
+    "currentProjectMeta": {},
+    "userAgent": null
+  },
+  {
+    "id": 501,
+    "version": "1.0.1",
+    "shortVersion": "1.0.1",
+    "status": "open",
+    "versionInfo": {
+      "package": null,
+      "version": {
+        "raw": "1.0.1"
+      },
+      "description": "1.0.1",
+      "buildHash": null
+    },
+    "ref": null,
+    "url": null,
+    "dateReleased": "2026-03-03T12:00:00Z",
+    "dateCreated": "2026-03-03T10:00:00Z",
+    "data": {},
+    "newGroups": 1,
+    "owner": null,
+    "commitCount": 0,
+    "lastCommit": null,
+    "deployCount": 0,
+    "lastDeploy": null,
+    "authors": [],
+    "projects": [
+      {
+        "id": 10,
+        "slug": "example-project",
+        "name": "example-project",
+        "newGroups": 1,
+        "platform": "python",
+        "platforms": [
+          "python"
+        ],
+        "hasHealthData": false
+      }
+    ],
+    "firstEvent": "2026-03-03T13:00:00Z",
+    "lastEvent": "2026-03-04T10:00:00Z",
+    "currentProjectMeta": {},
+    "userAgent": null
+  }
+]

@@ -1,0 +1,158 @@
+[
+  {
+    "id": "00000000000000000000000000000001",
+    "eventID": "00000000000000000000000000000001",
+    "groupID": "1000",
+    "projectID": "10",
+    "message": "",
+    "title": "ValueError: synthetic error 1",
+    "location": "app/views.py",
+    "culprit": "app.views in index",
+    "user": {
+      "id": "user-0",
+      "email": null,
+      "username": null,
+      "ip_address": null,
+      "name": null,
+      "geo": null,
+      "data": null
+    },
+    "tags": [
+      {
+        "key": "environment",
+        "value": "production"
+      },
+      {
+        "key": "level",
+        "value": "error"
+      }
+    ],
+    "platform": "python",
+    "dateCreated": "2026-03-07T10:00:00Z",
+    "dateReceived": "2026-03-07T10:00:00.100000Z",
+    "crashFile": null,
+    "metadata": {
+      "type": "ValueError",
+      "value": "synthetic error 1"
+    },
+    "type": "error",
+    "size": 2048,
+    "entries": [
+      {
+        "type": "exception",
+        "data": {
+          "values": [
+            {
+              "type": "ValueError",
+              "value": "synthetic error 1",
+              "mechanism": null,
+              "stacktrace": null
+            }
+          ]
+        }
+      }
+    ],
+    "contexts": {
+      "runtime": {
+        "name": "CPython",
+        "version": "3.12.0",
+        "type": "runtime"
+      }
+    },
+    "context": {},
+    "packages": {},
+    "sdk": {
+      "name": "sentry.python",
+      "version": "2.0.0"
+    },
+    "errors": [],
+    "dist": null,
+    "fingerprints": [
+      "00000000000000000000000000000000"
+    ],
+    "groupingConfig": {
+      "id": "newstyle:2023-01-11",
+      "enhancements": ""
+    },
+    "release": null,
+    "_meta": {}
+  },
+  {
+    "id": "00000000000000000000000000000002",
+    "eventID": "00000000000000000000000000000002",
+    "groupID": "1001",
+    "projectID": "10",
+    "message": "",
+    "title": "ValueError: synthetic error 2",
+    "location": "app/views.py",
+    "culprit": "app.views in index",
+    "user": {
+      "id": "user-1",
+      "email": null,
+      "username": null,
+      "ip_address": null,
+      "name": null,
+      "geo": null,
+      "data": null
+    },
+    "tags": [
+      {
+        "key": "environment",
+        "value": "production"
+      },
+      {
+        "key": "level",
+        "value": "error"
+      }
+    ],
+    "platform": "python",
+    "dateCreated": "2026-03-06T10:00:00Z",
+    "dateReceived": "2026-03-06T10:00:00.100000Z",
+    "crashFile": null,
+    "metadata": {
+      "type": "ValueError",
+      "value": "synthetic error 2"
+    },
+    "type": "error",
+    "size": 2049,
+    "entries": [
+      {
+        "type": "exception",
+        "data": {
+          "values": [
+            {
+              "type": "ValueError",
+              "value": "synthetic error 2",
+              "mechanism": null,
+              "stacktrace": null
+            }
+          ]
+        }
+      }
+    ],
+    "contexts": {
+      "runtime": {
+        "name": "CPython",
+        "version": "3.12.0",
+        "type": "runtime"
+      }
+    },
+    "context": {},
+    "packages": {},
+    "sdk": {
+      "name": "sentry.python",
+      "version": "2.0.0"
+    },
+    "errors": [],
+    "dist": null,
+    "fingerprints": [
+      "00000000000000000000000000000001"
+    ],
+    "groupingConfig": {
+      "id": "newstyle:2023-01-11",
+      "enhancements": ""
+    },
+    "release": null,
+    "_meta": {}
+  }
+]

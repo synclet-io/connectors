@@ -1,0 +1,237 @@
+{
+  "type": "object",
+  "properties": {
+    "authors": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {}
+    },
+    "commitCount": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "currentProjectMeta": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {},
+      "additionalProperties": true
+    },
+    "data": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {},
+      "additionalProperties": true
+    },
+    "dateCreated": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "dateReleased": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "deployCount": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "firstEvent": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "id": {
+      "type": "integer"
+    },
+    "lastCommit": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "lastDeploy": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "lastEvent": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "newGroups": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "owner": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "projects": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": [
+          "null",
+          "object"
+        ],
+        "properties": {
+          "hasHealthData": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "id": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "newGroups": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "platform": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "platforms": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": [
+                "null",
+                "string"
+              ]
+            }
+          },
+          "slug": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "ref": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "shortVersion": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "status": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "url": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "userAgent": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "version": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "versionInfo": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "buildHash": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "description": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "package": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "version": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "properties": {
+            "raw": {
+              "type": [
+                "null",
+                "string"
+              ]
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

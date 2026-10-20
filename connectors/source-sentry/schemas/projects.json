@@ -1,0 +1,408 @@
+{
+  "type": "object",
+  "properties": {
+    "access": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": [
+          "null",
+          "string"
+        ]
+      }
+    },
+    "avatar": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "avatarType": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "avatarUuid": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "color": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "dateCreated": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "environments": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": [
+          "null",
+          "string"
+        ]
+      }
+    },
+    "features": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": [
+          "null",
+          "string"
+        ]
+      }
+    },
+    "firstEvent": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "firstTransactionEvent": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "hasAccess": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "hasFeedbacks": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "hasInsightsHttp": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "hasMinifiedStackTrace": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "hasMonitors": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "hasNewFeedbacks": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "hasProfiles": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "hasReplays": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "hasSessions": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "id": {
+      "type": "string"
+    },
+    "isBookmarked": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "isInternal": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "isMember": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "isPublic": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "latestDeploys": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "latestRelease": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "version": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "organization": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "avatar": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "properties": {
+            "avatarType": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "avatarUrl": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "avatarUuid": {
+              "type": [
+                "null",
+                "string"
+              ]
+            }
+          },
+          "additionalProperties": true
+        },
+        "dateCreated": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "format": "date-time"
+        },
+        "features": {
+          "type": [
+            "null",
+            "array"
+          ],
+          "items": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "hasAuthProvider": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "isEarlyAdopter": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "links": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "properties": {
+            "organizationUrl": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "regionUrl": {
+              "type": [
+                "null",
+                "string"
+              ]
+            }
+          },
+          "additionalProperties": true
+        },
+        "name": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "require2FA": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "slug": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "status": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "properties": {
+            "id": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "name": {
+              "type": [
+                "null",
+                "string"
+              ]
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "platform": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "slug": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "status": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "team": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "name": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "slug": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "teams": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": [
+          "null",
+          "object"
+        ],
+        "properties": {
+          "id": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "slug": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}
