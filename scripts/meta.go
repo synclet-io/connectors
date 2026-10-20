@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"regexp/syntax"
 	"sort"
 	"strings"
 
@@ -272,6 +273,10 @@ func findPin(v APIVersion, read fileReader) (int, error) {
 		return 0, fmt.Errorf("pattern %s must have exactly one capture group", v.Pattern)
 	}
 
+	if literalCapture(v.Pattern) {
+		return 0, fmt.Errorf("pattern %s: the capture group must match other versions than the pin, or a changed pin goes unnoticed", v.Pattern)
+	}
+
 	data, err := read(name)
 	if err != nil {
 		return 0, fmt.Errorf("reading %s: %w", v.File, err)
@@ -283,12 +288,47 @@ func findPin(v APIVersion, read fileReader) (int, error) {
 	}
 
 	for _, m := range matches {
+		if m[2] < 0 {
+			return 0, fmt.Errorf("%s:%d: the capture group of %s captures nothing", v.File, lineAt(data, m[0]), v.Pattern)
+		}
+
 		if got := string(data[m[2]:m[3]]); got != v.Pinned {
 			return 0, fmt.Errorf("%s:%d captures %q, meta.json pins %q", v.File, lineAt(data, m[2]), got, v.Pinned)
 		}
 	}
 
 	return lineAt(data, matches[0][2]), nil
+}
+
+// literalCapture reports whether the pattern's capture group matches one
+// fixed string only.
+func literalCapture(pattern string) bool {
+	re, err := syntax.Parse(pattern, syntax.Perl)
+	if err != nil {
+		return false
+	}
+
+	var capture *syntax.Regexp
+
+	var walk func(*syntax.Regexp)
+	walk = func(r *syntax.Regexp) {
+		if r.Op == syntax.OpCapture && capture == nil {
+			capture = r
+		}
+
+		for _, sub := range r.Sub {
+			walk(sub)
+		}
+	}
+	walk(re.Simplify())
+
+	if capture == nil || len(capture.Sub) != 1 {
+		return false
+	}
+
+	op := capture.Sub[0].Op
+
+	return op == syntax.OpLiteral || op == syntax.OpEmptyMatch
 }
 
 func lineAt(data []byte, offset int) int {

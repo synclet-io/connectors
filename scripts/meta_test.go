@@ -44,6 +44,17 @@ func TestValidateAPIVersions(t *testing.T) {
 			wantErr: "exactly one capture group",
 		},
 		{
+			name:    "optional capture group that does not take part in a match",
+			version: map[string]any{"pattern": `example\.com/(v[\d.]+)?/`},
+			files:   map[string]string{"client.go": client + "// see example.com//\n"},
+			wantErr: "captures nothing",
+		},
+		{
+			name:    "capture group of the literal pin",
+			version: map[string]any{"pattern": `example\.com/(v1\.3)/`},
+			wantErr: "must match other versions than the pin",
+		},
+		{
 			name:    "unknown checker",
 			version: map[string]any{"checker": "crystal-ball"},
 			wantErr: "does not match",
