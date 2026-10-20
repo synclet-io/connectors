@@ -183,6 +183,11 @@ type producer struct {
 	cl   *kgo.Client
 	sync bool
 
+	// pending counts records whose promise has not run yet. Flush does not
+	// wait for records the client rejects before buffering them, such as
+	// one larger than buffer_memory.
+	pending sync.WaitGroup
+
 	mu  sync.Mutex
 	err error
 }
@@ -197,11 +202,13 @@ func (p *producer) produce(ctx context.Context, r *kgo.Record) error {
 		}
 		return nil
 	}
+	p.pending.Add(1)
 	p.cl.Produce(ctx, r, p.done)
 	return nil
 }
 
 func (p *producer) done(r *kgo.Record, err error) {
+	defer p.pending.Done()
 	if err == nil {
 		return
 	}
@@ -223,5 +230,6 @@ func (p *producer) flush(ctx context.Context) error {
 	if err := p.cl.Flush(ctx); err != nil {
 		return err
 	}
+	p.pending.Wait()
 	return p.failure()
 }

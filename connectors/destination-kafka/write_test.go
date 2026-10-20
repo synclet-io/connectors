@@ -13,6 +13,7 @@ import (
 	synclet "github.com/synclet-io/synclet-go-sdk"
 	"github.com/twmb/franz-go/pkg/kerr"
 	"github.com/twmb/franz-go/pkg/kfake"
+	"github.com/twmb/franz-go/pkg/kgo"
 	"github.com/twmb/franz-go/pkg/kmsg"
 )
 
@@ -272,4 +273,16 @@ func TestWriteGlobalAndLegacyStatesEchoed(t *testing.T) {
 	require.Len(t, states, 2)
 	assert.Equal(t, synclet.StateTypeGlobal, states[0].Type)
 	assert.JSONEq(t, `{"cursor":1}`, string(states[1].Data))
+}
+
+func TestFlushWaitsForRecordsRejectedBeforeBuffering(t *testing.T) {
+	c := startCluster(t)
+	cl, err := kgo.NewClient(kgo.SeedBrokers(c.ListenAddrs()...), kgo.MaxBufferedBytes(1024))
+	require.NoError(t, err)
+	defer cl.Close()
+	for range 500 {
+		p := &producer{cl: cl}
+		require.NoError(t, p.produce(t.Context(), &kgo.Record{Topic: "users", Value: bytes.Repeat([]byte("x"), 4096)}))
+		require.ErrorIs(t, p.flush(t.Context()), kerr.MessageTooLarge)
+	}
 }
