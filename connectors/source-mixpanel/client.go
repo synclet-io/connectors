@@ -312,12 +312,17 @@ func (c *apiClient) attempt(ctx context.Context, req request, handle func(io.Rea
 	return ae
 }
 
-// retryAfter returns a Retry-After header in seconds, zero when absent.
+// retryAfter returns a Retry-After header in seconds, at most the hour of
+// the rate limit window, zero when absent.
 func retryAfter(h string) time.Duration {
-	if n, err := strconv.Atoi(strings.TrimSpace(h)); err == nil && n > 0 {
-		return time.Duration(n) * time.Second
+	n, err := strconv.Atoi(strings.TrimSpace(h))
+	if err != nil || n <= 0 {
+		return 0
 	}
-	return 0
+	if n >= int(time.Hour/time.Second) {
+		return time.Hour
+	}
+	return time.Duration(n) * time.Second
 }
 
 // getJSON decodes the JSON response of req into out, keeping numbers as

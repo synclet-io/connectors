@@ -136,3 +136,11 @@ func TestExportClientHasNoTotalTimeout(t *testing.T) {
 	require.True(t, ok)
 	assert.NotZero(t, tr.ResponseHeaderTimeout)
 }
+
+func TestRetryAfter(t *testing.T) {
+	assert.Equal(t, 90*time.Second, retryAfter("90"))
+	assert.Zero(t, retryAfter(""))
+	assert.Zero(t, retryAfter("Wed, 21 Oct 2026 07:28:00 GMT"))
+	assert.Equal(t, time.Hour, retryAfter("7200"), "a wait past an hour is cut to the hourly window")
+	assert.Equal(t, time.Hour, retryAfter("99999999999"))
+}
