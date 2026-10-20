@@ -1,0 +1,208 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Writes streams as JSONL, CSV or Parquet files into a Google Cloud Storage bucket",
+    "properties": {
+      "bucket": {
+        "description": "Name of the bucket the files are written to",
+        "order": 0,
+        "title": "Bucket",
+        "type": "string"
+      },
+      "bucket_path": {
+        "description": "Object name prefix every object is written under, without leading or trailing slash",
+        "examples": [
+          "synclet",
+          "exports/raw"
+        ],
+        "order": 1,
+        "title": "Bucket Path",
+        "type": "string"
+      },
+      "credentials": {
+        "description": "How the connector authenticates to Cloud Storage",
+        "oneOf": [
+          {
+            "properties": {
+              "auth_type": {
+                "const": "service_account",
+                "type": "string"
+              },
+              "service_account_info": {
+                "airbyte_secret": true,
+                "description": "The JSON key of a service account with roles/storage.objectAdmin on the bucket",
+                "order": 0,
+                "title": "Service Account Key JSON",
+                "type": "string"
+              }
+            },
+            "required": [
+              "auth_type",
+              "service_account_info"
+            ],
+            "title": "Service Account Key",
+            "type": "object"
+          },
+          {
+            "description": "GOOGLE_APPLICATION_CREDENTIALS, workload identity or the metadata server of the machine running the connector",
+            "properties": {
+              "auth_type": {
+                "const": "application_default",
+                "type": "string"
+              }
+            },
+            "required": [
+              "auth_type"
+            ],
+            "title": "Application Default Credentials",
+            "type": "object"
+          }
+        ],
+        "order": 2,
+        "title": "Authentication",
+        "type": "object"
+      },
+      "file_size_mb": {
+        "default": 100,
+        "description": "A file is uploaded and a new one started once this many megabytes are written before compression",
+        "order": 5,
+        "title": "File Size (MB)",
+        "type": "integer"
+      },
+      "format": {
+        "oneOf": [
+          {
+            "description": "One object per record: _airbyte_raw_id, _airbyte_extracted_at and the record data verbatim under _airbyte_data",
+            "properties": {
+              "compression": {
+                "default": "none",
+                "description": "none or gzip; gzip appends .gz to the object name",
+                "examples": [
+                  "none",
+                  "gzip"
+                ],
+                "order": 0,
+                "title": "Compression",
+                "type": "string"
+              },
+              "format_type": {
+                "const": "jsonl",
+                "type": "string"
+              }
+            },
+            "required": [
+              "format_type"
+            ],
+            "title": "JSON Lines",
+            "type": "object"
+          },
+          {
+            "description": "One column per declared top-level property; undeclared fields go to _airbyte_additional_properties",
+            "properties": {
+              "compression": {
+                "default": "none",
+                "description": "none or gzip; gzip appends .gz to the object name",
+                "examples": [
+                  "none",
+                  "gzip"
+                ],
+                "order": 0,
+                "title": "Compression",
+                "type": "string"
+              },
+              "format_type": {
+                "const": "csv",
+                "type": "string"
+              }
+            },
+            "required": [
+              "format_type"
+            ],
+            "title": "CSV",
+            "type": "object"
+          },
+          {
+            "description": "One column per declared top-level property with logical types; undeclared fields go to _airbyte_additional_properties",
+            "properties": {
+              "compression": {
+                "default": "snappy",
+                "description": "snappy, zstd, gzip or none",
+                "examples": [
+                  "snappy",
+                  "zstd",
+                  "gzip",
+                  "none"
+                ],
+                "order": 0,
+                "title": "Compression",
+                "type": "string"
+              },
+              "decimal_scale": {
+                "default": 9,
+                "description": "Digits after the decimal point of DECIMAL columns (0-38); a number with more digits fails the sync",
+                "order": 2,
+                "title": "Decimal Scale",
+                "type": "integer"
+              },
+              "format_type": {
+                "const": "parquet",
+                "type": "string"
+              },
+              "parquet_number_type": {
+                "default": "decimal",
+                "description": "decimal writes JSON numbers as DECIMAL(38, decimal_scale); string writes their text",
+                "examples": [
+                  "decimal",
+                  "string"
+                ],
+                "order": 1,
+                "title": "Number Type",
+                "type": "string"
+              }
+            },
+            "required": [
+              "format_type"
+            ],
+            "title": "Parquet",
+            "type": "object"
+          }
+        ],
+        "order": 3,
+        "title": "Output Format",
+        "type": "object"
+      },
+      "max_records_per_file": {
+        "default": 0,
+        "description": "A file is uploaded and a new one started once it holds this many records; 0 is no limit",
+        "order": 6,
+        "title": "Max Records per File",
+        "type": "integer"
+      },
+      "path_template": {
+        "default": "{namespace}/{stream}/{yyyy}_{mm}_{dd}/{part}",
+        "description": "Object name below bucket_path. Tokens: {namespace}, {stream}, {yyyy}, {mm}, {dd}, {hh} (sync start, UTC), {field:<name>} (a top-level record field; null or missing is __null__, an empty string __empty__) and {part} (required in the last segment). {stream} is required in a directory segment, and only {namespace} and {stream} may come before the end of that segment. Empty segments are dropped; the format's extension is appended.",
+        "examples": [
+          "{namespace}/{stream}/{yyyy}_{mm}_{dd}/{part}",
+          "{stream}/country={field:country}/{yyyy}/{mm}/{dd}/{part}"
+        ],
+        "order": 4,
+        "title": "Path Template",
+        "type": "string"
+      }
+    },
+    "required": [
+      "bucket",
+      "credentials"
+    ],
+    "title": "GCS Destination Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/destination-gcs",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": false,
+  "supportsNormalization": false
+}

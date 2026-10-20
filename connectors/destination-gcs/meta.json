@@ -1,0 +1,19 @@
+{
+  "$schema": "../../schema/meta.schema.json",
+  "name": "Google Cloud Storage",
+  "connector_type": "destination",
+  "version": "0.1.0",
+  "release_stage": "alpha",
+  "support_level": "community",
+  "source_type": "",
+  "license": "MIT",
+  "documentation_url": "https://github.com/synclet-io/connectors/tree/main/connectors/destination-gcs",
+  "icon_url": "",
+  "language": "go",
+  "tags": [
+    "storage",
+    "files"
+  ],
+  "breaking_changes": {},
+  "external_documentation_urls": []
+}
