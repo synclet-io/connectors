@@ -216,11 +216,21 @@ func (r *reader) cohortList(ctx context.Context, desc synclet.StreamDescriptor, 
 	return r.em.StreamState(desc, createdState{Created: latest})
 }
 
-// cohortMembers emits the profiles of each cohort with its cohort_id. The
-// state is one last_seen across cohorts, emitted after the last one.
+// cohortMembersState is the state of cohort_members: the latest
+// $last_seen read of each cohort, by cohort id, and the earliest of them.
+// A state without cohorts holds last_seen for every cohort.
+type cohortMembersState struct {
+	LastSeen string            `json:"last_seen,omitempty"`
+	Cohorts  map[string]string `json:"cohorts,omitempty"`
+}
+
+// cohortMembers emits the profiles of each cohort with its cohort_id. An
+// incremental read skips the profiles of a cohort last seen before the
+// saved last_seen of that cohort, reads a cohort missing from the state in
+// full and emits the state after each cohort.
 func (r *reader) cohortMembers(ctx context.Context, cs synclet.ConfiguredStream, inc bool, saved json.RawMessage) error {
 	desc := cs.Stream.Descriptor()
-	var st lastSeenState
+	var st cohortMembersState
 	if err := decodeState(desc, saved, &st); err != nil {
 		return err
 	}
@@ -228,23 +238,38 @@ func (r *reader) cohortMembers(ctx context.Context, cs synclet.ConfiguredStream,
 	if err != nil {
 		return err
 	}
+	since := func(key string) string {
+		if st.Cohorts == nil {
+			return st.LastSeen
+		}
+		return st.Cohorts[key]
+	}
+	next := cohortMembersState{Cohorts: map[string]string{}}
 	pf := newProfileFields(cohortMembersFixed(), cs.Stream.JSONSchema)
-	latest := st.LastSeen
 	for _, c := range cohorts {
-		id := c.id
+		id, key := c.id, strconv.FormatInt(c.id, 10)
+		saved := since(key)
+		latest := saved
 		err := r.profiles(ctx, &id, func(p profile) error {
 			rec := pf.record(p)
 			rec["cohort_id"] = id
 			var err error
-			latest, err = r.emitProfile(desc, rec, inc, st.LastSeen, latest)
+			latest, err = r.emitProfile(desc, rec, inc, saved, latest)
 			return err
 		})
 		if err != nil {
 			return fmt.Errorf("cohort %d: %w", id, err)
 		}
+		if !inc || latest == "" {
+			continue
+		}
+		next.Cohorts[key] = latest
+		if next.LastSeen == "" || latest < next.LastSeen {
+			next.LastSeen = latest
+		}
+		if err := r.em.StreamState(desc, next); err != nil {
+			return err
+		}
 	}
-	if !inc || latest == "" {
-		return nil
-	}
-	return r.em.StreamState(desc, lastSeenState{LastSeen: latest})
+	return nil
 }

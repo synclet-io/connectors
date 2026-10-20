@@ -139,7 +139,10 @@ func TestCohortsAndMembers(t *testing.T) {
 	members := records(t, out, streamCohortMembers)
 	assert.Equal(t, []any{num("101"), num("101"), num("102")}, field(members, "cohort_id"))
 	assert.Equal(t, []any{"user-001", "user-003", "user-002"}, field(members, "distinct_id"))
-	assert.Equal(t, []string{`{"last_seen":"2026-10-17T11:00:00"}`}, streamStates(out, streamCohortMembers))
+	assert.Equal(t, []string{
+		`{"last_seen":"2026-10-17T11:00:00","cohorts":{"101":"2026-10-17T11:00:00"}}`,
+		`{"last_seen":"2026-10-12T08:15:00","cohorts":{"101":"2026-10-17T11:00:00","102":"2026-10-12T08:15:00"}}`,
+	}, streamStates(out, streamCohortMembers))
 
 	state, err := json.Marshal([]synclet.StateMessage{
 		{Type: synclet.StateTypeStream, Stream: &synclet.StreamState{StreamDescriptor: synclet.StreamDescriptor{Name: streamCohorts}, StreamState: json.RawMessage(`{"created":"2026-10-01 00:00:00"}`)}},
@@ -257,4 +260,28 @@ func TestReadAuthError(t *testing.T) {
 	assert.Len(t, h.list()[before:], 1, "a 401 is not retried")
 	require.NotEmpty(t, out.ErrorTraces())
 	assert.Equal(t, synclet.FailureTypeConfigError, out.ErrorTraces()[0].FailureType)
+}
+
+func TestCohortMembersCursorPerCohort(t *testing.T) {
+	srv, _ := fixtureServer(t, nil)
+	src := testSource(srv, newClock())
+	cfg := testConfig(t)
+	cat := catalogOf(t, src, cfg, synclet.SyncModeIncremental, streamCohortMembers)
+
+	out := read(t, src, cfg, cat, stateOf(t, streamCohortMembers, `{"last_seen":"2026-10-15T00:00:00","cohorts":{"101":"2026-10-15T00:00:00","999":"2026-10-15T00:00:00"}}`))
+	require.NoError(t, out.Err)
+	assert.Equal(t, []any{"user-001", "user-002"}, field(records(t, out, streamCohortMembers), "distinct_id"),
+		"a cohort missing from the state is read in full")
+	assert.Equal(t, []string{
+		`{"last_seen":"2026-10-17T11:00:00","cohorts":{"101":"2026-10-17T11:00:00"}}`,
+		`{"last_seen":"2026-10-12T08:15:00","cohorts":{"101":"2026-10-17T11:00:00","102":"2026-10-12T08:15:00"}}`,
+	}, streamStates(out, streamCohortMembers), "a state after each cohort, without deleted cohorts")
+
+	out = read(t, src, cfg, cat, stateOf(t, streamCohortMembers, `{"last_seen":"2026-10-15T00:00:00"}`))
+	require.NoError(t, out.Err)
+	assert.Equal(t, []any{"user-001"}, field(records(t, out, streamCohortMembers), "distinct_id"),
+		"a state without cohorts applies its last_seen to every cohort")
+	states := streamStates(out, streamCohortMembers)
+	require.Len(t, states, 2)
+	assert.Equal(t, `{"last_seen":"2026-10-15T00:00:00","cohorts":{"101":"2026-10-17T11:00:00","102":"2026-10-15T00:00:00"}}`, states[1])
 }

@@ -95,9 +95,11 @@ still writes `$browser` to `_browser`.
   cursor.
 - `engage`, `cohort_members` and `cohorts` cannot be filtered by change time: every read pages through all
   profiles or cohorts, and an incremental read emits only those whose `last_seen` (`created`) is at or after
-  the saved one, plus profiles without `$last_seen`. The state is emitted once the scan is done.
-  `cohort_members` keeps one `last_seen` across cohorts, so a user who joins a cohort without sending an
-  event is not re-emitted; use full refresh to track membership exactly.
+  the saved one, plus profiles without `$last_seen`. `engage` and `cohorts` emit the state once the scan is
+  done. `cohort_members` saves the latest `last_seen` of each cohort (`{"cohorts": {"<id>": ...}}`, with the
+  earliest of them as `last_seen`) and emits the state after each cohort; a cohort missing from the state is
+  read in full, and a state without `cohorts` applies its `last_seen` to every cohort. A user who joins a
+  cohort without a newer `$last_seen` is not re-emitted; use full refresh to track membership exactly.
 
 `engage` pages with `page_size` and the `session_id` of the first page, raising `page` until a page holds
 fewer profiles than its `page_size`.

@@ -46,6 +46,10 @@ func TestConformance(t *testing.T) {
 						return nil, err
 					}
 					return max(d.AddDate(0, 0, -defaultAttributionWindow).Format(dateLayout), "2026-10-10"), nil
+				case streamCohortMembers:
+					// Each cohort resumes at its own latest last_seen; cohort
+					// 102's is the earliest of the fixtures.
+					return "2026-10-12T08:15:00", nil
 				}
 				return cursor, nil
 			},
