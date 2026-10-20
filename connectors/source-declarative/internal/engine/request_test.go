@@ -303,3 +303,88 @@ func TestPathEscaping(t *testing.T) {
 	msg, _ := traceMessage(out)
 	assert.Contains(t, msg, "path renders empty")
 }
+
+func TestBodyErrors(t *testing.T) {
+	ok := reply{status: 200, body: `{"ok":true,"data":[{"id":"a"}]}`}
+	slackLike := "errors:\n  message: $.error\n  when:\n" +
+		"    - {path: $.error, equals: [invalid_auth, token_revoked], action: config_error}\n" +
+		"    - {path: $.error, equals: busy, action: retry}\n" +
+		"    - {path: $.error, equals: ratelimited, action: rate_limit}\n" +
+		"    - {path: $.error, equals: nothing_here, action: ignore}\n" +
+		"    - {path: $.ok, equals: false}\n"
+	tests := []struct {
+		name    string
+		top     string
+		replies []reply
+		ft      synclet.FailureType
+		msg     string
+		waits   []time.Duration
+		ids     []string
+	}{
+		{"fail by default with the body's message", slackLike, []reply{{status: 200, body: `{"ok":false,"error":"channel_not_found"}`}},
+			synclet.FailureTypeSystemError, "GET /v1/items (HTTP 200): channel_not_found", nil, nil},
+		{"config error, one of a list", slackLike, []reply{{status: 200, body: `{"ok":false,"error":"token_revoked"}`}},
+			synclet.FailureTypeConfigError, "GET /v1/items (HTTP 200): token_revoked", nil, nil},
+		{"retry like a transient status", slackLike, []reply{{status: 200, body: `{"ok":false,"error":"busy"}`}, ok},
+			"", "", []time.Duration{time.Second}, []string{`"a"`}},
+		{"retry gives up after the attempts", slackLike, []reply{{status: 200, body: `{"ok":false,"error":"busy"}`}},
+			synclet.FailureTypeSystemError, "GET /v1/items (HTTP 200): busy; gave up after 3 attempts", []time.Duration{time.Second, 2 * time.Second}, nil},
+		{"rate_limit waits for the API", slackLike, []reply{{status: 200, body: `{"ok":false,"error":"ratelimited"}`, headers: map[string]string{"Retry-After": "3"}}, ok},
+			"", "", []time.Duration{3 * time.Second}, []string{`"a"`}},
+		{"ignore reads no records", slackLike, []reply{{status: 200, body: `{"ok":false,"error":"nothing_here"}`}},
+			"", "", nil, nil},
+		{"no rule matches", slackLike, []reply{ok}, "", "", nil, []string{`"a"`}},
+		{"numbers compare by value", "errors: {when: [{path: $.code, equals: 7}]}\n", []reply{{status: 200, body: `{"code":7.0,"data":[]}`}},
+			synclet.FailureTypeSystemError, "GET /v1/items (HTTP 200): ", nil, nil},
+		{"a rule never sees a non-2xx response", slackLike, []reply{{status: 400, body: `{"ok":false,"error":"token_revoked"}`}},
+			synclet.FailureTypeSystemError, "GET /v1/items (HTTP 400): token_revoked", nil, nil},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			a := newAPI(t).on("/v1/items", tt.replies...)
+			c := newClock()
+			msg, ft, ids := readItems(t, tt.top, a, c)
+			assert.Equal(t, tt.waits, c.waits())
+			assert.Equal(t, tt.ids, ids)
+			if tt.msg == "" {
+				assert.Empty(t, msg)
+				return
+			}
+			assert.Equal(t, tt.ft, ft)
+			assert.Contains(t, msg, tt.msg)
+		})
+	}
+
+	t.Run("ignore logs a warning", func(t *testing.T) {
+		a := newAPI(t).on("/v1/items", reply{status: 200, body: `{"ok":false,"error":"nothing_here"}`})
+		src := newSource(t, manifestYAML(slackLike, itemsStream), a, newClock())
+		out := read(t, src, testConfig, catalog(t, src, testConfig, synclet.SyncModeFullRefresh, "items"), "")
+		require.NoError(t, out.Err)
+		var warned bool
+		for _, l := range out.Logs() {
+			warned = warned || (l.Level == synclet.LogLevelWarn && strings.Contains(l.Message, "nothing_here"))
+		}
+		assert.True(t, warned)
+	})
+
+	t.Run("check fails on a matching 200", func(t *testing.T) {
+		a := newAPI(t).on("/v1/items", reply{status: 200, body: `{"ok":false,"error":"invalid_auth"}`})
+		src := newSource(t, manifestYAML(slackLike, itemsStream), a, newClock())
+		st := checkStatus(t, src, testConfig)
+		assert.Equal(t, synclet.ConnectionStatusFailed, st.Status)
+		assert.Contains(t, st.Message, "invalid_auth")
+	})
+
+	t.Run("stream rules come first and stay in their stream", func(t *testing.T) {
+		streams := strings.Replace(itemsStream, "    records:", "    errors: {when: [{path: $.error, equals: gone, action: ignore}]}\n    records:", 1) +
+			strings.ReplaceAll(itemsStream, "items", "others")
+		a := newAPI(t).
+			on("/v1/items", reply{status: 200, body: `{"ok":false,"error":"gone"}`}).
+			on("/v1/others", reply{status: 200, body: `{"ok":false,"error":"gone"}`})
+		src := newSource(t, manifestYAML(slackLike, streams), a, newClock())
+		out := read(t, src, testConfig, catalog(t, src, testConfig, synclet.SyncModeFullRefresh, "items", "others"), "")
+		msg, _ := traceMessage(out)
+		assert.Contains(t, msg, "GET /v1/others (HTTP 200): gone")
+		assert.Equal(t, []string{"/v1/items", "/v1/others"}, a.keys())
+	})
+}

@@ -110,6 +110,15 @@ func TestLoadSchemaErrors(t *testing.T) {
 			streamOf(d, 0)["pagination"].(map[string]any)["page_param"] = "p"
 		}, "streams[0].pagination.page_param", "unknown key"},
 		{"odd key", func(d map[string]any) { streamOf(d, 0)["params"] = map[string]any{"created[gte]": map[string]any{}} }, "streams[0].params['created[gte]']", ""},
+		{"unknown when action", func(d map[string]any) {
+			d["errors"] = map[string]any{"when": []any{map[string]any{"path": "$.ok", "equals": false, "action": "skip"}}}
+		}, "errors.when[0].action", "must be one of"},
+		{"when without equals", func(d map[string]any) {
+			d["errors"] = map[string]any{"when": []any{map[string]any{"path": "$.ok"}}}
+		}, "errors.when[0].equals", "required key is missing"},
+		{"message in a stream's errors", func(d map[string]any) {
+			streamOf(d, 0)["errors"] = map[string]any{"message": "$.error"}
+		}, "streams[0].errors.message", "unknown key"},
 		{"bad duration", func(d map[string]any) {
 			streamOf(d, 0)["incremental"].(map[string]any)["lookback"] = "an hour"
 		}, "streams[0].incremental.lookback", "pattern"},
@@ -275,6 +284,12 @@ func TestLint(t *testing.T) {
 			streamOf(d, 1)["incremental"] = map[string]any{"cursor_field": "id", "cursor_format": "rfc3339", "start": "{{ config.start_date }}"}
 		}, "streams[1].incremental.start", "parent's"},
 		{"duplicate stream", func(d map[string]any) { streamOf(d, 1)["name"] = "customers" }, "streams[1].name", "also streams[0]"},
+		{"bad when path", func(d map[string]any) {
+			d["errors"] = map[string]any{"when": []any{map[string]any{"path": "ok", "equals": false}}}
+		}, "errors.when[0].path", "pattern"},
+		{"when path with [*]", func(d map[string]any) {
+			streamOf(d, 0)["errors"] = map[string]any{"when": []any{map[string]any{"path": "$.errors[*].code", "equals": 1}}}
+		}, "streams[0].errors.when[0].path", "[*]"},
 		{"bad wait", func(d map[string]any) {
 			d["retry"] = map[string]any{"rate_limit": map[string]any{"wait": []any{"soon"}}}
 		}, "retry.rate_limit.wait[0]", "neither"},

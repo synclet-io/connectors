@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"math/big"
 	"regexp"
 	"strconv"
 	"strings"
@@ -95,9 +96,81 @@ type Auth struct {
 	ExpiresInPath   *Path    `json:"expires_in_path"`
 }
 
-// Errors says where an error body carries the API's message.
+// Errors says where an error body carries the API's message and which 2xx
+// bodies are errors.
 type Errors struct {
-	Message *Path `json:"message"`
+	Message *Path      `json:"message"`
+	When    []BodyRule `json:"when"`
+}
+
+// StreamErrors are a stream's own rules, checked before the top-level ones.
+type StreamErrors struct {
+	When []BodyRule `json:"when"`
+}
+
+// Body rule actions.
+const (
+	ActionFail        = "fail"
+	ActionConfigError = "config_error"
+	ActionRetry       = "retry"
+	ActionRateLimit   = "rate_limit"
+	ActionIgnore      = "ignore"
+)
+
+// BodyRule makes a 2xx response an error when the body value at Path equals
+// one of Equals.
+type BodyRule struct {
+	Path   *Path   `json:"path"`
+	Equals Scalars `json:"equals"`
+	Action string  `json:"action"`
+}
+
+// Matches reports whether doc, a body decoded with json.Number, has one of
+// the rule's values at its path. Numbers compare by value.
+func (b *BodyRule) Matches(doc any) bool {
+	v, ok := b.Path.Get(doc)
+	if !ok {
+		return false
+	}
+	for _, want := range b.Equals {
+		if scalarEqual(v, want) {
+			return true
+		}
+	}
+	return false
+}
+
+func scalarEqual(got, want any) bool {
+	gn, gok := got.(json.Number)
+	wn, wok := want.(json.Number)
+	if gok || wok {
+		if !gok || !wok {
+			return false
+		}
+		g, okG := new(big.Rat).SetString(string(gn))
+		w, okW := new(big.Rat).SetString(string(wn))
+		return okG && okW && g.Cmp(w) == 0
+	}
+	return got == want
+}
+
+// Scalars is one scalar or a list of scalars, decoded with json.Number.
+type Scalars []any
+
+// UnmarshalJSON decodes a scalar as a list of one.
+func (s *Scalars) UnmarshalJSON(b []byte) error {
+	var v any
+	d := json.NewDecoder(bytes.NewReader(b))
+	d.UseNumber()
+	if err := d.Decode(&v); err != nil {
+		return err
+	}
+	if list, ok := v.([]any); ok {
+		*s = list
+		return nil
+	}
+	*s = Scalars{v}
+	return nil
 }
 
 // Retry holds the retry and rate-limit rules.
@@ -204,6 +277,7 @@ type Stream struct {
 	Incremental *Incremental        `json:"incremental"`
 	Partition   *Partition          `json:"partition"`
 	On404       string              `json:"on_404"`
+	Errors      StreamErrors        `json:"errors"`
 }
 
 // Record modes.

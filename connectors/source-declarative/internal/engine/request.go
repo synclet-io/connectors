@@ -79,11 +79,13 @@ func newRun(m *manifest.Manifest, cfg map[string]any, o Options, em *synclet.Emi
 func (r *run) scope() manifest.Scope { return manifest.Scope{Config: r.cfg} }
 
 // response is a 2xx response with its body decoded with exact numbers.
+// ignored is set when an ignore rule of errors.when matched it.
 type response struct {
-	header http.Header
-	body   []byte
-	doc    any
-	desc   string
+	header  http.Header
+	body    []byte
+	doc     any
+	desc    string
+	ignored *httpError
 }
 
 // httpError is a non-2xx response that is not retried.
@@ -132,7 +134,8 @@ func (r *run) get(ctx context.Context, st *manifest.Stream, u *url.URL, scope ma
 	if u.Scheme != r.base.Scheme || u.Host != r.base.Host {
 		return nil, fmt.Errorf("%s: %s is not on the base URL's scheme and host", desc, u.Scheme+"://"+u.Host)
 	}
-	return r.send(ctx, desc, true, func(ctx context.Context) (*http.Request, error) {
+	rules := slices.Concat(st.Errors.When, r.m.Errors.When)
+	return r.send(ctx, desc, rules, true, func(ctx context.Context) (*http.Request, error) {
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
 		if err != nil {
 			return nil, err
@@ -209,8 +212,9 @@ func sortedKeys[V any](m map[string]V) []string {
 // send sends the request build makes until it succeeds or fails for good:
 // transient statuses, network errors and timeouts are retried with a
 // doubling backoff, rate limits wait for what the API says, and an OAuth
-// token is refreshed before it expires and once after a 401.
-func (r *run) send(ctx context.Context, desc string, authed bool, build func(context.Context) (*http.Request, error)) (*response, error) {
+// token is refreshed before it expires and once after a 401. The first of
+// rules that matches a 2xx body handles that response as an error.
+func (r *run) send(ctx context.Context, desc string, rules []manifest.BodyRule, authed bool, build func(context.Context) (*http.Request, error)) (*response, error) {
 	tr := r.m.Retry.Transient
 	statuses, attempts, delay := tr.Statuses, tr.Attempts, time.Duration(tr.Backoff)
 	if statuses == nil {
@@ -255,22 +259,39 @@ func (r *run) send(ctx context.Context, desc string, authed bool, build func(con
 			delay *= 2
 			continue
 		}
+		action := ""
 		if status >= 200 && status < 300 {
 			resp := &response{header: header, body: body, desc: desc}
 			if err := decodeBody(body, &resp.doc); err != nil {
 				return nil, fmt.Errorf("%s: response is not JSON: %w", desc, err)
 			}
-			return resp, nil
+			for i := range rules {
+				if rules[i].Matches(resp.doc) {
+					action = rules[i].Action
+					break
+				}
+			}
+			if action == "" {
+				return resp, nil
+			}
+			if action == manifest.ActionIgnore {
+				resp.ignored = &httpError{status: status, desc: desc, detail: r.errorMessage(body)}
+				return resp, nil
+			}
 		}
 		he := &httpError{status: status, desc: desc, detail: r.errorMessage(body)}
 		switch {
+		case action == manifest.ActionFail:
+			return nil, he
+		case action == manifest.ActionConfigError:
+			return nil, synclet.ConfigError(he)
 		case status == http.StatusUnauthorized && oauth && !refreshed:
 			refreshed = true
 			if err := r.refresh(ctx); err != nil {
 				return nil, err
 			}
 			continue
-		case r.rateLimited(status, header):
+		case action == manifest.ActionRateLimit || (action == "" && r.rateLimited(status, header)):
 			waits++
 			if waits > maxWaits {
 				return nil, fmt.Errorf("%w; gave up after %d waits", he, maxWaits)
@@ -283,9 +304,9 @@ func (r *run) send(ctx context.Context, desc string, authed bool, build func(con
 				return nil, err
 			}
 			continue
-		case status == http.StatusUnauthorized || status == http.StatusForbidden:
+		case action == "" && (status == http.StatusUnauthorized || status == http.StatusForbidden):
 			return nil, synclet.ConfigError(he)
-		case slices.Contains(statuses, status):
+		case action == manifest.ActionRetry || (action == "" && slices.Contains(statuses, status)):
 			failures++
 			if failures >= attempts {
 				return nil, fmt.Errorf("%w; gave up after %d attempts", he, attempts)
@@ -516,7 +537,7 @@ func (r *run) refresh(ctx context.Context) error {
 		body = []byte(form.Encode())
 	}
 	desc := "POST " + u.EscapedPath()
-	resp, err := r.send(ctx, desc, false, func(ctx context.Context) (*http.Request, error) {
+	resp, err := r.send(ctx, desc, nil, false, func(ctx context.Context) (*http.Request, error) {
 		req, err := http.NewRequestWithContext(ctx, http.MethodPost, u.String(), bytes.NewReader(body))
 		if err != nil {
 			return nil, err

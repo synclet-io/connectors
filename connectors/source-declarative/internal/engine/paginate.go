@@ -118,6 +118,10 @@ func (r *run) pages(ctx context.Context, st *manifest.Stream, scope manifest.Sco
 		if check {
 			return nil
 		}
+		if he := resp.ignored; he != nil {
+			r.logger(ctx).Warn(fmt.Sprintf("stream %s: %s answered an error that errors.when ignores; this request reads no records: %s", st.Name, he.desc, he.detail))
+			return nil
+		}
 		recs, err := extract(st, resp, scope)
 		if err != nil {
 			return err

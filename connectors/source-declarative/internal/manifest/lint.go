@@ -60,6 +60,7 @@ func lint(m *Manifest) []*Error {
 		l.add("timeout", "must be positive")
 	}
 	l.path("errors.message", m.Errors.Message)
+	l.rules("errors.when", m.Errors.When)
 	for i := range m.Retry.RateLimit.Wait {
 		if err := m.Retry.RateLimit.Wait[i].parse(); err != nil {
 			l.add(fmt.Sprintf("retry.rate_limit.wait[%d]", i), "%v", err)
@@ -124,6 +125,20 @@ func (l *linter) auth(configOnly roots) {
 	}
 	l.path("auth.access_token_path", a.AccessTokenPath)
 	l.path("auth.expires_in_path", a.ExpiresInPath)
+}
+
+func (l *linter) rules(at string, rules []BodyRule) {
+	for i := range rules {
+		rat := fmt.Sprintf("%s[%d].path", at, i)
+		p := rules[i].Path
+		l.path(rat, p)
+		if p.Wildcard() {
+			l.add(rat, "a path with [*] selects an array; a rule compares one value")
+		}
+		if rules[i].Action == "" {
+			rules[i].Action = ActionFail
+		}
+	}
 }
 
 func (l *linter) path(at string, p *Path) {
@@ -237,6 +252,7 @@ func (l *linter) stream(i int, names map[string]int) {
 	if st.Incremental != nil {
 		allowed[RootSince], allowed[RootUntil] = true, true
 	}
+	l.rules(at+".errors.when", st.Errors.When)
 	l.template(at+".path", &st.Path, allowed, false)
 	l.params(at+".params", st.Params, allowed)
 	l.templates(at+".headers", st.Headers, allowed)

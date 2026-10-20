@@ -85,8 +85,9 @@ Types: `string`, `int`, `bool`, `duration` (Go duration such as `30s`, `1h`, or 
 | `params` | map<string,template> | no | Query parameters sent on every request. |
 | `timeout` | duration | no | Per-request timeout, default `60s`. |
 | `errors.message` | path | no | Where the API's error text sits in an error body; it is appended to every failure message. Default: the first 200 bytes of the body. |
+| `errors.when` | list<rule> | no | Rules that make a 2xx response an error by a body value (Slack `ok: false`), section 3.4. |
 | `retry` | object | no | Section 3.4. |
-| `check` | object | yes | `check.stream: <stream name>`: `check` sends that stream's first request (page size 1 where the paginator has a size, first partition) and succeeds on 2xx. |
+| `check` | object | yes | `check.stream: <stream name>`: `check` sends that stream's first request (page size 1 where the paginator has a size, first partition) and succeeds on a 2xx response that no `errors.when` rule turns into an error. |
 | `streams` | list<stream> | yes | Section 3.5, at least one. |
 
 #### 3.2 `spec`
@@ -135,6 +136,25 @@ retry:
 
 Status classification, not configurable: 401 and 403 are config errors (`failure_type: config_error`, `check` FAILED) with the API message; 429 and `also_when` wait; `transient.statuses` retry; every other non-2xx status fails the read with the method, path and API message; a stream-level `on_404: skip` (3.5) turns a 404 into a WARN log and skips the stream or partition.
 
+Errors in a 2xx body. Some APIs answer errors with HTTP 200 (Slack's `{"ok": false, "error": "invalid_auth"}`). `errors.when` lists rules that make a 2xx response an error; a stream's own `errors.when` (3.5) is checked before the top-level list, and the first matching rule wins:
+
+```yaml
+errors:
+  message: $.error
+  when:
+    - {path: $.error, equals: [invalid_auth, token_revoked, missing_scope], action: config_error}
+    - {path: $.error, equals: ratelimited, action: rate_limit}
+    - {path: $.ok, equals: false}
+```
+
+| Key | Type | Meaning |
+|---|---|---|
+| `path` | path | Body value the rule compares; without `[*]`. A body without it does not match. |
+| `equals` | scalar or list of scalars | The rule matches when the value equals one of them; numbers compare by value. |
+| `action` | `fail`, `config_error`, `retry`, `rate_limit`, `ignore` | `fail` (default): the request fails with the method, path, `HTTP 200` and the API message of `errors.message`. `config_error`: the same as a config error (`check` FAILED), for a bad credential or missing scope. `retry`: as a `transient.statuses` status. `rate_limit`: as a `rate_limit.statuses` status, waiting per `rate_limit.wait`. `ignore`: the response reads as no records and ends the pagination of that request (that stream, partition or parent record) with a WARN log; `check` passes on it. |
+
+Rules apply to every API request, `check` included, and never to the OAuth token request or a non-2xx response. This is Airbyte's `error_handler.response_filters` (`predicate`, `action`, `failure_type`, `error_message`) reduced to one comparison.
+
 #### 3.5 `streams[]`
 
 | Key | Type | Required | Meaning |
@@ -150,6 +170,7 @@ Status classification, not configurable: 401 and 403 are config errors (`failure
 | `incremental` | object | no | Section 3.8. Present: the stream supports `incremental` and `full_refresh`; absent: `full_refresh` only. On a stream with `partition.parent` it is allowed only when the parent is incremental, and then holds `cursor_field` and `cursor_format` only (3.9). |
 | `partition` | object | no | Section 3.9. |
 | `on_404` | `fail` or `skip` | no | `skip`: a 404 logs WARN and ends this stream (or this partition of it) without records; default `fail`. |
+| `errors` | object | no | `errors.when`: the stream's own body rules (3.4), checked before the top-level ones. |
 
 #### 3.6 `records`
 
@@ -312,6 +333,7 @@ Legend: **in** (the manifest expresses it), **Go** (write the connector in Go on
 | 403 as a rate limit when a header says so (GitHub) | in ((g)) | `retry.rate_limit.also_when`. |
 | Requests-per-minute pacing, per-domain budgets (RevenueCat) | Go | 429 handling is the DSL's mechanism; pacing is tuning. |
 | 401/403 config errors with the API's text | in | `errors.message`. |
+| 2xx with an error in the body (Slack `ok: false`) | in | `errors.when`: fail, config error, retry, rate limit or ignore by one body value. |
 | Message heuristics (RevenueCat "v1 key"), probing every stream's permission in `check` | Go | `check` is one request. |
 | 404 → skip stream or partition | in | `on_404: skip`. |
 

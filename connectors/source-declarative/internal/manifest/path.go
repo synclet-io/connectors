@@ -131,6 +131,16 @@ func get(v any, steps []step) (any, bool) {
 	return v, true
 }
 
+// Wildcard reports whether the path has a [*] step.
+func (p *Path) Wildcard() bool {
+	for _, st := range p.steps {
+		if st.wildcard {
+			return true
+		}
+	}
+	return false
+}
+
 // GetField returns the value of a dotted field in a record.
 func GetField(rec map[string]any, f Field) (any, bool) {
 	var v any = rec
