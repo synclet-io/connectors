@@ -151,10 +151,12 @@ issue. The run fails while a pin is within 30 days of its sunset, or past it, wi
 With the `ANTHROPIC_API_KEY` repository secret set, a second job hands each new version to Claude
 ([claude-code-action](https://github.com/anthropics/claude-code-action), `claude-opus-5-5`, at most 60 turns), which
 reads the provider's changelog, bumps the pin and adapts the connector. Claude may only read and edit files, run
-`go build`, `go vet`, `go test` and `go run ./scripts validate`, and fetch pages of the provider's hosts; it gets no
-token that can push. The workflow then commits as the release App on `api-bump/<connector>/<version>`, opens a pull
-request labelled `api-bump` and `needs-review` (a draft when the connector's tests fail) and links it from the
-issue. Nothing is merged automatically. A branch or pull request of that name, open or closed, stops the version
+`go build`, `go vet`, `go test` and `go run ./scripts validate`, and fetch pages of the provider's hosts. Since tests
+run code Claude wrote after reading untrusted pages, that job holds no token that can write and passes on only a
+patch and a summary. A third job, on a fresh runner, applies the patch, rejects it if it touches anything outside
+`connectors/<connector>/` or adds a symlink, and only then commits as the release App on
+`api-bump/<connector>/<version>`, opens a pull request labelled `api-bump` and `needs-review` (a draft when the
+connector's tests failed) and links it from the issue. Nothing is merged automatically. A branch or pull request of that name, open or closed, stops the version
 from being drafted again: to retry a rejected bump, delete the branch and run the workflow with `connector` set.
 
 **Actions → API watch → Run workflow** takes `dry_run` (summary only, no issue or pull request changes),

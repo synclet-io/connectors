@@ -29,7 +29,7 @@ var labelColors = map[string]string{
 var (
 	reMarker = regexp.MustCompile(`<!-- api-watch: (\S+) -->`)
 	// reRefSafe bounds the upstream strings that end up in branch names and
-	// the bump job's commands.
+	// the bump jobs' commands.
 	reRefSafe = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9._/-]{0,63}$`)
 )
 
@@ -420,7 +420,7 @@ func SyncIssues(ctx context.Context, gh *GitHub, report Report) ([]Bump, error) 
 	return bumps, errors.Join(errs...)
 }
 
-// hosts lists the distinct hosts of the URLs, for the bump job's WebFetch allow list.
+// hosts lists the distinct hosts of the URLs, for the draft job's WebFetch allow list.
 func hosts(urls ...string) []string {
 	var out []string
 

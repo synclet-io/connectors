@@ -94,7 +94,9 @@ jobs:
           echo "has_key=$HAS_KEY" >> "$GITHUB_OUTPUT"
           if [ "$HAS_KEY" != true ]; then echo "ANTHROPIC_API_KEY absent; bump skipped"; fi
 
-  bump:
+  # Runs Claude and the connector's tests, so it executes code Claude wrote after reading untrusted upstream pages.
+  # It holds no credential that can write and hands on only a patch and a summary; the runner is discarded with it.
+  draft:
     needs: watch
     if: >-
       !cancelled() && !inputs.dry_run && (github.event_name == 'schedule' || inputs.bump) &&
@@ -118,22 +120,21 @@ jobs:
       DOCS: ${{ matrix.bump.docs }}
       HOSTS: ${{ matrix.bump.hosts }}
       BRANCH: ${{ matrix.bump.branch }}
-      ISSUE: ${{ matrix.bump.issue }}
+      CLAUDE_CODE_SUBPROCESS_ENV_SCRUB: "1"
     steps:
-      # Claude's step gets no credential that can push: checkout keeps none, and the App token is minted after it.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
+      # No cache: its post step would save a module and build cache that code run below may have altered.
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: connectors/${{ matrix.bump.connector }}/go.mod
-          cache-dependency-path: connectors/${{ matrix.bump.connector }}/go.sum
+          cache: false
 
-      - name: Prepare the branch and the prompt
+      - name: Prepare the prompt
         id: prompt
         run: |
-          git switch -c "$BRANCH"
           webfetch=""
           IFS=, read -ra hosts <<<"$HOSTS"
           for h in "${hosts[@]}"; do
@@ -141,6 +142,7 @@ jobs:
             webfetch+=",WebFetch(domain:$h)"
           done
           {
+            echo "artifact=api-bump-${BRANCH//\//-}"
             echo "webfetch=$webfetch"
             echo "prompt<<API_BUMP_PROMPT_EOF"
             # shellcheck disable=SC2016 # envsubst expands only the variables named in single quotes
@@ -161,34 +163,92 @@ jobs:
             --allowedTools "Read,Edit,Write,Glob,Grep,Bash(go test:*),Bash(go vet:*),Bash(go build:*),Bash(go run ./scripts validate)${{ steps.prompt.outputs.webfetch }}"
             --disallowedTools "Bash(git:*),Bash(gh:*),Bash(curl:*),Bash(wget:*)"
 
+      # The result only decides whether the pull request opens as a draft; CI on the pull request is the check.
       - name: Test the connector
-        id: test
         run: |
+          mkdir -p "$RUNNER_TEMP/bump"
           if go test -C "connectors/$CONNECTOR" ./... -count=1 && go run ./scripts validate > /dev/null; then
-            echo "passed=true" >> "$GITHUB_OUTPUT"
+            echo true > "$RUNNER_TEMP/bump/passed"
           else
-            echo "passed=false" >> "$GITHUB_OUTPUT"
+            echo false > "$RUNNER_TEMP/bump/passed"
           fi
 
       - name: Collect the changes
-        id: changes
         run: |
           summary=.github/api-bump/SUMMARY.md
-          if [ -f "$summary" ]; then mv "$summary" "$RUNNER_TEMP/summary.md"; else echo "Claude wrote no summary." > "$RUNNER_TEMP/summary.md"; fi
+          if [ -f "$summary" ]; then mv "$summary" "$RUNNER_TEMP/bump/summary.md"; else echo "Claude wrote no summary." > "$RUNNER_TEMP/bump/summary.md"; fi
           git add -A
-          outside=$(git diff --cached --name-only | grep -v "^connectors/$CONNECTOR/" || true)
+          git diff --cached --binary --no-renames > "$RUNNER_TEMP/bump/change.patch"
+          git diff --cached --stat --no-renames
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ${{ steps.prompt.outputs.artifact }}
+          path: ${{ runner.temp }}/bump/
+          retention-days: 7
+
+  # Never runs code from the patch: it applies it to a fresh checkout, rejects anything outside the connector, and
+  # only then mints the App token to push and open the pull request.
+  publish:
+    needs: [watch, draft]
+    if: >-
+      !cancelled() && !inputs.dry_run && (github.event_name == 'schedule' || inputs.bump) &&
+      needs.watch.outputs.has_key == 'true' && needs.watch.outputs.bumps != '' && needs.watch.outputs.bumps != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        bump: ${{ fromJSON(needs.watch.outputs.bumps) }}
+    env:
+      CONNECTOR: ${{ matrix.bump.connector }}
+      API: ${{ matrix.bump.api }}
+      FROM: ${{ matrix.bump.from }}
+      TO: ${{ matrix.bump.to }}
+      BRANCH: ${{ matrix.bump.branch }}
+      ISSUE: ${{ matrix.bump.issue }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Name the artifact
+        id: artifact
+        run: echo "name=api-bump-${BRANCH//\//-}" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: ${{ steps.artifact.outputs.name }}
+          path: ${{ runner.temp }}/bump
+
+      - name: Apply and check the patch
+        id: changes
+        run: |
+          git switch -c "$BRANCH"
+          patch="$RUNNER_TEMP/bump/change.patch"
+          if [ ! -s "$patch" ]; then
+            echo "::warning::Claude changed nothing for $CONNECTOR $TO"
+            cat "$RUNNER_TEMP/bump/summary.md"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git apply --index "$patch"
+          outside=$(git diff --cached --no-renames --name-only | grep -v "^connectors/$CONNECTOR/" || true)
           if [ -n "$outside" ]; then
             echo "::error::Claude changed files outside connectors/$CONNECTOR/: $outside"
             exit 1
           fi
-          if git diff --cached --quiet; then
-            echo "::warning::Claude changed nothing for $CONNECTOR $TO"
-            cat "$RUNNER_TEMP/summary.md"
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-          else
-            git diff --cached --stat
-            echo "changed=true" >> "$GITHUB_OUTPUT"
+          links=$(git diff --cached --no-renames --raw | awk '$2 ~ /^(120000|160000)$/ { print $NF }')
+          if [ -n "$links" ]; then
+            echo "::error::Claude added symlinks or submodules: $links"
+            exit 1
           fi
+          git diff --cached --stat
+          echo "changed=true" >> "$GITHUB_OUTPUT"
 
       - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         if: steps.changes.outputs.changed == 'true'
@@ -206,8 +266,8 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
-          PASSED: ${{ steps.test.outputs.passed }}
         run: |
+          passed=$(cat "$RUNNER_TEMP/bump/passed" 2>/dev/null || true)
           bot="${APP_SLUG}[bot]"
           bot_id=$(gh api "/users/$bot" --jq .id)
           title="fix($CONNECTOR): bump $API to $TO"
@@ -215,20 +275,20 @@ jobs:
           git push "https://x-access-token:$GH_TOKEN@github.com/$GITHUB_REPOSITORY.git" "HEAD:refs/heads/$BRANCH"
 
           {
-            cat "$RUNNER_TEMP/summary.md"
+            head -c 60000 "$RUNNER_TEMP/bump/summary.md"
             echo
             echo "---"
             echo "Drafted by Claude in the API watch workflow ([run]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)): \`$FROM\` → \`$TO\`."
-            if [ "$PASSED" = true ]; then
-              echo "\`go test\` of the connector and \`go run ./scripts validate\` pass."
+            if [ "$passed" = true ]; then
+              echo "\`go test\` of the connector and \`go run ./scripts validate\` passed in the drafting job."
             else
-              echo "**\`go test\` of the connector or \`go run ./scripts validate\` fails**, so this pull request is a draft."
+              echo "**\`go test\` of the connector or \`go run ./scripts validate\` failed in the drafting job**, so this pull request is a draft."
             fi
             if [ "$ISSUE" != 0 ]; then echo; echo "Refs #$ISSUE"; fi
           } > "$RUNNER_TEMP/body.md"
 
           draft=()
-          if [ "$PASSED" != true ]; then draft=(--draft); fi
+          if [ "$passed" != true ]; then draft=(--draft); fi
           url=$(gh pr create --repo "$GITHUB_REPOSITORY" --base main --head "$BRANCH" --title "$title" \
             --body-file "$RUNNER_TEMP/body.md" --label api-bump --label needs-review "${draft[@]}")
           echo "Opened $url"
