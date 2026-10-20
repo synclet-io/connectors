@@ -301,9 +301,9 @@ func (h *Harness) Catalog(t testing.TB, mode synclet.SyncMode, streams ...string
 
 // Run checks a manifest connector: it lints the manifest, runs the SDK
 // conformance suite for full refresh over every stream and once per
-// incremental stream, checks that check with BrokenConfig reports the text
-// of the unauthorized fixture and that every paginated stream's fixtures
-// span MinPages pages.
+// incremental stream, checks that every stream reads at least one record,
+// that check with BrokenConfig reports the text of the unauthorized fixture
+// and that every paginated stream's fixtures span MinPages pages.
 func Run(t *testing.T, s Suite) {
 	t.Helper()
 	h := New(t, s)
@@ -322,6 +322,17 @@ func Run(t *testing.T, s Suite) {
 			h.incremental(t, &st)
 		})
 	}
+	t.Run("records", func(t *testing.T) {
+		out := h.Read(t, full, nil)
+		if out.Err != nil {
+			t.Fatalf("read: %v", out.Err)
+		}
+		for _, st := range m.Streams {
+			if len(out.Records(synclet.StreamDescriptor{Name: st.Name})) == 0 {
+				t.Errorf("stream %s: the fixtures give no records; a records path missing from the response reads as none", st.Name)
+			}
+		}
+	})
 	t.Run("broken config", func(t *testing.T) {
 		h.brokenConfig(t)
 	})

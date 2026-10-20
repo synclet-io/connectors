@@ -166,10 +166,17 @@ func TestRecords(t *testing.T) {
 		{"exact numbers", `{path: $.data}`, `{"data":[{"id":"a","value":12345678901234567890}]}`, "value", []string{"12345678901234567890"}, ""},
 		{"add only when missing or null", `{path: $.data, add: {name: $.default, account: "{{ config.api_key }}", day: 7}}`,
 			`{"default":"D","data":[{"id":"a","name":"kept"},{"id":"b","name":null},{"id":"c"}]}`, "name", []string{`"kept"`, `"D"`, `"D"`}, ""},
-		{"missing path", `{path: $.data}`, `{"items":[]}`, "id", nil, "records path $.data is not in the response (GET /v1/items)"},
+		{"missing path is no records", `{path: $.data}`, `{"items":[]}`, "id", nil, ""},
+		{"null is no records", `{path: $.data}`, `{"data":null}`, "id", nil, ""},
+		{"null object is no record", `{path: $.item, mode: object}`, `{"item":null}`, "id", nil, ""},
+		{"null entries are no records", `{path: $.rates, mode: entries, key_field: id, value_field: value}`, `{"rates":null}`, "id", nil, ""},
+		{"null on the way is no records", `{path: $.result.data}`, `{"result":null}`, "id", nil, ""},
+		{"missing before [*] is no records", `{path: "$.list[*].customer"}`, `{"other":1}`, "id", nil, ""},
+		{"null body is no records", `{}`, `null`, "id", nil, ""},
+		{"element without the [*] key", `{path: "$.list[*].customer"}`, `{"list":[{"customer":{"id":"a"}},{"other":{"id":"b"}}]}`, "id", nil, "records path $.list[*].customer is not in the response (GET /v1/items)"},
+		{"scalar on the way", `{path: $.result.data}`, `{"result":"none"}`, "id", nil, "records path $.result.data is not in the response (GET /v1/items)"},
 		{"null element", `{path: $.data}`, `{"data":[{"id":"a"},null]}`, "id", nil, "record 1 is null, not an object (GET /v1/items)"},
 		{"not an array", `{path: $.data}`, `{"data":{"id":"a"}}`, "id", nil, "records at $.data are not an array (GET /v1/items)"},
-		{"null body", `{}`, `null`, "id", nil, "records at $ are not an array"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -245,6 +252,16 @@ func TestPaginationTotalReached(t *testing.T) {
 			assert.Contains(t, msg, "pagination stopped after 1 records of total 3")
 		})
 	}
+
+	t.Run("null records end the pagination", func(t *testing.T) {
+		a := newAPI(t).
+			json("/v1/items?n=1&offset=0", `{"data":[{"id":"a"}],"more":true,"total":3}`).
+			json("/v1/items?n=1&offset=1", `{"data":null}`)
+		ids, msg := readPaged(t, "{type: offset, size: 1, size_param: n, has_more: $.more, total: $.total}", a)
+		require.Empty(t, msg)
+		assert.Equal(t, []string{`"a"`}, ids)
+		assert.Len(t, a.keys(), 2)
+	})
 
 	t.Run("empty page without total stops", func(t *testing.T) {
 		a := newAPI(t).

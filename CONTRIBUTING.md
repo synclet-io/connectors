@@ -146,8 +146,9 @@ A catalog image whose `COPY` misses the manifest fails `spec`, so it cannot sile
   must reject, the credential every request carries (`declarativetest.Header` or `declarativetest.Query`),
   a fixed `Now` and `MinPages`. It loads and lints the manifest (and checks `connector.name` against the
   directory), runs the SDK conformance suite for full refresh over every stream and once per incremental
-  stream, checks that `check` with the broken config reports the text of `testdata/errors/401.json`, and that
-  every paginated stream's fixtures span `MinPages` pages. `Overrides` replaces the response of one route;
+  stream, checks that every stream reads at least one record (a records path missing from a response reads
+  as none, so this catches a misspelt one), that `check` with the broken config reports the text of
+  `testdata/errors/401.json`, and that every paginated stream's fixtures span `MinPages` pages. `Overrides` replaces the response of one route;
   `RateLimitOnce` answers one read's first request with 429. `Inspect` sees every request, for a test that asserts a
   header the fixtures cannot show. Because the connector has a `go.mod`, CI runs
   `go vet`, `golangci-lint` and `go test -race` in it as for Go connectors.

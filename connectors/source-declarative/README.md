@@ -181,7 +181,7 @@ Rules apply to every API request, `check` included, and never to the OAuth token
 | `key_field`, `value_field` | field | `entries` only. |
 | `add` | map<field,source> | Fields added to every record **when the record lacks them or has null there**. A source is a response path (`$.base`, read from the response root), a template (`"{{ parent.id }}"`, `"{{ since }}"`), or a constant scalar. Every added field must exist in the schema. |
 
-A missing `path`, a non-array under `mode: array`, a null element or a non-object record fails the stream with the request; an empty array is simply zero records. Bodies are decoded with exact numbers (`json.Number`), so `0.912345` and 64-bit ids survive. The transport decompresses gzip transparently. Bodies that are not JSON (CSV, JSONL, XML) are out of the DSL.
+A records `path` that is missing from the body or null there (also a key before a `[*]` step, or a null body for `$`) is zero records and the last page of that request, whatever `has_more`, `is_last` or `total` say: Pipedrive v1 answers an empty list with `"data": null`. This matches Airbyte's `DpathExtractor`, which reads a missing path as `[]`. A wrong kind on the way (a string where the path needs an object), an element without the rest of a `[*]` path, a non-array under `mode: array`, a null element or a non-object record fails the stream with the request; an empty array is simply zero records. A misspelt `path` therefore reads nothing instead of failing, and the test entry (`declarativetest`) fails a stream whose fixtures give no records. Bodies are decoded with exact numbers (`json.Number`), so `0.912345` and 64-bit ids survive. The transport decompresses gzip transparently. Bodies that are not JSON (CSV, JSONL, XML) are out of the DSL.
 
 #### 3.7 `pagination`
 
@@ -202,7 +202,7 @@ A missing `path`, a non-array under `mode: array`, a null element or a non-objec
 
 `link` follows the `Link` response header's `rel="next"` (RFC 5988), as GitHub, Freshdesk, Sentry and Shopify send it.
 
-Stop conditions and guards, in this order after every page:
+Stop conditions and guards, in this order after every page whose records path is present (a missing or null one stops at once, 3.6):
 
 1. `has_more` false, `is_last` true, or `total` reached: stop.
 2. An empty page: stop.
@@ -302,7 +302,7 @@ Legend: **in** (the manifest expresses it), **Go** (write the connector in Go on
 | CSV, JSONL, XML bodies | Amplitude, Mixpanel, S3 | Go | different decoders and memory profile. |
 | gzip | GitHub, many | in | transparent in `net/http`. |
 | Records under keys that vary per record | polymorphic payloads | Go | — |
-| Empty / null | all | in | empty array = no records; missing path, null body, null element, non-object record fail. |
+| Empty / null | all | in | empty array, missing or null records path, null body = no records (Airbyte parity; Pipedrive v1 `"data": null`); null element, non-object record fail. |
 | 200 with `errors[]` | GraphQL-style APIs, Facebook batch | Go | no REST candidate does it. |
 | Parent → child fan-out | RevenueCat customer children (3 streams), Jira comments and worklogs, Intercom conversation parts, Stripe subscription items / invoice lines, Zendesk ticket comments | in, restricted (widening of (d)) | `partition.parent`, one level, one parent pass per sibling group, incremental via the parent with the child's own cursor; without it the RevenueCat proof covers 7 of 10 streams, and Jira comments, Intercom conversation parts and Stripe nested lists go to Go. |
 | Config list → requests | GitHub repositories, multi-account APIs | in ((a)) | `partition.values` with a cursor per value, so a value added later backfills. |

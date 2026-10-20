@@ -131,6 +131,39 @@ func get(v any, steps []step) (any, bool) {
 	return v, true
 }
 
+// Absent reports whether v holds nothing at the path: the value is null, or
+// a key or index before the first [*] step is missing or null. A value of
+// the wrong kind on the way is not absent.
+func (p *Path) Absent(v any) bool {
+	for _, st := range p.steps {
+		if v == nil {
+			return true
+		}
+		switch {
+		case st.wildcard:
+			return false
+		case st.isIndex:
+			arr, ok := v.([]any)
+			if !ok {
+				return false
+			}
+			if st.index >= len(arr) {
+				return true
+			}
+			v = arr[st.index]
+		default:
+			obj, ok := v.(map[string]any)
+			if !ok {
+				return false
+			}
+			if v, ok = obj[st.key]; !ok {
+				return true
+			}
+		}
+	}
+	return v == nil
+}
+
 // Wildcard reports whether the path has a [*] step.
 func (p *Path) Wildcard() bool {
 	for _, st := range p.steps {

@@ -122,9 +122,12 @@ func (r *run) pages(ctx context.Context, st *manifest.Stream, scope manifest.Sco
 			r.logger(ctx).Warn(fmt.Sprintf("stream %s: %s answered an error that errors.when ignores; this request reads no records: %s", st.Name, he.desc, he.detail))
 			return nil
 		}
-		recs, err := extract(st, resp, scope)
+		recs, absent, err := extract(st, resp, scope)
 		if err != nil {
 			return err
+		}
+		if absent {
+			return nil
 		}
 		keys, err := primaryKeys(st, recs)
 		if err != nil {
@@ -410,29 +413,33 @@ func allSeen(keys, prev map[string]bool) bool {
 	return true
 }
 
-// extract selects the records of a response and adds records.add.
-func extract(st *manifest.Stream, resp *response, scope manifest.Scope) ([]map[string]any, error) {
+// extract selects the records of a response and adds records.add. absent
+// reports a records path missing from the response or null there: no
+// records, and the last page of the request.
+func extract(st *manifest.Stream, resp *response, scope manifest.Scope) (recs []map[string]any, absent bool, err error) {
 	rs := st.Records
 	path := rs.Path
 	if path == nil {
 		path, _ = manifest.ParsePath("$")
 	}
+	if path.Absent(resp.doc) {
+		return nil, true, nil
+	}
 	v, ok := path.Get(resp.doc)
 	if !ok {
-		return nil, fmt.Errorf("stream %s: records path %s is not in the response (%s)", st.Name, path.Raw, resp.desc)
+		return nil, false, fmt.Errorf("stream %s: records path %s is not in the response (%s)", st.Name, path.Raw, resp.desc)
 	}
-	var recs []map[string]any
 	switch rs.Mode {
 	case manifest.ModeObject:
 		obj, ok := v.(map[string]any)
 		if !ok {
-			return nil, fmt.Errorf("stream %s: the record at %s is %s, not an object (%s)", st.Name, path.Raw, kindOf(v), resp.desc)
+			return nil, false, fmt.Errorf("stream %s: the record at %s is %s, not an object (%s)", st.Name, path.Raw, kindOf(v), resp.desc)
 		}
 		recs = []map[string]any{obj}
 	case manifest.ModeEntries:
 		obj, ok := v.(map[string]any)
 		if !ok {
-			return nil, fmt.Errorf("stream %s: the entries at %s are %s, not an object (%s)", st.Name, path.Raw, kindOf(v), resp.desc)
+			return nil, false, fmt.Errorf("stream %s: the entries at %s are %s, not an object (%s)", st.Name, path.Raw, kindOf(v), resp.desc)
 		}
 		for _, k := range sortedKeys(obj) {
 			rec := map[string]any{}
@@ -442,33 +449,33 @@ func extract(st *manifest.Stream, resp *response, scope manifest.Scope) ([]map[s
 				}
 			} else {
 				if rs.ValueField == nil {
-					return nil, fmt.Errorf("stream %s: entry %q is %s, not an object, and records.value_field is not set (%s)", st.Name, k, kindOf(obj[k]), resp.desc)
+					return nil, false, fmt.Errorf("stream %s: entry %q is %s, not an object, and records.value_field is not set (%s)", st.Name, k, kindOf(obj[k]), resp.desc)
 				}
 				if err := manifest.SetField(rec, *rs.ValueField, obj[k]); err != nil {
-					return nil, err
+					return nil, false, err
 				}
 			}
 			if err := manifest.SetField(rec, *rs.KeyField, k); err != nil {
-				return nil, err
+				return nil, false, err
 			}
 			recs = append(recs, rec)
 		}
 	default:
 		arr, ok := v.([]any)
 		if !ok {
-			return nil, fmt.Errorf("stream %s: records at %s are not an array (%s); got %s", st.Name, path.Raw, resp.desc, kindOf(v))
+			return nil, false, fmt.Errorf("stream %s: records at %s are not an array (%s); got %s", st.Name, path.Raw, resp.desc, kindOf(v))
 		}
 		recs = make([]map[string]any, len(arr))
 		for i, e := range arr {
 			obj, ok := e.(map[string]any)
 			if !ok {
-				return nil, fmt.Errorf("stream %s: record %d is %s, not an object (%s)", st.Name, i, kindOf(e), resp.desc)
+				return nil, false, fmt.Errorf("stream %s: record %d is %s, not an object (%s)", st.Name, i, kindOf(e), resp.desc)
 			}
 			recs[i] = obj
 		}
 	}
 	if len(rs.Add) == 0 {
-		return recs, nil
+		return recs, false, nil
 	}
 	added := map[string]any{}
 	for _, name := range sortedKeys(rs.Add) {
@@ -477,13 +484,13 @@ func extract(st *manifest.Stream, resp *response, scope manifest.Scope) ([]map[s
 		case src.Path != nil:
 			v, ok := src.Path.Get(resp.doc)
 			if !ok {
-				return nil, fmt.Errorf("stream %s: records.add.%s: %s is not in the response (%s)", st.Name, name, src.Path.Raw, resp.desc)
+				return nil, false, fmt.Errorf("stream %s: records.add.%s: %s is not in the response (%s)", st.Name, name, src.Path.Raw, resp.desc)
 			}
 			added[name] = v
 		case src.Template != nil:
 			v, err := src.Template.Render(scope, nil)
 			if err != nil {
-				return nil, fmt.Errorf("stream %s: records.add.%s: %w", st.Name, name, err)
+				return nil, false, fmt.Errorf("stream %s: records.add.%s: %w", st.Name, name, err)
 			}
 			added[name] = v
 		default:
@@ -497,11 +504,11 @@ func extract(st *manifest.Stream, resp *response, scope manifest.Scope) ([]map[s
 				continue
 			}
 			if err := manifest.SetField(rec, f, added[name]); err != nil {
-				return nil, fmt.Errorf("stream %s: records.add: %w (%s)", st.Name, err, resp.desc)
+				return nil, false, fmt.Errorf("stream %s: records.add: %w (%s)", st.Name, err, resp.desc)
 			}
 		}
 	}
-	return recs, nil
+	return recs, false, nil
 }
 
 func kindOf(v any) string {
