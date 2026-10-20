@@ -1,0 +1,96 @@
+# yaml-language-server: $schema=../source-declarative/internal/manifest/manifest.schema.json
+version: 1
+connector:
+  name: source-mailchimp
+  documentation_url: https://github.com/synclet-io/connectors/tree/main/connectors/source-mailchimp
+base_url: "https://{{ config.data_center }}.api.mailchimp.com/3.0/"
+spec:
+  title: Mailchimp Source Spec
+  description: Reads lists, list members, segments, tags, interest categories, campaigns, email activity, reports and automations from the Mailchimp Marketing API.
+  required: [api_key, data_center, start_date]
+  properties:
+    api_key:     {type: string, title: API key, description: "Mailchimp API key, sent as the basic auth password.", secret: true, order: 0}
+    data_center: {type: string, title: Data center, description: "The data center of the account: the part of the API key after the dash, such as us21 for a key ending in -us21.", pattern: "^[a-z]+[0-9]+$", examples: ["us21"], order: 1}
+    start_date:  {type: string, title: Start date, description: "Campaigns and automations created and reports of campaigns sent before it are not read.", format: date-time, examples: ["2026-01-01T00:00:00Z"], order: 2}
+auth: {type: basic, username: synclet, password: "{{ config.api_key }}"}
+errors: {message: $.detail}
+check: {stream: lists}
+streams:
+  - &list
+    name: lists
+    path: lists
+    params: {sort_field: date_created, sort_dir: ASC}
+    primary_key: [id]
+    schema: schemas/lists.json
+    records: {path: $.lists}
+    pagination: &offset {type: offset, offset_param: offset, size: 1000, size_param: count, total: $.total_items}
+
+  - <<: *list
+    name: list_members
+    path: "lists/{{ parent.id }}/members"
+    params: {}
+    partition: {parent: lists}
+    primary_key: [list_id, id]
+    schema: schemas/list_members.json
+    records: {path: $.members}
+    on_404: skip
+
+  - <<: *list
+    name: segments
+    path: "lists/{{ parent.id }}/segments"
+    params: {}
+    partition: {parent: lists}
+    schema: schemas/segments.json
+    records: {path: $.segments}
+    on_404: skip
+
+  - name: tags
+    path: "lists/{{ parent.id }}/tag-search"
+    partition: {parent: lists}
+    primary_key: [list_id, id]
+    schema: schemas/tags.json
+    records: {path: $.tags, add: {list_id: "{{ parent.id }}"}}
+    on_404: skip
+
+  - <<: *list
+    name: interest_categories
+    path: "lists/{{ parent.id }}/interest-categories"
+    params: {}
+    partition: {parent: lists}
+    schema: schemas/interest_categories.json
+    records: {path: $.categories}
+    on_404: skip
+
+  - <<: *list
+    name: campaigns
+    path: campaigns
+    params: {sort_field: create_time, sort_dir: ASC, since_create_time: "{{ since }}"}
+    schema: schemas/campaigns.json
+    records: {path: $.campaigns}
+    incremental: {cursor_field: create_time, cursor_format: rfc3339, start: "{{ config.start_date }}"}
+
+  - <<: *list
+    name: email_activity
+    path: "reports/{{ parent.id }}/email-activity"
+    params: {}
+    partition: {parent: campaigns}
+    primary_key: [campaign_id, email_id]
+    schema: schemas/email_activity.json
+    records: {path: $.emails}
+    on_404: skip
+
+  - <<: *list
+    name: reports
+    path: reports
+    params: {since_send_time: "{{ since }}"}
+    schema: schemas/reports.json
+    records: {path: $.reports}
+    incremental: {cursor_field: send_time, cursor_format: rfc3339, start: "{{ config.start_date }}"}
+
+  - <<: *list
+    name: automations
+    path: automations
+    params: {sort_field: create_time, sort_dir: ASC, since_create_time: "{{ since }}"}
+    schema: schemas/automations.json
+    records: {path: $.automations}
+    incremental: {cursor_field: create_time, cursor_format: rfc3339, start: "{{ config.start_date }}"}

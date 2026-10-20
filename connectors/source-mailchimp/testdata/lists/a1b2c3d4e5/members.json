@@ -1,0 +1,132 @@
+{
+  "members": [
+    {
+      "id": "5c39b564d82e54df1f39bd2c9f3c0e11",
+      "email_address": "person1@example.com",
+      "unique_email_id": "u00abcdef",
+      "contact_id": "c00",
+      "full_name": "Person 1",
+      "web_id": 2000,
+      "email_type": "html",
+      "status": "subscribed",
+      "unsubscribe_reason": null,
+      "consents_to_one_to_one_messaging": true,
+      "merge_fields": {
+        "FNAME": "Person",
+        "LNAME": "1"
+      },
+      "interests": {
+        "aa11bb22cc": true
+      },
+      "stats": {
+        "avg_open_rate": 0.5,
+        "avg_click_rate": 0.1
+      },
+      "ip_signup": "",
+      "timestamp_signup": "",
+      "ip_opt": "198.51.100.7",
+      "timestamp_opt": "2026-01-10T10:00:00+00:00",
+      "member_rating": 2,
+      "last_changed": "2026-02-10T10:00:00+00:00",
+      "language": "en",
+      "vip": false,
+      "email_client": "",
+      "location": {
+        "latitude": 0,
+        "longitude": 0,
+        "gmtoff": 0,
+        "dstoff": 0,
+        "country_code": "",
+        "timezone": "",
+        "region": ""
+      },
+      "marketing_permissions": [],
+      "source": "Admin Add",
+      "tags_count": 1,
+      "tags": [
+        {
+          "id": 101,
+          "name": "customer"
+        }
+      ],
+      "list_id": "a1b2c3d4e5",
+      "_links": [
+        {
+          "rel": "self",
+          "href": "https://us0.api.mailchimp.com/3.0/lists/a1b2c3d4e5/members/5c39b564d82e54df1f39bd2c9f3c0e11",
+          "method": "GET",
+          "targetSchema": "https://us0.api.mailchimp.com/3.0/schema/3.0/Definitions/lists/a1b2c3d4e5/members/5c39b564d82e54df1f39bd2c9f3c0e11/Response.json"
+        }
+      ]
+    },
+    {
+      "id": "be27d979489e5ff5f6f503442c9d349b",
+      "email_address": "person2@example.com",
+      "unique_email_id": "u01abcdef",
+      "contact_id": "c01",
+      "full_name": "Person 2",
+      "web_id": 2001,
+      "email_type": "html",
+      "status": "unsubscribed",
+      "unsubscribe_reason": "N/A (Unsubscribed by an admin)",
+      "consents_to_one_to_one_messaging": true,
+      "merge_fields": {
+        "FNAME": "Person",
+        "LNAME": "2"
+      },
+      "interests": {
+        "aa11bb22cc": false
+      },
+      "stats": {
+        "avg_open_rate": 0.5,
+        "avg_click_rate": 0.1
+      },
+      "ip_signup": "",
+      "timestamp_signup": "",
+      "ip_opt": "198.51.100.7",
+      "timestamp_opt": "2026-01-11T10:00:00+00:00",
+      "member_rating": 2,
+      "last_changed": "2026-02-11T10:00:00+00:00",
+      "language": "en",
+      "vip": false,
+      "email_client": "",
+      "location": {
+        "latitude": 0,
+        "longitude": 0,
+        "gmtoff": 0,
+        "dstoff": 0,
+        "country_code": "",
+        "timezone": "",
+        "region": ""
+      },
+      "marketing_permissions": [],
+      "source": "Admin Add",
+      "tags_count": 1,
+      "tags": [
+        {
+          "id": 101,
+          "name": "customer"
+        }
+      ],
+      "list_id": "a1b2c3d4e5",
+      "_links": [
+        {
+          "rel": "self",
+          "href": "https://us0.api.mailchimp.com/3.0/lists/a1b2c3d4e5/members/be27d979489e5ff5f6f503442c9d349b",
+          "method": "GET",
+          "targetSchema": "https://us0.api.mailchimp.com/3.0/schema/3.0/Definitions/lists/a1b2c3d4e5/members/be27d979489e5ff5f6f503442c9d349b/Response.json"
+        }
+      ]
+    }
+  ],
+  "list_id": "a1b2c3d4e5",
+  "total_items": 3,
+  "_links": [
+    {
+      "rel": "self",
+      "href": "https://us0.api.mailchimp.com/3.0/lists/a1b2c3d4e5/members",
+      "method": "GET",
+      "targetSchema": "https://us0.api.mailchimp.com/3.0/schema/3.0/Definitions/lists/a1b2c3d4e5/members/Response.json"
+    }
+  ]
+}

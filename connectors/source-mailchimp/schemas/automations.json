@@ -1,0 +1,330 @@
+{
+  "type": "object",
+  "properties": {
+    "_links": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": [
+          "null",
+          "object"
+        ],
+        "properties": {
+          "href": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "method": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "rel": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "targetSchema": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "create_time": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "emails_sent": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "id": {
+      "type": "string"
+    },
+    "recipients": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "list_id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "list_is_active": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "list_name": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "store_id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "report_summary": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "click_rate": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
+        "clicks": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
+        "open_rate": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
+        "opens": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
+        "subscriber_clicks": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
+        "unique_opens": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "settings": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "authenticate": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "auto_footer": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "from_name": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "inline_css": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "reply_to": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "title": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "to_name": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "use_conversation": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "start_time": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "status": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "tracking": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "capsule": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "properties": {
+            "notes": {
+              "type": [
+                "null",
+                "boolean"
+              ]
+            }
+          },
+          "additionalProperties": true
+        },
+        "clicktale": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "ecomm360": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "goal_tracking": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "google_analytics": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "html_clicks": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "opens": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "salesforce": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "properties": {
+            "campaign": {
+              "type": [
+                "null",
+                "boolean"
+              ]
+            },
+            "notes": {
+              "type": [
+                "null",
+                "boolean"
+              ]
+            }
+          },
+          "additionalProperties": true
+        },
+        "text_clicks": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "trigger_settings": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "runtime": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "properties": {},
+          "additionalProperties": true
+        },
+        "workflow_emails_count": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
+        "workflow_title": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "workflow_type": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

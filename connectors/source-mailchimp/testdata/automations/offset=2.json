@@ -1,0 +1,74 @@
+{
+  "automations": [
+    {
+      "id": "auto000003",
+      "create_time": "2026-02-03T10:00:00+00:00",
+      "start_time": "2026-02-04T10:00:00+00:00",
+      "status": "sending",
+      "emails_sent": 2,
+      "recipients": {
+        "list_id": "a1b2c3d4e5",
+        "list_is_active": true,
+        "list_name": "Example list 1",
+        "store_id": ""
+      },
+      "settings": {
+        "title": "Welcome 3",
+        "from_name": "Example",
+        "reply_to": "news@example.com",
+        "use_conversation": false,
+        "to_name": "",
+        "authenticate": true,
+        "auto_footer": false,
+        "inline_css": false
+      },
+      "tracking": {
+        "opens": true,
+        "html_clicks": true,
+        "text_clicks": false,
+        "goal_tracking": false,
+        "ecomm360": false,
+        "google_analytics": "",
+        "clicktale": "",
+        "salesforce": {
+          "campaign": false,
+          "notes": false
+        },
+        "capsule": {
+          "notes": false
+        }
+      },
+      "trigger_settings": {
+        "workflow_type": "emailSeries",
+        "workflow_title": "Welcome series",
+        "runtime": {},
+        "workflow_emails_count": 1
+      },
+      "report_summary": {
+        "opens": 0,
+        "unique_opens": 0,
+        "open_rate": 0,
+        "clicks": 0,
+        "subscriber_clicks": 0,
+        "click_rate": 0
+      },
+      "_links": [
+        {
+          "rel": "self",
+          "href": "https://us0.api.mailchimp.com/3.0/automations/auto000003",
+          "method": "GET",
+          "targetSchema": "https://us0.api.mailchimp.com/3.0/schema/3.0/Definitions/automations/auto000003/Response.json"
+        }
+      ]
+    }
+  ],
+  "total_items": 3,
+  "_links": [
+    {
+      "rel": "self",
+      "href": "https://us0.api.mailchimp.com/3.0/automations",
+      "method": "GET",
+      "targetSchema": "https://us0.api.mailchimp.com/3.0/schema/3.0/Definitions/automations/Response.json"
+    }
+  ]
+}

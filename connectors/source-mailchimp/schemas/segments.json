@@ -1,0 +1,140 @@
+{
+  "type": "object",
+  "properties": {
+    "_links": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": [
+          "null",
+          "object"
+        ],
+        "properties": {
+          "href": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "method": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "rel": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "targetSchema": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "created_at": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "id": {
+      "type": "integer"
+    },
+    "list_id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "member_count": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "options": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "conditions": {
+          "type": [
+            "null",
+            "array"
+          ],
+          "items": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "properties": {
+              "condition_type": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "field": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "op": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "value": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "match": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "type": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "updated_at": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": true
+}

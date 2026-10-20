@@ -1,0 +1,114 @@
+{
+  "type": "object",
+  "properties": {
+    "_links": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": [
+          "null",
+          "object"
+        ],
+        "properties": {
+          "href": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "method": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "rel": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "targetSchema": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "activity": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": [
+          "null",
+          "object"
+        ],
+        "properties": {
+          "action": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "ip": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "timestamp": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "type": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "url": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "campaign_id": {
+      "type": "string"
+    },
+    "email_address": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "email_id": {
+      "type": "string"
+    },
+    "list_id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "list_is_active": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

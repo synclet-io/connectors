@@ -1,0 +1,44 @@
+{
+  "categories": [
+    {
+      "list_id": "a1b2c3d4e5",
+      "id": "ic00abcd",
+      "title": "Interests 1",
+      "display_order": 0,
+      "type": "checkboxes",
+      "_links": [
+        {
+          "rel": "self",
+          "href": "https://us0.api.mailchimp.com/3.0/lists/a1b2c3d4e5/interest-categories/ic00abcd",
+          "method": "GET",
+          "targetSchema": "https://us0.api.mailchimp.com/3.0/schema/3.0/Definitions/lists/a1b2c3d4e5/interest-categories/ic00abcd/Response.json"
+        }
+      ]
+    },
+    {
+      "list_id": "a1b2c3d4e5",
+      "id": "ic01abcd",
+      "title": "Interests 2",
+      "display_order": 1,
+      "type": "checkboxes",
+      "_links": [
+        {
+          "rel": "self",
+          "href": "https://us0.api.mailchimp.com/3.0/lists/a1b2c3d4e5/interest-categories/ic01abcd",
+          "method": "GET",
+          "targetSchema": "https://us0.api.mailchimp.com/3.0/schema/3.0/Definitions/lists/a1b2c3d4e5/interest-categories/ic01abcd/Response.json"
+        }
+      ]
+    }
+  ],
+  "list_id": "a1b2c3d4e5",
+  "total_items": 3,
+  "_links": [
+    {
+      "rel": "self",
+      "href": "https://us0.api.mailchimp.com/3.0/lists/a1b2c3d4e5/interest-categories",
+      "method": "GET",
+      "targetSchema": "https://us0.api.mailchimp.com/3.0/schema/3.0/Definitions/lists/a1b2c3d4e5/interest-categories/Response.json"
+    }
+  ]
+}

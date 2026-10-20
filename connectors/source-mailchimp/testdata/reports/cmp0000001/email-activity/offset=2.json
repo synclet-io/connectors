@@ -1,0 +1,38 @@
+{
+  "emails": [
+    {
+      "campaign_id": "cmp0000001",
+      "list_id": "a1b2c3d4e5",
+      "list_is_active": true,
+      "email_id": "efd59671aafc2cec38941a0bb9606943",
+      "email_address": "person3@example.com",
+      "activity": [
+        {
+          "action": "open",
+          "type": "",
+          "timestamp": "2026-03-03T11:00:00+00:00",
+          "url": "",
+          "ip": "198.51.100.8"
+        }
+      ],
+      "_links": [
+        {
+          "rel": "self",
+          "href": "https://us0.api.mailchimp.com/3.0/reports/cmp0000001/email-activity/efd59671aafc2cec38941a0bb9606943",
+          "method": "GET",
+          "targetSchema": "https://us0.api.mailchimp.com/3.0/schema/3.0/Definitions/reports/cmp0000001/email-activity/efd59671aafc2cec38941a0bb9606943/Response.json"
+        }
+      ]
+    }
+  ],
+  "campaign_id": "cmp0000001",
+  "total_items": 3,
+  "_links": [
+    {
+      "rel": "self",
+      "href": "https://us0.api.mailchimp.com/3.0/reports/cmp0000001/email-activity",
+      "method": "GET",
+      "targetSchema": "https://us0.api.mailchimp.com/3.0/schema/3.0/Definitions/reports/cmp0000001/email-activity/Response.json"
+    }
+  ]
+}

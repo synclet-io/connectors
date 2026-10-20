@@ -350,6 +350,16 @@
         }
       ]
     },
+    "connectors/source-mailchimp": {
+      "component": "source-mailchimp",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "meta.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
     "connectors/source-mixpanel": {
       "component": "source-mixpanel",
       "extra-files": [

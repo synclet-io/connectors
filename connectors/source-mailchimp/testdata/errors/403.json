@@ -1,0 +1,7 @@
+{
+  "type": "https://mailchimp.com/developer/marketing/docs/errors/",
+  "title": "Forbidden",
+  "status": 403,
+  "detail": "The API key provided is linked to a different datacenter",
+  "instance": "00000000-0000-4000-8000-000000000403"
+}

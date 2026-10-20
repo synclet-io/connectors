@@ -1,0 +1,13 @@
+{
+  "tags": [
+    {
+      "id": 101,
+      "name": "customer"
+    },
+    {
+      "id": 104,
+      "name": "tag-2"
+    }
+  ],
+  "total_items": 2
+}

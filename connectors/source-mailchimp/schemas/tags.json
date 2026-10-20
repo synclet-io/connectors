@@ -1,0 +1,18 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "integer"
+    },
+    "list_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

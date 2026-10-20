@@ -1,0 +1,74 @@
+{
+  "campaigns": [
+    {
+      "id": "cmp0000003",
+      "web_id": 4002,
+      "parent_campaign_id": "",
+      "type": "regular",
+      "create_time": "2026-03-03T10:00:00+00:00",
+      "archive_url": "https://eepurl.com/campaign2",
+      "long_archive_url": "https://us0.campaign-archive.com/?u=example&id=cmp0000003",
+      "status": "save",
+      "emails_sent": 0,
+      "send_time": "",
+      "content_type": "template",
+      "needs_block_refresh": false,
+      "resendable": false,
+      "recipients": {
+        "list_id": "a1b2c3d4e5",
+        "list_is_active": true,
+        "list_name": "Example list 1",
+        "segment_text": "",
+        "recipient_count": 2
+      },
+      "settings": {
+        "subject_line": "Newsletter 3",
+        "preview_text": "",
+        "title": "Newsletter 3",
+        "from_name": "Example",
+        "reply_to": "news@example.com",
+        "use_conversation": false,
+        "to_name": "",
+        "folder_id": "",
+        "authenticate": true,
+        "auto_footer": false,
+        "inline_css": false,
+        "auto_tweet": false,
+        "fb_comments": true,
+        "timewarp": false,
+        "template_id": 10,
+        "drag_and_drop": true
+      },
+      "tracking": {
+        "opens": true,
+        "html_clicks": true,
+        "text_clicks": false,
+        "goal_tracking": false,
+        "ecomm360": false,
+        "google_analytics": "",
+        "clicktale": ""
+      },
+      "report_summary": null,
+      "delivery_status": {
+        "enabled": false
+      },
+      "_links": [
+        {
+          "rel": "self",
+          "href": "https://us0.api.mailchimp.com/3.0/campaigns/cmp0000003",
+          "method": "GET",
+          "targetSchema": "https://us0.api.mailchimp.com/3.0/schema/3.0/Definitions/campaigns/cmp0000003/Response.json"
+        }
+      ]
+    }
+  ],
+  "total_items": 3,
+  "_links": [
+    {
+      "rel": "self",
+      "href": "https://us0.api.mailchimp.com/3.0/campaigns",
+      "method": "GET",
+      "targetSchema": "https://us0.api.mailchimp.com/3.0/schema/3.0/Definitions/campaigns/Response.json"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "type": "https://mailchimp.com/developer/marketing/docs/errors/",
+  "title": "Resource Not Found",
+  "status": 404,
+  "detail": "The requested resource could not be found.",
+  "instance": "00000000-0000-4000-8000-000000000404"
+}

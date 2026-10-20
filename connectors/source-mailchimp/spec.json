@@ -1,0 +1,51 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Reads lists, list members, segments, tags, interest categories, campaigns, email activity, reports and automations from the Mailchimp Marketing API.",
+    "properties": {
+      "api_key": {
+        "airbyte_secret": true,
+        "description": "Mailchimp API key, sent as the basic auth password.",
+        "order": 0,
+        "title": "API key",
+        "type": "string"
+      },
+      "data_center": {
+        "description": "The data center of the account: the part of the API key after the dash, such as us21 for a key ending in -us21.",
+        "examples": [
+          "us21"
+        ],
+        "order": 1,
+        "title": "Data center",
+        "type": "string"
+      },
+      "start_date": {
+        "description": "Campaigns and automations created and reports of campaigns sent before it are not read.",
+        "examples": [
+          "2026-01-01T00:00:00Z"
+        ],
+        "format": "date-time",
+        "order": 2,
+        "title": "Start date",
+        "type": "string"
+      }
+    },
+    "required": [
+      "api_key",
+      "data_center",
+      "start_date"
+    ],
+    "title": "Mailchimp Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-mailchimp",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": true,
+  "supportsNormalization": false
+}

@@ -1,0 +1,73 @@
+{
+  "members": [
+    {
+      "id": "efd59671aafc2cec38941a0bb9606943",
+      "email_address": "person3@example.com",
+      "unique_email_id": "u02abcdef",
+      "contact_id": "c02",
+      "full_name": "Person 3",
+      "web_id": 2002,
+      "email_type": "html",
+      "status": "cleaned",
+      "unsubscribe_reason": null,
+      "consents_to_one_to_one_messaging": true,
+      "merge_fields": {
+        "FNAME": "Person",
+        "LNAME": "3"
+      },
+      "interests": {
+        "aa11bb22cc": true
+      },
+      "stats": {
+        "avg_open_rate": 0.5,
+        "avg_click_rate": 0.1
+      },
+      "ip_signup": "",
+      "timestamp_signup": "",
+      "ip_opt": "198.51.100.7",
+      "timestamp_opt": "2026-01-12T10:00:00+00:00",
+      "member_rating": 2,
+      "last_changed": "2026-02-12T10:00:00+00:00",
+      "language": "en",
+      "vip": false,
+      "email_client": "",
+      "location": {
+        "latitude": 0,
+        "longitude": 0,
+        "gmtoff": 0,
+        "dstoff": 0,
+        "country_code": "",
+        "timezone": "",
+        "region": ""
+      },
+      "marketing_permissions": [],
+      "source": "Admin Add",
+      "tags_count": 1,
+      "tags": [
+        {
+          "id": 101,
+          "name": "customer"
+        }
+      ],
+      "list_id": "a1b2c3d4e5",
+      "_links": [
+        {
+          "rel": "self",
+          "href": "https://us0.api.mailchimp.com/3.0/lists/a1b2c3d4e5/members/efd59671aafc2cec38941a0bb9606943",
+          "method": "GET",
+          "targetSchema": "https://us0.api.mailchimp.com/3.0/schema/3.0/Definitions/lists/a1b2c3d4e5/members/efd59671aafc2cec38941a0bb9606943/Response.json"
+        }
+      ]
+    }
+  ],
+  "list_id": "a1b2c3d4e5",
+  "total_items": 3,
+  "_links": [
+    {
+      "rel": "self",
+      "href": "https://us0.api.mailchimp.com/3.0/lists/a1b2c3d4e5/members",
+      "method": "GET",
+      "targetSchema": "https://us0.api.mailchimp.com/3.0/schema/3.0/Definitions/lists/a1b2c3d4e5/members/Response.json"
+    }
+  ]
+}
