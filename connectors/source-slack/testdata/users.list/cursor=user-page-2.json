@@ -1,0 +1,77 @@
+{
+  "ok": true,
+  "cache_ts": 1792324800,
+  "members": [
+    {
+      "id": "U0SYN0003",
+      "team_id": "T0SYN0001",
+      "name": "synclet-bot",
+      "real_name": "Synclet-Bot",
+      "deleted": false,
+      "color": "9f69e7",
+      "tz": "Europe/Kyiv",
+      "tz_label": "Eastern European Summer Time",
+      "tz_offset": 10800,
+      "is_admin": false,
+      "is_owner": false,
+      "is_primary_owner": false,
+      "is_restricted": false,
+      "is_ultra_restricted": false,
+      "is_bot": true,
+      "is_app_user": false,
+      "is_email_confirmed": false,
+      "updated": 1767225600,
+      "who_can_share_contact_card": "EVERYONE",
+      "profile": {
+        "title": "",
+        "phone": "",
+        "real_name": "Synclet-Bot",
+        "real_name_normalized": "Synclet-Bot",
+        "display_name": "synclet-bot",
+        "display_name_normalized": "synclet-bot",
+        "email": null,
+        "status_text": "",
+        "status_emoji": "",
+        "image_72": "https://avatars.example.com/U0SYN0003_72.png",
+        "team": "T0SYN0001"
+      }
+    },
+    {
+      "id": "U0SYN0004",
+      "team_id": "T0SYN0001",
+      "name": "carol",
+      "real_name": "Carol",
+      "deleted": true,
+      "color": "9f69e7",
+      "tz": "Europe/Kyiv",
+      "tz_label": "Eastern European Summer Time",
+      "tz_offset": 10800,
+      "is_admin": false,
+      "is_owner": false,
+      "is_primary_owner": false,
+      "is_restricted": false,
+      "is_ultra_restricted": false,
+      "is_bot": false,
+      "is_app_user": false,
+      "is_email_confirmed": true,
+      "updated": 1767225600,
+      "who_can_share_contact_card": "EVERYONE",
+      "profile": {
+        "title": "",
+        "phone": "",
+        "real_name": "Carol",
+        "real_name_normalized": "Carol",
+        "display_name": "carol",
+        "display_name_normalized": "carol",
+        "email": "carol@example.com",
+        "status_text": "",
+        "status_emoji": "",
+        "image_72": "https://avatars.example.com/U0SYN0004_72.png",
+        "team": "T0SYN0001"
+      }
+    }
+  ],
+  "response_metadata": {
+    "next_cursor": ""
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "ok": true,
+  "has_more": false,
+  "pin_count": 0,
+  "messages": [
+    {
+      "type": "message",
+      "ts": "1789000000.000100",
+      "user": "U0SYN0001",
+      "team": "T0SYN0001",
+      "text": "First synthetic message",
+      "client_msg_id": "00000000-0000-4000-8000-178900000000",
+      "blocks": [
+        {
+          "type": "rich_text",
+          "block_id": "blk1",
+          "elements": [
+            {
+              "type": "rich_text_section",
+              "elements": [
+                {
+                  "type": "text",
+                  "text": "First synthetic message"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "edited": {
+        "user": "U0SYN0001",
+        "ts": "1789000500.000000"
+      }
+    }
+  ],
+  "response_metadata": {
+    "next_cursor": ""
+  }
+}

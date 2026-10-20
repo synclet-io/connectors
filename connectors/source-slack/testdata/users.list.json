@@ -1,0 +1,77 @@
+{
+  "ok": true,
+  "cache_ts": 1792324800,
+  "members": [
+    {
+      "id": "U0SYN0001",
+      "team_id": "T0SYN0001",
+      "name": "alice",
+      "real_name": "Alice",
+      "deleted": false,
+      "color": "9f69e7",
+      "tz": "Europe/Kyiv",
+      "tz_label": "Eastern European Summer Time",
+      "tz_offset": 10800,
+      "is_admin": true,
+      "is_owner": true,
+      "is_primary_owner": true,
+      "is_restricted": false,
+      "is_ultra_restricted": false,
+      "is_bot": false,
+      "is_app_user": false,
+      "is_email_confirmed": true,
+      "updated": 1767225600,
+      "who_can_share_contact_card": "EVERYONE",
+      "profile": {
+        "title": "",
+        "phone": "",
+        "real_name": "Alice",
+        "real_name_normalized": "Alice",
+        "display_name": "alice",
+        "display_name_normalized": "alice",
+        "email": "alice@example.com",
+        "status_text": "",
+        "status_emoji": "",
+        "image_72": "https://avatars.example.com/U0SYN0001_72.png",
+        "team": "T0SYN0001"
+      }
+    },
+    {
+      "id": "U0SYN0002",
+      "team_id": "T0SYN0001",
+      "name": "bob",
+      "real_name": "Bob",
+      "deleted": false,
+      "color": "9f69e7",
+      "tz": "Europe/Kyiv",
+      "tz_label": "Eastern European Summer Time",
+      "tz_offset": 10800,
+      "is_admin": false,
+      "is_owner": false,
+      "is_primary_owner": false,
+      "is_restricted": false,
+      "is_ultra_restricted": false,
+      "is_bot": false,
+      "is_app_user": false,
+      "is_email_confirmed": true,
+      "updated": 1767225600,
+      "who_can_share_contact_card": "EVERYONE",
+      "profile": {
+        "title": "",
+        "phone": "",
+        "real_name": "Bob",
+        "real_name_normalized": "Bob",
+        "display_name": "bob",
+        "display_name_normalized": "bob",
+        "email": "bob@example.com",
+        "status_text": "",
+        "status_emoji": "",
+        "image_72": "https://avatars.example.com/U0SYN0002_72.png",
+        "team": "T0SYN0001"
+      }
+    }
+  ],
+  "response_metadata": {
+    "next_cursor": "user-page-2"
+  }
+}

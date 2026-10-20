@@ -1,0 +1,47 @@
+{
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "channel_id": {"type": "string"},
+    "ts": {"type": "string"},
+    "type": {"type": ["null", "string"]},
+    "subtype": {"type": ["null", "string"]},
+    "user": {"type": ["null", "string"]},
+    "bot_id": {"type": ["null", "string"]},
+    "app_id": {"type": ["null", "string"]},
+    "team": {"type": ["null", "string"]},
+    "text": {"type": ["null", "string"]},
+    "client_msg_id": {"type": ["null", "string"]},
+    "thread_ts": {"type": ["null", "string"]},
+    "parent_user_id": {"type": ["null", "string"]},
+    "reply_count": {"type": ["null", "integer"]},
+    "reply_users_count": {"type": ["null", "integer"]},
+    "latest_reply": {"type": ["null", "string"]},
+    "reply_users": {"type": ["null", "array"], "items": {"type": "string"}},
+    "is_locked": {"type": ["null", "boolean"]},
+    "subscribed": {"type": ["null", "boolean"]},
+    "edited": {
+      "type": ["null", "object"],
+      "additionalProperties": true,
+      "properties": {
+        "user": {"type": ["null", "string"]},
+        "ts": {"type": ["null", "string"]}
+      }
+    },
+    "reactions": {
+      "type": ["null", "array"],
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "name": {"type": ["null", "string"]},
+          "count": {"type": ["null", "integer"]},
+          "users": {"type": ["null", "array"], "items": {"type": "string"}}
+        }
+      }
+    },
+    "blocks": {"type": ["null", "array"], "items": {"type": "object", "additionalProperties": true}},
+    "attachments": {"type": ["null", "array"], "items": {"type": "object", "additionalProperties": true}},
+    "files": {"type": ["null", "array"], "items": {"type": "object", "additionalProperties": true}}
+  }
+}

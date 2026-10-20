@@ -1,0 +1,18 @@
+{
+  "ok": true,
+  "has_more": false,
+  "pin_count": 0,
+  "messages": [
+    {
+      "type": "message",
+      "subtype": "bot_message",
+      "ts": "1792000000.000300",
+      "bot_id": "B0SYN0001",
+      "app_id": "A0SYN0001",
+      "text": "Synthetic deploy finished"
+    }
+  ],
+  "response_metadata": {
+    "next_cursor": ""
+  }
+}

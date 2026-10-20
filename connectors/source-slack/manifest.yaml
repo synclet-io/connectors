@@ -1,0 +1,55 @@
+# yaml-language-server: $schema=../source-declarative/internal/manifest/manifest.schema.json
+version: 1
+connector:
+  name: source-slack
+  documentation_url: https://github.com/synclet-io/connectors/tree/main/connectors/source-slack
+base_url: https://slack.com/api/
+spec:
+  title: Slack Source Spec
+  description: Reads the channels a Slack bot is a member of, their messages, and the workspace's users through the Slack Web API.
+  required: [bot_token, start_date]
+  properties:
+    bot_token: {type: string, title: Bot token, description: "Bot user OAuth token (xoxb-...) with the scopes channels:read, channels:history and users:read, plus groups:read and groups:history for private channels; sent as a Bearer token.", secret: true, order: 0}
+    start_date: {type: string, title: Start date, description: "Messages posted before it are not read.", format: date-time, examples: ["2026-01-01T00:00:00Z"], order: 1}
+    channel_types:
+      type: string
+      title: Channel types
+      description: "Comma-separated conversation types to read, of public_channel, private_channel, mpim and im. Slack's default when empty: public_channel."
+      examples: ["public_channel,private_channel"]
+      pattern: "^((public_channel|private_channel|mpim|im)(,(public_channel|private_channel|mpim|im))*)?$"
+      order: 2
+auth: {type: bearer, token: "{{ config.bot_token }}"}
+errors: {message: $.error}
+retry:
+  transient: {statuses: [500, 502, 503, 504], attempts: 3, backoff: 1s}
+  rate_limit:
+    statuses: [429]
+    wait: ["header:Retry-After", 30s]
+    attempts: 10
+check: {stream: users}
+streams:
+  - name: channels
+    path: users.conversations
+    params: {types: "{{ config.channel_types }}"}
+    primary_key: [id]
+    schema: schemas/channels.json
+    records: {path: $.channels, add: {_read_at: "{{ until }}"}}
+    pagination: &cursor {type: cursor, cursor_from: $.response_metadata.next_cursor, cursor_param: cursor, size: 200, size_param: limit}
+    incremental: {cursor_field: _read_at, cursor_format: unix_s, start: "{{ config.start_date }}", lookback: 7d}
+
+  - name: channel_messages
+    path: conversations.history
+    partition: {parent: channels}
+    params: {channel: "{{ parent.id }}", oldest: "{{ since }}", inclusive: "true"}
+    primary_key: [channel_id, ts]
+    schema: schemas/channel_messages.json
+    records: {path: $.messages, add: {channel_id: "{{ parent.id }}"}}
+    pagination: *cursor
+    incremental: {cursor_field: ts, cursor_format: unix_s}
+
+  - name: users
+    path: users.list
+    primary_key: [id]
+    schema: schemas/users.json
+    records: {path: $.members}
+    pagination: *cursor

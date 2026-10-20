@@ -1,0 +1,50 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Reads the channels a Slack bot is a member of, their messages, and the workspace's users through the Slack Web API.",
+    "properties": {
+      "bot_token": {
+        "airbyte_secret": true,
+        "description": "Bot user OAuth token (xoxb-...) with the scopes channels:read, channels:history and users:read, plus groups:read and groups:history for private channels; sent as a Bearer token.",
+        "order": 0,
+        "title": "Bot token",
+        "type": "string"
+      },
+      "channel_types": {
+        "description": "Comma-separated conversation types to read, of public_channel, private_channel, mpim and im. Slack's default when empty: public_channel.",
+        "examples": [
+          "public_channel,private_channel"
+        ],
+        "order": 2,
+        "title": "Channel types",
+        "type": "string"
+      },
+      "start_date": {
+        "description": "Messages posted before it are not read.",
+        "examples": [
+          "2026-01-01T00:00:00Z"
+        ],
+        "format": "date-time",
+        "order": 1,
+        "title": "Start date",
+        "type": "string"
+      }
+    },
+    "required": [
+      "bot_token",
+      "start_date"
+    ],
+    "title": "Slack Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-slack",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": true,
+  "supportsNormalization": false
+}

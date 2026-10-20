@@ -53,6 +53,7 @@ Taskfile.yml              local shortcuts
 | [source-salesforce](connectors/source-salesforce) | `ghcr.io/synclet-io/connectors/source-salesforce` |
 | [source-s3](connectors/source-s3) | `ghcr.io/synclet-io/connectors/source-s3` |
 | [source-shopify](connectors/source-shopify) | `ghcr.io/synclet-io/connectors/source-shopify` |
+| [source-slack](connectors/source-slack) | `ghcr.io/synclet-io/connectors/source-slack` |
 | [source-solidgate](connectors/source-solidgate) | `ghcr.io/synclet-io/connectors/source-solidgate` |
 | [source-tiktok-marketing](connectors/source-tiktok-marketing) | `ghcr.io/synclet-io/connectors/source-tiktok-marketing` |
 | [source-typeform](connectors/source-typeform) | `ghcr.io/synclet-io/connectors/source-typeform` |

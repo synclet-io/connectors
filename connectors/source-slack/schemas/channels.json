@@ -1,0 +1,46 @@
+{
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "id": {"type": "string"},
+    "name": {"type": ["null", "string"]},
+    "name_normalized": {"type": ["null", "string"]},
+    "is_channel": {"type": ["null", "boolean"]},
+    "is_group": {"type": ["null", "boolean"]},
+    "is_im": {"type": ["null", "boolean"]},
+    "is_mpim": {"type": ["null", "boolean"]},
+    "is_private": {"type": ["null", "boolean"]},
+    "is_archived": {"type": ["null", "boolean"]},
+    "is_general": {"type": ["null", "boolean"]},
+    "is_shared": {"type": ["null", "boolean"]},
+    "is_ext_shared": {"type": ["null", "boolean"]},
+    "is_org_shared": {"type": ["null", "boolean"]},
+    "is_member": {"type": ["null", "boolean"]},
+    "created": {"type": ["null", "integer"]},
+    "updated": {"type": ["null", "integer"]},
+    "creator": {"type": ["null", "string"]},
+    "context_team_id": {"type": ["null", "string"]},
+    "num_members": {"type": ["null", "integer"]},
+    "pending_shared": {"type": ["null", "array"], "items": {"type": "string"}},
+    "previous_names": {"type": ["null", "array"], "items": {"type": "string"}},
+    "topic": {
+      "type": ["null", "object"],
+      "additionalProperties": true,
+      "properties": {
+        "value": {"type": ["null", "string"]},
+        "creator": {"type": ["null", "string"]},
+        "last_set": {"type": ["null", "integer"]}
+      }
+    },
+    "purpose": {
+      "type": ["null", "object"],
+      "additionalProperties": true,
+      "properties": {
+        "value": {"type": ["null", "string"]},
+        "creator": {"type": ["null", "string"]},
+        "last_set": {"type": ["null", "integer"]}
+      }
+    },
+    "_read_at": {"type": "string", "description": "Unix time, in seconds, of the read that listed the channel; the cursor of the channels stream."}
+  }
+}
