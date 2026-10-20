@@ -64,11 +64,11 @@ lookback is fixed by the manifest. The pass over the channels starts at the olde
 
 ## Errors and rate limits
 
-- Slack answers most errors, `invalid_auth` and `missing_scope` among them, with HTTP 200 and
-  `{"ok": false, "error": "..."}`. `check` succeeds on the status alone, so a revoked token passes `check`;
-  the read then fails with `records path $.members is not in the response` (or `$.channels`, `$.messages`)
-  and the request, without Slack's `error` text. The rare 401 and 403 responses fail as configuration errors
-  with `error`.
+- Slack answers most errors with HTTP 200 and `{"ok": false, "error": "..."}`; the manifest's `errors.when`
+  turns them into failures with Slack's `error` as the message. `invalid_auth`, `not_authed`,
+  `account_inactive`, `token_revoked` and `missing_scope` are configuration errors, so `check` fails on a
+  revoked token or a missing scope; `ratelimited` waits like a 429; any other `ok: false` fails the read with
+  the method and Slack's `error`. The rare 401 and 403 responses fail as configuration errors with `error`.
 - 429 waits for `Retry-After` (30s when absent), up to ten times. Slack's per-method rate tiers are met by
   waiting, not by pacing. Use a bot of an app installed in your own workspace: Slack limits
   `conversations.history` far more tightly (one request a minute, 15 messages per page) for apps distributed
@@ -84,5 +84,6 @@ and a channel filter by name.
 `manifest_test.go` runs the engine against hand-written synthetic fixtures in `testdata/` (three channels on
 two pages, one channel's messages on two pages, a channel without messages, users on two pages) without
 network or credentials: the SDK conformance suite for full refresh and for each incremental stream,
-`check` with 401 and 403, a read failing on a 200 `ok: false` body, a one-time 429, messages per channel,
+`check` with 401, 403 and a 200 `ok: false` body (revoked token, missing scope), reads failing on 200
+`ok: false` bodies by Slack's `error`, a one-time 429, messages per channel,
 the `types` parameter, and the `oldest` sent on a first and on a resumed read.

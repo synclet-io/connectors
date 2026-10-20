@@ -62,6 +62,12 @@ func TestCheckFailures(t *testing.T) {
 		{"403 missing scope", config, map[string]declarativetest.Fixture{
 			"users.list": {Status: 403, File: "errors/missing_scope.json"},
 		}, "missing_scope"},
+		{"200 token revoked", config, map[string]declarativetest.Fixture{
+			"users.list": {Status: 200, File: "errors/token_revoked.json"},
+		}, "token_revoked"},
+		{"200 missing scope", config, map[string]declarativetest.Fixture{
+			"users.list": {Status: 200, File: "errors/missing_scope.json"},
+		}, "missing_scope"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -78,15 +84,35 @@ func TestCheckFailures(t *testing.T) {
 	}
 }
 
-// Slack answers most errors with HTTP 200 and "ok": false; check passes on
-// the status alone, the read fails on the missing records.
+// Slack answers most errors with HTTP 200 and "ok": false; the read fails
+// with Slack's error, as a config error when the token or its scopes are
+// at fault.
 func TestReadFailsOnOkFalse(t *testing.T) {
-	h := declarativetest.New(t, declarativetest.Suite{Config: config, Auth: auth, Now: now, Route: route, Overrides: map[string]declarativetest.Fixture{
-		"users.list": {Status: 200, File: "errors/missing_scope.json"},
-	}})
-	out := h.Read(t, h.Catalog(t, synclet.SyncModeFullRefresh, "users"), nil)
-	if out.Err == nil || !strings.Contains(out.Err.Error(), "records path $.members is not in the response") {
-		t.Fatalf("read: %v, want the missing records path", out.Err)
+	tests := []struct {
+		name  string
+		route string
+		file  string
+		ft    synclet.FailureType
+		want  string
+	}{
+		{"revoked token", "users.list", "errors/token_revoked.json", synclet.FailureTypeConfigError, "GET /users.list?limit=200 (HTTP 200): token_revoked"},
+		{"missing scope", "users.list", "errors/missing_scope.json", synclet.FailureTypeConfigError, "GET /users.list?limit=200 (HTTP 200): missing_scope"},
+		{"other error", "users.list", "errors/channel_not_found.json", synclet.FailureTypeSystemError, "GET /users.list?limit=200 (HTTP 200): channel_not_found"},
+		{"rate limited", "users.list", "errors/ratelimited.json", synclet.FailureTypeSystemError, "GET /users.list?limit=200 (HTTP 200): ratelimited; gave up after 10 waits"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			h := declarativetest.New(t, declarativetest.Suite{Config: config, Auth: auth, Now: now, Route: route, Overrides: map[string]declarativetest.Fixture{
+				tt.route: {Status: 200, File: tt.file},
+			}})
+			out := h.Read(t, h.Catalog(t, synclet.SyncModeFullRefresh, "users"), nil)
+			if out.Err == nil || !strings.Contains(out.Err.Error(), tt.want) {
+				t.Fatalf("read: %v, want %q", out.Err, tt.want)
+			}
+			if traces := out.ErrorTraces(); len(traces) == 0 || traces[0].FailureType != tt.ft {
+				t.Errorf("error traces %+v, want failure type %s", traces, tt.ft)
+			}
+		})
 	}
 }
 

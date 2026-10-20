@@ -19,7 +19,12 @@ spec:
       pattern: "^((public_channel|private_channel|mpim|im)(,(public_channel|private_channel|mpim|im))*)?$"
       order: 2
 auth: {type: bearer, token: "{{ config.bot_token }}"}
-errors: {message: $.error}
+errors:
+  message: $.error
+  when:
+    - {path: $.error, equals: [invalid_auth, not_authed, account_inactive, token_revoked, missing_scope], action: config_error}
+    - {path: $.error, equals: ratelimited, action: rate_limit}
+    - {path: $.ok, equals: false}
 retry:
   transient: {statuses: [500, 502, 503, 504], attempts: 3, backoff: 1s}
   rate_limit:
