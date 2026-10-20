@@ -1,0 +1,50 @@
+{
+  "end": 1,
+  "first_page_uri": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Usage/Records/Daily.json?PageSize=1000&Page=0",
+  "usage_records": [
+    {
+      "account_sid": "AC00000000000000000000000000000001",
+      "api_version": "2010-04-01",
+      "as_of": "2026-03-07T00:00:00+00:00",
+      "category": "calls",
+      "count": "3",
+      "count_unit": "calls",
+      "description": "calls usage",
+      "end_date": "2026-03-05",
+      "price": "0.039",
+      "price_unit": "usd",
+      "start_date": "2026-03-05",
+      "subresource_uris": {
+        "all_time": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Usage/Records/AllTime.json?Category=calls"
+      },
+      "uri": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Usage/Records/Daily.json?Category=calls&StartDate=2026-03-05&EndDate=2026-03-05",
+      "usage": "3",
+      "usage_unit": "calls"
+    },
+    {
+      "account_sid": "AC00000000000000000000000000000001",
+      "api_version": "2010-04-01",
+      "as_of": "2026-03-07T00:00:00+00:00",
+      "category": "sms",
+      "count": "4",
+      "count_unit": "sms",
+      "description": "sms usage",
+      "end_date": "2026-03-05",
+      "price": "0.039",
+      "price_unit": "usd",
+      "start_date": "2026-03-05",
+      "subresource_uris": {
+        "all_time": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Usage/Records/AllTime.json?Category=sms"
+      },
+      "uri": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Usage/Records/Daily.json?Category=sms&StartDate=2026-03-05&EndDate=2026-03-05",
+      "usage": "4",
+      "usage_unit": "sms"
+    }
+  ],
+  "next_page_uri": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Usage/Records/Daily.json?PageSize=1000&Page=1&PageToken=PTUSAGE",
+  "page": 0,
+  "page_size": 1000,
+  "previous_page_uri": null,
+  "start": 0,
+  "uri": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Usage/Records/Daily.json?PageSize=1000&Page=0"
+}

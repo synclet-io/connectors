@@ -1,0 +1,11 @@
+{
+  "end": -1,
+  "first_page_uri": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Usage/Records/Daily.json?PageSize=1000&Page=0",
+  "usage_records": [],
+  "next_page_uri": null,
+  "page": 0,
+  "page_size": 1000,
+  "previous_page_uri": null,
+  "start": 0,
+  "uri": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Usage/Records/Daily.json?PageSize=1000&Page=0"
+}

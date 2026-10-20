@@ -58,6 +58,7 @@ Taskfile.yml              local shortcuts
 | [source-slack](connectors/source-slack) | `ghcr.io/synclet-io/connectors/source-slack` |
 | [source-solidgate](connectors/source-solidgate) | `ghcr.io/synclet-io/connectors/source-solidgate` |
 | [source-tiktok-marketing](connectors/source-tiktok-marketing) | `ghcr.io/synclet-io/connectors/source-tiktok-marketing` |
+| [source-twilio](connectors/source-twilio) | `ghcr.io/synclet-io/connectors/source-twilio` |
 | [source-typeform](connectors/source-typeform) | `ghcr.io/synclet-io/connectors/source-typeform` |
 | [source-zendesk-support](connectors/source-zendesk-support) | `ghcr.io/synclet-io/connectors/source-zendesk-support` |
 | [destination-bigquery](connectors/destination-bigquery) | `ghcr.io/synclet-io/connectors/destination-bigquery` |

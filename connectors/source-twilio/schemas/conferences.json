@@ -1,0 +1,85 @@
+{
+  "type": "object",
+  "properties": {
+    "account_sid": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "api_version": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date"
+    },
+    "call_sid_ending_conference": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "date_created": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "date_updated": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "friendly_name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "reason_conference_ended": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "region": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "sid": {
+      "type": "string"
+    },
+    "status": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "subresource_uris": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "participants": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "uri": {
+      "type": [
+        "null",
+        "string"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

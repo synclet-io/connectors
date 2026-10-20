@@ -1,0 +1,250 @@
+{
+  "type": "object",
+  "properties": {
+    "account_sid": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "address_requirements": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "address_sid": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "api_version": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date"
+    },
+    "beta": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "bundle_sid": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "capabilities": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "fax": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "mms": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "sms": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "voice": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "date_created": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "date_updated": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "emergency_address_sid": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "emergency_address_status": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "emergency_status": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "friendly_name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "identity_sid": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "origin": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "phone_number": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "sid": {
+      "type": "string"
+    },
+    "sms_application_sid": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "sms_fallback_method": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "sms_fallback_url": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "sms_method": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "sms_url": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "status": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "status_callback": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "status_callback_method": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "subresource_uris": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "assigned_add_ons": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "trunk_sid": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "uri": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "voice_application_sid": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "voice_caller_id_lookup": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "voice_fallback_method": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "voice_fallback_url": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "voice_method": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "voice_receive_mode": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "voice_url": {
+      "type": [
+        "null",
+        "string"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,35 @@
+{
+  "end": 1000,
+  "first_page_uri": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Recordings.json?PageSize=1000&Page=0",
+  "recordings": [
+    {
+      "account_sid": "AC00000000000000000000000000000001",
+      "api_version": "2010-04-01",
+      "call_sid": "CA00000000000000000000000000000003",
+      "channels": 1,
+      "conference_sid": null,
+      "date_created": "Sat, 07 Mar 2026 09:00:00 +0000",
+      "date_updated": "Sat, 07 Mar 2026 09:00:00 +0000",
+      "duration": "22",
+      "encryption_details": null,
+      "error_code": null,
+      "media_url": "https://api.twilio.com/2010-04-01/Accounts/AC00000000000000000000000000000001/Recordings/RE00000000000000000000000000000003",
+      "price": "-0.0025",
+      "price_unit": "USD",
+      "sid": "RE00000000000000000000000000000003",
+      "source": "RecordVerb",
+      "start_time": "Sat, 07 Mar 2026 08:00:00 +0000",
+      "status": "completed",
+      "subresource_uris": {
+        "transcriptions": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Recordings/RE00000000000000000000000000000003/Transcriptions.json"
+      },
+      "uri": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Recordings/RE00000000000000000000000000000003.json"
+    }
+  ],
+  "next_page_uri": null,
+  "page": 1,
+  "page_size": 1000,
+  "previous_page_uri": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Recordings.json?PageSize=1000&Page=0",
+  "start": 1000,
+  "uri": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Recordings.json?PageSize=1000&Page=1"
+}

@@ -1,0 +1,60 @@
+{
+  "end": 1,
+  "first_page_uri": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Messages.json?PageSize=1000&Page=0",
+  "messages": [
+    {
+      "account_sid": "AC00000000000000000000000000000001",
+      "api_version": "2010-04-01",
+      "body": "Synthetic message 1",
+      "date_created": "Sun, 08 Mar 2026 12:00:00 +0000",
+      "date_sent": "Sun, 08 Mar 2026 12:00:00 +0000",
+      "date_updated": "Sun, 08 Mar 2026 13:00:00 +0000",
+      "direction": "outbound-api",
+      "error_code": null,
+      "error_message": null,
+      "from": "+15550100000",
+      "messaging_service_sid": null,
+      "num_media": "0",
+      "num_segments": "1",
+      "price": "-0.00790",
+      "price_unit": "USD",
+      "sid": "SM00000000000000000000000000000001",
+      "status": "delivered",
+      "subresource_uris": {
+        "media": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Messages/SM00000000000000000000000000000001/Media.json"
+      },
+      "to": "+15550109999",
+      "uri": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Messages/SM00000000000000000000000000000001.json"
+    },
+    {
+      "account_sid": "AC00000000000000000000000000000001",
+      "api_version": "2010-04-01",
+      "body": "Synthetic message 2",
+      "date_created": "Sat, 07 Mar 2026 12:00:00 +0000",
+      "date_sent": "Sat, 07 Mar 2026 12:00:00 +0000",
+      "date_updated": "Sat, 07 Mar 2026 13:00:00 +0000",
+      "direction": "outbound-api",
+      "error_code": null,
+      "error_message": null,
+      "from": "+15550100000",
+      "messaging_service_sid": null,
+      "num_media": "0",
+      "num_segments": "1",
+      "price": "-0.00790",
+      "price_unit": "USD",
+      "sid": "SM00000000000000000000000000000002",
+      "status": "delivered",
+      "subresource_uris": {
+        "media": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Messages/SM00000000000000000000000000000002/Media.json"
+      },
+      "to": "+15550109999",
+      "uri": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Messages/SM00000000000000000000000000000002.json"
+    }
+  ],
+  "next_page_uri": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Messages.json?PageSize=1000&Page=1&PageToken=PTMESSAGES",
+  "page": 0,
+  "page_size": 1000,
+  "previous_page_uri": null,
+  "start": 0,
+  "uri": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Messages.json?PageSize=1000&Page=0"
+}

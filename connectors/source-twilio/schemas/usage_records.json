@@ -1,0 +1,100 @@
+{
+  "type": "object",
+  "properties": {
+    "account_sid": {
+      "type": "string"
+    },
+    "api_version": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date"
+    },
+    "as_of": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "category": {
+      "type": "string"
+    },
+    "count": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "count_unit": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "description": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "end_date": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date"
+    },
+    "price": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "price_unit": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "subresource_uris": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "all_time": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "uri": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "usage": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "usage_unit": {
+      "type": [
+        "null",
+        "string"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

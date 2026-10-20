@@ -1,0 +1,43 @@
+{
+  "end": 1000,
+  "first_page_uri": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Calls.json?PageSize=1000&Page=0",
+  "calls": [
+    {
+      "account_sid": "AC00000000000000000000000000000001",
+      "annotation": null,
+      "answered_by": null,
+      "api_version": "2010-04-01",
+      "caller_name": null,
+      "date_created": "Sat, 07 Mar 2026 08:00:00 +0000",
+      "date_updated": "Sat, 07 Mar 2026 09:00:00 +0000",
+      "direction": "outbound-api",
+      "duration": "32",
+      "end_time": "Sat, 07 Mar 2026 09:00:00 +0000",
+      "forwarded_from": null,
+      "from": "+15550100000",
+      "from_formatted": "(555) 010-0000",
+      "group_sid": null,
+      "parent_call_sid": null,
+      "phone_number_sid": "PN00000000000000000000000000000001",
+      "price": "-0.01300",
+      "price_unit": "USD",
+      "queue_time": "0",
+      "sid": "CA00000000000000000000000000000003",
+      "start_time": "Sat, 07 Mar 2026 08:00:00 +0000",
+      "status": "completed",
+      "subresource_uris": {
+        "recordings": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Calls/CA00000000000000000000000000000003/Recordings.json"
+      },
+      "to": "+15550109999",
+      "to_formatted": "(555) 010-9999",
+      "trunk_sid": null,
+      "uri": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Calls/CA00000000000000000000000000000003.json"
+    }
+  ],
+  "next_page_uri": null,
+  "page": 1,
+  "page_size": 1000,
+  "previous_page_uri": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Calls.json?PageSize=1000&Page=0",
+  "start": 1000,
+  "uri": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Calls.json?PageSize=1000&Page=1"
+}

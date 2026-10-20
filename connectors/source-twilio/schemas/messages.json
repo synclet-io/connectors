@@ -1,0 +1,133 @@
+{
+  "type": "object",
+  "properties": {
+    "account_sid": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "api_version": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date"
+    },
+    "body": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "date_created": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "date_sent": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "date_updated": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "direction": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "error_code": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "error_message": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "from": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "messaging_service_sid": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "num_media": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "num_segments": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "price": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "price_unit": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "sid": {
+      "type": "string"
+    },
+    "status": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "subresource_uris": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "media": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "to": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "uri": {
+      "type": [
+        "null",
+        "string"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,29 @@
+{
+  "end": 1000,
+  "first_page_uri": "/2010-04-01/Accounts.json?PageSize=1000&Page=0",
+  "accounts": [
+    {
+      "auth_token": "[Redacted]",
+      "date_created": "Tue, 03 Mar 2026 09:00:00 +0000",
+      "date_updated": "Wed, 04 Mar 2026 09:00:00 +0000",
+      "friendly_name": "Example Closed",
+      "owner_account_sid": "AC00000000000000000000000000000001",
+      "sid": "AC00000000000000000000000000000003",
+      "status": "closed",
+      "subresource_uris": {
+        "calls": "/2010-04-01/Accounts/AC00000000000000000000000000000003/Calls.json",
+        "messages": "/2010-04-01/Accounts/AC00000000000000000000000000000003/Messages.json",
+        "recordings": "/2010-04-01/Accounts/AC00000000000000000000000000000003/Recordings.json",
+        "conferences": "/2010-04-01/Accounts/AC00000000000000000000000000000003/Conferences.json"
+      },
+      "type": "Full",
+      "uri": "/2010-04-01/Accounts/AC00000000000000000000000000000003.json"
+    }
+  ],
+  "next_page_uri": null,
+  "page": 1,
+  "page_size": 1000,
+  "previous_page_uri": "/2010-04-01/Accounts.json?PageSize=1000&Page=0",
+  "start": 1000,
+  "uri": "/2010-04-01/Accounts.json?PageSize=1000&Page=1"
+}

@@ -1,0 +1,44 @@
+{
+  "end": 1,
+  "first_page_uri": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Conferences.json?PageSize=1000&Page=0",
+  "conferences": [
+    {
+      "account_sid": "AC00000000000000000000000000000001",
+      "api_version": "2010-04-01",
+      "call_sid_ending_conference": "CA00000000000000000000000000000001",
+      "date_created": "Fri, 06 Mar 2026 14:00:00 +0000",
+      "date_updated": "Fri, 06 Mar 2026 15:00:00 +0000",
+      "friendly_name": "room-1",
+      "reason_conference_ended": "last-participant-left",
+      "region": "us1",
+      "sid": "CF00000000000000000000000000000001",
+      "status": "completed",
+      "subresource_uris": {
+        "participants": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Conferences/CF00000000000000000000000000000001/Participants.json"
+      },
+      "uri": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Conferences/CF00000000000000000000000000000001.json"
+    },
+    {
+      "account_sid": "AC00000000000000000000000000000001",
+      "api_version": "2010-04-01",
+      "call_sid_ending_conference": "CA00000000000000000000000000000002",
+      "date_created": "Sat, 07 Mar 2026 14:00:00 +0000",
+      "date_updated": "Sat, 07 Mar 2026 15:00:00 +0000",
+      "friendly_name": "room-2",
+      "reason_conference_ended": "last-participant-left",
+      "region": "us1",
+      "sid": "CF00000000000000000000000000000002",
+      "status": "completed",
+      "subresource_uris": {
+        "participants": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Conferences/CF00000000000000000000000000000002/Participants.json"
+      },
+      "uri": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Conferences/CF00000000000000000000000000000002.json"
+    }
+  ],
+  "next_page_uri": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Conferences.json?PageSize=1000&Page=1&PageToken=PTCONFERENCES",
+  "page": 0,
+  "page_size": 1000,
+  "previous_page_uri": null,
+  "start": 0,
+  "uri": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Conferences.json?PageSize=1000&Page=0"
+}

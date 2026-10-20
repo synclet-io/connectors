@@ -1,0 +1,76 @@
+# yaml-language-server: $schema=../source-declarative/internal/manifest/manifest.schema.json
+version: 1
+connector:
+  name: source-twilio
+  documentation_url: https://github.com/synclet-io/connectors/tree/main/connectors/source-twilio
+base_url: https://api.twilio.com/2010-04-01/
+spec:
+  title: Twilio Source Spec
+  description: Reads accounts, calls, messages, recordings, conferences, usage records and incoming phone numbers from the Twilio REST API.
+  required: [account_sid, auth_token, start_date]
+  properties:
+    account_sid: {type: string, title: Account SID, description: "SID of the Twilio account to read, sent with the auth token as basic auth.", pattern: "^AC[0-9a-fA-F]{32}$", order: 0}
+    auth_token:  {type: string, title: Auth token, description: "Auth token of that account.", secret: true, order: 1}
+    start_date:  {type: string, title: Start date, description: "Calls ended, messages sent, recordings and conferences created and usage before it are not read.", format: date-time, examples: ["2026-01-01T00:00:00Z"], order: 2}
+auth: {type: basic, username: "{{ config.account_sid }}", password: "{{ config.auth_token }}"}
+errors: {message: $.message}
+retry:
+  rate_limit:
+    statuses: [429]
+    wait: ["header:Retry-After", 60s]
+check: {stream: accounts}
+streams:
+  - &list
+    name: accounts
+    path: Accounts.json
+    primary_key: [sid]
+    schema: schemas/accounts.json
+    records: {path: $.accounts}
+    pagination: {type: next_url, url_from: $.next_page_uri, size: 1000, size_param: PageSize}
+
+  - <<: *list
+    name: incoming_phone_numbers
+    path: "Accounts/{{ config.account_sid }}/IncomingPhoneNumbers.json"
+    schema: schemas/incoming_phone_numbers.json
+    records: {path: $.incoming_phone_numbers}
+
+  - <<: *list
+    name: calls
+    path: "Accounts/{{ config.account_sid }}/Calls.json"
+    params: {"EndTime>": "{{ since }}"}
+    schema: schemas/calls.json
+    records: {path: $.calls}
+    incremental: {cursor_field: end_time, cursor_format: "Mon, 02 Jan 2006 15:04:05 -0700", since_format: rfc3339, start: "{{ config.start_date }}", lookback: 1h}
+
+  - <<: *list
+    name: messages
+    path: "Accounts/{{ config.account_sid }}/Messages.json"
+    params: {"DateSent>": "{{ since }}", "DateSent<": "{{ until }}"}
+    schema: schemas/messages.json
+    records: {path: $.messages}
+    incremental: {cursor_field: date_sent, cursor_format: "Mon, 02 Jan 2006 15:04:05 -0700", since_format: rfc3339, start: "{{ config.start_date }}", lookback: 1h, window: {step: 30d}}
+
+  - <<: *list
+    name: recordings
+    path: "Accounts/{{ config.account_sid }}/Recordings.json"
+    params: {"DateCreated>": "{{ since }}"}
+    schema: schemas/recordings.json
+    records: {path: $.recordings}
+    incremental: {cursor_field: date_created, cursor_format: "Mon, 02 Jan 2006 15:04:05 -0700", since_format: rfc3339, start: "{{ config.start_date }}", lookback: 1h}
+
+  - <<: *list
+    name: conferences
+    path: "Accounts/{{ config.account_sid }}/Conferences.json"
+    params: {"DateCreated>": "{{ since }}"}
+    schema: schemas/conferences.json
+    records: {path: $.conferences}
+    incremental: {cursor_field: date_created, cursor_format: "Mon, 02 Jan 2006 15:04:05 -0700", since_format: date, start: "{{ config.start_date }}", lookback: 1h}
+
+  - <<: *list
+    name: usage_records
+    path: "Accounts/{{ config.account_sid }}/Usage/Records/Daily.json"
+    params: {StartDate: "{{ since }}", EndDate: "{{ until }}"}
+    primary_key: [account_sid, category, start_date]
+    schema: schemas/usage_records.json
+    records: {path: $.usage_records}
+    incremental: {cursor_field: start_date, cursor_format: date, start: "{{ config.start_date }}", window: {step: 30d}}

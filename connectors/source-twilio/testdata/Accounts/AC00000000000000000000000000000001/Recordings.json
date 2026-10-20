@@ -1,0 +1,58 @@
+{
+  "end": 1,
+  "first_page_uri": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Recordings.json?PageSize=1000&Page=0",
+  "recordings": [
+    {
+      "account_sid": "AC00000000000000000000000000000001",
+      "api_version": "2010-04-01",
+      "call_sid": "CA00000000000000000000000000000001",
+      "channels": 1,
+      "conference_sid": null,
+      "date_created": "Thu, 05 Mar 2026 09:00:00 +0000",
+      "date_updated": "Thu, 05 Mar 2026 09:00:00 +0000",
+      "duration": "20",
+      "encryption_details": null,
+      "error_code": null,
+      "media_url": "https://api.twilio.com/2010-04-01/Accounts/AC00000000000000000000000000000001/Recordings/RE00000000000000000000000000000001",
+      "price": "-0.0025",
+      "price_unit": "USD",
+      "sid": "RE00000000000000000000000000000001",
+      "source": "RecordVerb",
+      "start_time": "Thu, 05 Mar 2026 08:00:00 +0000",
+      "status": "completed",
+      "subresource_uris": {
+        "transcriptions": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Recordings/RE00000000000000000000000000000001/Transcriptions.json"
+      },
+      "uri": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Recordings/RE00000000000000000000000000000001.json"
+    },
+    {
+      "account_sid": "AC00000000000000000000000000000001",
+      "api_version": "2010-04-01",
+      "call_sid": "CA00000000000000000000000000000002",
+      "channels": 1,
+      "conference_sid": null,
+      "date_created": "Fri, 06 Mar 2026 09:00:00 +0000",
+      "date_updated": "Fri, 06 Mar 2026 09:00:00 +0000",
+      "duration": "21",
+      "encryption_details": null,
+      "error_code": null,
+      "media_url": "https://api.twilio.com/2010-04-01/Accounts/AC00000000000000000000000000000001/Recordings/RE00000000000000000000000000000002",
+      "price": "-0.0025",
+      "price_unit": "USD",
+      "sid": "RE00000000000000000000000000000002",
+      "source": "RecordVerb",
+      "start_time": "Fri, 06 Mar 2026 08:00:00 +0000",
+      "status": "completed",
+      "subresource_uris": {
+        "transcriptions": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Recordings/RE00000000000000000000000000000002/Transcriptions.json"
+      },
+      "uri": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Recordings/RE00000000000000000000000000000002.json"
+    }
+  ],
+  "next_page_uri": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Recordings.json?PageSize=1000&Page=1&PageToken=PTRECORDINGS",
+  "page": 0,
+  "page_size": 1000,
+  "previous_page_uri": null,
+  "start": 0,
+  "uri": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Recordings.json?PageSize=1000&Page=0"
+}

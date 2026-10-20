@@ -1,0 +1,175 @@
+{
+  "type": "object",
+  "properties": {
+    "account_sid": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "annotation": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "answered_by": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "api_version": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date"
+    },
+    "caller_name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "date_created": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "date_updated": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "direction": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "duration": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "end_time": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "forwarded_from": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "from": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "from_formatted": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "group_sid": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "parent_call_sid": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "phone_number_sid": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "price": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "price_unit": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "queue_time": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "sid": {
+      "type": "string"
+    },
+    "start_time": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "status": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "subresource_uris": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "recordings": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "to": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "to_formatted": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "trunk_sid": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "uri": {
+      "type": [
+        "null",
+        "string"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

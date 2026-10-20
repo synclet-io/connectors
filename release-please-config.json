@@ -510,6 +510,16 @@
         }
       ]
     },
+    "connectors/source-twilio": {
+      "component": "source-twilio",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "meta.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
     "connectors/source-typeform": {
       "component": "source-typeform",
       "extra-files": [

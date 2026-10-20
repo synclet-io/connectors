@@ -1,0 +1,90 @@
+{
+  "type": "object",
+  "properties": {
+    "auth_token": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "date_created": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "date_updated": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "friendly_name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "owner_account_sid": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "sid": {
+      "type": "string"
+    },
+    "status": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "subresource_uris": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "calls": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "conferences": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "messages": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "recordings": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "type": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "uri": {
+      "type": [
+        "null",
+        "string"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

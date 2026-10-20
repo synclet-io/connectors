@@ -1,0 +1,47 @@
+{
+  "end": 1,
+  "first_page_uri": "/2010-04-01/Accounts.json?PageSize=1000&Page=0",
+  "accounts": [
+    {
+      "auth_token": "[Redacted]",
+      "date_created": "Sun, 01 Mar 2026 09:00:00 +0000",
+      "date_updated": "Mon, 02 Mar 2026 09:00:00 +0000",
+      "friendly_name": "Example Main",
+      "owner_account_sid": "AC00000000000000000000000000000001",
+      "sid": "AC00000000000000000000000000000001",
+      "status": "active",
+      "subresource_uris": {
+        "calls": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Calls.json",
+        "messages": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Messages.json",
+        "recordings": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Recordings.json",
+        "conferences": "/2010-04-01/Accounts/AC00000000000000000000000000000001/Conferences.json"
+      },
+      "type": "Full",
+      "uri": "/2010-04-01/Accounts/AC00000000000000000000000000000001.json",
+      "x_unlisted_field": "kept"
+    },
+    {
+      "auth_token": "[Redacted]",
+      "date_created": "Mon, 02 Mar 2026 09:00:00 +0000",
+      "date_updated": "Tue, 03 Mar 2026 09:00:00 +0000",
+      "friendly_name": "Example Subaccount",
+      "owner_account_sid": "AC00000000000000000000000000000001",
+      "sid": "AC00000000000000000000000000000002",
+      "status": "active",
+      "subresource_uris": {
+        "calls": "/2010-04-01/Accounts/AC00000000000000000000000000000002/Calls.json",
+        "messages": "/2010-04-01/Accounts/AC00000000000000000000000000000002/Messages.json",
+        "recordings": "/2010-04-01/Accounts/AC00000000000000000000000000000002/Recordings.json",
+        "conferences": "/2010-04-01/Accounts/AC00000000000000000000000000000002/Conferences.json"
+      },
+      "type": "Trial",
+      "uri": "/2010-04-01/Accounts/AC00000000000000000000000000000002.json"
+    }
+  ],
+  "next_page_uri": "/2010-04-01/Accounts.json?PageSize=1000&Page=1&PageToken=PTACCOUNTS",
+  "page": 0,
+  "page_size": 1000,
+  "previous_page_uri": null,
+  "start": 0,
+  "uri": "/2010-04-01/Accounts.json?PageSize=1000&Page=0"
+}
