@@ -63,7 +63,7 @@ a new one when the API answers 401. The access token travels only in the `Author
 
 | Message | Cause |
 |---|---|
-| `service_account_key is not a valid service account key` | The key is not JSON of type `service_account` with a PEM private key |
+| `service_account_key is not a valid service account key` | The key is not JSON of type `service_account` with a PEM private key, or its `token_uri` is not `https://oauth2.googleapis.com/token` (the legacy `https://accounts.google.com/o/oauth2/token` and an absent one are accepted) or its `universe_domain` is not `googleapis.com` |
 | `service account key is invalid, disabled or deleted` | The token endpoint rejected the signed assertion (`invalid_grant`) |
 | `refresh_token is invalid or revoked` | The token endpoint answered `invalid_grant` |
 | `client_id or client_secret is invalid` | The token endpoint answered `invalid_client` or `unauthorized_client` |
