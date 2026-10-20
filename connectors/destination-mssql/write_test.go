@@ -465,3 +465,42 @@ func TestWriteGlobalStateWaitsForSwap(t *testing.T) {
 	assert.Equal(t, []string{"2"}, stateKinds(out))
 	assert.Equal(t, [][]string{{"a"}, {"b"}}, queryStrings(t, cfg, `SELECT code FROM rates ORDER BY code`))
 }
+
+func TestWriteSwapFailureKeepsEveryOldTable(t *testing.T) {
+	cfg := sharedMSSQL(t, "swap_fail")
+	streams := []synclet.ConfiguredStream{
+		stream("a", `{"type":"object","properties":{"k":{"type":"string"}}}`, synclet.DestinationSyncModeOverwrite, nil, nil),
+		stream("b", `{"type":"object","properties":{"k":{"type":"string"}}}`, synclet.DestinationSyncModeOverwrite, nil, nil),
+	}
+	out := runWrite(t, NewDestination(), cfg, streams, rec("a", `{"k":"a1"}`), rec("b", `{"k":"b1"}`), state("a", `1`))
+	require.NoError(t, out.Err)
+	execSQL(t, cfg, "EXEC('CREATE VIEW dbo.vb WITH SCHEMABINDING AS SELECT k FROM dbo.b')")
+
+	out = runWrite(t, NewDestination(), cfg, streams, rec("a", `{"k":"a2"}`), rec("b", `{"k":"b2"}`), state("a", `2`))
+	require.Error(t, out.Err)
+	assert.Contains(t, out.Err.Error(), "drop replaced table [dbo].[b]")
+	assert.Empty(t, out.States())
+	assert.Equal(t, [][]string{{"a1"}}, queryStrings(t, cfg, "SELECT k FROM a"), "the swap of a is rolled back with b's")
+	assert.Equal(t, [][]string{{"b1"}}, queryStrings(t, cfg, "SELECT k FROM b"))
+	assert.ElementsMatch(t, []string{"a", "b"}, tables(t, cfg), "the shadow tables are dropped")
+}
+
+func TestWriteBracketNames(t *testing.T) {
+	cfg := sharedMSSQL(t, "bracket_names")
+	cfg.Schema = "s]c.h'e [m]"
+	schema := `{"type":"object","properties":{"k":{"type":"string"},"c":{"type":"integer"}}}`
+	for _, name := range []string{"a]b.c'd [e]", "[lead", "trail]", strings.Repeat("]", 130)} {
+		t.Run(name, func(t *testing.T) {
+			ovr := stream(name, schema, synclet.DestinationSyncModeOverwrite, nil, nil)
+			dedup := stream(name+"_d", schema, synclet.DestinationSyncModeAppendDedup, [][]string{{"k"}}, []string{"c"})
+			for range 2 {
+				out := runWrite(t, testDestination(2), cfg, []synclet.ConfiguredStream{ovr, dedup},
+					rec(name, `{"k":"v"}`), rec(name+"_d", `{"k":"v","c":2}`), rec(name+"_d", `{"k":"v","c":1}`))
+				require.NoError(t, out.Err)
+			}
+			assert.Equal(t, 1, countRows(t, cfg, msIdent(name)))
+			assert.Equal(t, [][]string{{"2"}}, queryStrings(t, cfg, "SELECT c FROM "+qualified(cfg.Schema, msIdent(name+"_d"))))
+		})
+	}
+	assert.Len(t, tables(t, cfg), 8, "no shadow table is left")
+}
