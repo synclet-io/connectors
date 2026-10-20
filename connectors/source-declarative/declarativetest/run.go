@@ -527,6 +527,7 @@ func (h *Harness) start(inc *manifest.Incremental) (time.Time, error) {
 	if err := d.Decode(&cfg); err != nil {
 		return time.Time{}, err
 	}
+	h.Manifest.ApplyDefaults(cfg)
 	s, err := inc.Start.Render(manifest.Scope{Config: cfg}, nil)
 	if err != nil {
 		return time.Time{}, err

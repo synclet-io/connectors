@@ -240,6 +240,12 @@ func TestLint(t *testing.T) {
 		{"reserved spec property", func(d map[string]any) {
 			d["spec"].(map[string]any)["properties"].(map[string]any)["__x"] = map[string]any{"type": "string"}
 		}, "spec.properties.__x", "reserved"},
+		{"default of another type", func(d map[string]any) {
+			d["spec"].(map[string]any)["properties"].(map[string]any)["region"] = map[string]any{"type": "string", "default": 5}
+		}, "spec.properties.region.default", "string"},
+		{"default of another format", func(d map[string]any) {
+			d["spec"].(map[string]any)["properties"].(map[string]any)["start_date"] = map[string]any{"type": "string", "format": "date-time", "default": "2026-01-01"}
+		}, "spec.properties.start_date.default", "date-time"},
 		{"required unknown", func(d map[string]any) { d["spec"].(map[string]any)["required"] = []any{"nope"} }, "spec.required[0]", `no property named "nope"`},
 		{"cursor field not in schema", func(d map[string]any) {
 			streamOf(d, 0)["incremental"].(map[string]any)["cursor_field"] = "updated"

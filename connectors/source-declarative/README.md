@@ -100,7 +100,7 @@ Types: `string`, `int`, `bool`, `duration` (Go duration such as `30s`, `1h`, or 
 | `required` | list<string> | Required property names. |
 | `properties.<name>` | object | One property. Allowed keys: `type` (`string`, `integer`, `number`, `boolean`, `array`), `title`, `description`, `default`, `examples`, `enum`, `format` (`date`, `date-time`), `pattern`, `secret` (bool, becomes `airbyte_secret`), `order` (int), `items` (`{type: string}` for arrays). Nothing else. |
 
-The engine validates every incoming config against this schema before `check`, `discover` and `read`; a violation is a config error with the schema's message. `supportsIncremental`, the protocol version and the destination sync modes are fixed by the engine. Spec, catalog and records of a manifest connector therefore need no Go.
+The engine validates every incoming config against this schema before `check`, `discover` and `read`; a violation is a config error with the schema's message. Before that, a property with a `default` that the config lacks or holds as null takes the default, so templates and `check` see it and an Airbyte config saved without an optional property runs unchanged; Airbyte's manifests write the same fallback inline (`config.get('x') or '...'`). The lint rejects a default that fails its own property's `type`, `enum`, `pattern` or `format`. `supportsIncremental`, the protocol version and the destination sync modes are fixed by the engine. Spec, catalog and records of a manifest connector therefore need no Go.
 
 #### 3.3 `auth`
 
@@ -251,11 +251,11 @@ Semantics of `parent`: streams that share a `parent` and the parent itself are r
 
 ### 4. Templates
 
-A template is literal text with substitutions of the form `{{ root.key.key }}` or `{{ root.key | join(",") }}`. Nothing else: no conditions, arithmetic, defaults or function calls. Rendered values are URL-escaped by the place they land in (path segment, query value, header); `join` is the only filter and turns a config array into one string.
+A template is literal text with substitutions of the form `{{ root.key.key }}` or `{{ root.key | join(",") }}`. Nothing else: no conditions, arithmetic, inline defaults or function calls (a fallback value is the property's spec `default`, 3.2). Rendered values are URL-escaped by the place they land in (path segment, query value, header); `join` is the only filter and turns a config array into one string.
 
 | Root | Where allowed | Value |
 |---|---|---|
-| `config.<name>` | everywhere | A spec property. A missing optional property renders empty (and an empty query value is omitted). The lint rejects a name not in `spec.properties`. |
+| `config.<name>` | everywhere | A spec property. A missing optional property without a `default` renders empty (and an empty query value is omitted). The lint rejects a name not in `spec.properties`. |
 | `partition.value` | streams with `partition.values` | The current value. |
 | `parent.<field>` | streams with `partition.parent` | A field of the current parent record, nested allowed. |
 | `since`, `until` | incremental streams | The current bounds in `since_format`. |
@@ -341,7 +341,7 @@ Legend: **in** (the manifest expresses it), **Go** (write the connector in Go on
 
 1. `manifest.schema.json`: every object has `additionalProperties: false`; enums for every closed set; one `if`/`then` branch per `auth.type` and `pagination.type`, so a key of another type is reported as unknown at its own path. Loading decodes YAML to a generic document and validates it with `santhosh-tekuri/jsonschema/v6` (already an SDK dependency), so an unknown key or a wrong type is reported with its instance path.
 2. Strict typed decode (`encoding/json` with `DisallowUnknownFields`, of the document both a YAML file and `__manifest` decode to) as the second net.
-3. Semantic lint: templates parse and use only allowed roots and known config properties; `since`/`until` only in incremental streams; `partition.parent` names an existing, unpartitioned stream; `parent.*` only with a parent; every schema file exists, and every schema, file or inline, is an object schema with `properties`; no `schema` is a file path in an injected manifest; no spec property starts with `__`; `cursor_field`, `primary_key`, `key_field`, `value_field` and `add` keys exist in the schema; `check.stream` exists; `base_url` ends with `/`; `pagination` keys match the type; `window.step` and `lookback` are positive; stream names unique.
+3. Semantic lint: templates parse and use only allowed roots and known config properties; `since`/`until` only in incremental streams; `partition.parent` names an existing, unpartitioned stream; `parent.*` only with a parent; every schema file exists, and every schema, file or inline, is an object schema with `properties`; no `schema` is a file path in an injected manifest; no spec property starts with `__`; a spec `default` satisfies its property; `cursor_field`, `primary_key`, `key_field`, `value_field` and `add` keys exist in the schema; `check.stream` exists; `base_url` ends with `/`; `pagination` keys match the type; `window.step` and `lookback` are positive; stream names unique.
 4. `go run ./cmd/manifest-lint <dir>` prints every error with its path and exits 1; `declarativetest.Run` loads the manifest the same way first; `-spec` prints the spec JSON so `spec.json` can be refreshed without Docker.
 
 ### 13. Manifest sources: baked file or injected config

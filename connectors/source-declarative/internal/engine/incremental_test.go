@@ -323,3 +323,25 @@ func TestSpec(t *testing.T) {
 	assert.True(t, spec.ConnectionSpecification.Properties.Properties["api_key"].IsSecret)
 	assert.Equal(t, "0.5.2", spec.ProtocolVersion)
 }
+
+func TestSpecDefaults(t *testing.T) {
+	yaml := strings.Replace(manifestYAML("", incStream), "    start_date: {type: string}", `    start_date: {type: string, format: date-time, default: "2026-09-01T00:00:00Z"}`, 1)
+	defaultUnix := time.Date(2026, 9, 1, 0, 0, 0, 0, time.UTC).Unix()
+	for name, tc := range map[string]struct {
+		config string
+		since  int64
+	}{
+		"missing":  {`{"api_key":"k1"}`, defaultUnix},
+		"null":     {`{"api_key":"k1","start_date":null}`, defaultUnix},
+		"provided": {testConfig, startUnix},
+	} {
+		t.Run(name, func(t *testing.T) {
+			a := newAPI(t).json("/v1/items", `{"data":[]}`)
+			src := newSource(t, yaml, a, newClock())
+			assert.Equal(t, synclet.ConnectionStatusSucceeded, checkStatus(t, src, tc.config).Status)
+			out := read(t, src, tc.config, catalog(t, src, tc.config, synclet.SyncModeIncremental, "items"), "")
+			require.NoError(t, out.Err)
+			assert.Contains(t, a.keys(), fmt.Sprintf("/v1/items?updated%%5Bgte%%5D=%d", tc.since))
+		})
+	}
+}

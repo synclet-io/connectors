@@ -1,12 +1,17 @@
 package manifest
 
 import (
+	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"maps"
 	"regexp"
 	"slices"
 	"strings"
 	"time"
+
+	"github.com/santhosh-tekuri/jsonschema/v6"
 )
 
 // Cursor formats besides a Go time layout.
@@ -106,6 +111,11 @@ func (l *linter) spec() {
 			if _, err := regexp.Compile(p.Pattern); err != nil {
 				l.add(at+".pattern", "%v", err)
 			}
+		}
+	}
+	for _, name := range slices.Sorted(maps.Keys(props)) {
+		if props[name].Default != nil {
+			l.specDefault(joinKey("spec.properties", name)+".default", props[name])
 		}
 	}
 	for i, r := range l.m.Spec.Required {
@@ -429,4 +439,55 @@ func (l *linter) field(at string, st *Stream, f Field) {
 		}
 		node = next
 	}
+}
+
+// specDefault reports a default that a config could not carry: one that
+// fails its own property's type, enum, pattern or format.
+func (l *linter) specDefault(at string, p Property) {
+	raw, err := json.Marshal(propertySchema(p))
+	if err != nil {
+		l.add(at, "%v", err)
+		return
+	}
+	doc, err := jsonschema.UnmarshalJSON(bytes.NewReader(raw))
+	if err != nil {
+		l.add(at, "%v", err)
+		return
+	}
+	c := jsonschema.NewCompiler()
+	c.AssertFormat()
+	const url = "mem://property.schema.json"
+	if err := c.AddResource(url, doc); err != nil {
+		l.add(at, "%v", err)
+		return
+	}
+	sch, err := c.Compile(url)
+	if err != nil {
+		// spec() reports the pattern that fails to compile.
+		return
+	}
+	v, err := jsonschema.UnmarshalJSON(bytes.NewReader(p.Default))
+	if err != nil {
+		l.add(at, "%v", err)
+		return
+	}
+	if err := sch.Validate(v); err != nil {
+		var ve *jsonschema.ValidationError
+		if errors.As(err, &ve) {
+			l.add(at, "does not satisfy the property: %s", leafMessages(ve))
+			return
+		}
+		l.add(at, "does not satisfy the property: %v", err)
+	}
+}
+
+func leafMessages(ve *jsonschema.ValidationError) string {
+	if len(ve.Causes) == 0 {
+		return ve.ErrorKind.LocalizedString(printer)
+	}
+	var out []string
+	for _, c := range ve.Causes {
+		out = append(out, leafMessages(c))
+	}
+	return strings.Join(out, "; ")
 }

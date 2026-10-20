@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	synclet "github.com/synclet-io/synclet-go-sdk"
 )
@@ -89,5 +90,39 @@ func TestAbsoluteLinksOnTheBaseURLReachTheFixtureServer(t *testing.T) {
 	}
 	if n := len(out.Records(synclet.StreamDescriptor{Name: "items"})); n != 2 {
 		t.Errorf("records: got %d, want 2", n)
+	}
+}
+
+const defaultStartManifest = `version: 1
+connector: {name: source-since}
+base_url: https://api.example.com/
+spec:
+  properties:
+    start_date: {type: string, format: date-time, default: "2010-01-01T00:00:00Z"}
+auth: {type: none}
+check: {stream: items}
+streams:
+  - name: items
+    path: items
+    params: {since: "{{ since }}"}
+    incremental: {cursor_field: updated, cursor_format: rfc3339, start: "{{ config.start_date }}"}
+    schema: {type: object, properties: {updated: {type: string}}}
+`
+
+func TestStartTakesTheSpecDefault(t *testing.T) {
+	dir := filepath.Join(t.TempDir(), "source-since")
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "manifest.yaml"), []byte(defaultStartManifest), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	h := New(t, Suite{Dir: dir, Config: json.RawMessage(`{}`)})
+	got, err := h.start(h.Manifest.Streams[0].Incremental)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := time.Date(2010, 1, 1, 0, 0, 0, 0, time.UTC); !got.Equal(want) {
+		t.Errorf("start: got %s, want %s", got, want)
 	}
 }

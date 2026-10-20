@@ -170,6 +170,7 @@ func (s *source) resolve(raw json.RawMessage, relaxed bool) (*manifest.Manifest,
 		}
 		cfg[k] = x
 	}
+	m.ApplyDefaults(cfg)
 	if err := validateConfig(m, cfg); err != nil {
 		return nil, nil, synclet.ConfigError(err)
 	}

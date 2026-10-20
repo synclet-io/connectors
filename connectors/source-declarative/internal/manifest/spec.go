@@ -73,24 +73,7 @@ func (m *Manifest) ConnectorSpec() *synclet.ConnectorSpecification {
 func (m *Manifest) ConfigSchema() json.RawMessage {
 	props := map[string]any{}
 	for name, p := range m.Spec.Properties {
-		s := map[string]any{"type": p.Type}
-		if len(p.Enum) > 0 {
-			enum := make([]any, len(p.Enum))
-			for i, e := range p.Enum {
-				enum[i] = decodeAny(e)
-			}
-			s["enum"] = enum
-		}
-		if p.Pattern != "" {
-			s["pattern"] = p.Pattern
-		}
-		if p.Format != "" {
-			s["format"] = p.Format
-		}
-		if p.Items != nil {
-			s["items"] = map[string]any{"type": p.Items.Type}
-		}
-		props[name] = s
+		props[name] = propertySchema(p)
 	}
 	schema := map[string]any{"type": "object", "properties": props}
 	if len(m.Spec.Required) > 0 {
@@ -101,6 +84,40 @@ func (m *Manifest) ConfigSchema() json.RawMessage {
 		panic(fmt.Sprintf("config schema: %v", err))
 	}
 	return b
+}
+
+func propertySchema(p Property) map[string]any {
+	s := map[string]any{"type": p.Type}
+	if len(p.Enum) > 0 {
+		enum := make([]any, len(p.Enum))
+		for i, e := range p.Enum {
+			enum[i] = decodeAny(e)
+		}
+		s["enum"] = enum
+	}
+	if p.Pattern != "" {
+		s["pattern"] = p.Pattern
+	}
+	if p.Format != "" {
+		s["format"] = p.Format
+	}
+	if p.Items != nil {
+		s["items"] = map[string]any{"type": p.Items.Type}
+	}
+	return s
+}
+
+// ApplyDefaults sets every spec property that has a default and is absent
+// or null in cfg to that default.
+func (m *Manifest) ApplyDefaults(cfg map[string]any) {
+	for name, p := range m.Spec.Properties {
+		if p.Default == nil {
+			continue
+		}
+		if v, ok := cfg[name]; !ok || v == nil {
+			cfg[name] = decodeAny(p.Default)
+		}
+	}
 }
 
 func decodeAny(raw json.RawMessage) any {
