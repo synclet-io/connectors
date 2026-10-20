@@ -19,5 +19,23 @@
     "api.pipedrive.com"
   ],
   "breaking_changes": {},
-  "external_documentation_urls": []
+  "external_documentation_urls": [],
+  "api_versions": [
+    {
+      "api": "Pipedrive API",
+      "pinned": "v2",
+      "file": "manifest.yaml",
+      "pattern": "path: (v\\d+)/(?:deals|persons|organizations|activities|products|pipelines|stages)",
+      "checker": "none",
+      "docs": "https://developers.pipedrive.com/docs/api/v1"
+    },
+    {
+      "api": "Pipedrive API (notes)",
+      "pinned": "v1",
+      "file": "manifest.yaml",
+      "pattern": "path: (v\\d+)/notes",
+      "checker": "none",
+      "docs": "https://developers.pipedrive.com/docs/api/v1"
+    }
+  ]
 }

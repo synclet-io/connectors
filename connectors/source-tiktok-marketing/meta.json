@@ -19,5 +19,15 @@
     "sandbox-ads.tiktok.com"
   ],
   "breaking_changes": {},
-  "external_documentation_urls": []
+  "external_documentation_urls": [],
+  "api_versions": [
+    {
+      "api": "TikTok Business API",
+      "pinned": "v1.3",
+      "file": "config.go",
+      "pattern": "/open_api/(v[\\d.]+)/",
+      "checker": "tiktok-probe",
+      "docs": "https://business-api.tiktok.com/portal/docs?id=1740579480076290"
+    }
+  ]
 }

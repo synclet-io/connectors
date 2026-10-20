@@ -18,5 +18,15 @@
     "api.revenuecat.com"
   ],
   "breaking_changes": {},
-  "external_documentation_urls": []
+  "external_documentation_urls": [],
+  "api_versions": [
+    {
+      "api": "RevenueCat REST API",
+      "pinned": "v2",
+      "file": "client.go",
+      "pattern": "api\\.revenuecat\\.com/(v\\d+)/",
+      "checker": "none",
+      "docs": "https://www.revenuecat.com/docs/api-v2"
+    }
+  ]
 }

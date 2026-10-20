@@ -19,5 +19,18 @@
     "*.force.com"
   ],
   "breaking_changes": {},
-  "external_documentation_urls": []
+  "external_documentation_urls": [],
+  "api_versions": [
+    {
+      "api": "Salesforce REST API",
+      "pinned": "v62.0",
+      "file": "client.go",
+      "pattern": "apiVersion\\s*=\\s*\"(v[\\d.]+)\"",
+      "checker": "salesforce",
+      "params": {
+        "max_behind": "6"
+      },
+      "docs": "https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/api_rest_eol.htm"
+    }
+  ]
 }

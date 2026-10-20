@@ -19,5 +19,15 @@
     "${hostname}"
   ],
   "breaking_changes": {},
-  "external_documentation_urls": []
+  "external_documentation_urls": [],
+  "api_versions": [
+    {
+      "api": "Sentry API",
+      "pinned": "0",
+      "file": "manifest.yaml",
+      "pattern": "/api/(\\d+)/",
+      "checker": "none",
+      "docs": "https://docs.sentry.io/api/"
+    }
+  ]
 }

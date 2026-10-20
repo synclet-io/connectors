@@ -18,5 +18,23 @@
     "api.hubapi.com"
   ],
   "breaking_changes": {},
-  "external_documentation_urls": []
+  "external_documentation_urls": [],
+  "api_versions": [
+    {
+      "api": "HubSpot CRM API",
+      "pinned": "v3",
+      "file": "discover.go",
+      "pattern": "\"crm/(v\\d+)/(?:schemas|properties|owners|pipelines)",
+      "checker": "none",
+      "docs": "https://developers.hubspot.com/docs/api-reference/overview"
+    },
+    {
+      "api": "HubSpot CRM Associations API",
+      "pinned": "v4",
+      "file": "associations.go",
+      "pattern": "\"crm/(v\\d+)/",
+      "checker": "none",
+      "docs": "https://developers.hubspot.com/docs/api-reference/overview"
+    }
+  ]
 }

@@ -18,5 +18,15 @@
     "api.airtable.com"
   ],
   "breaking_changes": {},
-  "external_documentation_urls": []
+  "external_documentation_urls": [],
+  "api_versions": [
+    {
+      "api": "Airtable Web API",
+      "pinned": "v0",
+      "file": "client.go",
+      "pattern": "api\\.airtable\\.com/(v\\d+)/",
+      "checker": "none",
+      "docs": "https://airtable.com/developers/web/api/introduction"
+    }
+  ]
 }

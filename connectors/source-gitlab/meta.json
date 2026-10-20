@@ -19,5 +19,15 @@
     "${api_url}"
   ],
   "breaking_changes": {},
-  "external_documentation_urls": []
+  "external_documentation_urls": [],
+  "api_versions": [
+    {
+      "api": "GitLab REST API",
+      "pinned": "v4",
+      "file": "manifest.yaml",
+      "pattern": "/api/(v\\d+)/",
+      "checker": "none",
+      "docs": "https://docs.gitlab.com/api/rest/"
+    }
+  ]
 }

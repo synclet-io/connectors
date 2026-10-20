@@ -19,5 +19,18 @@
     "oauth2.googleapis.com"
   ],
   "breaking_changes": {},
-  "external_documentation_urls": []
+  "external_documentation_urls": [],
+  "api_versions": [
+    {
+      "api": "Search Console API",
+      "pinned": "webmasters/v3",
+      "file": "client.go",
+      "pattern": "apiVersion\\s*=\\s*\"([^\"]+)\"",
+      "checker": "google-discovery",
+      "params": {
+        "successor": "searchconsole"
+      },
+      "docs": "https://developers.google.com/webmaster-tools/v1/api_reference_index"
+    }
+  ]
 }

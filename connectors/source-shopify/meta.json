@@ -19,5 +19,15 @@
     "storage.googleapis.com"
   ],
   "breaking_changes": {},
-  "external_documentation_urls": []
+  "external_documentation_urls": [],
+  "api_versions": [
+    {
+      "api": "Shopify Admin API",
+      "pinned": "2026-10",
+      "file": "client.go",
+      "pattern": "apiVersion\\s*=\\s*\"(\\d{4}-\\d{2})\"",
+      "checker": "shopify",
+      "docs": "https://shopify.dev/docs/api/usage/versioning"
+    }
+  ]
 }

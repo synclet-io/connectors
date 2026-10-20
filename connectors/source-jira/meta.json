@@ -19,5 +19,23 @@
     "${domain}"
   ],
   "breaking_changes": {},
-  "external_documentation_urls": []
+  "external_documentation_urls": [],
+  "api_versions": [
+    {
+      "api": "Jira Cloud REST API",
+      "pinned": "3",
+      "file": "manifest.yaml",
+      "pattern": "path: api/(\\d+)/",
+      "checker": "none",
+      "docs": "https://developer.atlassian.com/cloud/jira/platform/rest/v3/intro/"
+    },
+    {
+      "api": "Jira Software Cloud REST API",
+      "pinned": "1.0",
+      "file": "manifest.yaml",
+      "pattern": "path: agile/([\\d.]+)/",
+      "checker": "none",
+      "docs": "https://developer.atlassian.com/cloud/jira/software/rest/intro/"
+    }
+  ]
 }

@@ -19,5 +19,15 @@
     "oauth2.googleapis.com"
   ],
   "breaking_changes": {},
-  "external_documentation_urls": []
+  "external_documentation_urls": [],
+  "api_versions": [
+    {
+      "api": "Google Ads API",
+      "pinned": "v26",
+      "file": "client.go",
+      "pattern": "apiVersion\\s*=\\s*\"(v\\d+)\"",
+      "checker": "google-ads",
+      "docs": "https://developers.google.com/google-ads/api/docs/sunset-dates"
+    }
+  ]
 }

@@ -19,5 +19,15 @@
     "subscriptions.solidgate.com"
   ],
   "breaking_changes": {},
-  "external_documentation_urls": []
+  "external_documentation_urls": [],
+  "api_versions": [
+    {
+      "api": "Solidgate API",
+      "pinned": "v1",
+      "file": "client.go",
+      "pattern": "\\.solidgate\\.com/api/(v\\d+)/",
+      "checker": "none",
+      "docs": "https://docs.solidgate.com/"
+    }
+  ]
 }

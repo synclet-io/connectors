@@ -19,5 +19,15 @@
     "*.chargebee.com"
   ],
   "breaking_changes": {},
-  "external_documentation_urls": []
+  "external_documentation_urls": [],
+  "api_versions": [
+    {
+      "api": "Chargebee API",
+      "pinned": "v2",
+      "file": "manifest.yaml",
+      "pattern": "\\.chargebee\\.com/api/(v\\d+)/",
+      "checker": "none",
+      "docs": "https://apidocs.chargebee.com/docs/api"
+    }
+  ]
 }

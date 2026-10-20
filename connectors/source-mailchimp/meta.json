@@ -19,5 +19,15 @@
     "*.api.mailchimp.com"
   ],
   "breaking_changes": {},
-  "external_documentation_urls": []
+  "external_documentation_urls": [],
+  "api_versions": [
+    {
+      "api": "Mailchimp Marketing API",
+      "pinned": "3.0",
+      "file": "manifest.yaml",
+      "pattern": "\\.api\\.mailchimp\\.com/([\\d.]+)/",
+      "checker": "none",
+      "docs": "https://mailchimp.com/developer/marketing/api/"
+    }
+  ]
 }

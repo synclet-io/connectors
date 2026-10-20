@@ -19,5 +19,15 @@
     "www.linkedin.com"
   ],
   "breaking_changes": {},
-  "external_documentation_urls": []
+  "external_documentation_urls": [],
+  "api_versions": [
+    {
+      "api": "LinkedIn Marketing API",
+      "pinned": "202609",
+      "file": "client.go",
+      "pattern": "apiVersion\\s*=\\s*\"(\\d{6})\"",
+      "checker": "linkedin",
+      "docs": "https://learn.microsoft.com/en-us/linkedin/marketing/versioning"
+    }
+  ]
 }

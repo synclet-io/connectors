@@ -21,5 +21,15 @@
     "data-eu.mixpanel.com"
   ],
   "breaking_changes": {},
-  "external_documentation_urls": []
+  "external_documentation_urls": [],
+  "api_versions": [
+    {
+      "api": "Mixpanel API",
+      "pinned": "2.0",
+      "file": "client.go",
+      "pattern": "mixpanel\\.com/api/([\\d.]+)/",
+      "checker": "none",
+      "docs": "https://developer.mixpanel.com/reference/overview"
+    }
+  ]
 }

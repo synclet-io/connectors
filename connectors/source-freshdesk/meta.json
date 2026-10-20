@@ -19,5 +19,15 @@
     "${domain}"
   ],
   "breaking_changes": {},
-  "external_documentation_urls": []
+  "external_documentation_urls": [],
+  "api_versions": [
+    {
+      "api": "Freshdesk API",
+      "pinned": "v2",
+      "file": "manifest.yaml",
+      "pattern": "/api/(v\\d+)/",
+      "checker": "none",
+      "docs": "https://developers.freshdesk.com/api/"
+    }
+  ]
 }

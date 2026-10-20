@@ -19,5 +19,15 @@
     "a.klaviyo.com"
   ],
   "breaking_changes": {},
-  "external_documentation_urls": []
+  "external_documentation_urls": [],
+  "api_versions": [
+    {
+      "api": "Klaviyo API",
+      "pinned": "2025-07-15",
+      "file": "manifest.yaml",
+      "pattern": "revision:\\s*\"([^\"]+)\"",
+      "checker": "klaviyo",
+      "docs": "https://developers.klaviyo.com/en/docs/api_versioning_and_deprecation_policy"
+    }
+  ]
 }

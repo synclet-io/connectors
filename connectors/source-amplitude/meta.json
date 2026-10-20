@@ -19,5 +19,23 @@
     "analytics.eu.amplitude.com"
   ],
   "breaking_changes": {},
-  "external_documentation_urls": []
+  "external_documentation_urls": [],
+  "api_versions": [
+    {
+      "api": "Amplitude Dashboard REST API",
+      "pinned": "2",
+      "file": "metrics.go",
+      "pattern": "path: \"(\\d+)/",
+      "checker": "none",
+      "docs": "https://amplitude.com/docs/apis/analytics/dashboard-rest"
+    },
+    {
+      "api": "Amplitude Behavioral Cohorts API",
+      "pinned": "3",
+      "file": "read.go",
+      "pattern": "path: \"(\\d+)/cohorts\"",
+      "checker": "none",
+      "docs": "https://amplitude.com/docs/apis/analytics/behavioral-cohorts"
+    }
+  ]
 }

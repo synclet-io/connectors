@@ -18,5 +18,15 @@
     "*.zendesk.com"
   ],
   "breaking_changes": {},
-  "external_documentation_urls": []
+  "external_documentation_urls": [],
+  "api_versions": [
+    {
+      "api": "Zendesk Support API",
+      "pinned": "v2",
+      "file": "client.go",
+      "pattern": "\\.zendesk\\.com/api/(v\\d+)/",
+      "checker": "none",
+      "docs": "https://developer.zendesk.com/api-reference/"
+    }
+  ]
 }

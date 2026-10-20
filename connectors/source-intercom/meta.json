@@ -18,5 +18,15 @@
     "api.intercom.io"
   ],
   "breaking_changes": {},
-  "external_documentation_urls": []
+  "external_documentation_urls": [],
+  "api_versions": [
+    {
+      "api": "Intercom API",
+      "pinned": "2.11",
+      "file": "manifest.yaml",
+      "pattern": "Intercom-Version:\\s*\"([^\"]+)\"",
+      "checker": "intercom",
+      "docs": "https://developers.intercom.com/docs/build-an-integration/learn-more/rest-apis/api-changelog"
+    }
+  ]
 }

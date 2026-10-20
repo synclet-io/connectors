@@ -19,5 +19,15 @@
     "api.stripe.com"
   ],
   "breaking_changes": {},
-  "external_documentation_urls": []
+  "external_documentation_urls": [],
+  "api_versions": [
+    {
+      "api": "Stripe API",
+      "pinned": "2025-08-27.basil",
+      "file": "manifest.yaml",
+      "pattern": "Stripe-Version:\\s*\"([^\"]+)\"",
+      "checker": "stripe",
+      "docs": "https://docs.stripe.com/changelog"
+    }
+  ]
 }

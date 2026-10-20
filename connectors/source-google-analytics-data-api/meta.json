@@ -19,5 +19,18 @@
     "oauth2.googleapis.com"
   ],
   "breaking_changes": {},
-  "external_documentation_urls": []
+  "external_documentation_urls": [],
+  "api_versions": [
+    {
+      "api": "Google Analytics Data API",
+      "pinned": "v1beta",
+      "file": "client.go",
+      "pattern": "apiVersion\\s*=\\s*\"([^\"]+)\"",
+      "checker": "google-discovery",
+      "params": {
+        "api": "analyticsdata"
+      },
+      "docs": "https://developers.google.com/analytics/devguides/reporting/data/v1"
+    }
+  ]
 }

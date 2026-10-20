@@ -24,5 +24,29 @@
       "message": "A sync now fails, asking to refresh the source schema, when a configured column is no longer in the sheet's header, or when two columns get the same name after names_conversion; 0.3.0 kept syncing without the column or kept one of the two values. Refresh the source schema after changing a header."
     }
   },
-  "external_documentation_urls": []
+  "external_documentation_urls": [],
+  "api_versions": [
+    {
+      "api": "Google Sheets API",
+      "pinned": "v4",
+      "file": "client.go",
+      "pattern": "\"/(v\\d+)/spreadsheets/",
+      "checker": "google-discovery",
+      "params": {
+        "api": "sheets"
+      },
+      "docs": "https://developers.google.com/workspace/sheets/api/reference/rest"
+    },
+    {
+      "api": "Google Drive API",
+      "pinned": "v3",
+      "file": "client.go",
+      "pattern": "\"/drive/(v\\d+)/",
+      "checker": "google-discovery",
+      "params": {
+        "api": "drive"
+      },
+      "docs": "https://developers.google.com/workspace/drive/api/reference/rest/v3"
+    }
+  ]
 }

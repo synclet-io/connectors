@@ -19,5 +19,15 @@
     "api.github.com"
   ],
   "breaking_changes": {},
-  "external_documentation_urls": []
+  "external_documentation_urls": [],
+  "api_versions": [
+    {
+      "api": "GitHub REST API",
+      "pinned": "2022-11-28",
+      "file": "manifest.yaml",
+      "pattern": "X-GitHub-Api-Version:\\s*\"([^\"]+)\"",
+      "checker": "github",
+      "docs": "https://docs.github.com/en/rest/about-the-rest-api/api-versions"
+    }
+  ]
 }

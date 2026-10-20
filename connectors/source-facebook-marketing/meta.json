@@ -18,5 +18,18 @@
     "graph.facebook.com"
   ],
   "breaking_changes": {},
-  "external_documentation_urls": []
+  "external_documentation_urls": [],
+  "api_versions": [
+    {
+      "api": "Meta Marketing API",
+      "pinned": "v26.0",
+      "file": "client.go",
+      "pattern": "apiVersion\\s*=\\s*\"(v[\\d.]+)\"",
+      "checker": "meta-graph",
+      "params": {
+        "table": "Marketing API"
+      },
+      "docs": "https://developers.facebook.com/docs/graph-api/changelog"
+    }
+  ]
 }

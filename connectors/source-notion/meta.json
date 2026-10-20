@@ -18,5 +18,15 @@
     "api.notion.com"
   ],
   "breaking_changes": {},
-  "external_documentation_urls": []
+  "external_documentation_urls": [],
+  "api_versions": [
+    {
+      "api": "Notion API",
+      "pinned": "2025-09-03",
+      "file": "client.go",
+      "pattern": "notionVersion\\s*=\\s*\"([^\"]+)\"",
+      "checker": "notion",
+      "docs": "https://developers.notion.com/page/changelog"
+    }
+  ]
 }
