@@ -1,0 +1,326 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Reads CSV, TSV, JSONL and Parquet files from Google Cloud Storage, one stream per glob: full refresh, or incremental by object modification time.",
+    "properties": {
+      "bucket": {
+        "description": "Name of the bucket, without gs://.",
+        "order": 0,
+        "title": "Bucket",
+        "type": "string"
+      },
+      "credentials": {
+        "description": "How the connector authenticates to Google Cloud.",
+        "oneOf": [
+          {
+            "description": "The JSON key of a service account.",
+            "properties": {
+              "auth_type": {
+                "const": "Service",
+                "order": 0,
+                "type": "string"
+              },
+              "service_account_info": {
+                "airbyte_secret": true,
+                "description": "The JSON key of the service account, as the Google Cloud console downloads it. The account needs storage.objects.list and storage.objects.get on the bucket, as the Storage Object Viewer role grants.",
+                "order": 1,
+                "title": "Service Account Information",
+                "type": "string"
+              }
+            },
+            "required": [
+              "auth_type",
+              "service_account_info"
+            ],
+            "title": "Service Account Key",
+            "type": "object"
+          },
+          {
+            "description": "Google Cloud Application Default Credentials: GOOGLE_APPLICATION_CREDENTIALS, gcloud's user credentials, GKE Workload Identity or the metadata server of a Compute Engine instance.",
+            "properties": {
+              "auth_type": {
+                "const": "ApplicationDefault",
+                "order": 0,
+                "type": "string"
+              }
+            },
+            "required": [
+              "auth_type"
+            ],
+            "title": "Application Default Credentials",
+            "type": "object"
+          }
+        ],
+        "order": 1,
+        "title": "Credentials",
+        "type": "object"
+      },
+      "streams": {
+        "description": "One stream per glob.",
+        "items": {
+          "properties": {
+            "compression": {
+              "default": "auto",
+              "description": "auto: by the name's extension (.gz, .zst), then by the first bytes; none, gzip or zstd: always that.",
+              "enum": [
+                "auto",
+                "none",
+                "gzip",
+                "zstd"
+              ],
+              "order": 3,
+              "title": "Compression",
+              "type": "string"
+            },
+            "format": {
+              "description": "File format of the stream's objects.",
+              "oneOf": [
+                {
+                  "description": "Delimited text with a header row; values with the delimiter, quotes or line breaks are quoted.",
+                  "properties": {
+                    "column_names": {
+                      "description": "Column names in file order. Required without a header row; with one they replace its names.",
+                      "items": {
+                        "type": "string"
+                      },
+                      "order": 5,
+                      "title": "Column Names",
+                      "type": "array"
+                    },
+                    "delimiter": {
+                      "default": ",",
+                      "description": "Character between fields.",
+                      "order": 1,
+                      "title": "Delimiter",
+                      "type": "string"
+                    },
+                    "escape_char": {
+                      "default": "",
+                      "description": "Character that makes the next character literal, inside or outside quotes. Empty: none.",
+                      "order": 3,
+                      "title": "Escape Character",
+                      "type": "string"
+                    },
+                    "filetype": {
+                      "const": "csv",
+                      "order": 0,
+                      "type": "string"
+                    },
+                    "header": {
+                      "default": true,
+                      "description": "Whether the first row (after skip_rows) names the columns.",
+                      "order": 4,
+                      "title": "Header Row",
+                      "type": "boolean"
+                    },
+                    "null_values": {
+                      "default": [
+                        ""
+                      ],
+                      "description": "Unquoted values read as null. A quoted value is never null.",
+                      "items": {
+                        "type": "string"
+                      },
+                      "order": 7,
+                      "title": "Null Values",
+                      "type": "array"
+                    },
+                    "quote_char": {
+                      "default": "\"",
+                      "description": "Character that quotes a field holding the delimiter, line breaks or quotes; a doubled quote inside stands for one. Empty: fields are never quoted.",
+                      "order": 2,
+                      "title": "Quote Character",
+                      "type": "string"
+                    },
+                    "skip_rows": {
+                      "default": 0,
+                      "description": "Lines to skip at the start of each file, before the header.",
+                      "order": 6,
+                      "title": "Skip Rows",
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "filetype"
+                  ],
+                  "title": "CSV",
+                  "type": "object"
+                },
+                {
+                  "description": "Tab-separated text; by default no quoting, so a field holds no tab or line break.",
+                  "properties": {
+                    "column_names": {
+                      "description": "Column names in file order. Required without a header row; with one they replace its names.",
+                      "items": {
+                        "type": "string"
+                      },
+                      "order": 5,
+                      "title": "Column Names",
+                      "type": "array"
+                    },
+                    "delimiter": {
+                      "default": "\t",
+                      "description": "Character between fields.",
+                      "order": 1,
+                      "title": "Delimiter",
+                      "type": "string"
+                    },
+                    "escape_char": {
+                      "default": "",
+                      "description": "Character that makes the next character literal, inside or outside quotes. Empty: none.",
+                      "order": 3,
+                      "title": "Escape Character",
+                      "type": "string"
+                    },
+                    "filetype": {
+                      "const": "tsv",
+                      "order": 0,
+                      "type": "string"
+                    },
+                    "header": {
+                      "default": true,
+                      "description": "Whether the first row (after skip_rows) names the columns.",
+                      "order": 4,
+                      "title": "Header Row",
+                      "type": "boolean"
+                    },
+                    "null_values": {
+                      "default": [
+                        ""
+                      ],
+                      "description": "Unquoted values read as null. A quoted value is never null.",
+                      "items": {
+                        "type": "string"
+                      },
+                      "order": 7,
+                      "title": "Null Values",
+                      "type": "array"
+                    },
+                    "quote_char": {
+                      "default": "",
+                      "description": "Character that quotes a field holding the delimiter, line breaks or quotes; a doubled quote inside stands for one. Empty: fields are never quoted.",
+                      "order": 2,
+                      "title": "Quote Character",
+                      "type": "string"
+                    },
+                    "skip_rows": {
+                      "default": 0,
+                      "description": "Lines to skip at the start of each file, before the header.",
+                      "order": 6,
+                      "title": "Skip Rows",
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "filetype"
+                  ],
+                  "title": "TSV",
+                  "type": "object"
+                },
+                {
+                  "description": "One JSON object per line.",
+                  "properties": {
+                    "filetype": {
+                      "const": "jsonl",
+                      "order": 0,
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "filetype"
+                  ],
+                  "title": "JSONL",
+                  "type": "object"
+                },
+                {
+                  "description": "Apache Parquet files.",
+                  "properties": {
+                    "filetype": {
+                      "const": "parquet",
+                      "order": 0,
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "filetype"
+                  ],
+                  "title": "Parquet",
+                  "type": "object"
+                }
+              ],
+              "order": 2,
+              "title": "Format",
+              "type": "object"
+            },
+            "glob": {
+              "description": "Object names the stream reads: * matches within one path segment, ** across segments, ? one character, {a,b} alternatives. The part before the first wildcard is the listing prefix.",
+              "examples": [
+                "exports/**/*.csv",
+                "events/2026-*/part-*.parquet"
+              ],
+              "order": 1,
+              "title": "Glob",
+              "type": "string"
+            },
+            "name": {
+              "description": "Stream name.",
+              "order": 0,
+              "title": "Name",
+              "type": "string"
+            },
+            "schema": {
+              "description": "JSON schema of the records, an object schema with properties. Empty: inferred from the newest files.",
+              "examples": [
+                "{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"integer\"},\"name\":{\"type\":[\"null\",\"string\"]}}}"
+              ],
+              "order": 4,
+              "title": "Schema",
+              "type": "string"
+            },
+            "schema_sample_files": {
+              "default": 10,
+              "description": "How many of the newest matching files the schema is inferred from.",
+              "order": 5,
+              "title": "Schema Sample Files",
+              "type": "integer"
+            },
+            "skip_bad_rows": {
+              "default": false,
+              "description": "Skip rows that cannot be parsed or do not fit the schema, and log how many per file, instead of failing the read.",
+              "order": 6,
+              "title": "Skip Bad Rows",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "name",
+            "glob",
+            "format"
+          ],
+          "title": "Stream",
+          "type": "object"
+        },
+        "order": 2,
+        "title": "Streams",
+        "type": "array"
+      }
+    },
+    "required": [
+      "bucket",
+      "credentials",
+      "streams"
+    ],
+    "title": "Google Cloud Storage Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-gcs",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": true,
+  "supportsNormalization": false
+}

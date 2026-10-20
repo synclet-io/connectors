@@ -200,6 +200,16 @@
         }
       ]
     },
+    "connectors/source-gcs": {
+      "component": "source-gcs",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "meta.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
     "connectors/source-github": {
       "component": "source-github",
       "extra-files": [
