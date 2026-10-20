@@ -1,0 +1,38 @@
+{
+  "time": {
+    "count": 4
+  },
+  "distinct_id": {
+    "count": 4
+  },
+  "$insert_id": {
+    "count": 4
+  },
+  "$browser": {
+    "count": 2
+  },
+  "browser": {
+    "count": 1
+  },
+  "$os": {
+    "count": 2
+  },
+  "plan": {
+    "count": 3
+  },
+  "mp_country_code": {
+    "count": 3
+  },
+  "amount": {
+    "count": 2
+  },
+  "items": {
+    "count": 1
+  },
+  "$current_url": {
+    "count": 1
+  },
+  "is_trial": {
+    "count": 1
+  }
+}

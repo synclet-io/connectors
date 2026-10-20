@@ -1,0 +1,22 @@
+{
+  "page": 0,
+  "page_size": 2,
+  "session_id": "sess-c102",
+  "status": "ok",
+  "total": 1,
+  "results": [
+    {
+      "$distinct_id": "user-002",
+      "$properties": {
+        "$last_seen": "2026-10-12T08:15:00",
+        "$created": "2026-01-02T09:00:00",
+        "$email": "user2@example.com",
+        "$name": "Test User 2",
+        "is_paid": false,
+        "address": {
+          "city": "Springfield"
+        }
+      }
+    }
+  ]
+}

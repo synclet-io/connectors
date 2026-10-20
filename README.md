@@ -42,6 +42,7 @@ Taskfile.yml              local shortcuts
 | [source-google-search-console](connectors/source-google-search-console) | `ghcr.io/synclet-io/connectors/source-google-search-console` |
 | [source-google-sheets](connectors/source-google-sheets) | `ghcr.io/synclet-io/connectors/source-google-sheets` |
 | [source-hubspot](connectors/source-hubspot) | `ghcr.io/synclet-io/connectors/source-hubspot` |
+| [source-mixpanel](connectors/source-mixpanel) | `ghcr.io/synclet-io/connectors/source-mixpanel` |
 | [source-mongodb](connectors/source-mongodb) | `ghcr.io/synclet-io/connectors/source-mongodb` |
 | [source-mssql](connectors/source-mssql) | `ghcr.io/synclet-io/connectors/source-mssql` |
 | [source-mysql](connectors/source-mysql) | `ghcr.io/synclet-io/connectors/source-mysql` |

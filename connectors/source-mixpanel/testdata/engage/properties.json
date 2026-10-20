@@ -1,0 +1,46 @@
+{
+  "results": {
+    "$last_seen": {
+      "count": 3,
+      "type": "datetime"
+    },
+    "$created": {
+      "count": 3,
+      "type": "datetime"
+    },
+    "$email": {
+      "count": 3,
+      "type": "string"
+    },
+    "$name": {
+      "count": 3,
+      "type": "string"
+    },
+    "plan_value": {
+      "count": 2,
+      "type": "number"
+    },
+    "is_paid": {
+      "count": 3,
+      "type": "boolean"
+    },
+    "tags": {
+      "count": 1,
+      "type": "list"
+    },
+    "zip": {
+      "count": 1,
+      "type": "string"
+    },
+    "address": {
+      "count": 1,
+      "type": "object"
+    },
+    "legacy_score": {
+      "count": 1,
+      "type": "unknown"
+    }
+  },
+  "session_id": "sess-props",
+  "status": "ok"
+}

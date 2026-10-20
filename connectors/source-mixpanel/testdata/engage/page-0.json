@@ -1,0 +1,38 @@
+{
+  "page": 0,
+  "page_size": 2,
+  "session_id": "sess-test",
+  "status": "ok",
+  "total": 3,
+  "results": [
+    {
+      "$distinct_id": "user-001",
+      "$properties": {
+        "$last_seen": "2026-10-17T11:00:00",
+        "$created": "2026-01-01T09:00:00",
+        "$email": "user1@example.com",
+        "$name": "Test User 1",
+        "plan_value": 29,
+        "is_paid": true,
+        "tags": [
+          "beta",
+          "vip"
+        ],
+        "zip": 94107
+      }
+    },
+    {
+      "$distinct_id": "user-002",
+      "$properties": {
+        "$last_seen": "2026-10-12T08:15:00",
+        "$created": "2026-01-02T09:00:00",
+        "$email": "user2@example.com",
+        "$name": "Test User 2",
+        "is_paid": false,
+        "address": {
+          "city": "Springfield"
+        }
+      }
+    }
+  ]
+}

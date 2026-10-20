@@ -1,0 +1,4 @@
+{
+  "request": "/api/2.0/export",
+  "error": "Too many requests: limit is 60 queries per hour"
+}

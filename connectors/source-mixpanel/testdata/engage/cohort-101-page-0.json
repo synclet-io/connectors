@@ -1,0 +1,36 @@
+{
+  "page": 0,
+  "page_size": 2,
+  "session_id": "sess-c101",
+  "status": "ok",
+  "total": 2,
+  "results": [
+    {
+      "$distinct_id": "user-001",
+      "$properties": {
+        "$last_seen": "2026-10-17T11:00:00",
+        "$created": "2026-01-01T09:00:00",
+        "$email": "user1@example.com",
+        "$name": "Test User 1",
+        "plan_value": 29,
+        "is_paid": true,
+        "tags": [
+          "beta",
+          "vip"
+        ],
+        "zip": 94107
+      }
+    },
+    {
+      "$distinct_id": "user-003",
+      "$properties": {
+        "$last_seen": "2026-09-30T20:00:00",
+        "$created": "2026-01-03T09:00:00",
+        "$email": "user3@example.com",
+        "$name": "Test User 3",
+        "is_paid": true,
+        "legacy_score": 7
+      }
+    }
+  ]
+}

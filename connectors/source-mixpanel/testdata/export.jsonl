@@ -1,0 +1,4 @@
+{"event": "Sign Up", "properties": {"time": 1791741600, "distinct_id": "user-001", "$insert_id": "ins-0001", "$browser": "Chrome", "browser": "custom-browser", "$os": "Mac OS X", "plan": "free", "mp_country_code": "US"}}
+{"event": "Purchase", "properties": {"time": 1791914400, "distinct_id": "user-002", "$insert_id": "ins-0002", "$browser": "Firefox", "amount": 10, "items": ["sku-a", "sku-b"], "plan": "pro", "mp_country_code": "DE"}}
+{"event": "Page View", "properties": {"time": 1792173600250, "distinct_id": "user-001", "$insert_id": "ins-0003", "$os": "Windows", "$current_url": "https://example.com/pricing", "is_trial": true}}
+{"event": "Purchase", "properties": {"time": 1792260000, "distinct_id": "user-003", "$insert_id": "ins-0004", "amount": 25.5, "plan": "pro", "mp_country_code": "US"}}

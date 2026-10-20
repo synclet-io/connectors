@@ -1,0 +1,4 @@
+{
+  "request": "/api/2.0/cohorts/list",
+  "error": "Unable to authenticate request"
+}

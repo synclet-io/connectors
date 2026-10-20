@@ -1,0 +1,20 @@
+[
+  {
+    "id": 101,
+    "name": "Paid users",
+    "description": "Users with a paid plan",
+    "created": "2026-09-01 10:00:00",
+    "count": 2,
+    "is_visible": 1,
+    "project_id": 1234567
+  },
+  {
+    "id": 102,
+    "name": "Churn risk",
+    "description": "",
+    "created": "2026-10-05 08:30:00",
+    "count": 1,
+    "is_visible": 0,
+    "project_id": 1234567
+  }
+]
