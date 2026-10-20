@@ -86,6 +86,27 @@
     "supports_refreshes": { "description": "registry: supportsRefreshes.", "type": "boolean" },
     "supports_file_transfer": { "description": "registry: supportsFileTransfer.", "type": "boolean" },
     "supports_data_activation": { "description": "registry: supportsDataActivation.", "type": "boolean" },
+    "api_versions": {
+      "description": "Upstream API versions the connector pins. `go run ./scripts validate` checks that every match of `pattern` in `file` captures `pinned`; `go run ./scripts apiwatch` polls `checker` for newer and sunset versions. Not part of the registry entry.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["api", "pinned", "file", "pattern", "checker", "docs"],
+        "properties": {
+          "api": { "description": "Upstream API name, e.g. \"Stripe API\". Unique within the connector.", "type": "string", "minLength": 1 },
+          "pinned": { "description": "The version the code requests.", "type": "string", "minLength": 1 },
+          "file": { "description": "File relative to the connector directory that holds the pin.", "type": "string", "minLength": 1 },
+          "pattern": { "description": "Go regular expression with exactly one capture group, which captures the pinned version at every match in `file`.", "type": "string", "pattern": "\\(" },
+          "checker": {
+            "description": "How apiwatch finds the newest and sunset versions; `none` lists the pin without polling it.",
+            "enum": ["none", "meta-graph", "google-ads", "linkedin", "shopify", "tiktok-probe", "stripe", "klaviyo", "intercom", "notion", "github", "salesforce", "google-discovery"]
+          },
+          "params": { "description": "Checker-specific settings.", "type": "object", "additionalProperties": { "type": "string" } },
+          "docs": { "description": "Provider page about versions or the changelog.", "type": "string", "pattern": "^https?://\\S+$" }
+        }
+      }
+    },
     "resource_requirements": {
       "description": "registry: resourceRequirements.jobSpecific.",
       "type": "array",

@@ -73,6 +73,10 @@ func validate(root string) error {
 
 	for _, c := range connectors {
 		fmt.Printf("ok  %s %s\n", c.Dir, c.Meta.Version)
+
+		for _, v := range c.Meta.APIVersions {
+			fmt.Printf("      %s %s (%s:%d, checker %s)\n", v.API, v.Pinned, v.File, v.Line, v.Checker)
+		}
 	}
 
 	return checkReleasePlease(root, connectors)

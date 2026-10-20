@@ -205,6 +205,29 @@ A catalog image whose `COPY` misses the manifest fails `spec`, so it cannot sile
 The schema documents the remaining optional fields (`tags`, `allowed_hosts`, `resource_requirements`, ...)
 and which registry field each one becomes. Editors that understand `$schema` autocomplete them.
 
+### Upstream API versions
+
+A connector that pins an upstream API version (a `v26.0` path segment, a `Stripe-Version` header, a monthly
+`LinkedIn-Version`) declares it in `api_versions`, one entry per API:
+
+```json
+"api_versions": [
+  {
+    "api": "Stripe API",
+    "pinned": "2025-08-27.basil",
+    "file": "manifest.yaml",
+    "pattern": "Stripe-Version:\\s*\"([^\"]+)\"",
+    "checker": "stripe",
+    "docs": "https://docs.stripe.com/changelog"
+  }
+]
+```
+
+`go run ./scripts validate` fails unless every match of `pattern` (one capture group) in `file` captures exactly
+`pinned`, so bump both in the same commit. `checker` names how the weekly API watch (see
+[README](README.md#upstream-api-versions)) finds newer and sunset versions; use `none` for a path version
+without a release cadence (`/api/v2/`), which is listed but not polled.
+
 ## 3. Generate spec.json
 
 ```bash

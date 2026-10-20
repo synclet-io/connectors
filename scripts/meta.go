@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 
@@ -44,6 +45,20 @@ type Meta struct {
 	SupportsFileTransfer      bool                      `json:"supports_file_transfer"`
 	SupportsDataActivation    bool                      `json:"supports_data_activation"`
 	ResourceRequirements      []JobResources            `json:"resource_requirements"`
+	APIVersions               []APIVersion              `json:"api_versions"`
+}
+
+// APIVersion is one upstream API version the connector pins. Line is the
+// line of the first match of Pattern in File, filled in by parseConnector.
+type APIVersion struct {
+	API     string            `json:"api"`
+	Pinned  string            `json:"pinned"`
+	File    string            `json:"file"`
+	Pattern string            `json:"pattern"`
+	Checker string            `json:"checker"`
+	Params  map[string]string `json:"params,omitempty"`
+	Docs    string            `json:"docs"`
+	Line    int               `json:"-"`
 }
 
 type BreakingChange struct {
@@ -178,6 +193,10 @@ func parseConnector(dir string, schema *jsonschema.Schema, read fileReader) (Con
 		return Connector{}, fmt.Errorf("directory must start with %q to match connector_type", meta.ConnectorType+"-")
 	}
 
+	if err := checkAPIVersions(meta.APIVersions, read); err != nil {
+		return Connector{}, err
+	}
+
 	if _, err := read("Dockerfile"); err != nil {
 		return Connector{}, errors.New("missing Dockerfile")
 	}
@@ -208,4 +227,70 @@ func parseSpec(data []byte) (json.RawMessage, error) {
 	}
 
 	return data, nil
+}
+
+// checkAPIVersions proves each declared pin against the code: every match of
+// the pattern in the file captures exactly the pinned version.
+func checkAPIVersions(versions []APIVersion, read fileReader) error {
+	var errs []error
+
+	seen := map[string]bool{}
+
+	for i := range versions {
+		v := &versions[i]
+		if seen[v.API] {
+			errs = append(errs, fmt.Errorf("api_versions: %q is declared twice", v.API))
+		}
+
+		seen[v.API] = true
+
+		line, err := findPin(*v, read)
+		if err != nil {
+			errs = append(errs, fmt.Errorf("api_versions %q: %w", v.API, err))
+
+			continue
+		}
+
+		v.Line = line
+	}
+
+	return errors.Join(errs...)
+}
+
+func findPin(v APIVersion, read fileReader) (int, error) {
+	name := filepath.Clean(v.File)
+	if filepath.IsAbs(name) || name == ".." || strings.HasPrefix(name, ".."+string(filepath.Separator)) {
+		return 0, fmt.Errorf("file %s must be inside the connector directory", v.File)
+	}
+
+	re, err := regexp.Compile(v.Pattern)
+	if err != nil {
+		return 0, fmt.Errorf("pattern: %w", err)
+	}
+
+	if re.NumSubexp() != 1 {
+		return 0, fmt.Errorf("pattern %s must have exactly one capture group", v.Pattern)
+	}
+
+	data, err := read(name)
+	if err != nil {
+		return 0, fmt.Errorf("reading %s: %w", v.File, err)
+	}
+
+	matches := re.FindAllSubmatchIndex(data, -1)
+	if len(matches) == 0 {
+		return 0, fmt.Errorf("pattern %s matches nothing in %s", v.Pattern, v.File)
+	}
+
+	for _, m := range matches {
+		if got := string(data[m[2]:m[3]]); got != v.Pinned {
+			return 0, fmt.Errorf("%s:%d captures %q, meta.json pins %q", v.File, lineAt(data, m[2]), got, v.Pinned)
+		}
+	}
+
+	return lineAt(data, matches[0][2]), nil
+}
+
+func lineAt(data []byte, offset int) int {
+	return bytes.Count(data[:offset], []byte("\n")) + 1
 }
