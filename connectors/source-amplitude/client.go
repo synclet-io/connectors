@@ -26,6 +26,9 @@ const (
 	maxRetryAfter = 10 * time.Minute
 	// maxErrorBody is how much of an error response goes into the error.
 	maxErrorBody = 300
+	// maxExportSize bounds an export archive on disk; the Export API rejects
+	// exports over 4 GB with a 400.
+	maxExportSize int64 = 8 << 30
 )
 
 // apiClient sends Amplitude API requests with the project's API key and
@@ -36,10 +39,12 @@ type apiClient struct {
 	apiKey     string
 	secretKey  string
 	retryDelay time.Duration
+	// maxDownload is the most bytes download writes to disk.
+	maxDownload int64
 }
 
 func (s Source) apiClient(cfg Config) *apiClient {
-	c := &apiClient{http: s.client, baseURL: s.baseURL, apiKey: cfg.APIKey, secretKey: cfg.SecretKey, retryDelay: s.retryDelay}
+	c := &apiClient{http: s.client, baseURL: s.baseURL, apiKey: cfg.APIKey, secretKey: cfg.SecretKey, retryDelay: s.retryDelay, maxDownload: maxExportSize}
 	if c.http == nil {
 		// An export archive of a large window takes long to download, so the
 		// timeout bounds a whole request generously.
@@ -114,9 +119,14 @@ func (c *apiClient) download(ctx context.Context, path string, query url.Values)
 		if err != nil {
 			return err
 		}
-		if _, err := io.Copy(tmp, resp.Body); err != nil {
+		n, err := io.Copy(tmp, io.LimitReader(resp.Body, c.maxDownload+1))
+		if err != nil {
 			discard(tmp)
 			return retryable{err: fmt.Errorf("GET /%s: read body: %w", path, err)}
+		}
+		if n > c.maxDownload {
+			discard(tmp)
+			return fmt.Errorf("GET /%s: response is larger than %d bytes", path, c.maxDownload)
 		}
 		if _, err := tmp.Seek(0, io.SeekStart); err != nil {
 			discard(tmp)
@@ -141,11 +151,14 @@ func (c *apiClient) retry(ctx context.Context, do func() error) error {
 	delay := c.retryDelay
 	for attempt := 1; ; attempt++ {
 		err := do()
+		if err == nil {
+			return nil
+		}
 		if ctx.Err() != nil {
 			return ctx.Err()
 		}
 		var r retryable
-		if err == nil || !errors.As(err, &r) || attempt == attempts {
+		if !errors.As(err, &r) || attempt == attempts {
 			return err
 		}
 		wait := delay

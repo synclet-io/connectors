@@ -1,8 +1,10 @@
 package main
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strconv"
 	"sync/atomic"
 	"testing"
@@ -116,4 +118,34 @@ func TestErrorBodyCut(t *testing.T) {
 	err := testSource(srv).apiClient(testCreds).getJSON(t.Context(), "2/annotations", nil, &out)
 	require.Error(t, err)
 	assert.Less(t, len(err.Error()), maxErrorBody+50)
+}
+
+func TestRetrySucceedsWhenCanceledAfter(t *testing.T) {
+	ctx, cancel := context.WithCancel(t.Context())
+	c := &apiClient{retryDelay: time.Millisecond}
+	err := c.retry(ctx, func() error {
+		cancel()
+		return nil
+	})
+	require.NoError(t, err, "a request that succeeded hands its result to the caller, which owns cleaning it up")
+}
+
+func TestDownloadSizeLimit(t *testing.T) {
+	dir := t.TempDir()
+	t.Setenv("TMPDIR", dir)
+	var calls atomic.Int32
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls.Add(1)
+		_, _ = w.Write(make([]byte, 2048))
+	}))
+	t.Cleanup(srv.Close)
+	c := testSource(srv).apiClient(testCreds)
+	c.maxDownload = 1024
+	f, err := c.download(t.Context(), exportPath, nil)
+	require.ErrorContains(t, err, "larger than 1024 bytes")
+	assert.Nil(t, f)
+	assert.Equal(t, int32(1), calls.Load())
+	left, err := os.ReadDir(dir)
+	require.NoError(t, err)
+	assert.Empty(t, left, "the partial download is removed")
 }
