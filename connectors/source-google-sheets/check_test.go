@@ -69,7 +69,7 @@ func TestCheck(t *testing.T) {
 		{
 			name:     "service_account_info is not JSON",
 			edit:     func(c *Config) { c.Credentials.ServiceAccountInfo = "not json" },
-			message:  "service_account_info is not a Google credential JSON",
+			message:  "service_account_info is not a valid service account key: the key is not a JSON object",
 			requests: []string{},
 		},
 		{

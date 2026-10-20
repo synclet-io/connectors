@@ -50,9 +50,7 @@ func parseServiceAccountKey(raw []byte) (*jwt.Config, error) {
 // tokenSource hands out access tokens of the configured credentials,
 // caching each until shortly before it expires.
 type tokenSource struct {
-	// serviceAccount is set for a service account key.
-	serviceAccount bool
-	authType       string
+	authType string
 	// account names who the credentials act as, for error messages.
 	account string
 	newTS   func() oauth2.TokenSource
@@ -79,33 +77,19 @@ func newTokenSource(ctx context.Context, hc *http.Client, tokenURL string, cr Cr
 			return conf.TokenSource(ctx, &oauth2.Token{RefreshToken: cr.RefreshToken})
 		}
 	case authService:
-		raw := []byte(cr.ServiceAccountInfo)
-		var kind struct {
-			Type string `json:"type"`
-		}
-		if err := json.Unmarshal(raw, &kind); err != nil {
-			return nil, synclet.ConfigError(fmt.Errorf("service_account_info is not a Google credential JSON: %w", err))
-		}
-		if kind.Type == "service_account" {
-			conf, err := parseServiceAccountKey(raw)
-			if err != nil {
-				return nil, synclet.ConfigError(err)
-			}
-			if tokenURL != "" {
-				conf.TokenURL = tokenURL
-			}
-			t.serviceAccount = true
-			t.account = "service account " + conf.Email
-			t.newTS = func() oauth2.TokenSource { return conf.TokenSource(ctx) }
-			break
-		}
-		//nolint:staticcheck // SA1019: service_account_info accepts any Google credential JSON.
-		creds, err := google.CredentialsFromJSON(ctx, raw, sheetsScope, driveScope)
+		key, err := checkServiceAccountKey([]byte(cr.ServiceAccountInfo), googleTokenURL)
 		if err != nil {
-			return nil, synclet.ConfigError(fmt.Errorf("service_account_info is not a valid Google credential JSON: %w", err))
+			return nil, synclet.ConfigError(fmt.Errorf("service_account_info is not a valid service account key: %w", err))
 		}
-		t.account = "the Google account of service_account_info"
-		t.newTS = func() oauth2.TokenSource { return creds.TokenSource }
+		conf, err := parseServiceAccountKey(key)
+		if err != nil {
+			return nil, synclet.ConfigError(err)
+		}
+		if tokenURL != "" {
+			conf.TokenURL = tokenURL
+		}
+		t.account = "service account " + conf.Email
+		t.newTS = func() oauth2.TokenSource { return conf.TokenSource(ctx) }
 	case authApplicationDefault:
 		creds, err := google.FindDefaultCredentials(ctx, sheetsScope, driveScope)
 		if err != nil {
@@ -164,10 +148,8 @@ func (t *tokenSource) classify(err error) error {
 	cause := fmt.Errorf("token endpoint: HTTP %d %s: %s", status, code, desc)
 	credential := code == "invalid_grant" || code == "invalid_client" || code == "unauthorized_client"
 	switch {
-	case credential && t.serviceAccount:
-		return synclet.ConfigError(fmt.Errorf("service account key is invalid, disabled or deleted (%w)", cause))
 	case credential && t.authType == authService:
-		return synclet.ConfigError(fmt.Errorf("the credentials in service_account_info are invalid or revoked (%w)", cause))
+		return synclet.ConfigError(fmt.Errorf("service account key is invalid, disabled or deleted (%w)", cause))
 	case credential && t.authType == authApplicationDefault:
 		return synclet.ConfigError(fmt.Errorf("the Application Default Credentials are invalid or revoked (%w)", cause))
 	case code == "invalid_grant":
