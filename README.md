@@ -35,6 +35,7 @@ Taskfile.yml              local shortcuts
 | [source-bigquery](connectors/source-bigquery) | `ghcr.io/synclet-io/connectors/source-bigquery` |
 | [source-declarative](connectors/source-declarative) | `ghcr.io/synclet-io/connectors/source-declarative` (engine of the manifest connectors; hidden from the catalog) |
 | [source-facebook-marketing](connectors/source-facebook-marketing) | `ghcr.io/synclet-io/connectors/source-facebook-marketing` |
+| [source-gcs](connectors/source-gcs) | `ghcr.io/synclet-io/connectors/source-gcs` |
 | [source-google-ads](connectors/source-google-ads) | `ghcr.io/synclet-io/connectors/source-google-ads` |
 | [source-google-analytics-data-api](connectors/source-google-analytics-data-api) | `ghcr.io/synclet-io/connectors/source-google-analytics-data-api` |
 | [source-google-search-console](connectors/source-google-search-console) | `ghcr.io/synclet-io/connectors/source-google-search-console` |
