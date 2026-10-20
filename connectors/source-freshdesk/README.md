@@ -42,8 +42,8 @@ task build CONNECTOR=source-freshdesk
 
 Every list is paged by the `Link` header with `per_page=100`. `conversations` runs once per ticket that
 `tickets` lists; a ticket deleted in between answers 404 and is skipped. Records are passed through as
-Freshdesk sends them; tickets come without `description` (the list endpoint's `include=description` costs
-extra API credits per ticket), `description_text` is included.
+Freshdesk sends them; tickets come without `description` and `description_text` on accounts created after
+2018-11-30 (the list endpoint's `include=description` costs extra API credits per ticket).
 
 `tickets` lists what the `tickets` endpoint lists: deleted and spam tickets are left out, as Freshdesk does
 without a filter.

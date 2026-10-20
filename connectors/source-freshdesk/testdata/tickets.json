@@ -2,7 +2,6 @@
   {
     "id": 1001,
     "subject": "Synthetic ticket 1001",
-    "description_text": "Printer is not printing.",
     "type": "Question",
     "status": 5,
     "priority": 1,
@@ -40,7 +39,6 @@
   {
     "id": 1002,
     "subject": "Synthetic ticket 1002",
-    "description_text": "Printer is not printing.",
     "type": "Question",
     "status": 2,
     "priority": 1,
