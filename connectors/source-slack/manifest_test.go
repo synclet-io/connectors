@@ -96,6 +96,7 @@ func TestReadFailsOnOkFalse(t *testing.T) {
 		want  string
 	}{
 		{"revoked token", "users.list", "errors/token_revoked.json", synclet.FailureTypeConfigError, "GET /users.list?limit=200 (HTTP 200): token_revoked"},
+		{"expired token", "users.list", "errors/token_expired.json", synclet.FailureTypeConfigError, "GET /users.list?limit=200 (HTTP 200): token_expired"},
 		{"missing scope", "users.list", "errors/missing_scope.json", synclet.FailureTypeConfigError, "GET /users.list?limit=200 (HTTP 200): missing_scope"},
 		{"other error", "users.list", "errors/channel_not_found.json", synclet.FailureTypeSystemError, "GET /users.list?limit=200 (HTTP 200): channel_not_found"},
 		{"rate limited", "users.list", "errors/ratelimited.json", synclet.FailureTypeSystemError, "GET /users.list?limit=200 (HTTP 200): ratelimited; gave up after 10 waits"},
@@ -159,6 +160,39 @@ func TestMessagesPerChannel(t *testing.T) {
 		if v != "public_channel,private_channel" {
 			t.Errorf("users.conversations types=%q", v)
 		}
+	}
+}
+
+// A channel the bot left or that was deleted after users.conversations
+// listed it is skipped; the other channels are still read.
+func TestMessagesSkipLostChannel(t *testing.T) {
+	for _, file := range []string{"errors/not_in_channel.json", "errors/channel_not_found.json"} {
+		t.Run(file, func(t *testing.T) {
+			r := func(path string, q url.Values) string {
+				if path == "conversations.history" && q.Get("channel") == "C0SYN0001" {
+					return file
+				}
+				return route(path, q)
+			}
+			h := declarativetest.New(t, declarativetest.Suite{Config: config, Auth: auth, Now: now, Route: r})
+			out := h.Read(t, h.Catalog(t, synclet.SyncModeFullRefresh, "channel_messages"), nil)
+			if out.Err != nil {
+				t.Fatalf("read: %v", out.Err)
+			}
+			var channels []string
+			for _, rec := range out.Records(synclet.StreamDescriptor{Name: "channel_messages"}) {
+				var m struct {
+					ChannelID string `json:"channel_id"`
+				}
+				if err := json.Unmarshal(rec.Data, &m); err != nil {
+					t.Fatal(err)
+				}
+				channels = append(channels, m.ChannelID)
+			}
+			if !slices.Equal(slices.Compact(channels), []string{"C0SYN0002"}) {
+				t.Errorf("messages of channels %v, want C0SYN0002 only", channels)
+			}
+		})
 	}
 }
 

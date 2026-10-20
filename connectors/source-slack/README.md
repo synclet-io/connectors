@@ -66,9 +66,11 @@ lookback is fixed by the manifest. The pass over the channels starts at the olde
 
 - Slack answers most errors with HTTP 200 and `{"ok": false, "error": "..."}`; the manifest's `errors.when`
   turns them into failures with Slack's `error` as the message. `invalid_auth`, `not_authed`,
-  `account_inactive`, `token_revoked` and `missing_scope` are configuration errors, so `check` fails on a
-  revoked token or a missing scope; `ratelimited` waits like a 429; any other `ok: false` fails the read with
-  the method and Slack's `error`. The rare 401 and 403 responses fail as configuration errors with `error`.
+  `account_inactive`, `token_revoked`, `token_expired`, `not_allowed_token_type` and `missing_scope` are
+  configuration errors, so `check` fails on a revoked token or a missing scope; `ratelimited` waits like a
+  429; `not_in_channel` and `channel_not_found` from `conversations.history` (the bot left the channel or it
+  was deleted after it was listed) skip that channel with a WARN log; any other `ok: false` fails the read
+  with the method and Slack's `error`. The rare 401 and 403 responses fail as configuration errors with `error`.
 - 429 waits for `Retry-After` (30s when absent), up to ten times. Slack's per-method rate tiers are met by
   waiting, not by pacing. Use a bot of an app installed in your own workspace: Slack limits
   `conversations.history` far more tightly (one request a minute, 15 messages per page) for apps distributed
@@ -85,5 +87,5 @@ and a channel filter by name.
 two pages, one channel's messages on two pages, a channel without messages, users on two pages) without
 network or credentials: the SDK conformance suite for full refresh and for each incremental stream,
 `check` with 401, 403 and a 200 `ok: false` body (revoked token, missing scope), reads failing on 200
-`ok: false` bodies by Slack's `error`, a one-time 429, messages per channel,
+`ok: false` bodies by Slack's `error`, a channel lost between listing and reading, a one-time 429, messages per channel,
 the `types` parameter, and the `oldest` sent on a first and on a resumed read.

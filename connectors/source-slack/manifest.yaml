@@ -22,7 +22,7 @@ auth: {type: bearer, token: "{{ config.bot_token }}"}
 errors:
   message: $.error
   when:
-    - {path: $.error, equals: [invalid_auth, not_authed, account_inactive, token_revoked, missing_scope], action: config_error}
+    - {path: $.error, equals: [invalid_auth, not_authed, account_inactive, token_revoked, token_expired, not_allowed_token_type, missing_scope], action: config_error}
     - {path: $.error, equals: ratelimited, action: rate_limit}
     - {path: $.ok, equals: false}
 retry:
@@ -49,6 +49,9 @@ streams:
     primary_key: [channel_id, ts]
     schema: schemas/channel_messages.json
     records: {path: $.messages, add: {channel_id: "{{ parent.id }}"}}
+    errors:
+      when:
+        - {path: $.error, equals: [not_in_channel, channel_not_found], action: ignore}
     pagination: *cursor
     incremental: {cursor_field: ts, cursor_format: unix_s}
 
