@@ -38,6 +38,7 @@ Taskfile.yml              local shortcuts
 | [source-facebook-marketing](connectors/source-facebook-marketing) | `ghcr.io/synclet-io/connectors/source-facebook-marketing` |
 | [source-freshdesk](connectors/source-freshdesk) | `ghcr.io/synclet-io/connectors/source-freshdesk` |
 | [source-gcs](connectors/source-gcs) | `ghcr.io/synclet-io/connectors/source-gcs` |
+| [source-gitlab](connectors/source-gitlab) | `ghcr.io/synclet-io/connectors/source-gitlab` |
 | [source-google-ads](connectors/source-google-ads) | `ghcr.io/synclet-io/connectors/source-google-ads` |
 | [source-google-analytics-data-api](connectors/source-google-analytics-data-api) | `ghcr.io/synclet-io/connectors/source-google-analytics-data-api` |
 | [source-google-search-console](connectors/source-google-search-console) | `ghcr.io/synclet-io/connectors/source-google-search-console` |
