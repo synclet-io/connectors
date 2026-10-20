@@ -17,8 +17,11 @@ const bigqueryScope = "https://www.googleapis.com/auth/bigquery"
 func credentialsOption(ctx context.Context, creds CredentialsConfig) (option.ClientOption, error) {
 	switch creds.AuthType {
 	case authService:
-		//nolint:staticcheck // SA1019: service_account_info accepts any Google credential JSON.
-		cred, err := google.CredentialsFromJSON(ctx, []byte(creds.ServiceAccountInfo), bigqueryScope)
+		key, err := checkServiceAccountKey([]byte(creds.ServiceAccountInfo), googleTokenURL)
+		if err != nil {
+			return nil, fmt.Errorf("service_account_info is not a valid service account key: %w", err)
+		}
+		cred, err := google.CredentialsFromJSONWithType(ctx, key, google.ServiceAccount, bigqueryScope)
 		if err != nil {
 			return nil, fmt.Errorf("service_account_info is not a valid service account key: %w", err)
 		}
