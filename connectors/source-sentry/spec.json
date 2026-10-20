@@ -39,7 +39,8 @@
         "type": "string"
       },
       "start_date": {
-        "description": "Issues last seen, events received and releases created before it are not read.",
+        "default": "1900-01-01T00:00:00Z",
+        "description": "Issues last seen, events received and releases created before it are not read. Default 1900-01-01T00:00:00Z, everything the instance keeps.",
         "examples": [
           "2026-01-01T00:00:00Z"
         ],
@@ -51,10 +52,8 @@
     },
     "required": [
       "auth_token",
-      "hostname",
       "organization",
-      "project",
-      "start_date"
+      "project"
     ],
     "title": "Sentry Source Spec",
     "type": "object"

@@ -17,10 +17,10 @@ docker run --rm -v "$PWD:/data" ghcr.io/synclet-io/connectors/source-sentry:dev 
 | Key | Required | Meaning |
 |---|---|---|
 | `auth_token` | yes | Auth token with `project:read`, `event:read` and `org:read`, sent as `Authorization: Bearer <token>` |
-| `hostname` | yes | Host of the Sentry instance, default `sentry.io`; requests go to `https://<hostname>/api/0/` |
+| `hostname` | no | Host of the Sentry instance, default `sentry.io`; requests go to `https://<hostname>/api/0/` |
 | `organization` | yes | Organization slug |
 | `project` | yes | Project slug; issues and events are read from it |
-| `start_date` | yes | RFC 3339 time; issues last seen, events received and releases created before it are not read |
+| `start_date` | no | RFC 3339 time, default `1900-01-01T00:00:00Z` (everything the instance keeps); issues last seen, events received and releases created before it are not read |
 
 ## Streams
 
@@ -48,6 +48,8 @@ fail it with Sentry's `detail`. A 429 waits for `Retry-After` or `X-Sentry-Rate-
 - Sentry always sends a `rel="next"` link and marks the end with `results="false"`; the manifest format
   follows `rel="next"` only, so each stream sends one more request, which answers an empty page.
 - Records keep the API's field names and values; nothing is renamed or converted.
+- `start_date` is not in Airbyte's spec, which always reads from 1900-01-01; an Airbyte config without it
+  gets that as the default. Airbyte's `discover_fields` and `num_workers` are accepted and ignored.
 
 ## Schemas
 

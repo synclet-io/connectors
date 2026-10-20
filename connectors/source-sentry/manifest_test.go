@@ -72,6 +72,25 @@ func TestManifest(t *testing.T) {
 	declarativetest.Run(t, suite(newRequests()))
 }
 
+// Airbyte's spec has no start date and an optional hostname; such a config
+// reads from 1900-01-01, as Airbyte's does.
+func TestAirbyteConfig(t *testing.T) {
+	r := newRequests()
+	s := suite(r)
+	s.Config = json.RawMessage(`{"auth_token":"test-token","organization":"example-org","project":"example-project","num_workers":5}`)
+	declarativetest.Run(t, s)
+	h := declarativetest.New(t, s)
+	if out := h.Read(t, h.Catalog(t, synclet.SyncModeIncremental, "issues", "events"), nil); out.Err != nil {
+		t.Fatal(out.Err)
+	}
+	if got := r.take(project + "issues/"); len(got) == 0 || got[0].Get("query") != "lastSeen:>=1900-01-01T00:00:00" {
+		t.Errorf("issues: %v, want query lastSeen:>=1900-01-01T00:00:00", got)
+	}
+	if got := r.take(project + "events/"); len(got) == 0 || got[0].Get("start") != "1900-01-01T00:00:00" {
+		t.Errorf("events: %v, want start 1900-01-01T00:00:00", got)
+	}
+}
+
 func TestCheckForbidden(t *testing.T) {
 	s := suite(newRequests())
 	s.Overrides = map[string]declarativetest.Fixture{project: {Status: 403, File: "errors/403.json"}}

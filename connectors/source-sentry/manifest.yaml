@@ -7,7 +7,7 @@ base_url: "https://{{ config.hostname }}/api/0/"
 spec:
   title: Sentry Source Spec
   description: Reads projects, the configured project, its issues and events, and the organization's releases from the Sentry API.
-  required: [auth_token, hostname, organization, project, start_date]
+  required: [auth_token, organization, project]
   properties:
     auth_token:   {type: string, title: Auth token, description: "Organization or user auth token with the scopes project:read, event:read and org:read, sent as a Bearer token.", secret: true, order: 0}
     hostname:
@@ -20,7 +20,7 @@ spec:
       order: 1
     organization: {type: string, title: Organization, description: "Slug of the organization.", examples: [my-org], order: 2}
     project:      {type: string, title: Project, description: "Slug of the project whose issues and events are read.", examples: [my-project], order: 3}
-    start_date:   {type: string, title: Start date, description: "Issues last seen, events received and releases created before it are not read.", format: date-time, examples: ["2026-01-01T00:00:00Z"], order: 4}
+    start_date:   {type: string, title: Start date, description: "Issues last seen, events received and releases created before it are not read. Default 1900-01-01T00:00:00Z, everything the instance keeps.", format: date-time, default: "1900-01-01T00:00:00Z", examples: ["2026-01-01T00:00:00Z"], order: 4}
 auth: {type: bearer, token: "{{ config.auth_token }}"}
 errors: {message: $.detail}
 retry:
