@@ -1,0 +1,138 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Writes each stream into a typed table of one SQL Server 2016+ or Azure SQL database: overwrite, append or append_dedup.",
+    "properties": {
+      "database": {
+        "description": "The name of the database; it must exist.",
+        "order": 2,
+        "title": "DB Name",
+        "type": "string"
+      },
+      "host": {
+        "description": "The host name of the database.",
+        "order": 0,
+        "title": "Host",
+        "type": "string"
+      },
+      "password": {
+        "airbyte_secret": true,
+        "description": "The password associated with this username.",
+        "order": 5,
+        "title": "Password",
+        "type": "string"
+      },
+      "port": {
+        "default": 1433,
+        "description": "The port of the database.",
+        "examples": [
+          "1433"
+        ],
+        "order": 1,
+        "title": "Port",
+        "type": "integer"
+      },
+      "schema": {
+        "default": "dbo",
+        "description": "The schema every table is written to; created when missing.",
+        "examples": [
+          "dbo"
+        ],
+        "order": 3,
+        "title": "Default Schema",
+        "type": "string"
+      },
+      "ssl_method": {
+        "description": "The encryption method which is used to communicate with the database.",
+        "oneOf": [
+          {
+            "description": "Data transfer will not be encrypted; only the login is, when the server supports encryption.",
+            "properties": {
+              "ssl_method": {
+                "const": "unencrypted",
+                "order": 0,
+                "type": "string"
+              }
+            },
+            "required": [
+              "ssl_method"
+            ],
+            "title": "Unencrypted",
+            "type": "object"
+          },
+          {
+            "description": "Use the certificate provided by the server without verification. (For testing purposes only!)",
+            "properties": {
+              "ssl_method": {
+                "const": "encrypted_trust_server_certificate",
+                "order": 0,
+                "type": "string"
+              }
+            },
+            "required": [
+              "ssl_method"
+            ],
+            "title": "Encrypted (trust server certificate)",
+            "type": "object"
+          },
+          {
+            "description": "Verify and use the certificate provided by the server.",
+            "properties": {
+              "certificate": {
+                "airbyte_secret": true,
+                "description": "PEM certificate of the CA that signed the server certificate. Empty: the CAs trusted by the connector image.",
+                "order": 2,
+                "title": "CA Certificate",
+                "type": "string"
+              },
+              "hostNameInCertificate": {
+                "description": "The host name the server certificate must name. Empty: the configured host. Set it when the connector reaches the server by another name, such as an IP address.",
+                "order": 1,
+                "title": "Host Name In Certificate",
+                "type": "string"
+              },
+              "ssl_method": {
+                "const": "encrypted_verify_certificate",
+                "order": 0,
+                "type": "string"
+              }
+            },
+            "required": [
+              "ssl_method"
+            ],
+            "title": "Encrypted (verify certificate)",
+            "type": "object"
+          }
+        ],
+        "order": 6,
+        "title": "SSL Method",
+        "type": "object"
+      },
+      "username": {
+        "description": "The SQL Server login used to access the database.",
+        "order": 4,
+        "title": "User",
+        "type": "string"
+      }
+    },
+    "required": [
+      "host",
+      "port",
+      "database",
+      "schema",
+      "username"
+    ],
+    "title": "MSSQL Destination Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/destination-mssql",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": false,
+  "supportsNormalization": false
+}

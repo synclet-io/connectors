@@ -29,6 +29,7 @@ Taskfile.yml              local shortcuts
 
 | Connector | Image |
 |---|---|
+| [destination-mssql](connectors/destination-mssql) | `ghcr.io/synclet-io/connectors/destination-mssql` |
 | [source-example](connectors/source-example) | `ghcr.io/synclet-io/connectors/source-example` |
 | [source-airtable](connectors/source-airtable) | `ghcr.io/synclet-io/connectors/source-airtable` |
 | [source-amplitude](connectors/source-amplitude) | `ghcr.io/synclet-io/connectors/source-amplitude` |

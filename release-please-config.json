@@ -80,6 +80,16 @@
         }
       ]
     },
+    "connectors/destination-mssql": {
+      "component": "destination-mssql",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "meta.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
     "connectors/destination-mysql": {
       "component": "destination-mysql",
       "extra-files": [
