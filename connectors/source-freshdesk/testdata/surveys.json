@@ -1,0 +1,40 @@
+[
+  {
+    "id": 3001,
+    "title": "Default survey",
+    "active": true,
+    "questions": [
+      {
+        "id": "default_question",
+        "label": "How would you rate your experience?",
+        "accepted_ratings": [
+          -103,
+          100,
+          103
+        ],
+        "default": true
+      }
+    ],
+    "created_at": "2026-01-02T00:00:00Z",
+    "updated_at": "2026-01-03T00:00:00Z"
+  },
+  {
+    "id": 3002,
+    "title": "Old survey",
+    "active": false,
+    "questions": [
+      {
+        "id": "default_question",
+        "label": "How would you rate your experience?",
+        "accepted_ratings": [
+          -103,
+          100,
+          103
+        ],
+        "default": true
+      }
+    ],
+    "created_at": "2026-01-02T00:00:00Z",
+    "updated_at": "2026-01-03T00:00:00Z"
+  }
+]

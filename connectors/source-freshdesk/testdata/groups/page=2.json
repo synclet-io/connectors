@@ -1,0 +1,18 @@
+[
+  {
+    "id": 8003,
+    "name": "Billing",
+    "description": "Billing team",
+    "escalate_to": null,
+    "unassigned_for": "30m",
+    "business_hour_id": null,
+    "group_type": "support_agent_group",
+    "auto_ticket_assign": 0,
+    "agent_ids": [
+      7001,
+      7002
+    ],
+    "created_at": "2026-01-05T00:00:00Z",
+    "updated_at": "2026-01-06T00:00:00Z"
+  }
+]

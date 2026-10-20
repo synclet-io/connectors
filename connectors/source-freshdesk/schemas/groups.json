@@ -1,0 +1,74 @@
+{
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "id": {
+      "type": "integer"
+    },
+    "name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "description": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "escalate_to": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "unassigned_for": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "business_hour_id": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "group_type": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "auto_ticket_assign": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "agent_ids": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": "integer"
+      }
+    },
+    "created_at": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    }
+  }
+}

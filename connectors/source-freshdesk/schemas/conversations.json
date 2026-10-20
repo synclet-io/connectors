@@ -1,0 +1,143 @@
+{
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "id": {
+      "type": "integer"
+    },
+    "ticket_id": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "body": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "body_text": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "incoming": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "private": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "user_id": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "support_email": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "source": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "category": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "from_email": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "to_emails": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "cc_emails": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "bcc_emails": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "attachments": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "auto_response": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "source_additional_info": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "additionalProperties": true
+    },
+    "last_edited_at": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "last_edited_user_id": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "created_at": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

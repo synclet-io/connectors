@@ -1,0 +1,19 @@
+[
+  {
+    "id": 6003,
+    "name": "Acme Three",
+    "description": null,
+    "note": null,
+    "domains": [
+      "acmethree.example.com"
+    ],
+    "health_score": "Happy",
+    "account_tier": "Premium",
+    "renewal_date": "2027-01-01T00:00:00Z",
+    "industry": "Software",
+    "org_company_id": 60030,
+    "custom_fields": {},
+    "created_at": "2026-01-10T00:00:00Z",
+    "updated_at": "2026-03-10T00:00:00Z"
+  }
+]

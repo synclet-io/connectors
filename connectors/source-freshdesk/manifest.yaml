@@ -1,0 +1,92 @@
+# yaml-language-server: $schema=../source-declarative/internal/manifest/manifest.schema.json
+version: 1
+connector:
+  name: source-freshdesk
+  documentation_url: https://github.com/synclet-io/connectors/tree/main/connectors/source-freshdesk
+base_url: "https://{{ config.domain }}/api/v2/"
+spec:
+  title: Freshdesk Source Spec
+  description: Reads tickets, their conversations, contacts, companies, agents, groups, satisfaction ratings, time entries and surveys from the Freshdesk API v2.
+  required: [domain, api_key, start_date]
+  properties:
+    domain:
+      type: string
+      title: Domain
+      description: "Freshdesk host name, without https://."
+      examples: [yourcompany.freshdesk.com]
+      pattern: "^[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?(\\.[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?)+$"
+      order: 0
+    api_key: {type: string, title: API key, description: "API key of a Freshdesk agent (Profile settings), sent as the basic-auth user name with the password X.", secret: true, order: 1}
+    start_date: {type: string, title: Start date, description: "Tickets, contacts and conversations updated, and satisfaction ratings created, before it are not read.", format: date-time, examples: ["2026-01-01T00:00:00Z"], order: 2}
+auth: {type: basic, username: "{{ config.api_key }}", password: "X"}
+errors: {message: $.message}
+retry:
+  transient: {statuses: [500, 502, 503, 504], attempts: 3, backoff: 1s}
+  rate_limit:
+    statuses: [429]
+    wait: ["header:Retry-After", 60s]
+    attempts: 5
+check: {stream: tickets}
+streams:
+  - name: tickets
+    path: tickets
+    params: {updated_since: "{{ since }}", order_by: updated_at, order_type: asc}
+    primary_key: [id]
+    schema: schemas/tickets.json
+    pagination: &link {type: link, size: 100, size_param: per_page}
+    incremental: &updated {cursor_field: updated_at, cursor_format: rfc3339, start: "{{ config.start_date }}", lookback: 1h}
+
+  - name: conversations
+    path: "tickets/{{ parent.id }}/conversations"
+    partition: {parent: tickets}
+    primary_key: [id]
+    schema: schemas/conversations.json
+    pagination: *link
+    incremental: {cursor_field: updated_at, cursor_format: rfc3339}
+    on_404: skip
+
+  - name: contacts
+    path: contacts
+    params: {_updated_since: "{{ since }}"}
+    primary_key: [id]
+    schema: schemas/contacts.json
+    pagination: *link
+    incremental: *updated
+
+  - name: companies
+    path: companies
+    primary_key: [id]
+    schema: schemas/companies.json
+    pagination: *link
+
+  - name: agents
+    path: agents
+    primary_key: [id]
+    schema: schemas/agents.json
+    pagination: *link
+
+  - name: groups
+    path: groups
+    primary_key: [id]
+    schema: schemas/groups.json
+    pagination: *link
+
+  - name: satisfaction_ratings
+    path: surveys/satisfaction_ratings
+    params: {created_since: "{{ since }}"}
+    primary_key: [id]
+    schema: schemas/satisfaction_ratings.json
+    pagination: *link
+    incremental: {<<: *updated, cursor_field: created_at}
+
+  - name: time_entries
+    path: time_entries
+    primary_key: [id]
+    schema: schemas/time_entries.json
+    pagination: *link
+
+  - name: surveys
+    path: surveys
+    primary_key: [id]
+    schema: schemas/surveys.json
+    pagination: *link

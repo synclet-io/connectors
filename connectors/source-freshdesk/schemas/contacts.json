@@ -1,0 +1,203 @@
+{
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "id": {
+      "type": "integer"
+    },
+    "name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "first_name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "last_name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "email": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "phone": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "mobile": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "twitter_id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "facebook_id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "unique_external_id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "other_emails": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "other_phone_numbers": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "active": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "deleted": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "address": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "description": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "job_title": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "language": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "time_zone": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "company_id": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "view_all_tickets": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "other_companies": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "tags": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "avatar": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "additionalProperties": true
+    },
+    "csat_rating": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "preferred_source": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "visitor_id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "org_contact_id": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "custom_fields": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "additionalProperties": true
+    },
+    "created_at": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

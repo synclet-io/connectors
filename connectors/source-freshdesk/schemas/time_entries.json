@@ -1,0 +1,79 @@
+{
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "id": {
+      "type": "integer"
+    },
+    "billable": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "note": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "timer_running": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "agent_id": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "ticket_id": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "company_id": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "time_spent": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "executed_at": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "start_time": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "created_at": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    }
+  }
+}

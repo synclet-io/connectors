@@ -1,0 +1,30 @@
+[
+  {
+    "id": 2001,
+    "billable": true,
+    "note": "Synthetic work",
+    "timer_running": false,
+    "agent_id": 7001,
+    "ticket_id": 1001,
+    "company_id": 6001,
+    "time_spent": "01:30",
+    "executed_at": "2026-08-01T13:00:00Z",
+    "start_time": "2026-08-01T13:00:00Z",
+    "created_at": "2026-08-01T14:30:00Z",
+    "updated_at": "2026-08-01T14:30:00Z"
+  },
+  {
+    "id": 2002,
+    "billable": true,
+    "note": "Synthetic work",
+    "timer_running": false,
+    "agent_id": 7001,
+    "ticket_id": 1001,
+    "company_id": 6001,
+    "time_spent": "01:30",
+    "executed_at": "2026-08-01T13:00:00Z",
+    "start_time": "2026-08-01T13:00:00Z",
+    "created_at": "2026-08-01T14:30:00Z",
+    "updated_at": "2026-08-01T14:30:00Z"
+  }
+]

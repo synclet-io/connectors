@@ -1,0 +1,51 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Reads tickets, their conversations, contacts, companies, agents, groups, satisfaction ratings, time entries and surveys from the Freshdesk API v2.",
+    "properties": {
+      "api_key": {
+        "airbyte_secret": true,
+        "description": "API key of a Freshdesk agent (Profile settings), sent as the basic-auth user name with the password X.",
+        "order": 1,
+        "title": "API key",
+        "type": "string"
+      },
+      "domain": {
+        "description": "Freshdesk host name, without https://.",
+        "examples": [
+          "yourcompany.freshdesk.com"
+        ],
+        "order": 0,
+        "title": "Domain",
+        "type": "string"
+      },
+      "start_date": {
+        "description": "Tickets, contacts and conversations updated, and satisfaction ratings created, before it are not read.",
+        "examples": [
+          "2026-01-01T00:00:00Z"
+        ],
+        "format": "date-time",
+        "order": 2,
+        "title": "Start date",
+        "type": "string"
+      }
+    },
+    "required": [
+      "domain",
+      "api_key",
+      "start_date"
+    ],
+    "title": "Freshdesk Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-freshdesk",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": true,
+  "supportsNormalization": false
+}

@@ -1,0 +1,30 @@
+[
+  {
+    "id": 4001,
+    "survey_id": 3001,
+    "user_id": 5001,
+    "agent_id": 7001,
+    "group_id": 8001,
+    "ticket_id": 1001,
+    "feedback": "Synthetic feedback",
+    "ratings": {
+      "default_question": 103
+    },
+    "created_at": "2026-08-03T00:00:00Z",
+    "updated_at": "2026-08-03T00:00:00Z"
+  },
+  {
+    "id": 4002,
+    "survey_id": 3001,
+    "user_id": 5001,
+    "agent_id": 7001,
+    "group_id": 8001,
+    "ticket_id": 1002,
+    "feedback": "Synthetic feedback",
+    "ratings": {
+      "default_question": 103
+    },
+    "created_at": "2026-09-03T00:00:00Z",
+    "updated_at": "2026-09-03T00:00:00Z"
+  }
+]

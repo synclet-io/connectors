@@ -1,0 +1,27 @@
+[
+  {
+    "id": 90003,
+    "ticket_id": 1001,
+    "body": "<div>Synthetic reply</div>",
+    "body_text": "Synthetic reply",
+    "incoming": true,
+    "private": false,
+    "user_id": 5001,
+    "support_email": null,
+    "source": 0,
+    "category": 2,
+    "from_email": "customer@example.com",
+    "to_emails": [
+      "support@example.com"
+    ],
+    "cc_emails": [],
+    "bcc_emails": null,
+    "attachments": [],
+    "auto_response": false,
+    "source_additional_info": null,
+    "last_edited_at": null,
+    "last_edited_user_id": null,
+    "created_at": "2026-08-02T09:00:00Z",
+    "updated_at": "2026-08-02T09:00:00Z"
+  }
+]

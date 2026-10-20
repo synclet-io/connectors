@@ -220,6 +220,16 @@
         }
       ]
     },
+    "connectors/source-freshdesk": {
+      "component": "source-freshdesk",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "meta.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
     "connectors/source-gcs": {
       "component": "source-gcs",
       "extra-files": [

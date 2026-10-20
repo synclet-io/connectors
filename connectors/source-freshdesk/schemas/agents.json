@@ -1,0 +1,184 @@
+{
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "id": {
+      "type": "integer"
+    },
+    "available": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "available_since": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "occasional": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "signature": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "ticket_scope": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "type": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "focus_mode": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "deactivated": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "group_ids": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": "integer"
+      }
+    },
+    "role_ids": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": "integer"
+      }
+    },
+    "skill_ids": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": "integer"
+      }
+    },
+    "last_active_at": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "created_at": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "contact": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "active": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "email": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "job_title": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "language": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "last_login_at": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "format": "date-time"
+        },
+        "mobile": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "name": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "phone": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "time_zone": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "created_at": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}

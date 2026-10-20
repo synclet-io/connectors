@@ -1,0 +1,23 @@
+{
+  "$schema": "../../schema/meta.schema.json",
+  "name": "Freshdesk",
+  "connector_type": "source",
+  "version": "0.1.0",
+  "release_stage": "alpha",
+  "support_level": "community",
+  "source_type": "api",
+  "license": "MIT",
+  "documentation_url": "https://github.com/synclet-io/connectors/tree/main/connectors/source-freshdesk",
+  "icon_url": "",
+  "language": "declarative",
+  "tags": [
+    "api",
+    "declarative",
+    "support"
+  ],
+  "allowed_hosts": [
+    "${domain}"
+  ],
+  "breaking_changes": {},
+  "external_documentation_urls": []
+}

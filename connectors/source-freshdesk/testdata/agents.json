@@ -1,0 +1,70 @@
+[
+  {
+    "id": 7001,
+    "available": true,
+    "available_since": null,
+    "occasional": false,
+    "signature": null,
+    "ticket_scope": 1,
+    "type": "support_agent",
+    "focus_mode": true,
+    "deactivated": false,
+    "group_ids": [
+      8001
+    ],
+    "role_ids": [
+      9001
+    ],
+    "skill_ids": [],
+    "last_active_at": "2026-10-17T08:00:00Z",
+    "created_at": "2026-01-05T00:00:00Z",
+    "updated_at": "2026-06-05T00:00:00Z",
+    "contact": {
+      "active": true,
+      "email": "dana@support.example.com",
+      "job_title": null,
+      "language": "en",
+      "last_login_at": "2026-10-17T07:55:00Z",
+      "mobile": null,
+      "name": "Dana",
+      "phone": null,
+      "time_zone": "Kyiv",
+      "created_at": "2026-01-05T00:00:00Z",
+      "updated_at": "2026-06-05T00:00:00Z"
+    }
+  },
+  {
+    "id": 7002,
+    "available": true,
+    "available_since": null,
+    "occasional": false,
+    "signature": null,
+    "ticket_scope": 1,
+    "type": "support_agent",
+    "focus_mode": true,
+    "deactivated": false,
+    "group_ids": [
+      8001
+    ],
+    "role_ids": [
+      9001
+    ],
+    "skill_ids": [],
+    "last_active_at": "2026-10-17T08:00:00Z",
+    "created_at": "2026-01-05T00:00:00Z",
+    "updated_at": "2026-06-05T00:00:00Z",
+    "contact": {
+      "active": true,
+      "email": "eli@support.example.com",
+      "job_title": null,
+      "language": "en",
+      "last_login_at": "2026-10-17T07:55:00Z",
+      "mobile": null,
+      "name": "Eli",
+      "phone": null,
+      "time_zone": "Kyiv",
+      "created_at": "2026-01-05T00:00:00Z",
+      "updated_at": "2026-06-05T00:00:00Z"
+    }
+  }
+]
