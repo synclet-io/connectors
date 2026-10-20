@@ -1,0 +1,74 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Reads raw events through the Amplitude Export API and active users, average session length, cohorts, annotations and the event list through the Dashboard REST API.",
+    "properties": {
+      "active_users_group_by_country": {
+        "default": true,
+        "description": "Break the active_users counts down by country. Default true.",
+        "order": 5,
+        "title": "Active Users Group by Country",
+        "type": "boolean"
+      },
+      "api_key": {
+        "airbyte_secret": true,
+        "description": "API key of the Amplitude project, in Settings > Projects.",
+        "order": 1,
+        "title": "API Key",
+        "type": "string"
+      },
+      "data_region": {
+        "default": "Standard Server",
+        "description": "Region the Amplitude project stores its data in: \"Standard Server\" (amplitude.com) or \"EU Residency Server\" (analytics.eu.amplitude.com).",
+        "examples": [
+          "Standard Server",
+          "EU Residency Server"
+        ],
+        "order": 0,
+        "title": "Data Region",
+        "type": "string"
+      },
+      "request_time_range": {
+        "default": 24,
+        "description": "Hours of events one Export API request covers, 1 to 8760. A window the API rejects as too large is split in half until it is accepted. Default 24.",
+        "order": 4,
+        "title": "Request Time Range",
+        "type": "integer"
+      },
+      "secret_key": {
+        "airbyte_secret": true,
+        "description": "Secret key of the Amplitude project, in Settings > Projects.",
+        "order": 2,
+        "title": "Secret Key",
+        "type": "string"
+      },
+      "start_date": {
+        "description": "UTC time, YYYY-MM-DDTHH:mm:ssZ, from which data is read. Events are read from the start of its hour, the daily metrics from its day.",
+        "examples": [
+          "2026-01-01T00:00:00Z"
+        ],
+        "format": "date-time",
+        "order": 3,
+        "title": "Start Date",
+        "type": "string"
+      }
+    },
+    "required": [
+      "api_key",
+      "secret_key",
+      "start_date"
+    ],
+    "title": "Amplitude Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-amplitude",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": true,
+  "supportsNormalization": false
+}

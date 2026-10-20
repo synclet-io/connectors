@@ -31,6 +31,7 @@ Taskfile.yml              local shortcuts
 |---|---|
 | [source-example](connectors/source-example) | `ghcr.io/synclet-io/connectors/source-example` |
 | [source-airtable](connectors/source-airtable) | `ghcr.io/synclet-io/connectors/source-airtable` |
+| [source-amplitude](connectors/source-amplitude) | `ghcr.io/synclet-io/connectors/source-amplitude` |
 | [source-applovin](connectors/source-applovin) | `ghcr.io/synclet-io/connectors/source-applovin` |
 | [source-bigquery](connectors/source-bigquery) | `ghcr.io/synclet-io/connectors/source-bigquery` |
 | [source-declarative](connectors/source-declarative) | `ghcr.io/synclet-io/connectors/source-declarative` (engine of the manifest connectors; hidden from the catalog) |
