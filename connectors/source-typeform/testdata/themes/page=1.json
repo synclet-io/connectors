@@ -1,0 +1,62 @@
+{
+  "total_items": 3,
+  "page_count": 2,
+  "items": [
+    {
+      "id": "thm00001",
+      "name": "Default",
+      "visibility": "public",
+      "font": "Karla",
+      "has_transparent_button": false,
+      "rounded_corners": "small",
+      "colors": {
+        "answer": "#4FB0AE",
+        "background": "#FFFFFF",
+        "button": "#4FB0AE",
+        "question": "#3D3D3D"
+      },
+      "background": {
+        "brightness": 0,
+        "layout": "fullscreen"
+      },
+      "fields": {
+        "alignment": "left",
+        "font_size": "medium"
+      },
+      "screens": {
+        "alignment": "center",
+        "font_size": "small"
+      },
+      "created_at": "2026-01-15T00:00:00Z",
+      "updated_at": "2026-04-15T00:00:00Z"
+    },
+    {
+      "id": "thm00002",
+      "name": "Brand",
+      "visibility": "private",
+      "font": "Karla",
+      "has_transparent_button": false,
+      "rounded_corners": "small",
+      "colors": {
+        "answer": "#4FB0AE",
+        "background": "#FFFFFF",
+        "button": "#4FB0AE",
+        "question": "#3D3D3D"
+      },
+      "background": {
+        "brightness": 0,
+        "layout": "fullscreen"
+      },
+      "fields": {
+        "alignment": "left",
+        "font_size": "medium"
+      },
+      "screens": {
+        "alignment": "center",
+        "font_size": "small"
+      },
+      "created_at": "2026-01-15T00:00:00Z",
+      "updated_at": "2026-04-15T00:00:00Z"
+    }
+  ]
+}

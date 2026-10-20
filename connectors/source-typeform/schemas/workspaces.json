@@ -1,0 +1,20 @@
+{
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "id": {"type": "string"},
+    "name": {"type": ["null", "string"]},
+    "account_id": {"type": ["null", "string"]},
+    "default": {"type": ["null", "boolean"]},
+    "shared": {"type": ["null", "boolean"]},
+    "forms": {
+      "type": ["null", "object"],
+      "additionalProperties": true,
+      "properties": {
+        "count": {"type": ["null", "integer"]},
+        "href": {"type": ["null", "string"]}
+      }
+    },
+    "self": {"type": ["null", "object"], "additionalProperties": true, "properties": {"href": {"type": ["null", "string"]}}}
+  }
+}

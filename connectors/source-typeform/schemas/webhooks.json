@@ -1,0 +1,15 @@
+{
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "id": {"type": "string"},
+    "form_id": {"type": ["null", "string"]},
+    "tag": {"type": ["null", "string"]},
+    "url": {"type": ["null", "string"]},
+    "enabled": {"type": ["null", "boolean"]},
+    "verify_ssl": {"type": ["null", "boolean"]},
+    "event_types": {"type": ["null", "object"], "additionalProperties": true},
+    "created_at": {"type": ["null", "string"], "format": "date-time"},
+    "updated_at": {"type": ["null", "string"], "format": "date-time"}
+  }
+}

@@ -1,0 +1,68 @@
+# yaml-language-server: $schema=../source-declarative/internal/manifest/manifest.schema.json
+version: 1
+connector:
+  name: source-typeform
+  documentation_url: https://github.com/synclet-io/connectors/tree/main/connectors/source-typeform
+base_url: https://api.typeform.com/
+spec:
+  title: Typeform Source Spec
+  description: Reads forms, responses, webhooks, workspaces, images and themes from the Typeform Create, Responses and Webhooks APIs.
+  required: [access_token, start_date]
+  properties:
+    access_token: {type: string, title: Access token, description: "Personal access token or OAuth access token with the scopes forms:read, responses:read, webhooks:read, workspaces:read, images:read and themes:read, sent as a Bearer token.", secret: true, order: 0}
+    start_date: {type: string, title: Start date, description: "Responses submitted before it are not read.", format: date-time, examples: ["2026-01-01T00:00:00Z"], order: 1}
+auth: {type: bearer, token: "{{ config.access_token }}"}
+errors: {message: $.description}
+retry:
+  transient: {statuses: [500, 502, 503, 504], attempts: 3, backoff: 1s}
+  rate_limit:
+    statuses: [429]
+    wait: ["header:Retry-After", 5s]
+    attempts: 5
+check: {stream: workspaces}
+streams:
+  - name: forms
+    path: forms
+    primary_key: [id]
+    schema: schemas/forms.json
+    records: {path: $.items, add: {_read_at: "{{ until }}"}}
+    pagination: &pages {type: page, size: 200, size_param: page_size, total: $.total_items}
+    incremental: {cursor_field: _read_at, cursor_format: rfc3339, start: "{{ config.start_date }}", lookback: 1h}
+
+  - name: responses
+    path: "forms/{{ parent.id }}/responses"
+    partition: {parent: forms}
+    params: {since: "{{ since }}"}
+    primary_key: [response_id]
+    schema: schemas/responses.json
+    records: {path: $.items, add: {form_id: "{{ parent.id }}"}}
+    pagination: {type: cursor, cursor_from: "last:token", cursor_param: before, size: 1000, size_param: page_size}
+    incremental: {cursor_field: submitted_at, cursor_format: rfc3339}
+    on_404: skip
+
+  - name: webhooks
+    path: "forms/{{ parent.id }}/webhooks"
+    partition: {parent: forms}
+    primary_key: [id]
+    schema: schemas/webhooks.json
+    records: {path: $.items}
+    on_404: skip
+
+  - name: workspaces
+    path: workspaces
+    primary_key: [id]
+    schema: schemas/workspaces.json
+    records: {path: $.items}
+    pagination: *pages
+
+  - name: images
+    path: images
+    primary_key: [id]
+    schema: schemas/images.json
+
+  - name: themes
+    path: themes
+    primary_key: [id]
+    schema: schemas/themes.json
+    records: {path: $.items}
+    pagination: *pages

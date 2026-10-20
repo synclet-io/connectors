@@ -1,0 +1,4 @@
+{
+  "code": "AUTHENTICATION_FAILED",
+  "description": "Authentication credentials not found on the Request Headers"
+}

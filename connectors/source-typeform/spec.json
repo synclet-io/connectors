@@ -1,0 +1,41 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Reads forms, responses, webhooks, workspaces, images and themes from the Typeform Create, Responses and Webhooks APIs.",
+    "properties": {
+      "access_token": {
+        "airbyte_secret": true,
+        "description": "Personal access token or OAuth access token with the scopes forms:read, responses:read, webhooks:read, workspaces:read, images:read and themes:read, sent as a Bearer token.",
+        "order": 0,
+        "title": "Access token",
+        "type": "string"
+      },
+      "start_date": {
+        "description": "Responses submitted before it are not read.",
+        "examples": [
+          "2026-01-01T00:00:00Z"
+        ],
+        "format": "date-time",
+        "order": 1,
+        "title": "Start date",
+        "type": "string"
+      }
+    },
+    "required": [
+      "access_token",
+      "start_date"
+    ],
+    "title": "Typeform Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-typeform",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": true,
+  "supportsNormalization": false
+}

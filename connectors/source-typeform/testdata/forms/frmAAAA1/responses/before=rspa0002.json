@@ -1,0 +1,52 @@
+{
+  "total_items": 3,
+  "page_count": 1,
+  "items": [
+    {
+      "landing_id": "rspa0001",
+      "token": "rspa0001",
+      "response_id": "rspa0001",
+      "response_type": "completed",
+      "landed_at": "2026-08-02T12:00:00Z",
+      "submitted_at": "2026-08-02T12:00:05Z",
+      "metadata": {
+        "user_agent": "Mozilla/5.0 (synthetic)",
+        "platform": "other",
+        "referer": "https://example.typeform.com/to/form",
+        "network_id": "net0001",
+        "browser": "default"
+      },
+      "hidden": {},
+      "calculated": {
+        "score": 2
+      },
+      "variables": [
+        {
+          "key": "score",
+          "type": "number",
+          "number": 2
+        }
+      ],
+      "answers": [
+        {
+          "field": {
+            "id": "fld001",
+            "type": "short_text",
+            "ref": "name"
+          },
+          "type": "text",
+          "text": "Synthetic answer"
+        },
+        {
+          "field": {
+            "id": "fld002",
+            "type": "yes_no",
+            "ref": "agree"
+          },
+          "type": "boolean",
+          "boolean": true
+        }
+      ]
+    }
+  ]
+}

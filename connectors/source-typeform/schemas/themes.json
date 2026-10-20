@@ -1,0 +1,27 @@
+{
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "id": {"type": "string"},
+    "name": {"type": ["null", "string"]},
+    "visibility": {"type": ["null", "string"]},
+    "font": {"type": ["null", "string"]},
+    "has_transparent_button": {"type": ["null", "boolean"]},
+    "rounded_corners": {"type": ["null", "string"]},
+    "colors": {
+      "type": ["null", "object"],
+      "additionalProperties": true,
+      "properties": {
+        "answer": {"type": ["null", "string"]},
+        "background": {"type": ["null", "string"]},
+        "button": {"type": ["null", "string"]},
+        "question": {"type": ["null", "string"]}
+      }
+    },
+    "background": {"type": ["null", "object"], "additionalProperties": true},
+    "fields": {"type": ["null", "object"], "additionalProperties": true},
+    "screens": {"type": ["null", "object"], "additionalProperties": true},
+    "created_at": {"type": ["null", "string"], "format": "date-time"},
+    "updated_at": {"type": ["null", "string"], "format": "date-time"}
+  }
+}

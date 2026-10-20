@@ -1,0 +1,20 @@
+{
+  "total_items": 3,
+  "page_count": 2,
+  "items": [
+    {
+      "id": "wsp0003",
+      "name": "Research",
+      "account_id": "acc00001",
+      "default": false,
+      "shared": true,
+      "forms": {
+        "count": 2,
+        "href": "https://api.typeform.com/forms?workspace_id=wsp0003"
+      },
+      "self": {
+        "href": "https://api.typeform.com/workspaces/wsp0003"
+      }
+    }
+  ]
+}

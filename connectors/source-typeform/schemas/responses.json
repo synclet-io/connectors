@@ -1,0 +1,56 @@
+{
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "form_id": {"type": "string"},
+    "response_id": {"type": "string"},
+    "landing_id": {"type": ["null", "string"]},
+    "token": {"type": ["null", "string"]},
+    "response_type": {"type": ["null", "string"]},
+    "landed_at": {"type": ["null", "string"], "format": "date-time"},
+    "submitted_at": {"type": "string", "format": "date-time"},
+    "metadata": {
+      "type": ["null", "object"],
+      "additionalProperties": true,
+      "properties": {
+        "user_agent": {"type": ["null", "string"]},
+        "platform": {"type": ["null", "string"]},
+        "referer": {"type": ["null", "string"]},
+        "network_id": {"type": ["null", "string"]},
+        "browser": {"type": ["null", "string"]}
+      }
+    },
+    "hidden": {"type": ["null", "object"], "additionalProperties": true},
+    "calculated": {"type": ["null", "object"], "additionalProperties": true, "properties": {"score": {"type": ["null", "integer"]}}},
+    "variables": {"type": ["null", "array"], "items": {"type": "object", "additionalProperties": true}},
+    "answers": {
+      "type": ["null", "array"],
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "type": {"type": ["null", "string"]},
+          "field": {
+            "type": ["null", "object"],
+            "additionalProperties": true,
+            "properties": {
+              "id": {"type": ["null", "string"]},
+              "ref": {"type": ["null", "string"]},
+              "type": {"type": ["null", "string"]}
+            }
+          },
+          "text": {"type": ["null", "string"]},
+          "email": {"type": ["null", "string"]},
+          "number": {"type": ["null", "number"]},
+          "boolean": {"type": ["null", "boolean"]},
+          "date": {"type": ["null", "string"]},
+          "url": {"type": ["null", "string"]},
+          "file_url": {"type": ["null", "string"]},
+          "phone_number": {"type": ["null", "string"]},
+          "choice": {"type": ["null", "object"], "additionalProperties": true},
+          "choices": {"type": ["null", "object"], "additionalProperties": true}
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "items": [
+    {
+      "id": "whk10001",
+      "form_id": "frmAAAA1",
+      "tag": "crm-1",
+      "url": "https://hooks.example.com/typeform/1",
+      "enabled": true,
+      "verify_ssl": true,
+      "event_types": {
+        "form_response": true
+      },
+      "created_at": "2026-03-01T00:00:00Z",
+      "updated_at": "2026-03-02T00:00:00Z"
+    },
+    {
+      "id": "whk10002",
+      "form_id": "frmAAAA1",
+      "tag": "crm-2",
+      "url": "https://hooks.example.com/typeform/2",
+      "enabled": true,
+      "verify_ssl": true,
+      "event_types": {
+        "form_response": true
+      },
+      "created_at": "2026-03-01T00:00:00Z",
+      "updated_at": "2026-03-02T00:00:00Z"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "total_items": 3,
+  "page_count": 2,
+  "items": [
+    {
+      "id": "frmCCCC3",
+      "type": "quiz",
+      "title": "Event signup",
+      "created_at": "2026-02-01T10:00:00Z",
+      "last_updated_at": "2026-09-10T08:00:00Z",
+      "settings": {
+        "is_public": true,
+        "is_trial": false
+      },
+      "self": {
+        "href": "https://api.typeform.com/forms/frmCCCC3"
+      },
+      "theme": {
+        "href": "https://api.typeform.com/themes/thm00001"
+      },
+      "_links": {
+        "display": "https://example.typeform.com/to/frmCCCC3"
+      }
+    }
+  ]
+}

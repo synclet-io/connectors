@@ -480,6 +480,16 @@
         }
       ]
     },
+    "connectors/source-typeform": {
+      "component": "source-typeform",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "meta.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
     "connectors/source-zendesk-support": {
       "component": "source-zendesk-support",
       "extra-files": [

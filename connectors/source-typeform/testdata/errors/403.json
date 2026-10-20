@@ -1,0 +1,4 @@
+{
+  "code": "FORBIDDEN",
+  "description": "Your access token does not have the required scope"
+}

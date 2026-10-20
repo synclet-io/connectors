@@ -1,0 +1,14 @@
+{
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "id": {"type": "string"},
+    "src": {"type": ["null", "string"]},
+    "file_name": {"type": ["null", "string"]},
+    "media_type": {"type": ["null", "string"]},
+    "width": {"type": ["null", "integer"]},
+    "height": {"type": ["null", "integer"]},
+    "has_alpha": {"type": ["null", "boolean"]},
+    "avg_color": {"type": ["null", "string"]}
+  }
+}

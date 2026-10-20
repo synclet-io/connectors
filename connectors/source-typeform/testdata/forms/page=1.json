@@ -1,0 +1,46 @@
+{
+  "total_items": 3,
+  "page_count": 2,
+  "items": [
+    {
+      "id": "frmAAAA1",
+      "type": "quiz",
+      "title": "Onboarding survey",
+      "created_at": "2026-02-01T10:00:00Z",
+      "last_updated_at": "2026-09-01T08:00:00Z",
+      "settings": {
+        "is_public": true,
+        "is_trial": false
+      },
+      "self": {
+        "href": "https://api.typeform.com/forms/frmAAAA1"
+      },
+      "theme": {
+        "href": "https://api.typeform.com/themes/thm00001"
+      },
+      "_links": {
+        "display": "https://example.typeform.com/to/frmAAAA1"
+      }
+    },
+    {
+      "id": "frmBBBB2",
+      "type": "quiz",
+      "title": "Product feedback",
+      "created_at": "2026-02-01T10:00:00Z",
+      "last_updated_at": "2026-09-05T08:00:00Z",
+      "settings": {
+        "is_public": true,
+        "is_trial": false
+      },
+      "self": {
+        "href": "https://api.typeform.com/forms/frmBBBB2"
+      },
+      "theme": {
+        "href": "https://api.typeform.com/themes/thm00001"
+      },
+      "_links": {
+        "display": "https://example.typeform.com/to/frmBBBB2"
+      }
+    }
+  ]
+}

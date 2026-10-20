@@ -1,0 +1,22 @@
+[
+  {
+    "id": "img0001",
+    "src": "https://images.typeform.com/images/img0001",
+    "file_name": "logo.png",
+    "media_type": "image/png",
+    "width": 400,
+    "height": 120,
+    "has_alpha": true,
+    "avg_color": "#4b4b4b"
+  },
+  {
+    "id": "img0002",
+    "src": "https://images.typeform.com/images/img0002",
+    "file_name": "banner.jpg",
+    "media_type": "image/jpeg",
+    "width": 1600,
+    "height": 900,
+    "has_alpha": false,
+    "avg_color": "#a0b0c0"
+  }
+]
