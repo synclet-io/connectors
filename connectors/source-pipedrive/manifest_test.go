@@ -85,6 +85,29 @@ func TestCheckForbidden(t *testing.T) {
 	}
 }
 
+// A company without notes or files gets "data": null from v1.
+func TestEmptyV1Lists(t *testing.T) {
+	r := newRequests()
+	s := suite(r)
+	s.Overrides = map[string]declarativetest.Fixture{
+		"v1/notes": {Status: 200, File: "v1/empty.json"},
+		"v1/files": {Status: 200, File: "v1/empty.json"},
+	}
+	h := declarativetest.New(t, s)
+	out := h.Read(t, h.Catalog(t, synclet.SyncModeFullRefresh, "notes", "files"), nil)
+	if out.Err != nil {
+		t.Fatalf("read: %v", out.Err)
+	}
+	for _, name := range []string{"notes", "files"} {
+		if n := len(out.Records(synclet.StreamDescriptor{Name: name})); n != 0 {
+			t.Errorf("%s: %d records, want none", name, n)
+		}
+		if got := r.take("v1/" + name); len(got) != 1 {
+			t.Errorf("%s: %d requests, want 1", name, len(got))
+		}
+	}
+}
+
 func TestIncrementalUpdatedSince(t *testing.T) {
 	for _, tc := range []struct{ stream, resumed string }{
 		{"deals", "2026-03-07T09:00:00Z"},

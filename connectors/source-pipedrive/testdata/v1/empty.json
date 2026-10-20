@@ -1,0 +1,11 @@
+{
+  "success": true,
+  "data": null,
+  "additional_data": {
+    "pagination": {
+      "start": 0,
+      "limit": 500,
+      "more_items_in_collection": false
+    }
+  }
+}

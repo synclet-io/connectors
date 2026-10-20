@@ -51,12 +51,9 @@ API and are not read.
 
 - Deals, persons, organizations, activities, products, pipelines and stages come from API v2, so their
   records have the v2 shape (`owner_id` and `person_id` as ids, custom fields under `custom_fields`), and
-  incremental reads use v2's `updated_since` instead of v1 `/recents?since_timestamp`. A v1 list with
-  nothing in it answers `"data": null`, which the manifest format reads as a broken response; `/recents`
-  answers that whenever nothing changed since the last sync, so every quiet incremental sync would fail.
-  v2 answers an empty array.
-- `notes` and `files` stay on v1 (they have no v2 endpoint) and are full refresh: a read of a company
-  with no notes or no files answers `"data": null` and fails that stream.
+  incremental reads use v2's `updated_since` instead of v1 `/recents?since_timestamp`.
+- `notes` and `files` stay on v1 (they have no v2 endpoint) and are full refresh. A v1 list with nothing in
+  it answers `"data": null`, which reads as no records.
 - API token only. OAuth would need a second auth method chosen by the configuration, which the manifest
   format does not have.
 - The company domain (`<company>.pipedrive.com`) is not configurable; requests go to `api.pipedrive.com`.
@@ -70,7 +67,7 @@ with `additionalProperties: true` on every object so a field or custom field Pip
 
 `manifest_test.go` runs `declarativetest.Run` (manifest lint, SDK conformance for full refresh and each
 incremental stream, the 401 check, at least two pages per stream, one 429) over the synthetic fixtures in
-`testdata/`, plus the 403 check, the `updated_since` of the first and the resumed read, the token in the
-query of every request, open schemas and a kept unknown field. A request is answered by
-`testdata/<path>.json`, a later page by `testdata/<path>/cursor=<c>.json` (v2) or
+`testdata/`, plus the 403 check, empty v1 lists (`"data": null`), the `updated_since` of the first and the
+resumed read, the token in the query of every request, open schemas and a kept unknown field. A request is
+answered by `testdata/<path>.json`, a later page by `testdata/<path>/cursor=<c>.json` (v2) or
 `testdata/<path>/start=<n>.json` (v1). Everything in them is synthetic.
