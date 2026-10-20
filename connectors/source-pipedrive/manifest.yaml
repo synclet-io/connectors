@@ -7,10 +7,10 @@ base_url: https://api.pipedrive.com/api/
 spec:
   title: Pipedrive Source Spec
   description: Reads deals, persons, organizations, activities, products, pipelines, stages, leads, notes, files and users from the Pipedrive API.
-  required: [api_token, start_date]
+  required: [api_token]
   properties:
-    api_token:  {type: string, title: API token, description: "Personal API token of a Pipedrive user, sent as the api_token query parameter. The connector reads what that user can see.", secret: true, order: 0}
-    start_date: {type: string, title: Start date, description: "Deals, persons, organizations and activities last updated before it are not read.", format: date-time, examples: ["2026-01-01T00:00:00Z"], order: 1}
+    api_token: {type: string, title: API token, description: "Personal API token of a Pipedrive user, sent as the api_token query parameter. The connector reads what that user can see.", secret: true, order: 0}
+    replication_start_date: {type: string, title: Start date, description: "Deals, persons, organizations and activities last updated before it are not read. Default 2010-01-01T00:00:00Z.", format: date-time, default: "2010-01-01T00:00:00Z", examples: ["2026-01-01T00:00:00Z"], order: 1}
 auth: {type: api_key, in: query, name: api_token, value: "{{ config.api_token }}"}
 errors: {message: $.error}
 retry:
@@ -27,7 +27,7 @@ streams:
     schema: schemas/deals.json
     records: {path: $.data}
     pagination: &cursor {type: cursor, cursor_from: $.additional_data.next_cursor, cursor_param: cursor, size: 500, size_param: limit}
-    incremental: {cursor_field: update_time, cursor_format: rfc3339, start: "{{ config.start_date }}", lookback: 1h}
+    incremental: {cursor_field: update_time, cursor_format: rfc3339, start: "{{ config.replication_start_date }}", lookback: 1h}
 
   - <<: *updated
     name: persons

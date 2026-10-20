@@ -10,8 +10,9 @@
         "title": "API token",
         "type": "string"
       },
-      "start_date": {
-        "description": "Deals, persons, organizations and activities last updated before it are not read.",
+      "replication_start_date": {
+        "default": "2010-01-01T00:00:00Z",
+        "description": "Deals, persons, organizations and activities last updated before it are not read. Default 2010-01-01T00:00:00Z.",
         "examples": [
           "2026-01-01T00:00:00Z"
         ],
@@ -22,8 +23,7 @@
       }
     },
     "required": [
-      "api_token",
-      "start_date"
+      "api_token"
     ],
     "title": "Pipedrive Source Spec",
     "type": "object"

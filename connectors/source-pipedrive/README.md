@@ -17,7 +17,7 @@ docker run --rm -v "$PWD:/data" ghcr.io/synclet-io/connectors/source-pipedrive:d
 | Key | Required | Meaning |
 |---|---|---|
 | `api_token` | yes | Personal API token, sent as the `api_token` query parameter (left out of every logged URL). The connector reads what its user can see |
-| `start_date` | yes | RFC 3339 time; deals, persons, organizations and activities last updated before it are not read |
+| `replication_start_date` | no | RFC 3339 time, default `2010-01-01T00:00:00Z`; deals, persons, organizations and activities last updated before it are not read |
 
 ## Streams
 
@@ -40,7 +40,7 @@ Records are Pipedrive's objects as sent, primary key `id`. API v2 pages follow
 `additional_data.pagination.more_items_in_collection` is false; leads pages are 100 long and stop at a
 shorter page; users answer in one response.
 
-An incremental read sends `updated_since=start_date` on the first sync and the saved cursor minus one hour
+An incremental read sends `updated_since=replication_start_date` on the first sync and the saved cursor minus one hour
 afterwards; records older than it are dropped by the engine too. Deleted objects are not listed by the
 API and are not read.
 

@@ -20,8 +20,8 @@ import (
 )
 
 var (
-	config = json.RawMessage(`{"api_token":"test-api-token","start_date":"2026-01-01T00:00:00Z"}`)
-	broken = json.RawMessage(`{"api_token":"wrong-api-token","start_date":"2026-01-01T00:00:00Z"}`)
+	config = json.RawMessage(`{"api_token":"test-api-token","replication_start_date":"2026-01-01T00:00:00Z"}`)
+	broken = json.RawMessage(`{"api_token":"wrong-api-token","replication_start_date":"2026-01-01T00:00:00Z"}`)
 	now    = time.Date(2026, 10, 18, 12, 0, 0, 0, time.UTC)
 )
 
@@ -70,6 +70,23 @@ func suite(r *requests) declarativetest.Suite {
 
 func TestManifest(t *testing.T) {
 	declarativetest.Run(t, suite(newRequests()))
+}
+
+// An Airbyte config may leave replication_start_date out; reads then start
+// at Airbyte's default, 2010-01-01T00:00:00Z.
+func TestAirbyteConfigWithoutStartDate(t *testing.T) {
+	r := newRequests()
+	s := suite(r)
+	s.Config = json.RawMessage(`{"api_token":"test-api-token","num_workers":3}`)
+	declarativetest.Run(t, s)
+	h := declarativetest.New(t, s)
+	if out := h.Read(t, h.Catalog(t, synclet.SyncModeIncremental, "deals"), nil); out.Err != nil {
+		t.Fatal(out.Err)
+	}
+	got := r.take("v2/deals")
+	if len(got) == 0 || got[0].Get("updated_since") != "2010-01-01T00:00:00Z" {
+		t.Errorf("first read: %v, want updated_since 2010-01-01T00:00:00Z", got)
+	}
 }
 
 func TestCheckForbidden(t *testing.T) {
