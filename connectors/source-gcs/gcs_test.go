@@ -106,15 +106,21 @@ func TestReadFakeGCS(t *testing.T) {
 
 	t.Run("content-encoding gzip", func(t *testing.T) {
 		f.createBucket("encoded")
-		f.putObject(fakestorage.Object{
-			ObjectAttrs: fakestorage.ObjectAttrs{BucketName: "encoded", Name: "in/a.csv.gz", ContentEncoding: "gzip", ContentType: "text/csv", Updated: t0},
-			Content:     gzipped(t, []byte(datasetCSV)),
-		})
-		cfg := f.config(t, "reader", "encoded", StreamConfig{Name: "s", Glob: "in/*.csv.gz", Format: Format{Filetype: formatCSV}})
-		out := runRead(t, f.source(), cfg, catalogOf(synclet.SyncModeFullRefresh, discoverStreams(t, f.source(), cfg)["s"]), nil)
-		require.NoError(t, out.Err)
-		data, _ := stripMetadata(records(t, out, "s"))
-		requireSameRecords(t, wantDataset, data)
+		// gsutil cp -Z keeps the name, so a.csv has no extension to go by.
+		for _, name := range []string{"a.csv.gz", "a.csv"} {
+			t.Run(name, func(t *testing.T) {
+				f.putObject(fakestorage.Object{
+					ObjectAttrs: fakestorage.ObjectAttrs{BucketName: "encoded", Name: "in/" + name, ContentEncoding: "gzip", ContentType: "text/csv", Updated: t0},
+					Content:     gzipped(t, []byte(datasetCSV)),
+				})
+				cfg := f.config(t, "reader", "encoded", StreamConfig{Name: "s", Glob: "in/" + name, Format: Format{Filetype: formatCSV}})
+				require.NoError(t, f.source().Check(t.Context(), cfg))
+				out := runRead(t, f.source(), cfg, catalogOf(synclet.SyncModeFullRefresh, discoverStreams(t, f.source(), cfg)["s"]), nil)
+				require.NoError(t, out.Err)
+				data, _ := stripMetadata(records(t, out, "s"))
+				requireSameRecords(t, wantDataset, data)
+			})
+		}
 	})
 
 	t.Run("incremental", func(t *testing.T) {
