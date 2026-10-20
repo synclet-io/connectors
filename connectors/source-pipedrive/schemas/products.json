@@ -1,0 +1,154 @@
+{
+  "type": "object",
+  "properties": {
+    "add_time": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "billing_frequency": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "billing_frequency_cycles": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "category": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "code": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "custom_fields": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {},
+      "additionalProperties": true
+    },
+    "description": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "id": {
+      "type": "integer"
+    },
+    "is_deleted": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "is_linkable": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "owner_id": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "prices": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": [
+          "null",
+          "object"
+        ],
+        "properties": {
+          "cost": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "currency": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "direct_cost": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "notes": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "price": {
+            "type": [
+              "null",
+              "number"
+            ]
+          },
+          "product_id": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "tax": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "unit": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "update_time": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "visible_to": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

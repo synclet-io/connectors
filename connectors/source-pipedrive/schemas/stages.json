@@ -1,0 +1,65 @@
+{
+  "type": "object",
+  "properties": {
+    "add_time": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "days_to_rotten": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "deal_probability": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "id": {
+      "type": "integer"
+    },
+    "is_deal_rot_enabled": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "is_deleted": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "order_nr": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "pipeline_id": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "update_time": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": true
+}

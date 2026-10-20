@@ -1,0 +1,6 @@
+{
+  "success": false,
+  "error": "unauthorized access",
+  "errorCode": 401,
+  "error_info": "Please check developers.pipedrive.com for more information about Pipedrive API."
+}

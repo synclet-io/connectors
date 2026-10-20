@@ -1,0 +1,32 @@
+{
+  "success": true,
+  "data": [
+    {
+      "id": 22,
+      "name": "Example Org 3",
+      "owner_id": 100,
+      "add_time": "2026-01-04T10:00:00Z",
+      "update_time": "2026-03-04T10:00:00Z",
+      "is_deleted": false,
+      "visible_to": 3,
+      "label_ids": [],
+      "address": {
+        "value": "1 Example Street, Exampleville",
+        "country": "US",
+        "locality": "Exampleville",
+        "route": "Example Street",
+        "street_number": "1",
+        "postal_code": "00000",
+        "admin_area_level_1": null,
+        "admin_area_level_2": null,
+        "sublocality": null,
+        "subpremise": null,
+        "formatted_address": "1 Example Street, Exampleville"
+      },
+      "custom_fields": {}
+    }
+  ],
+  "additional_data": {
+    "next_cursor": null
+  }
+}

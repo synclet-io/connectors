@@ -1,0 +1,64 @@
+{
+  "success": true,
+  "data": [
+    {
+      "id": 40,
+      "name": "Product 1",
+      "code": "P-1",
+      "description": null,
+      "unit": "pcs",
+      "tax": 0,
+      "category": null,
+      "owner_id": 100,
+      "is_linkable": true,
+      "is_deleted": false,
+      "visible_to": 3,
+      "add_time": "2026-01-01T10:00:00Z",
+      "update_time": "2026-02-01T10:00:00Z",
+      "billing_frequency": "one-time",
+      "billing_frequency_cycles": null,
+      "prices": [
+        {
+          "product_id": 40,
+          "price": 99.5,
+          "currency": "USD",
+          "cost": 10,
+          "direct_cost": null,
+          "notes": ""
+        }
+      ],
+      "custom_fields": {}
+    },
+    {
+      "id": 41,
+      "name": "Product 2",
+      "code": "P-2",
+      "description": null,
+      "unit": "pcs",
+      "tax": 0,
+      "category": null,
+      "owner_id": 100,
+      "is_linkable": true,
+      "is_deleted": false,
+      "visible_to": 3,
+      "add_time": "2026-01-02T10:00:00Z",
+      "update_time": "2026-02-02T10:00:00Z",
+      "billing_frequency": "one-time",
+      "billing_frequency_cycles": null,
+      "prices": [
+        {
+          "product_id": 41,
+          "price": 99.5,
+          "currency": "USD",
+          "cost": 10,
+          "direct_cost": null,
+          "notes": ""
+        }
+      ],
+      "custom_fields": {}
+    }
+  ],
+  "additional_data": {
+    "next_cursor": "c2products"
+  }
+}

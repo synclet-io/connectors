@@ -1,0 +1,33 @@
+{
+  "success": true,
+  "data": [
+    {
+      "id": "00000000-0000-4000-8000-000000000100",
+      "title": "Lead 101",
+      "owner_id": 100,
+      "creator_id": 100,
+      "label_ids": [],
+      "person_id": 10,
+      "organization_id": null,
+      "source_name": "API",
+      "origin": "API",
+      "origin_id": null,
+      "channel": null,
+      "channel_id": null,
+      "is_archived": false,
+      "was_seen": false,
+      "value": null,
+      "expected_close_date": null,
+      "next_activity_id": null,
+      "add_time": "2026-02-01T10:00:00.000Z",
+      "update_time": "2026-02-02T10:00:00.000Z",
+      "visible_to": "3",
+      "cc_email": "example+lead100@pipedrivemail.com"
+    }
+  ],
+  "additional_data": {
+    "start": 100,
+    "limit": 100,
+    "more_items_in_collection": false
+  }
+}

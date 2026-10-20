@@ -1,0 +1,92 @@
+# yaml-language-server: $schema=../source-declarative/internal/manifest/manifest.schema.json
+version: 1
+connector:
+  name: source-pipedrive
+  documentation_url: https://github.com/synclet-io/connectors/tree/main/connectors/source-pipedrive
+base_url: https://api.pipedrive.com/api/
+spec:
+  title: Pipedrive Source Spec
+  description: Reads deals, persons, organizations, activities, products, pipelines, stages, leads, notes, files and users from the Pipedrive API.
+  required: [api_token, start_date]
+  properties:
+    api_token:  {type: string, title: API token, description: "Personal API token of a Pipedrive user, sent as the api_token query parameter. The connector reads what that user can see.", secret: true, order: 0}
+    start_date: {type: string, title: Start date, description: "Deals, persons, organizations and activities last updated before it are not read.", format: date-time, examples: ["2026-01-01T00:00:00Z"], order: 1}
+auth: {type: api_key, in: query, name: api_token, value: "{{ config.api_token }}"}
+errors: {message: $.error}
+retry:
+  rate_limit:
+    statuses: [429]
+    wait: ["header:Retry-After", "header:x-ratelimit-reset", 10s]
+check: {stream: users}
+streams:
+  - &updated
+    name: deals
+    path: v2/deals
+    params: {sort_by: update_time, sort_direction: asc, updated_since: "{{ since }}"}
+    primary_key: [id]
+    schema: schemas/deals.json
+    records: {path: $.data}
+    pagination: &cursor {type: cursor, cursor_from: $.additional_data.next_cursor, cursor_param: cursor, size: 500, size_param: limit}
+    incremental: {cursor_field: update_time, cursor_format: rfc3339, start: "{{ config.start_date }}", lookback: 1h}
+
+  - <<: *updated
+    name: persons
+    path: v2/persons
+    schema: schemas/persons.json
+
+  - <<: *updated
+    name: organizations
+    path: v2/organizations
+    schema: schemas/organizations.json
+
+  - <<: *updated
+    name: activities
+    path: v2/activities
+    schema: schemas/activities.json
+
+  - &all
+    name: products
+    path: v2/products
+    params: {sort_by: id, sort_direction: asc}
+    primary_key: [id]
+    schema: schemas/products.json
+    records: {path: $.data}
+    pagination: *cursor
+
+  - <<: *all
+    name: pipelines
+    path: v2/pipelines
+    schema: schemas/pipelines.json
+
+  - <<: *all
+    name: stages
+    path: v2/stages
+    schema: schemas/stages.json
+
+  - &v1
+    name: notes
+    path: v1/notes
+    params: {sort: "id ASC"}
+    primary_key: [id]
+    schema: schemas/notes.json
+    records: {path: $.data}
+    pagination: {type: offset, offset_param: start, size: 500, size_param: limit, has_more: $.additional_data.pagination.more_items_in_collection}
+
+  - <<: *v1
+    name: files
+    path: v1/files
+    schema: schemas/files.json
+
+  - name: leads
+    path: v1/leads
+    params: {sort: "id ASC"}
+    primary_key: [id]
+    schema: schemas/leads.json
+    records: {path: $.data}
+    pagination: {type: offset, offset_param: start, size: 100, size_param: limit, short_page: true}
+
+  - name: users
+    path: v1/users
+    primary_key: [id]
+    schema: schemas/users.json
+    records: {path: $.data}

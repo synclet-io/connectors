@@ -1,0 +1,61 @@
+{
+  "success": true,
+  "data": [
+    {
+      "id": 100,
+      "name": "User 1",
+      "default_currency": "USD",
+      "locale": "en_US",
+      "lang": 1,
+      "email": "user1@example.com",
+      "phone": null,
+      "activated": true,
+      "last_login": "2026-03-01 10:00:00",
+      "created": "2026-01-01 10:00:00",
+      "modified": "2026-02-01 10:00:00",
+      "has_created_company": true,
+      "access": [
+        {
+          "app": "sales",
+          "admin": true,
+          "permission_set_id": "ps-0"
+        }
+      ],
+      "active_flag": true,
+      "timezone_name": "Europe/London",
+      "timezone_offset": "+00:00",
+      "role_id": 1,
+      "icon_url": null,
+      "is_you": true,
+      "is_deleted": false
+    },
+    {
+      "id": 101,
+      "name": "User 2",
+      "default_currency": "USD",
+      "locale": "en_US",
+      "lang": 1,
+      "email": "user2@example.com",
+      "phone": null,
+      "activated": true,
+      "last_login": "2026-03-02 10:00:00",
+      "created": "2026-01-02 10:00:00",
+      "modified": "2026-02-02 10:00:00",
+      "has_created_company": false,
+      "access": [
+        {
+          "app": "sales",
+          "admin": false,
+          "permission_set_id": "ps-1"
+        }
+      ],
+      "active_flag": true,
+      "timezone_name": "Europe/London",
+      "timezone_offset": "+00:00",
+      "role_id": 1,
+      "icon_url": null,
+      "is_you": false,
+      "is_deleted": false
+    }
+  ]
+}

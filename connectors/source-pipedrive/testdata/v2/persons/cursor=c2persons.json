@@ -1,0 +1,42 @@
+{
+  "success": true,
+  "data": [
+    {
+      "id": 12,
+      "name": "Person 3",
+      "first_name": "Person",
+      "last_name": "3",
+      "owner_id": 100,
+      "org_id": 22,
+      "add_time": "2026-01-05T10:00:00Z",
+      "update_time": "2026-03-05T10:00:00Z",
+      "is_deleted": false,
+      "visible_to": 3,
+      "label_ids": [],
+      "emails": [
+        {
+          "value": "person3@example.com",
+          "primary": true,
+          "label": "work"
+        }
+      ],
+      "phones": [
+        {
+          "value": "+15550100002",
+          "primary": true,
+          "label": "work"
+        }
+      ],
+      "picture_id": null,
+      "custom_fields": {},
+      "postal_address": null,
+      "notes": null,
+      "birthday": null,
+      "job_title": "Engineer",
+      "marketing_status": "no_consent"
+    }
+  ],
+  "additional_data": {
+    "next_cursor": null
+  }
+}

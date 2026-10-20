@@ -1,0 +1,36 @@
+{
+  "success": true,
+  "data": [
+    {
+      "id": 42,
+      "name": "Product 3",
+      "code": "P-3",
+      "description": null,
+      "unit": "pcs",
+      "tax": 0,
+      "category": null,
+      "owner_id": 100,
+      "is_linkable": true,
+      "is_deleted": false,
+      "visible_to": 3,
+      "add_time": "2026-01-03T10:00:00Z",
+      "update_time": "2026-02-03T10:00:00Z",
+      "billing_frequency": "one-time",
+      "billing_frequency_cycles": null,
+      "prices": [
+        {
+          "product_id": 42,
+          "price": 99.5,
+          "currency": "USD",
+          "cost": 10,
+          "direct_cost": null,
+          "notes": ""
+        }
+      ],
+      "custom_fields": {}
+    }
+  ],
+  "additional_data": {
+    "next_cursor": null
+  }
+}

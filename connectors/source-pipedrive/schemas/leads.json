@@ -1,0 +1,147 @@
+{
+  "type": "object",
+  "properties": {
+    "add_time": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "cc_email": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "channel": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "channel_id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "creator_id": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "expected_close_date": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "id": {
+      "type": "string"
+    },
+    "is_archived": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "label_ids": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {}
+    },
+    "next_activity_id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "organization_id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "origin": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "origin_id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "owner_id": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "person_id": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "source_name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "title": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "update_time": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "value": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "amount": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
+        "currency": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "visible_to": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "was_seen": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

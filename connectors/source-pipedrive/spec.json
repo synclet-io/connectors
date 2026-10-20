@@ -1,0 +1,41 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Reads deals, persons, organizations, activities, products, pipelines, stages, leads, notes, files and users from the Pipedrive API.",
+    "properties": {
+      "api_token": {
+        "airbyte_secret": true,
+        "description": "Personal API token of a Pipedrive user, sent as the api_token query parameter. The connector reads what that user can see.",
+        "order": 0,
+        "title": "API token",
+        "type": "string"
+      },
+      "start_date": {
+        "description": "Deals, persons, organizations and activities last updated before it are not read.",
+        "examples": [
+          "2026-01-01T00:00:00Z"
+        ],
+        "format": "date-time",
+        "order": 1,
+        "title": "Start date",
+        "type": "string"
+      }
+    },
+    "required": [
+      "api_token",
+      "start_date"
+    ],
+    "title": "Pipedrive Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-pipedrive",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": true,
+  "supportsNormalization": false
+}

@@ -1,0 +1,195 @@
+{
+  "type": "object",
+  "properties": {
+    "add_time": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "attendees": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {}
+    },
+    "busy": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "conference_meeting_client": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "conference_meeting_id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "conference_meeting_url": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "creator_user_id": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "deal_id": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "done": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "due_date": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "due_time": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "duration": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "id": {
+      "type": "integer"
+    },
+    "is_deleted": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "lead_id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "location": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "marked_as_done_time": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "note": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "org_id": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "owner_id": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "participants": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": [
+          "null",
+          "object"
+        ],
+        "properties": {
+          "person_id": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "primary": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "person_id": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "priority": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "project_id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "public_description": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "subject": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "type": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "update_time": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": true
+}

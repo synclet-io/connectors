@@ -1,0 +1,43 @@
+{
+  "success": true,
+  "data": [
+    {
+      "id": 32,
+      "subject": "Call 3",
+      "type": "call",
+      "owner_id": 100,
+      "creator_user_id": 100,
+      "is_deleted": false,
+      "add_time": "2026-02-03T10:00:00Z",
+      "update_time": "2026-03-03T10:00:00Z",
+      "deal_id": 3,
+      "lead_id": null,
+      "person_id": 12,
+      "org_id": 22,
+      "project_id": null,
+      "due_date": "2026-03-20",
+      "due_time": "10:00",
+      "duration": "00:30",
+      "busy": false,
+      "done": false,
+      "marked_as_done_time": null,
+      "location": null,
+      "participants": [
+        {
+          "person_id": 12,
+          "primary": true
+        }
+      ],
+      "attendees": [],
+      "conference_meeting_client": null,
+      "conference_meeting_url": null,
+      "conference_meeting_id": null,
+      "public_description": null,
+      "priority": null,
+      "note": null
+    }
+  ],
+  "additional_data": {
+    "next_cursor": null
+  }
+}

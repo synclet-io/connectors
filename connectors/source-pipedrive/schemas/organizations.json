@@ -1,0 +1,137 @@
+{
+  "type": "object",
+  "properties": {
+    "add_time": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "address": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "admin_area_level_1": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "admin_area_level_2": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "country": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "formatted_address": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "locality": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "postal_code": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "route": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "street_number": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "sublocality": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "subpremise": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "value": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "custom_fields": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {},
+      "additionalProperties": true
+    },
+    "id": {
+      "type": "integer"
+    },
+    "is_deleted": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "label_ids": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {}
+    },
+    "name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "owner_id": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "update_time": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "visible_to": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

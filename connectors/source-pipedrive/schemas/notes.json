@@ -1,0 +1,171 @@
+{
+  "type": "object",
+  "properties": {
+    "active_flag": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "add_time": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "content": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "deal": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "title": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "deal_id": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "id": {
+      "type": "integer"
+    },
+    "last_update_user_id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "lead": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "lead_id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "org_id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "organization": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "person": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "person_id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "pinned_to_deal_flag": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "pinned_to_lead_flag": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "pinned_to_organization_flag": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "pinned_to_person_flag": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "pinned_to_project_flag": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "project_id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "update_time": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "user": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "email": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "icon_url": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "is_you": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "name": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "user_id": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

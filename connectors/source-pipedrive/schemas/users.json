@@ -1,0 +1,150 @@
+{
+  "type": "object",
+  "properties": {
+    "access": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": [
+          "null",
+          "object"
+        ],
+        "properties": {
+          "admin": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "app": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "permission_set_id": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "activated": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "active_flag": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "created": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "default_currency": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "email": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "has_created_company": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "icon_url": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "id": {
+      "type": "integer"
+    },
+    "is_deleted": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "is_you": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "lang": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "last_login": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "locale": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "modified": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "phone": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "role_id": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "timezone_name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "timezone_offset": {
+      "type": [
+        "null",
+        "string"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

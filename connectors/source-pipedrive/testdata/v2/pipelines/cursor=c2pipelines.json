@@ -1,0 +1,17 @@
+{
+  "success": true,
+  "data": [
+    {
+      "id": 3,
+      "name": "Pipeline 3",
+      "order_nr": 2,
+      "is_deleted": false,
+      "is_deal_probability_enabled": false,
+      "add_time": "2026-01-01T10:00:00Z",
+      "update_time": "2026-01-02T10:00:00Z"
+    }
+  ],
+  "additional_data": {
+    "next_cursor": null
+  }
+}

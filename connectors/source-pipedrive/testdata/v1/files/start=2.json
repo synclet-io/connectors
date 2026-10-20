@@ -1,0 +1,44 @@
+{
+  "success": true,
+  "data": [
+    {
+      "id": 62,
+      "user_id": 100,
+      "deal_id": 3,
+      "person_id": null,
+      "org_id": null,
+      "product_id": null,
+      "activity_id": null,
+      "lead_id": null,
+      "add_time": "2026-02-04 10:00:00",
+      "update_time": "2026-02-04 10:00:00",
+      "file_name": "proposal-3.pdf",
+      "file_type": "pdf",
+      "file_size": 3072,
+      "active_flag": true,
+      "inline_flag": false,
+      "remote_location": "s3",
+      "remote_id": "remote-3",
+      "cid": "",
+      "s3_bucket": "",
+      "mail_message_id": "",
+      "mail_template_id": "",
+      "deal_name": "Example deal 3",
+      "person_name": "",
+      "org_name": "",
+      "product_name": "",
+      "lead_name": "",
+      "url": "https://example.pipedrive.com/v1/files/62/download",
+      "name": "proposal-3.pdf",
+      "description": ""
+    }
+  ],
+  "additional_data": {
+    "pagination": {
+      "start": 2,
+      "limit": 500,
+      "more_items_in_collection": false,
+      "next_start": null
+    }
+  }
+}

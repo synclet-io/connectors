@@ -1,0 +1,177 @@
+{
+  "type": "object",
+  "properties": {
+    "active_flag": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "activity_id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "add_time": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "cid": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "deal_id": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "deal_name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "description": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "file_name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "file_size": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "file_type": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "id": {
+      "type": "integer"
+    },
+    "inline_flag": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "lead_id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "lead_name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "mail_message_id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "mail_template_id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "org_id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "org_name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "person_id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "person_name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "product_id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "product_name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "remote_id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "remote_location": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "s3_bucket": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "update_time": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "url": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "user_id": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

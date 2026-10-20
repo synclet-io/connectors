@@ -1,0 +1,75 @@
+{
+  "success": true,
+  "data": [
+    {
+      "id": 50,
+      "user_id": 100,
+      "deal_id": 1,
+      "person_id": null,
+      "org_id": null,
+      "lead_id": null,
+      "project_id": null,
+      "content": "<p>Synthetic note 1</p>",
+      "add_time": "2026-02-01 10:00:00",
+      "update_time": "2026-03-01 10:00:00",
+      "active_flag": true,
+      "pinned_to_deal_flag": false,
+      "pinned_to_person_flag": false,
+      "pinned_to_organization_flag": false,
+      "pinned_to_lead_flag": false,
+      "pinned_to_project_flag": false,
+      "last_update_user_id": null,
+      "organization": null,
+      "person": null,
+      "deal": {
+        "title": "Example deal 1"
+      },
+      "lead": null,
+      "user": {
+        "email": "owner@example.com",
+        "name": "Owner",
+        "icon_url": null,
+        "is_you": true
+      }
+    },
+    {
+      "id": 51,
+      "user_id": 100,
+      "deal_id": 2,
+      "person_id": null,
+      "org_id": null,
+      "lead_id": null,
+      "project_id": null,
+      "content": "<p>Synthetic note 2</p>",
+      "add_time": "2026-02-02 10:00:00",
+      "update_time": "2026-03-02 10:00:00",
+      "active_flag": true,
+      "pinned_to_deal_flag": false,
+      "pinned_to_person_flag": false,
+      "pinned_to_organization_flag": false,
+      "pinned_to_lead_flag": false,
+      "pinned_to_project_flag": false,
+      "last_update_user_id": null,
+      "organization": null,
+      "person": null,
+      "deal": {
+        "title": "Example deal 2"
+      },
+      "lead": null,
+      "user": {
+        "email": "owner@example.com",
+        "name": "Owner",
+        "icon_url": null,
+        "is_you": true
+      }
+    }
+  ],
+  "additional_data": {
+    "pagination": {
+      "start": 0,
+      "limit": 500,
+      "more_items_in_collection": true,
+      "next_start": 2
+    }
+  }
+}

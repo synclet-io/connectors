@@ -1,0 +1,20 @@
+{
+  "success": true,
+  "data": [
+    {
+      "id": 3,
+      "order_nr": 2,
+      "name": "Stage 3",
+      "is_deleted": false,
+      "deal_probability": 100,
+      "pipeline_id": 1,
+      "is_deal_rot_enabled": false,
+      "days_to_rotten": null,
+      "add_time": "2026-01-01T10:00:00Z",
+      "update_time": "2026-01-02T10:00:00Z"
+    }
+  ],
+  "additional_data": {
+    "next_cursor": null
+  }
+}

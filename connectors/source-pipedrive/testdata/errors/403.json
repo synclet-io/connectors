@@ -1,0 +1,6 @@
+{
+  "success": false,
+  "error": "You do not have permissions to access this resource",
+  "errorCode": 403,
+  "error_info": "Please check developers.pipedrive.com for more information about Pipedrive API."
+}

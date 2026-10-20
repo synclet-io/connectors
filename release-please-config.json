@@ -420,6 +420,16 @@
         }
       ]
     },
+    "connectors/source-pipedrive": {
+      "component": "source-pipedrive",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "meta.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
     "connectors/source-postgres": {
       "component": "source-postgres",
       "extra-files": [
