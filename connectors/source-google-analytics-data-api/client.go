@@ -48,7 +48,7 @@ func (s Source) apiClient(ctx context.Context, cfg Config) (*apiClient, error) {
 	}
 	tokenURL := s.tokenURL
 	if tokenURL == "" {
-		tokenURL = defaultTokenURL
+		tokenURL = googleTokenURL
 	}
 	auth, err := newTokenSource(ctx, hc, tokenURL, cfg.Credentials)
 	if err != nil {

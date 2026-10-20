@@ -16,10 +16,7 @@ import (
 	"golang.org/x/oauth2/jwt"
 )
 
-const (
-	defaultTokenURL = "https://oauth2.googleapis.com/token"
-	scope           = "https://www.googleapis.com/auth/analytics.readonly"
-)
+const scope = "https://www.googleapis.com/auth/analytics.readonly"
 
 // parseServiceAccountKey reads a service account JSON key and checks that
 // its private key is a PEM RSA key, so a malformed key fails before any
@@ -28,7 +25,11 @@ func parseServiceAccountKey(raw string) (*jwt.Config, error) {
 	invalid := func(err error) error {
 		return fmt.Errorf("service_account_key is not a valid service account key: %w", err)
 	}
-	conf, err := google.JWTConfigFromJSON([]byte(raw), scope)
+	key, err := checkServiceAccountKey([]byte(raw), googleTokenURL)
+	if err != nil {
+		return nil, invalid(err)
+	}
+	conf, err := google.JWTConfigFromJSON(key, scope)
 	if err != nil {
 		return nil, invalid(err)
 	}
