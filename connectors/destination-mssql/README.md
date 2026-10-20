@@ -6,7 +6,7 @@ deduplication. Works with SQL Server 2016 and later and with Azure SQL Database;
 Server 2022.
 
 ```bash
-MSSQL_TEST_DOCKER=1 task test CONNECTOR=destination-mssql   # without it the database tests are skipped
+task test CONNECTOR=destination-mssql     # needs Docker; go test -short skips the database tests
 task build CONNECTOR=destination-mssql
 docker run --rm -v "$PWD:/data" ghcr.io/synclet-io/connectors/destination-mssql:dev check --config /data/config.json
 ```

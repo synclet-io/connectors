@@ -23,8 +23,6 @@ import (
 const (
 	msImage      = "mcr.microsoft.com/mssql/server:2022-latest"
 	msSAPassword = "Synclet-SA-Test1!"
-	// dockerEnv enables the tests that start SQL Server in Docker.
-	dockerEnv = "MSSQL_TEST_DOCKER"
 )
 
 var (
@@ -47,8 +45,8 @@ func TestMain(m *testing.M) {
 
 func needDocker(t *testing.T) {
 	t.Helper()
-	if os.Getenv(dockerEnv) == "" || testing.Short() {
-		t.Skip("starts SQL Server in Docker; set " + dockerEnv + "=1 to run")
+	if testing.Short() {
+		t.Skip("starts SQL Server in Docker; skipped under -short")
 	}
 }
 
