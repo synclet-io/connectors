@@ -86,8 +86,9 @@ still writes `$browser` to `_browser`.
 
 ### Incremental reads
 
-- `export` saves the latest event `time`. The next read requests from the project day of that time minus
-  `export_lookback_window` seconds, sends `where=properties["$time"]>=datetime(<that moment>)` and emits
+- `export` saves the latest event `time`. The next read requests from the day of that time minus
+  `export_lookback_window` seconds, the earlier of its project day and its UTC day since Mixpanel reads
+  `from_date` in UTC for projects created since 2023, sends `where=properties["$time"]>=datetime(<that moment>)` and emits
   only events at or after it. With the default `0` only the events at the saved time itself are emitted
   again; a larger window re-reads late events, which a destination can deduplicate on `insert_id`
   (Mixpanel deduplicates on `event`, `distinct_id`, `time` and `insert_id`).

@@ -89,11 +89,14 @@ func TestExportIncremental(t *testing.T) {
 		before := len(h.list())
 		out := read(t, src, cfg, cat, stateOf(t, streamExport, `{"time":"2026-10-17T18:00:00Z"}`))
 		require.NoError(t, out.Err)
-		// 18:00Z is 03:00 on 2026-10-18 in Tokyo, which is also today there;
-		// attribution_window does not move the start of export.
+		// 18:00Z is 03:00 on 2026-10-18 in Tokyo, which is also today there.
+		// Mixpanel reads the days of projects created since 2023 in UTC, so
+		// the read starts at the earlier UTC day; attribution_window does not
+		// move it.
 		assert.Equal(t, []string{
-			`export export?from_date=2026-10-18&to_date=2026-10-19&where=properties%5B%22%24time%22%5D%3E%3Ddatetime%281792260000%29`,
+			`export export?from_date=2026-10-17&to_date=2026-10-19&where=properties%5B%22%24time%22%5D%3E%3Ddatetime%281792260000%29`,
 		}, h.list()[before:])
+		assert.Equal(t, []any{"2026-10-17T18:00:00Z"}, field(records(t, out, streamExport), "time"))
 	})
 }
 

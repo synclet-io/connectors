@@ -27,8 +27,8 @@ type rawEvent struct {
 
 // export streams the raw events of each date window. An incremental read
 // emits only the events from export_lookback_window before the saved time
-// on, starting at the project day of that moment, and emits the latest
-// event time after each window.
+// on, starting at the first day of that moment, and emits the latest event
+// time after each window.
 func (r *reader) export(ctx context.Context, cs synclet.ConfiguredStream, inc bool, saved json.RawMessage) error {
 	desc := cs.Stream.Descriptor()
 	var st exportState
@@ -44,9 +44,7 @@ func (r *reader) export(ctx context.Context, cs synclet.ConfiguredStream, inc bo
 		}
 		cursor = t
 		since = t.Add(-r.cfg.exportLookback())
-		loc, _ := r.cfg.location()
-		local := since.In(loc)
-		if d := civil(local.Year(), local.Month(), local.Day()); d.After(from) {
+		if d := firstDay(since, r.cfg); d.After(from) {
 			from = d
 		}
 	}
@@ -96,6 +94,19 @@ func (r *reader) export(ctx context.Context, cs synclet.ConfiguredStream, inc bo
 		}
 	}
 	return nil
+}
+
+// firstDay is the earlier of the project day and the UTC day of t: Mixpanel
+// reads from_date in the project zone for projects created before 2023 and
+// in UTC for later ones.
+func firstDay(t time.Time, cfg Config) time.Time {
+	loc, _ := cfg.location()
+	local, utc := t.In(loc), t.UTC()
+	d := civil(local.Year(), local.Month(), local.Day())
+	if u := civil(utc.Year(), utc.Month(), utc.Day()); u.Before(d) {
+		return u
+	}
+	return d
 }
 
 // exportRecord flattens an event into its name and properties. time
