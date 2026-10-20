@@ -88,6 +88,35 @@ func TestWriteEchoesGlobalState(t *testing.T) {
 	assert.JSONEq(t, `{"lsn":42}`, string(states[0].Global.SharedState))
 }
 
+func TestWriteEchoesLegacyState(t *testing.T) {
+	out := runWrite(t, `{}`, rec("users", 1), `{"type":"STATE","state":{"type":"LEGACY","data":{"users":{"c":1}}}}`)
+	require.NoError(t, out.Err)
+	states := out.States()
+	require.Len(t, states, 1)
+	assert.Equal(t, synclet.StateTypeLegacy, states[0].Type)
+	assert.JSONEq(t, `{"users":{"c":1}}`, string(states[0].Data))
+}
+
+func TestWriteIgnoresOtherMessages(t *testing.T) {
+	out := runWrite(t, `{}`,
+		`{"type":"LOG","log":{"level":"INFO","message":"upstream"}}`,
+		`{"type":"TRACE","trace":{"type":"STREAM_STATUS","emitted_at":1}}`,
+		`{"type":"CONTROL","control":{"type":"CONNECTOR_CONFIG","emitted_at":1}}`,
+		`{"type":"SOMETHING_NEW"}`,
+		rec("users", 1), state("users", 1),
+	)
+	require.NoError(t, out.Err)
+	assert.Equal(t, []string{`users {"cursor":1}`}, stateCursors(out))
+	assert.Len(t, out.Messages, 1)
+}
+
+func TestWriteLargeRecord(t *testing.T) {
+	big := fmt.Sprintf(`{"type":"RECORD","record":{"stream":"users","data":{"blob":%q},"emitted_at":0}}`, strings.Repeat("x", 4<<20))
+	out := runWrite(t, `{}`, big, state("users", 1))
+	require.NoError(t, out.Err)
+	assert.Equal(t, []string{`users {"cursor":1}`}, stateCursors(out))
+}
+
 func TestWriteLoggingFirstN(t *testing.T) {
 	lines := append(records("users", 10), records("orders", 2)...)
 	out := runWrite(t, loggingConfig(`{"logging_type":"FirstN","max_entry_count":3}`), append(lines, state("users", 9))...)
