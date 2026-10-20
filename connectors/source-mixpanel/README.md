@@ -38,7 +38,8 @@ Credentials travel only as HTTP Basic auth (`username:secret`, or `api_secret:` 
 in a URL. A service account sends `project_id` as a query parameter on every request and needs a project
 role of Analyst or above. The keys match Airbyte's Mixpanel source, so an
 Airbyte configuration works unchanged; Airbyte's `select_properties_by_default` and `export_lookback_window`
-are not read.
+are not read. A `credentials` object without `option_title`, which Airbyte accepts, is a project secret
+when it has `api_secret` and a service account otherwise.
 
 ### Check
 

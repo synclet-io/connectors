@@ -119,7 +119,7 @@ func (s Source) apiClient(cfg Config) *apiClient {
 		},
 	}
 	cr := cfg.Credentials
-	if cr.OptionTitle == authServiceAccount {
+	if cr.kind() == authServiceAccount {
 		c.auth = basic(cr.Username, cr.Secret)
 		c.projectID = cr.ProjectID
 	} else {

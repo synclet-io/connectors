@@ -22,7 +22,7 @@ func credentialsSpec() synclet.PropertySpec {
 			{
 				Title:        authServiceAccount,
 				PropertyType: typed(synclet.Object),
-				Required:     []synclet.PropertyName{"option_title", "username", "secret", "project_id"},
+				Required:     []synclet.PropertyName{"username", "secret", "project_id"},
 				Properties: map[synclet.PropertyName]synclet.PropertySpec{
 					"option_title": {PropertyType: typed(synclet.String), Const: authServiceAccount, Order: order(0)},
 					"username": {
@@ -45,7 +45,7 @@ func credentialsSpec() synclet.PropertySpec {
 			{
 				Title:        authProjectSecret,
 				PropertyType: typed(synclet.Object),
-				Required:     []synclet.PropertyName{"option_title", "api_secret"},
+				Required:     []synclet.PropertyName{"api_secret"},
 				Properties: map[synclet.PropertyName]synclet.PropertySpec{
 					"option_title": {PropertyType: typed(synclet.String), Const: authProjectSecret, Order: order(0)},
 					"api_secret": {

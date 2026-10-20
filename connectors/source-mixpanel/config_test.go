@@ -17,7 +17,9 @@ func TestConfigValidate(t *testing.T) {
 	}{
 		{cfg: Config{Credentials: sa}},
 		{cfg: Config{Credentials: Credentials{OptionTitle: authProjectSecret, APISecret: "x"}, Region: regionEU, StartDate: "2026-01-01T00:00:00Z"}},
-		{cfg: Config{}, want: []string{"credentials.option_title is required"}},
+		{cfg: Config{Credentials: Credentials{APISecret: "x"}}},
+		{cfg: Config{Credentials: Credentials{Username: "u", Secret: "s", ProjectID: 1}}},
+		{cfg: Config{}, want: []string{"credentials need username, secret and project_id, or api_secret"}},
 		{cfg: Config{Credentials: Credentials{OptionTitle: "OAuth"}}, want: []string{`"OAuth" is neither`}},
 		{cfg: Config{Credentials: Credentials{OptionTitle: authServiceAccount}}, want: []string{"username is required", "secret is required", "project_id is required"}},
 		{cfg: Config{Credentials: Credentials{OptionTitle: authProjectSecret}}, want: []string{"api_secret is required"}},
@@ -63,4 +65,13 @@ func TestWindows(t *testing.T) {
 	}
 	assert.Equal(t, []string{"2026-10-30..2026-10-31", "2026-11-01..2026-11-02", "2026-11-03..2026-11-03"}, got)
 	assert.Empty(t, windows(day("2026-11-04"), day("2026-11-03"), 2))
+}
+
+func TestCredentialsWithoutOptionTitle(t *testing.T) {
+	c := Source{}.apiClient(Config{Credentials: Credentials{APISecret: "x"}})
+	assert.Equal(t, basic("x", ""), c.auth)
+	assert.Zero(t, c.projectID)
+	c = Source{}.apiClient(Config{Credentials: Credentials{Username: "u", Secret: "s", ProjectID: 7}})
+	assert.Equal(t, basic("u", "s"), c.auth)
+	assert.Equal(t, int64(7), c.projectID)
 }

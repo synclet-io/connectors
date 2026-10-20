@@ -45,8 +45,23 @@ type Config struct {
 	PageSize          *int        `json:"page_size,omitempty"`
 }
 
+// kind returns option_title, or for a configuration without it, as
+// Airbyte allows, Project Secret when api_secret is set and Service Account
+// otherwise.
+func (c Credentials) kind() string {
+	switch {
+	case c.OptionTitle != "":
+		return c.OptionTitle
+	case c.APISecret != "":
+		return authProjectSecret
+	case c.Username != "" || c.Secret != "" || c.ProjectID != 0:
+		return authServiceAccount
+	}
+	return ""
+}
+
 func (c Credentials) validate() error {
-	switch c.OptionTitle {
+	switch c.kind() {
 	case authServiceAccount:
 		var errs []error
 		if strings.TrimSpace(c.Username) == "" {
@@ -65,7 +80,7 @@ func (c Credentials) validate() error {
 		}
 		return nil
 	case "":
-		return errors.New("credentials.option_title is required")
+		return errors.New("credentials need username, secret and project_id, or api_secret")
 	}
 	return fmt.Errorf("credentials.option_title %q is neither %q nor %q", c.OptionTitle, authServiceAccount, authProjectSecret)
 }

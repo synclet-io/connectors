@@ -44,7 +44,6 @@
               }
             },
             "required": [
-              "option_title",
               "username",
               "secret",
               "project_id"
@@ -68,7 +67,6 @@
               }
             },
             "required": [
-              "option_title",
               "api_secret"
             ],
             "title": "Project Secret",
