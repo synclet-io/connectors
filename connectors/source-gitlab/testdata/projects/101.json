@@ -1,0 +1,58 @@
+{
+  "id": 101,
+  "name": "api",
+  "name_with_namespace": "Synthetic Group / api",
+  "path": "api",
+  "path_with_namespace": "synthetic-group/api",
+  "description": "Synthetic api project",
+  "default_branch": "main",
+  "visibility": "private",
+  "archived": false,
+  "empty_repo": false,
+  "topics": [
+    "synthetic"
+  ],
+  "tag_list": [
+    "synthetic"
+  ],
+  "ssh_url_to_repo": "git@gitlab.example.com:synthetic-group/api.git",
+  "http_url_to_repo": "https://gitlab.example.com/synthetic-group/api.git",
+  "web_url": "https://gitlab.example.com/synthetic-group/api",
+  "readme_url": "https://gitlab.example.com/synthetic-group/api/-/blob/main/README.md",
+  "avatar_url": null,
+  "forks_count": 0,
+  "star_count": 2,
+  "open_issues_count": 3,
+  "creator_id": 31,
+  "issues_enabled": true,
+  "merge_requests_enabled": true,
+  "wiki_enabled": false,
+  "jobs_enabled": true,
+  "snippets_enabled": false,
+  "container_registry_enabled": true,
+  "merge_method": "merge",
+  "squash_option": "default_off",
+  "namespace": {
+    "id": 11,
+    "name": "Synthetic Group",
+    "path": "synthetic-group",
+    "kind": "group",
+    "full_path": "synthetic-group",
+    "parent_id": null,
+    "avatar_url": null,
+    "web_url": "https://gitlab.example.com/groups/synthetic-group"
+  },
+  "permissions": {
+    "project_access": {
+      "access_level": 30,
+      "notification_level": 3
+    },
+    "group_access": null
+  },
+  "_links": {
+    "self": "https://gitlab.example.com/api/v4/projects/101"
+  },
+  "created_at": "2026-01-10T09:00:00.000Z",
+  "updated_at": "2026-09-30T09:00:00.000Z",
+  "last_activity_at": "2026-10-15T09:00:00.000Z"
+}

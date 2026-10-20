@@ -1,0 +1,132 @@
+{
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "project_id": {
+      "type": "string"
+    },
+    "id": {
+      "type": "integer"
+    },
+    "username": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "state": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "locked": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "avatar_url": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "web_url": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "access_level": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "created_at": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "created_by": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
+        "username": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "name": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "state": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "locked": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "avatar_url": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "web_url": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      }
+    },
+    "expires_at": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date"
+    },
+    "membership_state": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "group_saml_identity": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "additionalProperties": true
+    }
+  }
+}

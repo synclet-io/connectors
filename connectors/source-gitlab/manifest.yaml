@@ -1,0 +1,150 @@
+# yaml-language-server: $schema=../source-declarative/internal/manifest/manifest.schema.json
+version: 1
+connector:
+  name: source-gitlab
+  documentation_url: https://github.com/synclet-io/connectors/tree/main/connectors/source-gitlab
+base_url: "https://{{ config.api_url }}/api/v4/"
+spec:
+  title: GitLab Source Spec
+  description: Reads projects, groups, issues, merge requests, commits, pipelines, jobs, releases, tags, branches, users, members, milestones and labels of the configured GitLab projects and groups.
+  required: [access_token, api_url, projects, start_date]
+  properties:
+    access_token: {type: string, title: Access token, description: "Personal, project or group access token with the read_api scope, or an OAuth access token; sent as a Bearer token.", secret: true, order: 0}
+    api_url:
+      type: string
+      title: GitLab host
+      description: "Host name of the GitLab instance, without https:// or a path: gitlab.com, or the host of a self-managed instance."
+      default: gitlab.com
+      examples: [gitlab.com, gitlab.example.com]
+      pattern: "^[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?(\\.[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?)*(:[0-9]{1,5})?$"
+      order: 1
+    projects: {type: array, items: {type: string}, title: Project IDs, description: "Numeric IDs of the projects to read (Settings > General, or the project's overview page).", examples: ["278964"], order: 2}
+    groups: {type: array, items: {type: string}, title: Group IDs, description: "Numeric IDs of the groups whose metadata, members, milestones and labels to read. Their projects are read only when listed in Project IDs.", examples: ["9970"], order: 3}
+    start_date: {type: string, title: Start date, description: "Issues, merge requests and pipelines updated, and commits committed, before it are not read.", format: date-time, examples: ["2026-01-01T00:00:00Z"], order: 4}
+auth: {type: bearer, token: "{{ config.access_token }}"}
+errors: {message: $.message}
+retry:
+  transient: {statuses: [500, 502, 503, 504], attempts: 3, backoff: 1s}
+  rate_limit:
+    statuses: [429]
+    wait: ["header:Retry-After", "header-epoch:RateLimit-Reset", 60s]
+    attempts: 5
+check: {stream: projects}
+streams:
+  - name: projects
+    path: "projects/{{ partition.value }}"
+    partition: &projects {values: "{{ config.projects }}"}
+    primary_key: [id]
+    schema: schemas/projects.json
+    records: {mode: object}
+
+  - name: groups
+    path: "groups/{{ partition.value }}"
+    partition: &groups {values: "{{ config.groups }}"}
+    params: {with_projects: "false"}
+    primary_key: [id]
+    schema: schemas/groups.json
+    records: {mode: object}
+
+  - &updated
+    name: issues
+    path: "projects/{{ partition.value }}/issues"
+    partition: *projects
+    params: {scope: all, order_by: updated_at, sort: asc, updated_after: "{{ since }}"}
+    primary_key: [id]
+    schema: schemas/issues.json
+    pagination: &link {type: link, size: 100, size_param: per_page}
+    incremental: &since {cursor_field: updated_at, cursor_format: rfc3339, start: "{{ config.start_date }}", lookback: 1h}
+
+  - <<: *updated
+    name: merge_requests
+    path: "projects/{{ partition.value }}/merge_requests"
+    schema: schemas/merge_requests.json
+
+  - <<: *updated
+    name: pipelines
+    path: "projects/{{ partition.value }}/pipelines"
+    params: {order_by: updated_at, sort: asc, updated_after: "{{ since }}"}
+    schema: schemas/pipelines.json
+
+  - name: commits
+    path: "projects/{{ partition.value }}/repository/commits"
+    partition: *projects
+    params: {since: "{{ since }}"}
+    primary_key: [project_id, id]
+    schema: schemas/commits.json
+    records: &project {add: {project_id: "{{ partition.value }}"}}
+    pagination: *link
+    incremental: {<<: *since, cursor_field: committed_date}
+
+  - &project_list
+    name: jobs
+    path: "projects/{{ partition.value }}/jobs"
+    partition: *projects
+    primary_key: [id]
+    schema: schemas/jobs.json
+    records: *project
+    pagination: *link
+
+  - <<: *project_list
+    name: releases
+    path: "projects/{{ partition.value }}/releases"
+    primary_key: [project_id, tag_name]
+    schema: schemas/releases.json
+
+  - <<: *project_list
+    name: tags
+    path: "projects/{{ partition.value }}/repository/tags"
+    primary_key: [project_id, name]
+    schema: schemas/tags.json
+
+  - <<: *project_list
+    name: branches
+    path: "projects/{{ partition.value }}/repository/branches"
+    primary_key: [project_id, name]
+    schema: schemas/branches.json
+
+  - <<: *project_list
+    name: users
+    path: "projects/{{ partition.value }}/users"
+    schema: schemas/users.json
+    records: {}
+
+  - <<: *project_list
+    name: project_members
+    path: "projects/{{ partition.value }}/members"
+    primary_key: [project_id, id]
+    schema: schemas/project_members.json
+
+  - <<: *project_list
+    name: project_milestones
+    path: "projects/{{ partition.value }}/milestones"
+    schema: schemas/project_milestones.json
+    records: {}
+
+  - <<: *project_list
+    name: project_labels
+    path: "projects/{{ partition.value }}/labels"
+    primary_key: [project_id, id]
+    schema: schemas/project_labels.json
+
+  - &group_list
+    name: group_members
+    path: "groups/{{ partition.value }}/members"
+    partition: *groups
+    primary_key: [group_id, id]
+    schema: schemas/group_members.json
+    records: {add: {group_id: "{{ partition.value }}"}}
+    pagination: *link
+
+  - <<: *group_list
+    name: group_milestones
+    path: "groups/{{ partition.value }}/milestones"
+    primary_key: [id]
+    schema: schemas/group_milestones.json
+    records: {}
+
+  - <<: *group_list
+    name: group_labels
+    path: "groups/{{ partition.value }}/labels"
+    schema: schemas/group_labels.json

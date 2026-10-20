@@ -1,0 +1,84 @@
+{
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "group_id": {
+      "type": "string"
+    },
+    "id": {
+      "type": "integer"
+    },
+    "name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "description": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "description_html": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "color": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "text_color": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "open_issues_count": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "closed_issues_count": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "open_merge_requests_count": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "subscribed": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "priority": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "is_project_label": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "archived": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    }
+  }
+}

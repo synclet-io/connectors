@@ -1,0 +1,75 @@
+[
+  {
+    "id": 404001,
+    "iid": 1,
+    "project_id": 202,
+    "title": "Synthetic change 1",
+    "description": "Synthetic merge request",
+    "state": "opened",
+    "draft": false,
+    "work_in_progress": false,
+    "source_branch": "feature-1",
+    "target_branch": "main",
+    "source_project_id": 202,
+    "target_project_id": 202,
+    "labels": [],
+    "milestone": null,
+    "author": {
+      "id": 32,
+      "username": "bob",
+      "name": "Bob",
+      "state": "active",
+      "locked": false,
+      "avatar_url": "https://gitlab.example.com/uploads/-/system/user/avatar/32/avatar.png",
+      "web_url": "https://gitlab.example.com/bob"
+    },
+    "assignee": null,
+    "assignees": [],
+    "reviewers": [
+      {
+        "id": 31,
+        "username": "alice",
+        "name": "Alice",
+        "state": "active",
+        "locked": false,
+        "avatar_url": "https://gitlab.example.com/uploads/-/system/user/avatar/31/avatar.png",
+        "web_url": "https://gitlab.example.com/alice"
+      }
+    ],
+    "merged_by": null,
+    "merge_user": null,
+    "closed_by": null,
+    "merge_status": "can_be_merged",
+    "detailed_merge_status": "mergeable",
+    "has_conflicts": false,
+    "sha": "0000000000000000000000000000000000000001",
+    "merge_commit_sha": null,
+    "squash_commit_sha": null,
+    "squash": false,
+    "user_notes_count": 2,
+    "upvotes": 1,
+    "downvotes": 0,
+    "discussion_locked": null,
+    "should_remove_source_branch": null,
+    "force_remove_source_branch": true,
+    "merge_when_pipeline_succeeds": false,
+    "web_url": "https://gitlab.example.com/synthetic-group/web/-/merge_requests/1",
+    "references": {
+      "short": "!1",
+      "full": "synthetic-group/web!1"
+    },
+    "time_stats": {
+      "time_estimate": 0,
+      "total_time_spent": 0
+    },
+    "task_completion_status": {
+      "count": 0,
+      "completed_count": 0
+    },
+    "created_at": "2026-04-01T10:00:00.000Z",
+    "updated_at": "2026-07-02T10:00:00.000Z",
+    "merged_at": null,
+    "closed_at": null,
+    "prepared_at": "2026-04-01T10:01:00.000Z"
+  }
+]

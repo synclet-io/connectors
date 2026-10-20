@@ -1,0 +1,122 @@
+{
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "id": {
+      "type": "integer"
+    },
+    "name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "path": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "full_name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "full_path": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "description": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "visibility": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "parent_id": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "avatar_url": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "web_url": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "share_with_group_lock": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "require_two_factor_authentication": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "project_creation_level": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "subgroup_creation_level": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "lfs_enabled": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "request_access_enabled": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "default_branch": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "shared_with_groups": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "created_at": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    }
+  }
+}

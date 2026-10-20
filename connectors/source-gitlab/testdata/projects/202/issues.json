@@ -1,0 +1,76 @@
+[
+  {
+    "id": 202001,
+    "iid": 1,
+    "project_id": 202,
+    "title": "Synthetic issue 1",
+    "description": "Steps to reproduce: none, synthetic.",
+    "state": "opened",
+    "type": "ISSUE",
+    "issue_type": "issue",
+    "labels": [
+      "bug"
+    ],
+    "milestone": null,
+    "author": {
+      "id": 31,
+      "username": "alice",
+      "name": "Alice",
+      "state": "active",
+      "locked": false,
+      "avatar_url": "https://gitlab.example.com/uploads/-/system/user/avatar/31/avatar.png",
+      "web_url": "https://gitlab.example.com/alice"
+    },
+    "assignee": {
+      "id": 32,
+      "username": "bob",
+      "name": "Bob",
+      "state": "active",
+      "locked": false,
+      "avatar_url": "https://gitlab.example.com/uploads/-/system/user/avatar/32/avatar.png",
+      "web_url": "https://gitlab.example.com/bob"
+    },
+    "assignees": [
+      {
+        "id": 32,
+        "username": "bob",
+        "name": "Bob",
+        "state": "active",
+        "locked": false,
+        "avatar_url": "https://gitlab.example.com/uploads/-/system/user/avatar/32/avatar.png",
+        "web_url": "https://gitlab.example.com/bob"
+      }
+    ],
+    "closed_by": null,
+    "user_notes_count": 1,
+    "merge_requests_count": 0,
+    "upvotes": 0,
+    "downvotes": 0,
+    "due_date": null,
+    "confidential": false,
+    "discussion_locked": null,
+    "web_url": "https://gitlab.example.com/synthetic-group/web/-/issues/1",
+    "weight": null,
+    "severity": "UNKNOWN",
+    "time_stats": {
+      "time_estimate": 0,
+      "total_time_spent": 0
+    },
+    "task_completion_status": {
+      "count": 0,
+      "completed_count": 0
+    },
+    "references": {
+      "short": "#1",
+      "full": "synthetic-group/web#1"
+    },
+    "_links": {
+      "self": "https://gitlab.example.com/api/v4/projects/202/issues/1"
+    },
+    "has_tasks": false,
+    "blocking_issues_count": 0,
+    "created_at": "2026-03-01T10:00:00.000Z",
+    "updated_at": "2026-07-01T10:00:00.000Z",
+    "closed_at": null
+  }
+]

@@ -1,0 +1,260 @@
+{
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "project_id": {
+      "type": "string"
+    },
+    "tag_name": {
+      "type": "string"
+    },
+    "name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "description": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "description_html": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "author": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
+        "username": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "name": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "state": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "locked": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "avatar_url": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "web_url": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      }
+    },
+    "commit": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "short_id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "title": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "message": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "author_name": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "author_email": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "authored_date": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "format": "date-time"
+        },
+        "committer_name": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "committer_email": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "committed_date": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "format": "date-time"
+        },
+        "created_at": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "format": "date-time"
+        },
+        "parent_ids": {
+          "type": [
+            "null",
+            "array"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "web_url": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "trailers": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "additionalProperties": true
+        },
+        "extended_trailers": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "additionalProperties": true
+        }
+      }
+    },
+    "milestones": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "commit_path": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "tag_path": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "assets": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "additionalProperties": true
+    },
+    "evidences": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "upcoming_release": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "historical_release": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "_links": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "additionalProperties": true
+    },
+    "created_at": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "released_at": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    }
+  }
+}

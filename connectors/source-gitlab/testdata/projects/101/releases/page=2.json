@@ -1,0 +1,52 @@
+[
+  {
+    "tag_name": "v1.0.0",
+    "name": "Release v1.0.0",
+    "description": "Synthetic release notes",
+    "description_html": "<p>Synthetic release notes</p>",
+    "author": {
+      "id": 31,
+      "username": "alice",
+      "name": "Alice",
+      "state": "active",
+      "locked": false,
+      "avatar_url": "https://gitlab.example.com/uploads/-/system/user/avatar/31/avatar.png",
+      "web_url": "https://gitlab.example.com/alice"
+    },
+    "commit": {
+      "id": "000000000000000000000000000000000000000d",
+      "short_id": "00000000",
+      "title": "Synthetic commit 13",
+      "message": "Synthetic commit 13\n",
+      "author_name": "Alice",
+      "author_email": "alice@example.com",
+      "authored_date": "2026-09-05T12:00:00.000+02:00",
+      "committer_name": "Alice",
+      "committer_email": "alice@example.com",
+      "committed_date": "2026-09-05T12:00:00.000+02:00",
+      "created_at": "2026-09-05T12:00:00.000+02:00",
+      "parent_ids": [
+        "000000000000000000000000000000000000000c"
+      ],
+      "web_url": "https://gitlab.example.com/synthetic-group/api/-/commit/000000000000000000000000000000000000000d",
+      "trailers": {},
+      "extended_trailers": {}
+    },
+    "milestones": [],
+    "commit_path": "/synthetic-group/api/-/commit/000000000000000000000000000000000000000d",
+    "tag_path": "/synthetic-group/api/-/tags/v1.0.0",
+    "assets": {
+      "count": 0,
+      "sources": [],
+      "links": []
+    },
+    "evidences": [],
+    "upcoming_release": false,
+    "historical_release": false,
+    "_links": {
+      "self": "https://gitlab.example.com/synthetic-group/api/-/releases/v1.0.0"
+    },
+    "created_at": "2026-09-06T10:00:00.000Z",
+    "released_at": "2026-09-06T10:00:00.000Z"
+  }
+]

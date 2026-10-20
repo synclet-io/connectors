@@ -1,0 +1,29 @@
+[
+  {
+    "name": "v0.1.0",
+    "message": "",
+    "target": "000000000000000000000000000000000000000d",
+    "commit": {
+      "id": "000000000000000000000000000000000000000d",
+      "short_id": "00000000",
+      "title": "Synthetic commit 13",
+      "message": "Synthetic commit 13\n",
+      "author_name": "Alice",
+      "author_email": "alice@example.com",
+      "authored_date": "2026-09-05T12:00:00.000+02:00",
+      "committer_name": "Alice",
+      "committer_email": "alice@example.com",
+      "committed_date": "2026-09-05T12:00:00.000+02:00",
+      "created_at": "2026-09-05T12:00:00.000+02:00",
+      "parent_ids": [
+        "000000000000000000000000000000000000000c"
+      ],
+      "web_url": "https://gitlab.example.com/synthetic-group/api/-/commit/000000000000000000000000000000000000000d",
+      "trailers": {},
+      "extended_trailers": {}
+    },
+    "release": null,
+    "protected": false,
+    "created_at": null
+  }
+]

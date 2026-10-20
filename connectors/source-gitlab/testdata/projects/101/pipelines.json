@@ -1,0 +1,28 @@
+[
+  {
+    "id": 303001,
+    "iid": 1,
+    "project_id": 101,
+    "sha": "0000000000000000000000000000000000000001",
+    "ref": "main",
+    "status": "success",
+    "source": "push",
+    "web_url": "https://gitlab.example.com/synthetic-group/api/-/pipelines/303001",
+    "name": null,
+    "created_at": "2026-05-01T10:00:00.000Z",
+    "updated_at": "2026-08-03T10:00:00.000Z"
+  },
+  {
+    "id": 303002,
+    "iid": 2,
+    "project_id": 101,
+    "sha": "0000000000000000000000000000000000000002",
+    "ref": "main",
+    "status": "failed",
+    "source": "push",
+    "web_url": "https://gitlab.example.com/synthetic-group/api/-/pipelines/303002",
+    "name": null,
+    "created_at": "2026-05-01T10:00:00.000Z",
+    "updated_at": "2026-08-13T10:00:00.000Z"
+  }
+]

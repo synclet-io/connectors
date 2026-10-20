@@ -1,0 +1,32 @@
+[
+  {
+    "id": 61,
+    "name": "bug",
+    "description": null,
+    "description_html": "",
+    "color": "#dc143c",
+    "text_color": "#FFFFFF",
+    "open_issues_count": 1,
+    "closed_issues_count": 0,
+    "open_merge_requests_count": 0,
+    "subscribed": false,
+    "priority": null,
+    "is_project_label": true,
+    "archived": false
+  },
+  {
+    "id": 62,
+    "name": "feature",
+    "description": null,
+    "description_html": "",
+    "color": "#dc143c",
+    "text_color": "#FFFFFF",
+    "open_issues_count": 1,
+    "closed_issues_count": 0,
+    "open_merge_requests_count": 0,
+    "subscribed": false,
+    "priority": null,
+    "is_project_label": true,
+    "archived": false
+  }
+]

@@ -1,0 +1,78 @@
+{
+  "changelogUrl": "",
+  "connectionSpecification": {
+    "description": "Reads projects, groups, issues, merge requests, commits, pipelines, jobs, releases, tags, branches, users, members, milestones and labels of the configured GitLab projects and groups.",
+    "properties": {
+      "access_token": {
+        "airbyte_secret": true,
+        "description": "Personal, project or group access token with the read_api scope, or an OAuth access token; sent as a Bearer token.",
+        "order": 0,
+        "title": "Access token",
+        "type": "string"
+      },
+      "api_url": {
+        "default": "gitlab.com",
+        "description": "Host name of the GitLab instance, without https:// or a path: gitlab.com, or the host of a self-managed instance.",
+        "examples": [
+          "gitlab.com",
+          "gitlab.example.com"
+        ],
+        "order": 1,
+        "title": "GitLab host",
+        "type": "string"
+      },
+      "groups": {
+        "description": "Numeric IDs of the groups whose metadata, members, milestones and labels to read. Their projects are read only when listed in Project IDs.",
+        "examples": [
+          "9970"
+        ],
+        "items": {
+          "type": "string"
+        },
+        "order": 3,
+        "title": "Group IDs",
+        "type": "array"
+      },
+      "projects": {
+        "description": "Numeric IDs of the projects to read (Settings > General, or the project's overview page).",
+        "examples": [
+          "278964"
+        ],
+        "items": {
+          "type": "string"
+        },
+        "order": 2,
+        "title": "Project IDs",
+        "type": "array"
+      },
+      "start_date": {
+        "description": "Issues, merge requests and pipelines updated, and commits committed, before it are not read.",
+        "examples": [
+          "2026-01-01T00:00:00Z"
+        ],
+        "format": "date-time",
+        "order": 4,
+        "title": "Start date",
+        "type": "string"
+      }
+    },
+    "required": [
+      "access_token",
+      "api_url",
+      "projects",
+      "start_date"
+    ],
+    "title": "GitLab Source Spec",
+    "type": "object"
+  },
+  "documentationUrl": "https://github.com/synclet-io/connectors/tree/main/connectors/source-gitlab",
+  "protocol_version": "0.5.2",
+  "supported_destination_sync_modes": [
+    "overwrite",
+    "append",
+    "append_dedup"
+  ],
+  "supportsDBT": false,
+  "supportsIncremental": true,
+  "supportsNormalization": false
+}
