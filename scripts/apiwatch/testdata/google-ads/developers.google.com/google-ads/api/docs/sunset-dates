@@ -1,0 +1,303 @@
+<!doctype html>
+<html><head><title>recorded</title><script>var Available = "noise";</script></head><body>
+<table>
+<thead>
+  <tr>
+    <th>API version</th>
+    <th>Release date</th>
+    <th>Sunset date</th>
+    <th>Breaking changes & upgrade</th>
+    <th>Features and updates</th>
+    <th>Proto difference table</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th colspan="6" style="background:#f9f9f9">Released versions</th>
+  </tr>
+    <tr>
+      <td><b><a href="/google-ads/api/docs/release-notes#v23-2026-01-28">v23</a></b></td>
+      <td>January 28, 2026</td>
+      <td>February 2027</td>
+      <td><a href="/google-ads/api/docs/release-notes#v23-breaking-changes">v23 breaking changes</a> (<a href="/google-ads/api/docs/upgrade#v22-v23">upgrade guide</a>)</td>
+      <td><a href="/google-ads/api/docs/release-notes#v23-features-updates">v23 features and updates</a></td>
+      <td><a href="/google-ads/api/docs/upgrade#proto-differences-between-v22-v23">v22 versus v23 proto diffs</a></td>
+    </tr>
+    <tr>
+      <td><a href="/google-ads/api/docs/release-notes#v23-1-2026-02-25">v23.1</a></td>
+      <td>February 25, 2026</td>
+      <td>February 2027</td>
+      <td>None (minor release)</td>
+      <td><a href="/google-ads/api/docs/release-notes#v23-1-2026-02-25">v23.1 features and updates</a></td>
+      <td><a href="/google-ads/api/docs/upgrade#proto-differences-between-v22-v23">v22 versus v23 proto diffs</a></td>
+    </tr>
+    <tr>
+      <td><a href="/google-ads/api/docs/release-notes#v23-2-2026-03-25">v23.2</a></td>
+      <td>March 25, 2026</td>
+      <td>February 2027</td>
+      <td>None (minor release)</td>
+      <td><a href="/google-ads/api/docs/release-notes#v23-2-2026-03-25">v23.2 features and updates</a></td>
+      <td><a href="/google-ads/api/docs/upgrade#proto-differences-between-v22-v23">v22 versus v23 proto diffs</a></td>
+    </tr>
+    <tr>
+      <td><a href="/google-ads/api/docs/release-notes#v23-3-2026-06-24">v23.3</a></td>
+      <td>June 24, 2026</td>
+      <td>February 2027</td>
+      <td>None (minor release)</td>
+      <td><a href="/google-ads/api/docs/release-notes#v23-3-2026-06-24">v23.3 features and updates</a></td>
+      <td><a href="/google-ads/api/docs/upgrade#proto-differences-between-v22-v23">v22 versus v23 proto diffs</a></td>
+    </tr>
+    <tr>
+      <td><b><a href="/google-ads/api/docs/release-notes#v24-2026-04-22">v24</a></b></td>
+      <td>April 22, 2026</td>
+      <td>May 2027</td>
+      <td><a href="/google-ads/api/docs/release-notes#v24-breaking-changes">v24 breaking changes</a> (<a href="/google-ads/api/docs/upgrade#v23_2-v24">upgrade guide</a>)</td>
+      <td><a href="/google-ads/api/docs/release-notes#v24-features-updates">v24 features and updates</a></td>
+      <td><a href="/google-ads/api/docs/upgrade#proto-differences-between-v23-v24">v23 versus v24 proto diffs</a></td>
+    </tr>
+    <tr>
+      <td><a href="/google-ads/api/docs/release-notes#v24-1-2026-05-13">v24.1</a></td>
+      <td>May 13, 2026</td>
+      <td>May 2027</td>
+      <td>None (minor release)</td>
+      <td><a href="/google-ads/api/docs/release-notes#v24-1-2026-05-13">v24.1 features and updates</a></td>
+      <td><a href="/google-ads/api/docs/upgrade#proto-differences-between-v23-v24">v23 versus v24 proto diffs</a></td>
+    </tr>
+    <tr>
+      <td><a href="/google-ads/api/docs/release-notes#v24-2-2026-06-24">v24.2</a></td>
+      <td>June 24, 2026</td>
+      <td>June 2027</td>
+      <td>None (minor release)</td>
+      <td><a href="/google-ads/api/docs/release-notes#v24-2-2026-06-24">v24.2 features and updates</a></td>
+      <td><a href="/google-ads/api/docs/upgrade#proto-differences-between-v23-v24">v23 versus v24 proto diffs</a></td>
+    </tr>
+    <tr>
+      <td><b><a href="/google-ads/api/docs/release-notes#v25-2026-07-22">v25</a></b></td>
+      <td>July 22, 2026</td>
+      <td>August 2027</td>
+      <td><a href="/google-ads/api/docs/release-notes#v25-breaking-changes">v25 breaking changes</a> (<a href="/google-ads/api/docs/upgrade#v24_2-v25">upgrade guide</a>)</td>
+      <td><a href="/google-ads/api/docs/release-notes#v25-features-updates">v25 features and updates</a></td>
+      <td><a href="/google-ads/api/docs/upgrade#proto-differences-between-v24-v25">v24 versus v25 proto diffs</a></td>
+    </tr>
+    <tr>
+      <td><a href="/google-ads/api/docs/release-notes#v25-1-2026-08-19">v25.1</a></td>
+      <td>August 19, 2026</td>
+      <td>August 2027</td>
+      <td>None (minor release)</td>
+      <td><a href="/google-ads/api/docs/release-notes#v25-1-2026-08-19">v25.1 features and updates</a></td>
+      <td><a href="/google-ads/api/docs/upgrade#proto-differences-between-v24-v25">v24 versus v25 proto diffs</a></td>
+    </tr>
+    <tr>
+      <td><a href="/google-ads/api/docs/release-notes#v25-2-2026-09-23">v25.2</a></td>
+      <td>September 23, 2026</td>
+      <td>August 2027</td>
+      <td>None (minor release)</td>
+      <td><a href="/google-ads/api/docs/release-notes#v25-2-2026-09-23">v25.2 features and updates</a></td>
+      <td><a href="/google-ads/api/docs/upgrade#proto-differences-between-v24-v25">v24 versus v25 proto diffs</a></td>
+    </tr>
+    <tr>
+      <td><b><a href="/google-ads/api/docs/release-notes#v26-2026-10-14">v26</a></b> (Latest)</td>
+      <td>October 14, 2026</td>
+      <td>November 2027</td>
+      <td><a href="/google-ads/api/docs/release-notes#v26-breaking-changes">v26 breaking changes</a> (<a href="/google-ads/api/docs/upgrade#v25_2-v26">upgrade guide</a>)</td>
+      <td><a href="/google-ads/api/docs/release-notes#v26-features-updates">v26 features and updates</a></td>
+      <td><a href="/google-ads/api/docs/upgrade#proto-differences-between-v25-v26">v25 versus v26 proto diffs</a></td>
+    </tr>
+    <tr>
+      <th colspan="6" style="background:#f9f9f9">Upcoming versions</th>
+    </tr>
+    <tr>
+      <td>v26.1</td>
+      <td>October 2026</td>
+      <td>November 2027</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>v26.2</td>
+      <td>November 2026</td>
+      <td>November 2027</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>v26.3*</td>
+      <td>December 2026</td>
+      <td>November 2027</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>v27</td>
+      <td>January 2027</td>
+      <td>February 2028</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>v27.1</td>
+      <td>February 2027</td>
+      <td>February 2028</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>v27.2</td>
+      <td>February 2027</td>
+      <td>February 2028</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>v27.3</td>
+      <td>March 2027</td>
+      <td>February 2028</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>v27.4</td>
+      <td>March 2027</td>
+      <td>February 2028</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>v28</td>
+      <td>April 2027</td>
+      <td>May 2028</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>v28.1</td>
+      <td>April 2027</td>
+      <td>May 2028</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>v28.2</td>
+      <td>May 2027</td>
+      <td>May 2028</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>v28.3</td>
+      <td>May 2027</td>
+      <td>May 2028</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>v28.4</td>
+      <td>June 2027</td>
+      <td>May 2028</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>v28.5</td>
+      <td>June 2027</td>
+      <td>May 2028</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>v29</td>
+      <td>July 2027</td>
+      <td>August 2028</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>v29.1</td>
+      <td>July 2027</td>
+      <td>August 2028</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>v29.2</td>
+      <td>August 2027</td>
+      <td>August 2028</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>v29.3</td>
+      <td>August 2027</td>
+      <td>August 2028</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>v29.4</td>
+      <td>September 2027</td>
+      <td>August 2028</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>v29.5</td>
+      <td>September 2027</td>
+      <td>August 2028</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>v30</td>
+      <td>October 2027</td>
+      <td>November 2028</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>v30.1</td>
+      <td>October 2027</td>
+      <td>November 2028</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>v30.2</td>
+      <td>November 2027</td>
+      <td>November 2028</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>v30.3*</td>
+      <td>December 2027</td>
+      <td>November 2028</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+</tbody>
+</table>
+</body></html>

@@ -1,0 +1,12 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "Klaviyo API",
+    "version": "2026-10-15",
+    "description": "The Klaviyo REST API. Please visit https://developers.klaviyo.com for more details."
+  },
+  "servers": [{"url": "https://a.klaviyo.com", "description": "Production"}],
+  "paths": {
+    "/api/accounts": {"get": {"operationId": "get_accounts", "summary": "Get Accounts"}}
+  }
+}

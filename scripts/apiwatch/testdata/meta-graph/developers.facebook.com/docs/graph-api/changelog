@@ -1,0 +1,70 @@
+<!doctype html>
+<html><head><title>recorded</title><script>var Available = "noise";</script></head><body>
+<h2>Available Graph API Versions</h2>
+<div class="_57-c"><table class="_4-ss _5k9x"><thead><th>
+        Version
+      </th><th>
+        Date Introduced
+      </th><th>
+        Available Until
+      </th></thead><tbody class="_5m37" id="u_0_2_F1"><tr class="row_0"><td><p><a href="/docs/graph-api/changelog/version26.0">v26.0</a></p>
+</td><td><p>July 29, 2026</p>
+</td><td><p>TBD</p>
+</td></tr><tr class="row_1 _5m29"><td><p><a href="/docs/graph-api/changelog/version25.0">v25.0</a></p>
+</td><td><p>February 18, 2026</p>
+</td><td><p>July 29, 2028</p>
+</td></tr><tr class="row_2"><td><p><a href="/docs/graph-api/changelog/version24.0">v24.0</a></p>
+</td><td><p>October 8, 2025</p>
+</td><td><p>February 18, 2028</p>
+</td></tr><tr class="row_3 _5m29"><td><p><a href="/docs/graph-api/changelog/version23.0">v23.0</a></p>
+</td><td><p>May 29, 2025</p>
+</td><td><p>October 8, 2027</p>
+</td></tr><tr class="row_4"><td><p><a href="/docs/graph-api/changelog/version22.0">v22.0</a></p>
+</td><td><p>January 21, 2025</p>
+</td><td><p>May 20, 2027</p>
+</td></tr><tr class="row_5 _5m29"><td><p><a href="/docs/graph-api/changelog/version21.0">v21.0</a></p>
+</td><td><p>October 2, 2024</p>
+</td><td><p>January 21, 2027</p>
+</td></tr><tr class="row_6"><td><p><a href="/docs/graph-api/changelog/version20.0#graph-api">v20.0</a></p>
+</td><td><p>May 21, 2024</p>
+</td><td><p>September 24, 2026</p>
+</td></tr><tr class="row_7 _5m29"><td><p><a href="/docs/graph-api/changelog/version19.0#graph-api">v19.0</a></p>
+</td><td><p>January 23, 2024</p>
+</td><td><p>May 21, 2026</p>
+</td></tr><tr class="row_8"><td><p><a href="/docs/graph-api/changelog/version18.0#graph-api">v18.0</a></p>
+</td><td><p>September 12, 2023</p>
+</td><td><p>January 26, 2026</p>
+</td></tr><tr class="row_9 _5m29"><td><p><a href="/docs/graph-api/changelog/version17.0#graph-api">v17.0</a></p>
+</td><td><p>May 23, 2023</p>
+</td><td><p>September 12, 2025</p>
+</td></tr><tr class="row_10"><td><p><a href="/docs/graph-api/changelog/version16.0#graph-api">v16.0</a></p>
+</td><td><p>February 2, 2023</p>
+</td><td><p>May 14, 2025</p>
+</td></tr><tr class="row_11 _5m29"><td><p><a href="/docs/graph-api/changelog/version15.0#graph-api">v15.0</a></p>
+</td><td><p>September 15, 2022</p>
+</td><td><p>November 20, 2024</p>
+</td></tr><tr class="row_12"><td><p><a href="/docs/graph-api/changelog/version14.0#graph-api">v14.0</a></p>
+</td><td><p>May 25, 2022</p>
+</td><td><p>September 17, 2024</p>
+</td></tr><tr class="row_13 _5m29"><td><p><a href="/docs/graph-api/changelog/version13.0#graph-api">v13.0</a></p>
+</td><td><p>February 8, 2022</p>
+</td><td><p>May 28, 2024</p>
+</td></tr></tbody></table></div></div></div><div class="_4-u2 _57mb _1u44 _3fw6 _4-u8"><div class="_4-u3 _588p"><h2>Available Marketing API Versions</h2>
+<div class="_57yz _57z1 _3-8p"><div class="_57y-"><p>Marketing API <a href="/docs/marketing-api/versions#version-auto-upgrade">version auto-upgrade</a> will be released on July 29, 2026.</p>
+</div></div><div><div class="_57-c"><table class="_4-ss _5k9x"><thead><th>
+      Version
+    </th><th>
+      Date Introduced
+    </th><th>
+      Available Until
+    </th></thead><tbody class="_5m37" id="u_0_3_G5"><tr class="row_0"><td><p><a href="/docs/marketing-api/marketing-api-changelog/version26.0">v26.0</a></p>
+</td><td><p>July 29, 2026</p>
+</td><td><p>TBD</p>
+</td></tr><tr class="row_1 _5m29"><td><p><a href="/docs/marketing-api/marketing-api-changelog/version25.0">v25.0</a></p>
+</td><td><p>February 18, 2026</p>
+</td><td><p>TBD</p>
+</td></tr><tr class="row_2"><td><p><a href="/docs/marketing-api/marketing-api-changelog/version24.0">v24.0</a></p>
+</td><td><p>October 8, 2025</p>
+</td><td><p>October 6, 2026</p>
+</td></tr></tbody></table></div></div></div></div><div class="_4-u2 _57mb _1u44 _3fw6 _4-u8"><div class="_4-u3 _588p"><h2>Out-Of-Cycle Changes</h2>
+</body></html>

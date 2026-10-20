@@ -1,0 +1,27 @@
+<!doctype html>
+<html><head><title>recorded</title><script>var Available = "noise";</script></head><body>
+<div class="WARNING">
+<p>Warning</p>
+<p><strong>Deprecation Notice:</strong>
+The Marketing Version 202511 (Marketing November 2025) will be sunset on November 16, 2026. We recommend that you migrate to the latest <a href="versioning?view=li-lms-2026-10" data-linktype="relative-path">versioned APIs</a> to avoid disruptions. For information on all the supported versions, refer to the <a href="integrations/migrations?view=li-lms-2026-10#api-migration-status" data-linktype="relative-path">migrations</a> documentation.
+If you haven’t yet migrated and have questions, submit a request on the <a href="https://www.linkedin.com/help/linkedin/ask/dsapi" data-linktype="external">LinkedIn Developer Support Portal</a>.</p>
+</div>
+<h2 id="overview">Overview</h2>
+<p>LinkedIn Marketing APIs use versioning to provide stable and reliable integrations, even as new features are added. Versioning helps you plan, test, and update your integrations seamlessly, ensuring your applications keep working as the APIs evolve.</p>
+<h2 id="latest-version">Latest Version</h2>
+<table>
+<thead>
+<tr>
+<th>Version Name</th>
+<th>Version Header</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>October 2026</td>
+<td>202610</td>
+</tr>
+</tbody>
+</table>
+
+</body></html>

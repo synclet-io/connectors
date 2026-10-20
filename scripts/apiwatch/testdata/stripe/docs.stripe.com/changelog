@@ -1,0 +1,7 @@
+<!doctype html>
+<html><head><title>recorded</title><script>var Available = "noise";</script></head><body>
+<div id="release-div-2026-09-30.endive"><span id="2026-09-30.endive">2026-09-30.endive</span></div>
+<div id="release-div-2026-08-26.dahlia"><span id="2026-08-26.dahlia">2026-08-26.dahlia</span></div>
+<script id="config">{"versions":{"2026-10-07.preview":{"identifier":"2026-10-07.preview","train_identifier":"endive","channel":"preview","sdk_versions":{"ruby":"20.1.0-alpha.1","python":"16.1.0a1","php":"22.1.0-alpha.1","java":"34.1.0-alpha.1","node":"23.1.0-alpha.1","go":"87.1.0-alpha.1","dotnet":"53.1.0-alpha.1"}}}}</script>
+<div><span>2025-08-27.basil</span><span>2026-09-30.preview</span></div>
+</body></html>

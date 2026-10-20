@@ -1,0 +1,46 @@
+{
+  "kind": "discovery#directoryList",
+  "discoveryVersion": "v1",
+  "items": [
+    {
+      "kind": "discovery#directoryItem",
+      "id": "analyticsdata:v1beta",
+      "name": "analyticsdata",
+      "version": "v1beta",
+      "title": "Google Analytics Data API",
+      "preferred": true
+    },
+    {
+      "kind": "discovery#directoryItem",
+      "id": "drive:v2",
+      "name": "drive",
+      "version": "v2",
+      "title": "Drive API",
+      "preferred": false
+    },
+    {
+      "kind": "discovery#directoryItem",
+      "id": "drive:v3",
+      "name": "drive",
+      "version": "v3",
+      "title": "Drive API",
+      "preferred": true
+    },
+    {
+      "kind": "discovery#directoryItem",
+      "id": "searchconsole:v1",
+      "name": "searchconsole",
+      "version": "v1",
+      "title": "Google Search Console API",
+      "preferred": true
+    },
+    {
+      "kind": "discovery#directoryItem",
+      "id": "sheets:v4",
+      "name": "sheets",
+      "version": "v4",
+      "title": "Google Sheets API",
+      "preferred": true
+    }
+  ]
+}

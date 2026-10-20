@@ -6,6 +6,8 @@
 //	go run ./scripts latest --connector <dir> [--image-prefix ghcr.io/org/repo]   # newest release version whose image is published
 //	go run ./scripts entry --connector <dir> [--image-prefix ghcr.io/org/repo]   # one registry entry as JSON
 //	go run ./scripts changed --base <git-ref>   # JSON list of connectors touched since <git-ref>
+//	go run ./scripts apiwatch [--report dist/api-watch.json] [--connector <dir>] [--fixtures scripts/apiwatch/testdata] [--summary file]
+//	go run ./scripts apiwatch-issues --report dist/api-watch.json --repo owner/name [--dry-run] [--bumps file]
 //
 // registry builds from the working tree; with --released it builds from each
 // connector's newest release tag whose image can be pulled anonymously.
@@ -23,7 +25,7 @@ import (
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "usage: registry <validate|registry|release|latest|entry|changed> [flags]")
+		fmt.Fprintln(os.Stderr, "usage: registry <validate|registry|release|latest|entry|changed|apiwatch|apiwatch-issues> [flags]")
 		os.Exit(2)
 	}
 
@@ -42,6 +44,12 @@ func run(cmd string, args []string) error {
 	tag := fs.String("tag", "", "release tag <dir>-v<version>")
 	connector := fs.String("connector", "", "connector directory")
 	released := fs.Bool("released", false, "build registry.json from published release tags")
+	report := fs.String("report", "dist/api-watch.json", "API watch report file")
+	fixtures := fs.String("fixtures", "", "serve recorded upstream responses from this directory instead of the network")
+	summary := fs.String("summary", "", "append the report as a Markdown table to this file")
+	repo := fs.String("repo", os.Getenv("GITHUB_REPOSITORY"), "GitHub repository owner/name")
+	dryRun := fs.Bool("dry-run", false, "print the issue changes instead of making them")
+	bumps := fs.String("bumps", "", "write the bump candidates as JSON to this file")
 
 	if err := fs.Parse(args); err != nil {
 		return err
@@ -60,6 +68,10 @@ func run(cmd string, args []string) error {
 		return entry(*root, *connector, *imagePrefix)
 	case "changed":
 		return changed(*root, *base)
+	case "apiwatch":
+		return apiWatch(*root, *connector, *fixtures, *report, *summary)
+	case "apiwatch-issues":
+		return apiWatchIssues(*report, *repo, *bumps, *dryRun)
 	default:
 		return fmt.Errorf("unknown command %q", cmd)
 	}
