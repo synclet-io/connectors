@@ -195,3 +195,25 @@ func TestUnknownFieldIsKept(t *testing.T) {
 	}
 	t.Error("no deal record carries the field the schema does not list")
 }
+
+func TestTokenNeverInOutput(t *testing.T) {
+	s := suite(newRequests())
+	s.Overrides = map[string]declarativetest.Fixture{"v2/deals": {Status: 400, File: "errors/400.json"}}
+	h := declarativetest.New(t, s)
+	out := h.Read(t, h.Catalog(t, synclet.SyncModeFullRefresh, "deals"), nil)
+	if out.Err == nil {
+		t.Fatal("read on 400: no error")
+	}
+	raw, err := json.Marshal(out.Messages)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, s := range []string{out.Err.Error(), string(raw)} {
+		if strings.Contains(s, "test-api-token") {
+			t.Errorf("api token in the output: %s", s)
+		}
+	}
+	if !strings.Contains(out.Err.Error(), "Bad request") {
+		t.Errorf("error %q does not carry the API's text", out.Err)
+	}
+}

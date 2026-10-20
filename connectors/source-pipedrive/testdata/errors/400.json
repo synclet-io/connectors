@@ -1,0 +1,6 @@
+{
+  "success": false,
+  "error": "Bad request: GET /api/v2/deals?api_token=test-api-token&limit=500",
+  "errorCode": 400,
+  "error_info": "Please check developers.pipedrive.com"
+}
