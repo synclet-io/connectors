@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.3](https://github.com/synclet-io/connectors/compare/destination-bigquery-v0.2.2...destination-bigquery-v0.2.3) (2026-10-21)
+
+
+### Bug Fixes
+
+* **destination-bigquery:** reject service account keys whose token_uri is not Google's ([2afa35f](https://github.com/synclet-io/connectors/commit/2afa35f984289200808050e3e8ae7edb4691653c))
+* **google:** keep authorized_user keys, drop key members of other flows ([051a1ba](https://github.com/synclet-io/connectors/commit/051a1baaa98434fac425ea0df4e4bf1142be691b))
+
 ## [0.2.2](https://github.com/synclet-io/connectors/compare/destination-bigquery-v0.2.1...destination-bigquery-v0.2.2) (2026-10-19)
 
 
