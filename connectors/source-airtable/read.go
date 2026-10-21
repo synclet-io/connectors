@@ -27,7 +27,7 @@ func (s Source) Read(ctx context.Context, cfg Config, catalog *synclet.Configure
 	if err := cfg.validate(); err != nil {
 		return synclet.ConfigError(err)
 	}
-	m := newMetadata(s.apiClient(cfg))
+	m := newMetadata(s.apiClient(cfg, 0))
 	for _, cs := range catalog.Streams {
 		r, err := m.tableRead(ctx, cfg, cs)
 		if err != nil {

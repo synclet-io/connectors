@@ -20,7 +20,7 @@ func (s Source) Check(ctx context.Context, cfg Config) error {
 	if err := cfg.validate(); err != nil {
 		return synclet.ConfigError(err)
 	}
-	c := s.apiClient(cfg)
+	c := s.apiClient(cfg, metadataRateLimitBudget)
 	var me struct {
 		Scopes *[]string `json:"scopes"`
 	}

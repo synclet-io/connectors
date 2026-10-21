@@ -2,8 +2,13 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"net/http/httptest"
+	"strings"
+	"sync/atomic"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -44,10 +49,10 @@ func TestDiscoverStreams(t *testing.T) {
 		byName[s.Name] = s
 	}
 	assert.Equal(t, []string{tasksStream, allTypesStream, contactsStream, dealsStream}, names, "bases with the same name carry their id")
-	assert.Equal(t, []string{
-		"meta/bases", "meta/bases?offset=itrBases2",
-		"meta/bases/" + base1 + "/tables", "meta/bases/" + base2 + "/tables", "meta/bases/" + base3 + "/tables",
-	}, h.list())
+	reqs := h.list()
+	require.Len(t, reqs, 5)
+	assert.Equal(t, []string{"meta/bases", "meta/bases?offset=itrBases2"}, reqs[:2])
+	assert.ElementsMatch(t, []string{"meta/bases/" + base1 + "/tables", "meta/bases/" + base2 + "/tables", "meta/bases/" + base3 + "/tables"}, reqs[2:])
 
 	tasks := byName[tasksStream]
 	assert.Equal(t, []synclet.SyncMode{synclet.SyncModeFullRefresh, synclet.SyncModeIncremental}, tasks.SupportedSyncModes)
@@ -181,4 +186,48 @@ func TestDiscoverConfiguredBases(t *testing.T) {
 		require.Error(t, out.Err)
 		assert.Contains(t, out.ErrorTraces()[0].Message, "base appBase0000000001 is not shared with the token or does not exist")
 	})
+}
+
+func TestDiscoverFetchesTablesConcurrently(t *testing.T) {
+	const n = 12
+	var inFlight, peak atomic.Int32
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		p := strings.TrimPrefix(r.URL.Path, "/v0/")
+		if p == "meta/bases" {
+			var bases []string
+			for i := range n {
+				bases = append(bases, fmt.Sprintf(`{"id":"appConc%010d","name":"Base %02d"}`, i, i))
+			}
+			_, _ = fmt.Fprintf(w, `{"bases":[%s]}`, strings.Join(bases, ","))
+			return
+		}
+		cur := inFlight.Add(1)
+		defer inFlight.Add(-1)
+		for {
+			old := peak.Load()
+			if cur <= old || peak.CompareAndSwap(old, cur) {
+				break
+			}
+		}
+		var i int
+		_, err := fmt.Sscanf(p, "meta/bases/appConc%010d/tables", &i)
+		require.NoError(t, err)
+		time.Sleep(time.Duration(n-i) * 5 * time.Millisecond)
+		_, _ = fmt.Fprintf(w, `{"tables":[{"id":"tbl%013d","name":"Table","fields":[]}]}`, i)
+	}))
+	t.Cleanup(srv.Close)
+
+	out := discover(t, testSource(srv), testCfg)
+	require.NoError(t, out.Err)
+	var names []string
+	for _, s := range out.Catalog().Streams {
+		names = append(names, s.Name)
+	}
+	var want []string
+	for i := range n {
+		want = append(want, fmt.Sprintf("Base %02d/Table", i))
+	}
+	assert.Equal(t, want, names, "streams follow the order of the bases")
+	assert.Greater(t, peak.Load(), int32(1), "tables of several bases are fetched at once")
+	assert.LessOrEqual(t, peak.Load(), int32(discoverConcurrency))
 }

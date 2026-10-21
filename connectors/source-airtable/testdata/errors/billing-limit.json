@@ -1,0 +1,8 @@
+{
+  "errors": [
+    {
+      "error": "PUBLIC_API_BILLING_LIMIT_EXCEEDED",
+      "message": "You have exceeded your monthly API call limit. Upgrade your plan to continue."
+    }
+  ]
+}

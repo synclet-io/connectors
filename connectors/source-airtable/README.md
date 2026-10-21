@@ -124,8 +124,19 @@ The `IF` compares a blank cursor field by the record's creation time and never p
 ## Limits
 
 - Requests to one base are spaced at least 200 ms apart (Airtable allows 5 requests per second per
-  base); metadata requests count for their base.
+  base), and any two requests at least 20 ms apart (50 requests per second per token); metadata
+  requests count for their base.
+- `discover` fetches the tables of up to 5 bases at once; streams keep the order of the bases.
 - A 429 blocks the base for about 30 seconds and carries no `Retry-After`: the request waits 30 seconds
-  and is repeated, at most 5 times.
+  and is repeated, at most 5 times. Every wait is logged with the request path (without its query),
+  the attempt and the wait.
+- `check` and `discover` wait at most 1 minute for rate limits in total, across all their requests,
+  so they end well within the platform's 5-minute task limit; past that they fail with
+  `... gave up after waiting 1m0s in total for Airtable's rate limit`. `read` has no total, so a long
+  sync rides out 429s.
+- A 429 of type `PUBLIC_API_BILLING_LIMIT_EXCEEDED` means the workspace has used up the API calls its
+  plan allows (Free and Team plans have a monthly cap). It does not clear within a run, so it is not
+  repeated: every command fails at once with a configuration error starting with
+  `the Airtable workspace has used up the API calls its plan allows`.
 - A 5xx response or a transport error is repeated 3 times with a delay doubling from 1 second.
 - Records are read 100 per page, the most Airtable allows, following `offset`.

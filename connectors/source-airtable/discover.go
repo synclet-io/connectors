@@ -5,11 +5,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"sync"
 
 	synclet "github.com/synclet-io/synclet-go-sdk"
 )
 
 const (
+	// discoverConcurrency is how many bases discover fetches the tables of
+	// at once; with requestSpacing and tokenSpacing it stays within
+	// Airtable's per-base and per-token limits.
+	discoverConcurrency = 5
+
 	idProperty          = "_airtable_id"
 	createdTimeProperty = "_airtable_created_time"
 
@@ -54,10 +60,12 @@ func resultOf(options json.RawMessage) (typ string, resultOptions json.RawMessag
 	return o.Result.Type, o.Result.Options, true
 }
 
-// metadata loads bases and their tables once per run.
+// metadata loads bases and their tables once per run. baseTables is safe
+// for concurrent use.
 type metadata struct {
 	c      *apiClient
 	bases  []base
+	mu     sync.Mutex
 	tables map[string][]table
 }
 
@@ -93,7 +101,10 @@ func (m *metadata) listBases(ctx context.Context) ([]base, error) {
 // baseTables returns the tables of base id. A 403 or 404 means the base is
 // not shared with the token.
 func (m *metadata) baseTables(ctx context.Context, id string) ([]table, error) {
-	if t, ok := m.tables[id]; ok {
+	m.mu.Lock()
+	t, ok := m.tables[id]
+	m.mu.Unlock()
+	if ok {
 		return t, nil
 	}
 	var body struct {
@@ -102,8 +113,54 @@ func (m *metadata) baseTables(ctx context.Context, id string) ([]table, error) {
 	if err := m.c.get(ctx, id, "meta/bases/"+id+"/tables", nil, &body); err != nil {
 		return nil, baseError(id, err)
 	}
+	m.mu.Lock()
 	m.tables[id] = body.Tables
+	m.mu.Unlock()
 	return body.Tables, nil
+}
+
+// tablesOf returns the tables of each of bases, in their order, fetching
+// up to discoverConcurrency bases at once. The first failure stops the
+// others and is returned.
+func (m *metadata) tablesOf(ctx context.Context, bases []base) ([][]table, error) {
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	out := make([][]table, len(bases))
+	var (
+		wg    sync.WaitGroup
+		once  sync.Once
+		first error
+	)
+	sem := make(chan struct{}, discoverConcurrency)
+	for i, b := range bases {
+		select {
+		case sem <- struct{}{}:
+		case <-ctx.Done():
+		}
+		if ctx.Err() != nil {
+			break
+		}
+		wg.Go(func() {
+			defer func() { <-sem }()
+			t, err := m.baseTables(ctx, b.ID)
+			if err != nil {
+				once.Do(func() {
+					first = err
+					cancel()
+				})
+				return
+			}
+			out[i] = t
+		})
+	}
+	wg.Wait()
+	if first != nil {
+		return nil, first
+	}
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func baseError(id string, err error) error {
@@ -158,17 +215,17 @@ func (m *metadata) streams(ctx context.Context, cfg Config) ([]tableStream, erro
 	for _, b := range bases {
 		count[b.Name]++
 	}
+	tables, err := m.tablesOf(ctx, bases)
+	if err != nil {
+		return nil, err
+	}
 	var out []tableStream
-	for _, b := range bases {
-		tables, err := m.baseTables(ctx, b.ID)
-		if err != nil {
-			return nil, err
-		}
+	for i, b := range bases {
 		prefix := b.Name
 		if count[b.Name] > 1 {
 			prefix = fmt.Sprintf("%s (%s)", b.Name, b.ID)
 		}
-		for _, t := range tables {
+		for _, t := range tables[i] {
 			out = append(out, tableStream{name: prefix + "/" + t.Name, base: b, table: t})
 		}
 	}
@@ -180,7 +237,7 @@ func (s Source) Discover(ctx context.Context, cfg Config) (*synclet.Catalog, err
 	if err := cfg.validate(); err != nil {
 		return nil, synclet.ConfigError(err)
 	}
-	streams, err := newMetadata(s.apiClient(cfg)).streams(ctx, cfg)
+	streams, err := newMetadata(s.apiClient(cfg, metadataRateLimitBudget)).streams(ctx, cfg)
 	if err != nil {
 		return nil, err
 	}
