@@ -33,6 +33,10 @@ const (
 	// discover allow across all their requests, so that they end well
 	// within the platform's 5-minute limit on a task.
 	metadataRateLimitBudget = time.Minute
+	// defaultMetadataTimeout bounds check and discover below the platform's
+	// 5-minute limit on a task: each of their requests may take the HTTP
+	// timeout on every retry.
+	defaultMetadataTimeout = 4 * time.Minute
 	// billingLimitExceeded is the 429 error type of a workspace that has
 	// used up the API calls of its plan; it does not clear within a run.
 	billingLimitExceeded = "PUBLIC_API_BILLING_LIMIT_EXCEEDED"
@@ -91,6 +95,26 @@ func (s Source) apiClient(cfg Config, rateLimitBudget time.Duration) *apiClient 
 		c.wait = sleep
 	}
 	return c
+}
+
+// errMetadataTimeout is the cause of a check or discover that ran out of
+// metadataTimeout.
+var errMetadataTimeout = errors.New("metadata timeout")
+
+// withMetadataTimeout runs f with a context that ends after the metadata
+// timeout, and names that timeout in the error of f when it ended it.
+func (s Source) withMetadataTimeout(ctx context.Context, f func(ctx context.Context) error) error {
+	d := s.metadataTimeout
+	if d == 0 {
+		d = defaultMetadataTimeout
+	}
+	ctx, cancel := context.WithTimeoutCause(ctx, d, errMetadataTimeout)
+	defer cancel()
+	err := f(ctx)
+	if err != nil && errors.Is(context.Cause(ctx), errMetadataTimeout) {
+		return fmt.Errorf("no answer from Airtable within %s: %w", d, err)
+	}
+	return err
 }
 
 func sleep(ctx context.Context, d time.Duration) error {

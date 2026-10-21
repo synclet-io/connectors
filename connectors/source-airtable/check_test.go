@@ -3,7 +3,9 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -115,4 +117,35 @@ func TestCheckConfig(t *testing.T) {
 	status := runCheck(t, Source{}, Config{PersonalAccessToken: testToken, BaseIDs: []string{"Projects"}})
 	assert.Equal(t, synclet.ConnectionStatusFailed, status.Status)
 	assert.Contains(t, status.Message, `base id "Projects" must be "app" followed by 14 letters or digits`)
+}
+
+func TestMetadataTimeout(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		select {
+		case <-r.Context().Done():
+		case <-time.After(5 * time.Second):
+		}
+	}))
+	t.Cleanup(srv.Close)
+	src := testSource(srv)
+	src.metadataTimeout = 50 * time.Millisecond
+	raw, err := json.Marshal(testCfg)
+	require.NoError(t, err)
+
+	for _, cmd := range []synclet.Command{synclet.CommandCheck, synclet.CommandDiscover} {
+		t.Run(string(cmd), func(t *testing.T) {
+			start := time.Now()
+			out, err := testkit.RunSource(t.Context(), src, synclet.Request{Command: cmd, Config: raw})
+			require.NoError(t, err)
+			assert.Less(t, time.Since(start), 2*time.Second)
+			msg := ""
+			if out.Err != nil {
+				msg = out.Err.Error()
+			}
+			if cs := out.ConnectionStatus(); cs != nil {
+				msg = cs.Message
+			}
+			assert.Contains(t, msg, "no answer from Airtable within 50ms")
+		})
+	}
 }

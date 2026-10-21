@@ -20,6 +20,10 @@ func (s Source) Check(ctx context.Context, cfg Config) error {
 	if err := cfg.validate(); err != nil {
 		return synclet.ConfigError(err)
 	}
+	return s.withMetadataTimeout(ctx, func(ctx context.Context) error { return s.check(ctx, cfg) })
+}
+
+func (s Source) check(ctx context.Context, cfg Config) error {
 	c := s.apiClient(cfg, metadataRateLimitBudget)
 	var me struct {
 		Scopes *[]string `json:"scopes"`

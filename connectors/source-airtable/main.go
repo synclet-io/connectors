@@ -19,6 +19,8 @@ type Source struct {
 	client     *http.Client
 	retryDelay time.Duration
 	wait       func(ctx context.Context, d time.Duration) error
+	// metadataTimeout replaces defaultMetadataTimeout when set.
+	metadataTimeout time.Duration
 }
 
 func main() { cli.RunSource(Source{}) }

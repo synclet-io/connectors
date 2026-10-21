@@ -237,7 +237,12 @@ func (s Source) Discover(ctx context.Context, cfg Config) (*synclet.Catalog, err
 	if err := cfg.validate(); err != nil {
 		return nil, synclet.ConfigError(err)
 	}
-	streams, err := newMetadata(s.apiClient(cfg, metadataRateLimitBudget)).streams(ctx, cfg)
+	var streams []tableStream
+	err := s.withMetadataTimeout(ctx, func(ctx context.Context) error {
+		var err error
+		streams, err = newMetadata(s.apiClient(cfg, metadataRateLimitBudget)).streams(ctx, cfg)
+		return err
+	})
 	if err != nil {
 		return nil, err
 	}

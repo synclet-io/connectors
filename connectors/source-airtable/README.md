@@ -130,10 +130,12 @@ The `IF` compares a blank cursor field by the record's creation time and never p
 - A 429 blocks the base for about 30 seconds and carries no `Retry-After`: the request waits 30 seconds
   and is repeated, at most 5 times. Every wait is logged with the request path (without its query),
   the attempt and the wait.
-- `check` and `discover` wait at most 1 minute for rate limits in total, across all their requests,
-  so they end well within the platform's 5-minute task limit; past that they fail with
-  `... gave up after waiting 1m0s in total for Airtable's rate limit`. `read` has no total, so a long
-  sync rides out 429s.
+- `check` and `discover` wait at most 1 minute for rate limits in total, across all their requests;
+  past that they fail with `... gave up after waiting 1m0s in total for Airtable's rate limit`. `read`
+  has no total, so a long sync rides out 429s.
+- `check` and `discover` end after 4 minutes, within the platform's 5-minute task limit, failing with
+  `no answer from Airtable within 4m0s: ...`: a request that times out (1 minute) is repeated like a
+  transport error, so one request alone may take that long.
 - A 429 of type `PUBLIC_API_BILLING_LIMIT_EXCEEDED` means the workspace has used up the API calls its
   plan allows (Free and Team plans have a monthly cap). It does not clear within a run, so it is not
   repeated: every command fails at once with a configuration error starting with
