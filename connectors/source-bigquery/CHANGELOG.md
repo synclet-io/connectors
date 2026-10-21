@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.2](https://github.com/synclet-io/connectors/compare/source-bigquery-v0.2.1...source-bigquery-v0.2.2) (2026-10-21)
+
+
+### Bug Fixes
+
+* **google:** keep authorized_user keys, drop key members of other flows ([051a1ba](https://github.com/synclet-io/connectors/commit/051a1baaa98434fac425ea0df4e4bf1142be691b))
+* **source-bigquery:** reject service account keys whose token_uri is not Google's ([afa397f](https://github.com/synclet-io/connectors/commit/afa397fb1f812cd1dfa5548e97b2441b5be55f9b))
+
 ## [0.2.1](https://github.com/synclet-io/connectors/compare/source-bigquery-v0.2.0...source-bigquery-v0.2.1) (2026-10-19)
 
 

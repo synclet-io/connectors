@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.2.0](https://github.com/synclet-io/connectors/compare/source-declarative-v0.1.0...source-declarative-v0.2.0) (2026-10-21)
+
+
+### Features
+
+* **source-declarative:** a spec default fills a missing or null config value ([666a08c](https://github.com/synclet-io/connectors/commit/666a08ca65c923a17227e2952987f60f3cea0f99))
+* **source-declarative:** errors.when turns a 2xx body into a fail, config error, retry, rate limit or ignore ([98a22a4](https://github.com/synclet-io/connectors/commit/98a22a4690a10e0d919b451f446418380f3f422e))
+
+
+### Bug Fixes
+
+* **source-declarative:** a missing or null records path reads as no records and ends the request ([35f4583](https://github.com/synclet-io/connectors/commit/35f4583e9d92e9ded914cce07183d351e7bb0f94))
+
 ## 0.1.0 (2026-10-20)
 
 
