@@ -151,7 +151,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Draft the bump with Claude
-        uses: anthropics/claude-code-action@374f254f5efaf968abfe15d399fd90972e8138b9 # v1.0.251
+        uses: anthropics/claude-code-action@ae68417a745a5df4b2124873632bd73a2255e6f6 # v1.0.259
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           # Read-only: the action needs a token, and this one cannot push or comment.
@@ -220,7 +220,7 @@ jobs:
         id: artifact
         run: echo "name=api-bump-${BRANCH//\//-}" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: ${{ steps.artifact.outputs.name }}
           path: ${{ runner.temp }}/bump
