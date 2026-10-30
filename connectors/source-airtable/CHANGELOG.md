@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.1](https://github.com/synclet-io/connectors/compare/source-airtable-v0.1.0...source-airtable-v0.1.1) (2026-10-30)
+
+
+### Bug Fixes
+
+* **source-airtable:** end check and discover after 4 minutes ([e1e1a01](https://github.com/synclet-io/connectors/commit/e1e1a0151fa0ca8aa705e93a7af00a31b5828b03))
+* **source-airtable:** fail fast on plan API limit, bound and log rate-limit waits, fetch base tables concurrently ([6ed2eb0](https://github.com/synclet-io/connectors/commit/6ed2eb09c13028633fe074d3477eb78caffb51ae))
+
 ## 0.1.0 (2026-10-19)
 
 

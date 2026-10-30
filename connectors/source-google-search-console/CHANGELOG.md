@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.1](https://github.com/synclet-io/connectors/compare/source-google-search-console-v0.1.0...source-google-search-console-v0.1.1) (2026-10-30)
+
+
+### Bug Fixes
+
+* **google:** keep authorized_user keys, drop key members of other flows ([051a1ba](https://github.com/synclet-io/connectors/commit/051a1baaa98434fac425ea0df4e4bf1142be691b))
+* **source-google-search-console:** reject service account keys whose token_uri is not Google's ([2c2a0e0](https://github.com/synclet-io/connectors/commit/2c2a0e05d2d7fd037cfa8c9f493e152707462efe))
+
 ## 0.1.0 (2026-10-19)
 
 

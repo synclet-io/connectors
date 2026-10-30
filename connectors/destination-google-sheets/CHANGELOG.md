@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.2](https://github.com/synclet-io/connectors/compare/destination-google-sheets-v0.2.1...destination-google-sheets-v0.2.2) (2026-10-30)
+
+
+### Bug Fixes
+
+* **destination-google-sheets:** reject service account keys whose token_uri is not Google's ([9782339](https://github.com/synclet-io/connectors/commit/9782339f6ec0a1ae6d43bbcb62ca2ae2e0e55efd))
+* **google:** keep authorized_user keys, drop key members of other flows ([051a1ba](https://github.com/synclet-io/connectors/commit/051a1baaa98434fac425ea0df4e4bf1142be691b))
+
 ## [0.2.1](https://github.com/synclet-io/connectors/compare/destination-google-sheets-v0.2.0...destination-google-sheets-v0.2.1) (2026-10-19)
 
 

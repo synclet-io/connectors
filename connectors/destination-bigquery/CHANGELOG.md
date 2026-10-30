@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.2.3](https://github.com/synclet-io/connectors/compare/destination-bigquery-v0.2.2...destination-bigquery-v0.2.3) (2026-10-30)
+
+
+### Bug Fixes
+
+* **destination-bigquery:** GCS staging loads JSON lines, so nulls and JSON columns load as they are ([88e1139](https://github.com/synclet-io/connectors/commit/88e1139a5248dffb85f2b12b74f625999efed255))
+* **destination-bigquery:** reject service account keys whose token_uri is not Google's ([2afa35f](https://github.com/synclet-io/connectors/commit/2afa35f984289200808050e3e8ae7edb4691653c))
+* **destination-bigquery:** timestamp_without_timezone is a DATETIME column, its zone-less values are kept ([e9e55b6](https://github.com/synclet-io/connectors/commit/e9e55b65522323cc21df389088b33cc28b490d4b))
+* **google:** keep authorized_user keys, drop key members of other flows ([051a1ba](https://github.com/synclet-io/connectors/commit/051a1baaa98434fac425ea0df4e4bf1142be691b))
+
 ## [0.2.2](https://github.com/synclet-io/connectors/compare/destination-bigquery-v0.2.1...destination-bigquery-v0.2.2) (2026-10-19)
 
 

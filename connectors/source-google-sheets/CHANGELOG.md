@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.1](https://github.com/synclet-io/connectors/compare/source-google-sheets-v0.4.0...source-google-sheets-v0.4.1) (2026-10-30)
+
+
+### Bug Fixes
+
+* **google:** keep authorized_user keys, drop key members of other flows ([051a1ba](https://github.com/synclet-io/connectors/commit/051a1baaa98434fac425ea0df4e4bf1142be691b))
+* **source-google-sheets:** reject service account keys whose token_uri is not Google's ([834e5fe](https://github.com/synclet-io/connectors/commit/834e5fed866372d972275185de7b3a8e2c78e2d8))
+
 ## [0.4.0](https://github.com/synclet-io/connectors/compare/source-google-sheets-v0.3.0...source-google-sheets-v0.4.0) (2026-10-19)
 
 
