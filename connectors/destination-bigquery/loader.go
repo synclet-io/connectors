@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"context"
-	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -28,22 +27,31 @@ func newStandardLoader(client *bigquery.Client) *standardLoader {
 	return &standardLoader{client: client}
 }
 
+// encodeJSONL writes records as JSON lines, the format both loaders load: a
+// null is null and an object or array stays JSON, for a JSON column.
+func encodeJSONL(records []map[string]interface{}) (*bytes.Buffer, error) {
+	var buf bytes.Buffer
+	enc := json.NewEncoder(&buf)
+	for _, rec := range records {
+		if err := enc.Encode(rec); err != nil {
+			return nil, fmt.Errorf("encoding record to JSONL: %w", err)
+		}
+	}
+	return &buf, nil
+}
+
 func (l *standardLoader) load(ctx context.Context, datasetID, tableName string, schema bigquery.Schema, records []map[string]interface{}) error {
 	if len(records) == 0 {
 		return nil
 	}
 
-	// Marshal records as JSONL into a buffer.
-	var buf bytes.Buffer
-	enc := json.NewEncoder(&buf)
-	for _, rec := range records {
-		if err := enc.Encode(rec); err != nil {
-			return fmt.Errorf("encoding record to JSONL: %w", err)
-		}
+	buf, err := encodeJSONL(records)
+	if err != nil {
+		return err
 	}
 
 	// Create a reader source from the JSONL buffer.
-	src := bigquery.NewReaderSource(&buf)
+	src := bigquery.NewReaderSource(buf)
 	src.SourceFormat = bigquery.JSON
 	src.Schema = schema
 
@@ -73,7 +81,8 @@ func (l *standardLoader) close() error {
 }
 
 // gcsLoader loads data to BigQuery via GCS staging (D-01).
-// Records are written as CSV to GCS, then a BigQuery load job reads from the GCS URI.
+// Records are written to GCS as JSON lines, as the standard loader sends them,
+// then a BigQuery load job reads from the GCS URI.
 type gcsLoader struct {
 	bqClient  *bigquery.Client
 	gcsClient *storage.Client
@@ -97,43 +106,22 @@ func (l *gcsLoader) load(ctx context.Context, datasetID, tableName string, schem
 		return nil
 	}
 
+	buf, err := encodeJSONL(records)
+	if err != nil {
+		return err
+	}
+
 	// Build the GCS object path.
-	objectName := fmt.Sprintf("%s/%s/%s_%d.csv", l.path, tableName, uuid.New().String(), time.Now().UnixMilli())
+	objectName := fmt.Sprintf("%s/%s/%s_%d.jsonl", l.path, tableName, uuid.New().String(), time.Now().UnixMilli())
 	gcsURI := fmt.Sprintf("gs://%s/%s", l.bucket, objectName)
 
-	// Write CSV to GCS.
+	// Write JSONL to GCS.
 	obj := l.gcsClient.Bucket(l.bucket).Object(objectName)
 	w := obj.NewWriter(ctx)
-	w.ContentType = "text/csv"
-
-	csvWriter := csv.NewWriter(w)
-
-	// Write header row from schema field names.
-	headers := make([]string, len(schema))
-	for i, field := range schema {
-		headers[i] = field.Name
-	}
-	if err := csvWriter.Write(headers); err != nil {
+	w.ContentType = "application/x-ndjson"
+	if _, err := buf.WriteTo(w); err != nil {
 		_ = w.Close()
-		return fmt.Errorf("writing CSV header: %w", err)
-	}
-
-	// Write data rows.
-	for _, rec := range records {
-		row := make([]string, len(headers))
-		for i, h := range headers {
-			row[i] = fmt.Sprintf("%v", rec[h])
-		}
-		if err := csvWriter.Write(row); err != nil {
-			_ = w.Close()
-			return fmt.Errorf("writing CSV row: %w", err)
-		}
-	}
-
-	csvWriter.Flush()
-	if err := csvWriter.Error(); err != nil {
-		_ = w.Close()
-		return fmt.Errorf("flushing CSV writer: %w", err)
+		return fmt.Errorf("writing JSONL to GCS: %w", err)
 	}
 	if err := w.Close(); err != nil {
 		return fmt.Errorf("closing GCS writer: %w", err)
@@ -141,9 +129,7 @@ func (l *gcsLoader) load(ctx context.Context, datasetID, tableName string, schem
 
 	// Create BigQuery load job from GCS.
 	gcsRef := bigquery.NewGCSReference(gcsURI)
-	gcsRef.SourceFormat = bigquery.CSV
-	gcsRef.SkipLeadingRows = 1
-	gcsRef.AllowQuotedNewlines = true
+	gcsRef.SourceFormat = bigquery.JSON
 	gcsRef.Schema = schema
 
 	tbl := l.bqClient.Dataset(datasetID).Table(tableName)
