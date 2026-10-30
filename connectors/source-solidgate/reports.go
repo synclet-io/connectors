@@ -269,7 +269,9 @@ func invoiceObjects(body map[string]json.RawMessage) ([]map[string]any, error) {
 			if err != nil {
 				return nil, fmt.Errorf("subscription %s: invoice orders: %w", sub.ID, err)
 			}
-			obj["subscription_id"] = sub.ID
+			if sub.ID != "" {
+				obj["subscription_id"] = sub.ID
+			}
 			obj["orders"] = list
 			objs = append(objs, obj)
 		}

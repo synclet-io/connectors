@@ -111,7 +111,8 @@ func TestReadRecords(t *testing.T) {
 	srv, _ := fixtureServer(t, nil)
 	src := testSource(srv)
 	out := runRead(t, src, configured(t, src, synclet.SyncModeFullRefresh,
-		streamSubscriptions, streamSubscriptionInvoices, streamChargebacks, streamCardFraudAlerts, streamProducts, streamCardOrders), nil)
+		streamSubscriptions, streamSubscriptionInvoices, streamChargebacks, streamCardFraudAlerts, streamProducts, streamCardOrders,
+		streamAPMOrders, streamPayPalDisputes), nil)
 
 	assert.Equal(t, []string{"sub-0002", "sub-0001", "sub-0003"}, recordField(t, out, streamSubscriptions, "id"))
 	sub := out.Records(synclet.StreamDescriptor{Name: streamSubscriptions})[0]
@@ -155,16 +156,94 @@ func TestReadRecords(t *testing.T) {
 	assert.JSONEq(t, `{
 		"id":"prod-0001","solid_account":"acme_test","name":"Plan 1","type":"subscription","description":"Monthly access",
 		"public_description":null,"status":"active","created_at":"2026-01-01T00:00:00+00:00","updated_at":"2026-01-02T00:00:00+00:00",
-		"payment_action":"auth_settle","settle_interval":0,"tax_profile_id":"tax-profile-1","tax_category_id":"tax-cat-1","tax_is_included":false
+		"term_length":12,"payment_action":"auth_settle","settle_interval":48,"billing_period":{"unit":"month","value":1},
+		"trial":{"billing_period":{"unit":"day","value":7},"payment_action":"auth_void","settle_interval":0},
+		"retry_mode":"smart","retry_strategy_id":"retry-strategy-1",
+		"tax_profile_id":null,"tax_category_id":"tax-cat-1","tax_is_included":null,"tax":{"category_id":"tax-cat-1","behavior":"excluded"},
+		"metadata":{"tier":"premium"}
 	}`, string(prods[0].Data))
-	assert.Contains(t, string(prods[1].Data), `"tax_profile_id":null`)
+	// A product in the tax layout Solidgate no longer documents keeps its
+	// flat tax_* fields.
+	var rec map[string]any
+	require.NoError(t, json.Unmarshal(prods[1].Data, &rec))
+	assert.Equal(t, "tax-profile-1", rec["tax_profile_id"])
+	assert.Equal(t, "tax-cat-2", rec["tax_category_id"])
+	assert.Equal(t, false, rec["tax_is_included"])
 
 	order := out.Records(synclet.StreamDescriptor{Name: streamCardOrders})[0]
-	var rec map[string]any
+	rec = nil
 	require.NoError(t, json.Unmarshal(order.Data, &rec))
 	assert.Equal(t, map[string]any{"cascade_steps": []any{map[string]any{"mid": "mid-test", "route_id": "route-1", "cascade_number": float64(1)}}}, rec["routing"])
 	assert.Equal(t, map[string]any{"campaign": "test"}, rec["order_metadata"])
 	assert.NotContains(t, rec, "chargebacks")
+	for name, want := range map[string]any{
+		"product_id": "prod-0001", "product_name": "Plan 1", "product_type": "recurring", "subscription_id": "sub-0001",
+		"settled_amount": float64(1000), "settled_currency": "USD", "refunded_amount": float64(300), "refunded_currency": "USD",
+		"refund": "partial", "payment_method": "apple-pay", "traffic_source": "facebook", "fraudulent": false,
+	} {
+		assert.Equal(t, want, rec[name], name)
+	}
+
+	apm := out.Records(synclet.StreamDescriptor{Name: streamAPMOrders})[0]
+	rec = nil
+	require.NoError(t, json.Unmarshal(apm.Data, &rec))
+	for name, want := range map[string]any{
+		"product_id": "prod-0002", "product_name": "Plan 2", "product_type": "one_time", "subscription_id": nil,
+		"settled_amount": float64(500), "settled_currency": "EUR", "refunded_amount": nil, "refund": nil,
+		"merchant_account_id": "merchant-paypal-1",
+	} {
+		assert.Equal(t, want, rec[name], name)
+	}
+
+	assert.Contains(t, string(out.Records(synclet.StreamDescriptor{Name: streamPayPalDisputes})[0].Data), `"represented_by":"merchant"`)
+}
+
+// TestReadMissingFieldsAreNull checks that a field Solidgate does not send is
+// null in the record, never "", 0 or false, as the earlier connector emits it.
+func TestReadMissingFieldsAreNull(t *testing.T) {
+	const day = "2026-10-16"
+	body := func(s string) []fixture { return []fixture{{status: http.StatusOK, body: s}} }
+	srv, _ := fixtureServer(t, map[string][]fixture{
+		"subscriptions " + day: body(`{"subscriptions":{"sub-min":{"id":"sub-min","updated_at":"2026-10-16 10:00:00",` +
+			`"invoices":{"inv-min":{"id":"inv-min","updated_at":"2026-10-16 10:00:00"}}}}}`),
+		"card-orders " + day: body(`{"orders":[{"order_id":"ord-min","updated_at":"2026-10-16 10:00:00"}]}`),
+		"apm-orders " + day:  body(`{"orders":[{"order_id":"apm-min","updated_at":"2026-10-16 10:00:00"}]}`),
+		"card-orders/chargebacks " + day: body(`{"orders":[{"order_id":"ord-min",` +
+			`"chargebacks":[{"id":"cb-min","updated_at":"2026-10-16 10:00:00"}]}]}`),
+		"apm-orders/paypal-disputes " + day: body(`{"disputes":[{"dispute_id":"PP-D-min","updated_at":"2026-10-16 10:00:00"}]}`),
+		"products 0":                        body(`{"data":[{"id":"prod-min"}]}`),
+	})
+	src := testSource(srv)
+	out := runRead(t, src, configured(t, src, synclet.SyncModeFullRefresh, streamSubscriptions, streamSubscriptionInvoices,
+		streamCardOrders, streamAPMOrders, streamChargebacks, streamPayPalDisputes, streamProducts), nil)
+
+	const updated = "2026-10-16T10:00:00+00:00"
+	sent := map[string]map[string]any{
+		streamSubscriptions:        {"id": "sub-min", "updated_at": updated},
+		streamSubscriptionInvoices: {"id": "inv-min", "updated_at": updated, "subscription_id": "sub-min", "orders": []any{}},
+		streamCardOrders:           {"id": "ord-min", "updated_at": updated},
+		streamAPMOrders:            {"id": "apm-min", "updated_at": updated},
+		streamChargebacks:          {"id": "cb-min", "updated_at": updated, "order_id": "ord-min"},
+		streamPayPalDisputes:       {"id": "PP-D-min", "updated_at": updated},
+		streamProducts:             {"id": "prod-min"},
+	}
+	for stream, want := range sent {
+		recs := out.Records(synclet.StreamDescriptor{Name: stream})
+		require.NotEmpty(t, recs, stream)
+		var rec map[string]any
+		require.NoError(t, json.Unmarshal(recs[0].Data, &rec))
+		d, _ := streamDefByName(stream)
+		assert.Len(t, rec, len(d.fields), stream)
+		for name, v := range rec {
+			switch w, ok := want[name]; {
+			case name == accountField:
+			case ok:
+				assert.Equal(t, w, v, "%s.%s", stream, name)
+			default:
+				assert.Nil(t, v, "%s.%s", stream, name)
+			}
+		}
+	}
 }
 
 func TestReadProductsPaging(t *testing.T) {

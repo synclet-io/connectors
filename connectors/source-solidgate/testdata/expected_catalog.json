@@ -27,18 +27,27 @@
           "type": "string"
         },
         "status": {
-          "type": "string"
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "updated_at": {
           "type": "string",
           "format": "date-time"
         },
         "started_at": {
-          "type": "string",
+          "type": [
+            "null",
+            "string"
+          ],
           "format": "date-time"
         },
         "expired_at": {
-          "type": "string",
+          "type": [
+            "null",
+            "string"
+          ],
           "format": "date-time"
         },
         "next_charge_at": {
@@ -49,10 +58,16 @@
           "format": "date-time"
         },
         "payment_type": {
-          "type": "string"
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "trial": {
-          "type": "boolean"
+          "type": [
+            "null",
+            "boolean"
+          ]
         },
         "cancelled_at": {
           "type": [
@@ -74,31 +89,58 @@
           ]
         },
         "customer_account_id": {
-          "type": "string"
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "customer_email": {
-          "type": "string"
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "product_id": {
-          "type": "string"
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "product_name": {
-          "type": "string"
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "product_payment_action": {
-          "type": "string"
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "product_amount": {
-          "type": "number"
+          "type": [
+            "null",
+            "number"
+          ]
         },
         "product_currency": {
-          "type": "string"
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "product_trial": {
-          "type": "boolean"
+          "type": [
+            "null",
+            "boolean"
+          ]
         },
         "product_trial_period": {
-          "type": "integer"
+          "type": [
+            "null",
+            "integer"
+          ]
         },
         "pause_from_date": {
           "type": [
@@ -143,13 +185,22 @@
           "type": "string"
         },
         "subscription_id": {
-          "type": "string"
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "status": {
-          "type": "string"
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "created_at": {
-          "type": "string",
+          "type": [
+            "null",
+            "string"
+          ],
           "format": "date-time"
         },
         "updated_at": {
@@ -157,7 +208,10 @@
           "format": "date-time"
         },
         "amount": {
-          "type": "number"
+          "type": [
+            "null",
+            "number"
+          ]
         },
         "billing_period_started_at": {
           "type": [
@@ -174,7 +228,10 @@
           "format": "date-time"
         },
         "subscription_term_number": {
-          "type": "integer"
+          "type": [
+            "null",
+            "integer"
+          ]
         },
         "orders": {
           "type": [
@@ -281,13 +338,22 @@
           "type": "string"
         },
         "name": {
-          "type": "string"
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "type": {
-          "type": "string"
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "description": {
-          "type": "string"
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "public_description": {
           "type": [
@@ -296,23 +362,113 @@
           ]
         },
         "status": {
-          "type": "string"
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "created_at": {
-          "type": "string",
+          "type": [
+            "null",
+            "string"
+          ],
           "format": "date-time"
         },
         "updated_at": {
-          "type": "string",
+          "type": [
+            "null",
+            "string"
+          ],
           "format": "date-time"
         },
+        "term_length": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
         "payment_action": {
-          "type": "string"
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "settle_interval": {
           "type": [
             "null",
             "integer"
+          ]
+        },
+        "billing_period": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "properties": {
+            "unit": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "value": {
+              "type": [
+                "null",
+                "integer"
+              ]
+            }
+          }
+        },
+        "trial": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "properties": {
+            "billing_period": {
+              "type": [
+                "null",
+                "object"
+              ],
+              "properties": {
+                "unit": {
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                },
+                "value": {
+                  "type": [
+                    "null",
+                    "integer"
+                  ]
+                }
+              }
+            },
+            "payment_action": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "settle_interval": {
+              "type": [
+                "null",
+                "integer"
+              ]
+            }
+          }
+        },
+        "retry_mode": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "retry_strategy_id": {
+          "type": [
+            "null",
+            "string"
           ]
         },
         "tax_profile_id": {
@@ -332,6 +488,38 @@
             "null",
             "boolean"
           ]
+        },
+        "tax": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "properties": {
+            "category_id": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "behavior": {
+              "type": [
+                "null",
+                "string"
+              ]
+            }
+          }
+        },
+        "metadata": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "additionalProperties": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
         }
       }
     },
@@ -362,7 +550,10 @@
           "type": "string"
         },
         "order_description": {
-          "type": "string"
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "psp_order_id": {
           "type": [
@@ -376,8 +567,35 @@
             "string"
           ]
         },
+        "product_id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "product_name": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "product_type": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "subscription_id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
         "created_at": {
-          "type": "string",
+          "type": [
+            "null",
+            "string"
+          ],
           "format": "date-time"
         },
         "updated_at": {
@@ -385,10 +603,16 @@
           "format": "date-time"
         },
         "amount": {
-          "type": "integer"
+          "type": [
+            "null",
+            "integer"
+          ]
         },
         "currency": {
-          "type": "string"
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "processing_amount": {
           "type": [
@@ -402,8 +626,41 @@
             "string"
           ]
         },
+        "settled_amount": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
+        "settled_currency": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "refunded_amount": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
+        "refunded_currency": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
         "status": {
-          "type": "string"
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "refund": {
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "payment_type": {
           "type": [
@@ -411,11 +668,23 @@
             "string"
           ]
         },
+        "payment_method": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
         "type": {
-          "type": "string"
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "is_secured": {
-          "type": "boolean"
+          "type": [
+            "null",
+            "boolean"
+          ]
         },
         "customer_account_id": {
           "type": [
@@ -424,7 +693,10 @@
           ]
         },
         "customer_email": {
-          "type": "string"
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "customer_first_name": {
           "type": [
@@ -445,6 +717,12 @@
           ]
         },
         "mid": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "traffic_source": {
           "type": [
             "null",
             "string"
@@ -685,6 +963,12 @@
               "string"
             ]
           }
+        },
+        "fraudulent": {
+          "type": [
+            "null",
+            "boolean"
+          ]
         }
       }
     },
@@ -715,10 +999,40 @@
           "type": "string"
         },
         "order_description": {
-          "type": "string"
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "product_id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "product_name": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "product_type": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "subscription_id": {
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "created_at": {
-          "type": "string",
+          "type": [
+            "null",
+            "string"
+          ],
           "format": "date-time"
         },
         "updated_at": {
@@ -726,13 +1040,22 @@
           "format": "date-time"
         },
         "method": {
-          "type": "string"
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "amount": {
-          "type": "integer"
+          "type": [
+            "null",
+            "integer"
+          ]
         },
         "currency": {
-          "type": "string"
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "processing_amount": {
           "type": [
@@ -746,8 +1069,41 @@
             "string"
           ]
         },
+        "settled_amount": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
+        "settled_currency": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "refunded_amount": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
+        "refunded_currency": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
         "status": {
-          "type": "string"
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "refund": {
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "customer_account_id": {
           "type": [
@@ -756,7 +1112,10 @@
           ]
         },
         "customer_email": {
-          "type": "string"
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "ip_address": {
           "type": [
@@ -771,6 +1130,12 @@
           ]
         },
         "error_code": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "merchant_account_id": {
           "type": [
             "null",
             "string"
@@ -882,10 +1247,16 @@
           "type": "string"
         },
         "order_id": {
-          "type": "string"
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "created_at": {
-          "type": "string",
+          "type": [
+            "null",
+            "string"
+          ],
           "format": "date-time"
         },
         "updated_at": {
@@ -893,7 +1264,10 @@
           "format": "date-time"
         },
         "dispute_date": {
-          "type": "string",
+          "type": [
+            "null",
+            "string"
+          ],
           "format": "date-time"
         },
         "settlement_date": {
@@ -904,10 +1278,16 @@
           "format": "date-time"
         },
         "amount": {
-          "type": "integer"
+          "type": [
+            "null",
+            "integer"
+          ]
         },
         "currency": {
-          "type": "string"
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "type": {
           "type": [
@@ -1057,7 +1437,10 @@
           "type": "string"
         },
         "order_id": {
-          "type": "string"
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "subscription_product_id": {
           "type": [
@@ -1072,7 +1455,10 @@
           ]
         },
         "created_at": {
-          "type": "string",
+          "type": [
+            "null",
+            "string"
+          ],
           "format": "date-time"
         },
         "updated_at": {
@@ -1087,23 +1473,41 @@
           "format": "date-time"
         },
         "dispute_amount": {
-          "type": "integer"
+          "type": [
+            "null",
+            "integer"
+          ]
         },
         "dispute_currency": {
-          "type": "string"
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "dispute_life_cycle_stage": {
-          "type": "string"
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "dispute_channel": {
-          "type": "string"
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "dispute_create_time": {
-          "type": "string",
+          "type": [
+            "null",
+            "string"
+          ],
           "format": "date-time"
         },
         "dispute_update_time": {
-          "type": "string",
+          "type": [
+            "null",
+            "string"
+          ],
           "format": "date-time"
         },
         "dispute_outcome": {
@@ -1113,10 +1517,22 @@
           ]
         },
         "reason": {
-          "type": "string"
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "status": {
-          "type": "string"
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "represented_by": {
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "customer_account_id": {
           "type": [

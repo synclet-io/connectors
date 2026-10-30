@@ -55,19 +55,29 @@ The reports API is `https://reports.solidgate.com/api/v1`, products come from
 `https://subscriptions.solidgate.com/api/v1`.
 
 - **Orders.** `card_orders` and `apm_orders` hold one record per order, with its amounts in minor
-  units, status, customer and, as nested JSON, its `transactions`, `order_metadata` and (card orders)
-  `routing`. `id` is the order id.
+  units, status, customer, product (`product_id`, `product_name`, `product_type`), subscription
+  (`subscription_id`, which joins `subscriptions.id`), settled and refunded totals (`settled_*`,
+  `refunded_*`, `refund`) and, as nested JSON, its `transactions`, `order_metadata` and (card orders)
+  `routing`. Card orders also carry `payment_method`, `traffic_source` and `fraudulent`, APM orders
+  `merchant_account_id`. `id` is the order id.
 - **Subscriptions.** `subscriptions` flattens the customer, product and pause of each subscription
   into `customer_*`, `product_*` and `pause_*` fields. `subscription_invoices` has one record per
   invoice of those subscriptions, with `subscription_id` and its orders as a list in `orders`.
 - **Disputes.** `chargebacks` has one record per chargeback, with the `order_id` it belongs to and
-  its stages in `flows`; `paypal_disputes` one record per PayPal dispute (`id` is the dispute id);
+  its stages in `flows`; `paypal_disputes` one record per PayPal dispute (`id` is the dispute id,
+  `represented_by` who defended it);
   `card_fraud_alerts` one record per fraud alert of a card order. An order can have several alerts,
   so the key is the order and the alert's `created_at`.
-- **Products.** Subscription products, paged by offset until a page comes back empty; the tax
-  settings become `tax_*` fields.
+- **Products.** Subscription products, paged by offset until a page comes back empty, with
+  `term_length`, the retry settings and, as nested JSON, `billing_period`, `trial`, `tax` and
+  `metadata`. `tax_profile_id`, `tax_category_id` and `tax_is_included` keep the flat tax fields of
+  the earlier connector; Solidgate no longer documents the profile and `is_included`, so those two are
+  null unless it still sends them.
 - **Financial entries.** Sales, refunds, chargebacks and fees as Solidgate books them, one record per
   CSV row. Amounts stay strings as the file has them.
+
+A field Solidgate does not send is null, never `""`, `0` or `false`. Every field is declared nullable
+except the primary key and cursor fields the earlier connector declares non-null.
 
 Report timestamps are UTC; records carry them as `2026-10-16T10:00:00+00:00`. In
 `financial_entries`, `transaction_datetime_utc` carries `+00:00`, while `created_at` and
@@ -129,10 +139,13 @@ connector sends at most 10 per second per account.
 
 ## Differences from the earlier private connector
 
-This connector replaces an earlier private Airbyte connector; its stream names, keys, cursors, fields
-and their schemas are kept (`TestCatalogParity` pins them against `testdata/expected_catalog.json`). It
-differs in:
+This connector replaces an earlier private Airbyte connector; the stream names, keys, cursors, fields
+and their types of its version 3.7.0 are kept, so the records land in the same destination columns
+(`TestCatalogParity` pins them against `testdata/expected_catalog.json`: the 3.7.0 schemas without
+descriptions, nullable as below). It differs in:
 
+- fields the earlier connector declares non-null, although it emits null when Solidgate does not
+  send them, are declared nullable; only its non-null primary key and cursor fields stay non-null;
 - configuration: `accounts[]` with `name`, `public_key` and `secret_key`; `start_date` is optional
   and there is no `end_date`;
 - `lookback_days` (default 2) replaces `sync_last_days`: an incremental read restarts from the

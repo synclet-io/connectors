@@ -9,12 +9,29 @@
       "status": "active",
       "created_at": "2026-01-01 00:00:00",
       "updated_at": "2026-01-02 00:00:00",
+      "term_length": 12,
       "payment_action": "auth_settle",
-      "settle_interval": 0,
+      "settle_interval": 48,
+      "billing_period": {
+        "unit": "month",
+        "value": 1
+      },
+      "trial": {
+        "billing_period": {
+          "unit": "day",
+          "value": 7
+        },
+        "payment_action": "auth_void",
+        "settle_interval": 0
+      },
+      "retry_mode": "smart",
+      "retry_strategy_id": "retry-strategy-1",
       "tax": {
-        "profile_id": "tax-profile-1",
         "category_id": "tax-cat-1",
-        "is_included": false
+        "behavior": "excluded"
+      },
+      "metadata": {
+        "tier": "premium"
       }
     },
     {
@@ -28,7 +45,11 @@
       "updated_at": "2026-01-02 00:00:00",
       "payment_action": "auth_settle",
       "settle_interval": 0,
-      "tax": null
+      "tax": {
+        "profile_id": "tax-profile-1",
+        "category_id": "tax-cat-2",
+        "is_included": false
+      }
     }
   ]
 }
