@@ -37,18 +37,28 @@ type pageMetadata struct {
 	NextPageIterator string `json:"next_page_iterator"`
 }
 
-// cursorState is the STREAM state of an incremental stream: the greatest
-// cursor value read per account.
-type cursorState struct {
-	Accounts map[string]accountCursor `json:"accounts"`
+// dayState is the STREAM state of an incremental stream: per account, the
+// last UTC day read to its end. The report API is asked for one day at a
+// time, so a day that is read is done whether it had records or not.
+type dayState struct {
+	Accounts map[string]accountDay `json:"accounts"`
 }
 
-type accountCursor struct {
-	Cursor string `json:"cursor"`
+// accountDay is the saved progress of one account.
+type accountDay struct {
+	Day string `json:"day"`
 }
 
-func loadCursorState(desc synclet.StreamDescriptor, state *synclet.InputState) (cursorState, error) {
-	st := cursorState{Accounts: map[string]accountCursor{}}
+// last returns the last day read, zero when nothing is saved.
+func (a accountDay) last() (time.Time, error) {
+	if a.Day == "" {
+		return time.Time{}, nil
+	}
+	return time.Parse(dateLayout, a.Day)
+}
+
+func loadDayState(desc synclet.StreamDescriptor, state *synclet.InputState) (dayState, error) {
+	st := dayState{Accounts: map[string]accountDay{}}
 	raw := state.Stream(desc)
 	if raw == nil {
 		return st, nil
@@ -57,38 +67,37 @@ func loadCursorState(desc synclet.StreamDescriptor, state *synclet.InputState) (
 		return st, synclet.ConfigError(fmt.Errorf("state of %s: %w", desc.Name, err))
 	}
 	if st.Accounts == nil {
-		st.Accounts = map[string]accountCursor{}
+		st.Accounts = map[string]accountDay{}
 	}
 	for name, a := range st.Accounts {
-		if _, err := parseCursor(a.Cursor); err != nil {
-			return st, synclet.ConfigError(fmt.Errorf("state of %s: cursor of account %q is not a YYYY-MM-DDTHH:MM:SS timestamp", desc.Name, name))
+		if _, err := a.last(); err != nil {
+			return st, synclet.ConfigError(fmt.Errorf("state of %s: day of account %q is not a YYYY-MM-DD date", desc.Name, name))
 		}
 	}
 	return st, nil
 }
 
 // windowReader emits the records of one account for the UTC day starting at
-// day and returns the greatest cursor value among them, "" when none has one.
-type windowReader func(ctx context.Context, c *apiClient, day time.Time) (string, error)
+// day.
+type windowReader func(ctx context.Context, c *apiClient, day time.Time) error
 
-// readWindows reads one account a UTC day at a time, from the day lookback
-// days before the saved cursor (or start_date) to today. An incremental read
-// saves the state after each day; a day's state is emitted only once all of
-// its records are out.
-func (s Source) readWindows(ctx context.Context, cfg Config, d streamDef, cs synclet.ConfiguredStream, st cursorState, em *synclet.Emitter, read windowReader) error {
+// readWindows reads one account a UTC day at a time, from start_date, or in an
+// incremental read with a saved day from lookback_days before it but never
+// before start_date, to today. An incremental read saves each day once all of
+// its records are out, so a day that fails is read again by the next read.
+func (s Source) readWindows(ctx context.Context, cfg Config, d streamDef, cs synclet.ConfiguredStream, st dayState, em *synclet.Emitter, read windowReader) error {
 	desc := cs.Stream.Descriptor()
 	incremental := cs.SyncMode == synclet.SyncModeIncremental
 	today := day(s.clock())
 	for _, a := range cfg.Accounts {
 		c := s.apiClient(a)
 		from := cfg.start(s.clock())
-		saved := st.Accounts[a.Name].Cursor
-		if incremental && saved != "" {
-			t, err := parseCursor(saved)
+		if incremental {
+			last, err := st.Accounts[a.Name].last()
 			if err != nil {
 				return synclet.ConfigError(fmt.Errorf("state of %s: %w", desc.Name, err))
 			}
-			if resume := day(t).AddDate(0, 0, -cfg.lookback()); resume.After(from) {
+			if resume := last.AddDate(0, 0, -cfg.lookback()); !last.IsZero() && resume.After(from) {
 				from = resume
 			}
 		}
@@ -96,18 +105,14 @@ func (s Source) readWindows(ctx context.Context, cfg Config, d streamDef, cs syn
 			if err := ctx.Err(); err != nil {
 				return err
 			}
-			top, err := read(ctx, c, w)
-			if err != nil {
+			if err := read(ctx, c, w); err != nil {
 				return fmt.Errorf("%s: account %q, day %s: %w", d.name, a.Name, w.Format(dateLayout), err)
 			}
 			if !incremental {
 				continue
 			}
-			if top > saved {
-				saved = top
-				st.Accounts[a.Name] = accountCursor{Cursor: saved}
-			}
-			if err := em.StreamState(desc, cursorState{Accounts: maps.Clone(st.Accounts)}); err != nil {
+			st.Accounts[a.Name] = accountDay{Day: w.Format(dateLayout)}
+			if err := em.StreamState(desc, dayState{Accounts: maps.Clone(st.Accounts)}); err != nil {
 				return err
 			}
 		}
@@ -118,43 +123,39 @@ func (s Source) readWindows(ctx context.Context, cfg Config, d streamDef, cs syn
 // reportWindow reads every page of d's report for one day, following
 // metadata.next_page_iterator until it is empty.
 func reportWindow(d streamDef, desc synclet.StreamDescriptor, em *synclet.Emitter) windowReader {
-	return func(ctx context.Context, c *apiClient, w time.Time) (string, error) {
+	return func(ctx context.Context, c *apiClient, w time.Time) error {
 		req := reportRequest{
 			DateFrom: w.Format(apiTimeLayout),
 			DateTo:   w.AddDate(0, 0, 1).Format(apiTimeLayout),
 			Filter:   "updated_at",
 			Limit:    reportLimit,
 		}
-		var top string
 		for {
 			var body map[string]json.RawMessage
 			if err := c.postJSON(ctx, c.reportsURL, d.report.path, req, &body); err != nil {
-				return "", err
+				return err
 			}
 			objs, err := d.report.objects(body)
 			if err != nil {
-				return "", fmt.Errorf("POST %s: %w", d.report.path, err)
+				return fmt.Errorf("POST %s: %w", d.report.path, err)
 			}
 			for _, obj := range objs {
 				rec, err := record(d.fields, obj, c.account.Name)
 				if err != nil {
-					return "", err
-				}
-				if cur, _ := rec[d.cursor].(string); cur > top {
-					top = cur
+					return err
 				}
 				if err := em.Record(desc, rec); err != nil {
-					return "", err
+					return err
 				}
 			}
 			var meta pageMetadata
 			if raw, ok := body["metadata"]; ok {
 				if err := json.Unmarshal(raw, &meta); err != nil {
-					return "", fmt.Errorf("POST %s: metadata: %w", d.report.path, err)
+					return fmt.Errorf("POST %s: metadata: %w", d.report.path, err)
 				}
 			}
 			if meta.NextPageIterator == "" {
-				return top, nil
+				return nil
 			}
 			req.NextPageIterator = meta.NextPageIterator
 		}

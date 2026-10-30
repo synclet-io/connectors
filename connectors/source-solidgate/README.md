@@ -18,7 +18,7 @@ docker run --rm -v "$PWD:/data" ghcr.io/synclet-io/connectors/source-solidgate:d
 | `accounts` | yes | Merchant accounts to read, at least one. Each has `name`, `public_key` (`api_pk_...`) and `secret_key` (`api_sk_...`) |
 | `accounts[].name` | yes | Unique name of the account; every record carries it in `solid_account` |
 | `start_date` | no | First UTC day to read, `YYYY-MM-DD`. Empty reads the last two years |
-| `lookback_days` | no | Days before the saved cursor an incremental read requests again. Default 2 |
+| `lookback_days` | no | Days before the last day read that an incremental read requests again. Default 2 |
 
 ```json
 {
@@ -89,22 +89,29 @@ lags the transaction by hours. `accounting_date` is a date.
 
 The report streams request one UTC day per request (`date_from` 00:00:00 inclusive to `date_to` the
 next 00:00:00 exclusive, `filter` `updated_at`, `limit` 2000) and follow
-`metadata.next_page_iterator` until it comes back empty. A read covers every day from the day of the
-saved cursor minus `lookback_days` (or from `start_date` on the first read, and never before it) up to
-today.
+`metadata.next_page_iterator` until it comes back empty. A read covers every day from the last day
+read minus `lookback_days` (or from `start_date` on the first read, and never before it) up to today.
+
+Once every page of a day is out, an incremental read saves that day as the account's last day read,
+whether the day had records or not, in STREAM state:
+
+```json
+{"accounts": {"main": {"day": "2026-10-18"}, "eu": {"day": "2026-10-18"}}}
+```
+
+So each read requests the last `lookback_days` days and today again, however rarely a stream has
+records, and a day that fails is requested again by the next read.
+
+To read a past period again, set `day` of the accounts concerned to the day before it (in the
+connection's state of the stream) or reset the stream's state; `start_date` must not be later than the
+period. With append_dedup, records read again replace their earlier copies by the primary key; with
+append, they are added again.
 
 `subscription_invoices` is requested through the subscriptions report, which selects subscriptions by
 their `updated_at` and lists every invoice of each, also invoices that changed long ago. Its records
-are all emitted, so an incremental read can emit invoices whose `updated_at` is older than the saved
-cursor; deduplication by `id` and `solid_account` keeps the latest copy. The conformance test states
+are all emitted, so an incremental read can emit invoices whose `updated_at` is older than the days it
+reads; deduplication by `id` and `solid_account` keeps the latest copy. The conformance test states
 this with a `Lookback` that sets no lower bound for this stream.
-
-After each day of each account an incremental read saves the greatest cursor per account in STREAM
-state:
-
-```json
-{"accounts": {"main": {"cursor": "2026-10-17T08:30:00+00:00"}, "eu": {"cursor": "2026-10-17T07:45:00+00:00"}}}
-```
 
 A full refresh reads every day from `start_date` and saves no state.
 
@@ -149,14 +156,15 @@ descriptions, nullable as below). It differs in:
 - configuration: `accounts[]` with `name`, `public_key` and `secret_key`; `start_date` is optional
   and there is no `end_date`;
 - `lookback_days` (default 2) replaces `sync_last_days`: an incremental read restarts from the
-  saved cursor minus the lookback;
-- state is the greatest cursor per account, not the set of handled days;
+  last day read minus the lookback;
+- state is the last day read per account, not the set of handled days, so a `start_date` moved
+  earlier reads the days before it only after the stream's state is reset;
 - report-stream timestamp values gain an explicit UTC offset (`2026-10-16T10:00:00+00:00` where the
   earlier connector emitted `2026-10-16T10:00:00`); their schema is unchanged (`format: date-time`,
   no airbyte_type), and the `financial_entries` timestamps are emitted as before;
 - `financial_entries` emits schema columns only; CSV columns the schema does not list are dropped,
   although its schema keeps `additionalProperties: true`;
-- `subscription_invoices` can emit invoices whose `updated_at` is older than the saved cursor, as the
+- `subscription_invoices` can emit invoices whose `updated_at` is older than the days it reads, as the
   earlier connector did; the conformance test declares this with a `Lookback` without a lower bound
   for that stream (see [Incremental sync](#incremental-sync));
 - report requests send `filter: updated_at` explicitly;

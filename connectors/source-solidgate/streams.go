@@ -135,15 +135,6 @@ func (fd field) value(obj map[string]any) (any, error) {
 	return v, nil
 }
 
-// parseCursor parses a cursor value: a UTC timestamp of a report stream or
-// a timestamp without a zone of financial_entries.
-func parseCursor(s string) (time.Time, error) {
-	if t, err := time.Parse(utcTimeLayout, s); err == nil {
-		return t, nil
-	}
-	return time.Parse(localTimeLayout, s)
-}
-
 // convertTime parses v strictly with layout and formats it with out; an
 // error names the field but never the value.
 func convertTime(name string, v any, layout, out string) (any, error) {

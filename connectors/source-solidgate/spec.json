@@ -41,7 +41,7 @@
       },
       "lookback_days": {
         "default": 2,
-        "description": "Days before the saved cursor an incremental read requests again, to pick up records that changed late. Default 2.",
+        "description": "Days before the last day read that an incremental read requests again, to pick up records that changed late. Default 2.",
         "order": 2,
         "title": "Lookback Days",
         "type": "integer"
