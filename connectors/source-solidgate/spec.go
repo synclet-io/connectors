@@ -59,7 +59,7 @@ func (Source) Spec(_ context.Context) (*synclet.ConnectorSpecification, error) {
 					PropertyType: typed(synclet.String), Format: synclet.Date, Examples: []string{"2026-01-01"}, Order: order(1),
 				},
 				"lookback_days": {
-					Title: "Lookback Days", Description: "Days before the saved cursor an incremental read requests again, to pick up records that changed late. Default 2.",
+					Title: "Lookback Days", Description: "Days before the last day read that an incremental read requests again, to pick up records that changed late. Default 2.",
 					PropertyType: typed(synclet.Integer), Default: defaultLookbackDays, Order: order(2),
 				},
 			}},

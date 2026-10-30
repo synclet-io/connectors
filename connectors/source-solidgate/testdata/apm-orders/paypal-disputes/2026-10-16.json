@@ -17,6 +17,7 @@
       "dispute_outcome": null,
       "reason": "merchandise_or_service_not_received",
       "status": "open",
+      "represented_by": "merchant",
       "customer_account_id": null,
       "customer_email": "payer1@example.com"
     }

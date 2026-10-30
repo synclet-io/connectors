@@ -29,7 +29,10 @@ func (e *validationError) Error() string {
 }
 
 // airbyteTypeToBigQuery maps Airbyte JSON schema types to BigQuery field types.
-func airbyteTypeToBigQuery(airbyteType string, format string) bigquery.FieldType {
+// logicalType is the property's airbyte_type: a date-time with
+// timestamp_without_timezone is a DATETIME, as Airbyte's BigQuery destination
+// types it.
+func airbyteTypeToBigQuery(airbyteType, format, logicalType string) bigquery.FieldType {
 	switch airbyteType {
 	case "boolean":
 		return bigquery.BooleanFieldType
@@ -42,6 +45,9 @@ func airbyteTypeToBigQuery(airbyteType string, format string) bigquery.FieldType
 		case "date":
 			return bigquery.DateFieldType
 		case "date-time":
+			if logicalType == "timestamp_without_timezone" {
+				return bigquery.DateTimeFieldType
+			}
 			return bigquery.TimestampFieldType
 		case "time":
 			return bigquery.TimeFieldType
@@ -74,6 +80,8 @@ func validateAndCoerce(fieldName string, value interface{}, bqType bigquery.Fiel
 		return coerceDate(fieldName, value)
 	case bigquery.TimestampFieldType:
 		return coerceTimestamp(fieldName, value)
+	case bigquery.DateTimeFieldType:
+		return coerceDateTime(fieldName, value)
 	case bigquery.TimeFieldType:
 		return coerceTime(fieldName, value)
 	default:
@@ -217,6 +225,27 @@ func coerceTimestamp(fieldName string, value interface{}) (interface{}, *validat
 	return s, nil
 }
 
+// coerceDateTime accepts a timestamp without a zone, YYYY-MM-DDTHH:MM:SS with an
+// optional fraction of a second, as sources write timestamp_without_timezone. A
+// value with a zone is rejected, as a cast to DATETIME rejects it.
+func coerceDateTime(fieldName string, value interface{}) (interface{}, *validationError) {
+	s, ok := value.(string)
+	if !ok {
+		return value, nil
+	}
+
+	// Parsing accepts a fraction of a second after the seconds of the layout.
+	t, err := time.Parse("2006-01-02T15:04:05", s)
+	if err != nil || t.Year() < 1 {
+		return nil, &validationError{
+			field:  fieldName,
+			reason: reasonSerializationError,
+		}
+	}
+
+	return s, nil
+}
+
 func coerceTime(fieldName string, value interface{}) (interface{}, *validationError) {
 	s, ok := value.(string)
 	if !ok {
@@ -243,14 +272,17 @@ func coerceTime(fieldName string, value interface{}) (interface{}, *validationEr
 }
 
 // isWideningConversion returns true if converting from one BigQuery type to another
-// is a safe widening conversion (no data loss).
+// is a safe widening conversion (no data loss). It also allows TIMESTAMP to
+// DATETIME, the type of a timestamp_without_timezone column; the cast keeps the
+// UTC wall time.
 func isWideningConversion(from, to bigquery.FieldType) bool {
 	widenings := map[bigquery.FieldType][]bigquery.FieldType{
 		bigquery.IntegerFieldType:   {bigquery.NumericFieldType, bigquery.FloatFieldType, bigquery.StringFieldType},
 		bigquery.NumericFieldType:   {bigquery.StringFieldType},
 		bigquery.FloatFieldType:     {bigquery.StringFieldType},
 		bigquery.DateFieldType:      {bigquery.StringFieldType},
-		bigquery.TimestampFieldType: {bigquery.StringFieldType},
+		bigquery.TimestampFieldType: {bigquery.StringFieldType, bigquery.DateTimeFieldType},
+		bigquery.DateTimeFieldType:  {bigquery.StringFieldType},
 		bigquery.TimeFieldType:      {bigquery.StringFieldType},
 	}
 

@@ -38,8 +38,8 @@ func TestFinancialEntriesRead(t *testing.T) {
 	}`, string(recs[0].Data))
 	states := out.States()
 	require.Len(t, states, 3)
-	assert.JSONEq(t, `{"accounts":{"acme_test":{"cursor":"2026-10-16T11:30:00"}}}`, string(states[0].Stream.StreamState))
-	assert.JSONEq(t, `{"accounts":{"acme_test":{"cursor":"2026-10-17T09:15:00"}}}`, string(states[2].Stream.StreamState))
+	assert.JSONEq(t, `{"accounts":{"acme_test":{"day":"2026-10-16"}}}`, string(states[0].Stream.StreamState))
+	assert.JSONEq(t, `{"accounts":{"acme_test":{"day":"2026-10-18"}}}`, string(states[2].Stream.StreamState))
 }
 
 func TestFinancialEntriesReportErrors(t *testing.T) {
@@ -94,7 +94,7 @@ func TestFinancialEntriesReportErrors(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			srv, _ := fixtureServer(t, tt.overrides)
 			src := testSource(srv)
-			out := runReadConfig(t, src, testConfig, configured(t, src, synclet.SyncModeIncremental, streamFinancialEntries), savedCursor(streamFinancialEntries, "2026-10-17T23:00:00"))
+			out := runReadConfig(t, src, testConfig, configured(t, src, synclet.SyncModeIncremental, streamFinancialEntries), savedDay(streamFinancialEntries, "2026-10-17"))
 			require.Error(t, out.Err)
 			assert.Contains(t, out.Err.Error(), tt.message)
 			assert.Empty(t, out.Records(synclet.StreamDescriptor{Name: streamFinancialEntries}), "no record of a day whose file is not parsed whole")

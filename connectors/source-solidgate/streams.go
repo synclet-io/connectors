@@ -30,18 +30,17 @@ const (
 )
 
 // kind is the JSON type of a record field and how its value is taken from
-// the API object.
+// the API object. A field the API object lacks is null whatever its kind;
+// only key and cursor fields are declared non-null.
 type kind int
 
 const (
-	kString        kind = iota // string; missing is ""
+	kString        kind = iota // string: a key field
 	kStringNull                // string or null
-	kInteger                   // integer; missing is 0
 	kIntegerNull               // integer or null
-	kNumber                    // number; missing is 0
-	kBoolean                   // boolean; missing is false
+	kNumberNull                // number or null
 	kBooleanNull               // boolean or null
-	kDateTime                  // date-time string from an API timestamp
+	kDateTime                  // date-time string from an API timestamp: a cursor field
 	kDateTimeNull              // date-time string or null
 	kNested                    // array or object of the field's nested schema, passed through
 	kLocalTimeNull             // CSV timestamp without a zone, or null; no date-time format, which needs an offset
@@ -100,14 +99,10 @@ func (fd field) schema() jsonSchema {
 		return jsonSchema{"type": "string"}
 	case kStringNull:
 		return nullable("string")
-	case kInteger:
-		return jsonSchema{"type": "integer"}
 	case kIntegerNull:
 		return nullable("integer")
-	case kNumber:
-		return jsonSchema{"type": "number"}
-	case kBoolean:
-		return jsonSchema{"type": "boolean"}
+	case kNumberNull:
+		return nullable("number")
 	case kBooleanNull:
 		return nullable("boolean")
 	case kDateTime:
@@ -126,22 +121,10 @@ func (fd field) schema() jsonSchema {
 	panic(fmt.Sprintf("field %s: unknown kind %d", fd.name, fd.kind))
 }
 
-// value returns the record value of fd in obj.
+// value returns the record value of fd in obj, nil when obj lacks it.
 func (fd field) value(obj map[string]any) (any, error) {
 	v := lookup(obj, fd.path)
 	switch fd.kind {
-	case kString:
-		if v == nil {
-			return "", nil
-		}
-	case kInteger, kNumber:
-		if v == nil {
-			return json.Number("0"), nil
-		}
-	case kBoolean:
-		if v == nil {
-			return false, nil
-		}
 	case kDateTime, kDateTimeNull, kUTCTimeNull:
 		return convertTime(fd.name, v, apiTimeLayout, utcTimeLayout)
 	case kLocalTimeNull:
@@ -150,15 +133,6 @@ func (fd field) value(obj map[string]any) (any, error) {
 		return convertTime(fd.name, v, dateLayout, dateLayout)
 	}
 	return v, nil
-}
-
-// parseCursor parses a cursor value: a UTC timestamp of a report stream or
-// a timestamp without a zone of financial_entries.
-func parseCursor(s string) (time.Time, error) {
-	if t, err := time.Parse(utcTimeLayout, s); err == nil {
-		return t, nil
-	}
-	return time.Parse(localTimeLayout, s)
 }
 
 // convertTime parses v strictly with layout and formats it with out; an
@@ -231,8 +205,18 @@ var (
 	nullString  = nullable("string")
 	nullInteger = nullable("integer")
 
-	// orderMetadataSchema is the merchant's key-value metadata of an order.
-	orderMetadataSchema = jsonSchema{"type": typeOf("null", "object"), "additionalProperties": nullString}
+	// metadataSchema is the merchant's key-value metadata of an order or a
+	// product.
+	metadataSchema = jsonSchema{"type": typeOf("null", "object"), "additionalProperties": nullString}
+
+	// billingPeriodSchema is the billing period of a product or of its trial.
+	billingPeriodSchema = nullableObject(jsonSchema{"unit": nullString, "value": nullInteger})
+
+	productTrialSchema = nullableObject(jsonSchema{
+		"billing_period": billingPeriodSchema, "payment_action": nullString, "settle_interval": nullInteger,
+	})
+
+	productTaxSchema = nullableObject(jsonSchema{"category_id": nullString, "behavior": nullString})
 
 	routingSchema = nullableObject(jsonSchema{
 		"cascade_steps": nullableArrayOf(jsonSchema{
@@ -275,72 +259,83 @@ var (
 )
 
 var subscriptionFields = []field{
-	f("id", kString), f(accountField, kString), f("status", kString), f("updated_at", kDateTime),
-	f("started_at", kDateTime), f("expired_at", kDateTime), f("next_charge_at", kDateTimeNull),
-	f("payment_type", kString), f("trial", kBoolean), f("cancelled_at", kDateTimeNull),
+	f("id", kString), f(accountField, kString), f("status", kStringNull), f("updated_at", kDateTime),
+	f("started_at", kDateTimeNull), f("expired_at", kDateTimeNull), f("next_charge_at", kDateTimeNull),
+	f("payment_type", kStringNull), f("trial", kBooleanNull), f("cancelled_at", kDateTimeNull),
 	f("cancel_code", kStringNull), f("cancel_message", kStringNull),
-	from("customer_account_id", "customer.customer_account_id", kString),
-	from("customer_email", "customer.customer_email", kString),
-	from("product_id", "product.id", kString), from("product_name", "product.name", kString),
-	from("product_payment_action", "product.payment_action", kString),
-	from("product_amount", "product.amount", kNumber), from("product_currency", "product.currency", kString),
-	from("product_trial", "product.trial", kBoolean), from("product_trial_period", "product.trial_period", kInteger),
+	from("customer_account_id", "customer.customer_account_id", kStringNull),
+	from("customer_email", "customer.customer_email", kStringNull),
+	from("product_id", "product.id", kStringNull), from("product_name", "product.name", kStringNull),
+	from("product_payment_action", "product.payment_action", kStringNull),
+	from("product_amount", "product.amount", kNumberNull), from("product_currency", "product.currency", kStringNull),
+	from("product_trial", "product.trial", kBooleanNull), from("product_trial_period", "product.trial_period", kIntegerNull),
 	from("pause_from_date", "pause.from_date", kDateTimeNull), from("pause_to_date", "pause.to_date", kDateTimeNull),
 }
 
 var subscriptionInvoiceFields = []field{
-	f("id", kString), f(accountField, kString), f("subscription_id", kString), f("status", kString),
-	f("created_at", kDateTime), f("updated_at", kDateTime), f("amount", kNumber),
+	f("id", kString), f(accountField, kString), f("subscription_id", kStringNull), f("status", kStringNull),
+	f("created_at", kDateTimeNull), f("updated_at", kDateTime), f("amount", kNumberNull),
 	f("billing_period_started_at", kDateTimeNull), f("billing_period_ended_at", kDateTimeNull),
-	f("subscription_term_number", kInteger), nested("orders", invoiceOrdersSchema),
+	f("subscription_term_number", kIntegerNull), nested("orders", invoiceOrdersSchema),
 }
 
 var productFields = []field{
-	f("id", kString), f(accountField, kString), f("name", kString), f("type", kString),
-	f("description", kString), f("public_description", kStringNull), f("status", kString),
-	f("created_at", kDateTime), f("updated_at", kDateTime), f("payment_action", kString),
-	f("settle_interval", kIntegerNull),
+	f("id", kString), f(accountField, kString), f("name", kStringNull), f("type", kStringNull),
+	f("description", kStringNull), f("public_description", kStringNull), f("status", kStringNull),
+	f("created_at", kDateTimeNull), f("updated_at", kDateTimeNull), f("term_length", kIntegerNull),
+	f("payment_action", kStringNull), f("settle_interval", kIntegerNull), nested("billing_period", billingPeriodSchema),
+	nested("trial", productTrialSchema), f("retry_mode", kStringNull), f("retry_strategy_id", kStringNull),
 	from("tax_profile_id", "tax.profile_id", kStringNull), from("tax_category_id", "tax.category_id", kStringNull),
-	from("tax_is_included", "tax.is_included", kBooleanNull),
+	from("tax_is_included", "tax.is_included", kBooleanNull), nested("tax", productTaxSchema),
+	nested("metadata", metadataSchema),
 }
 
 var cardOrderFields = []field{
-	from("id", "order_id", kString), f(accountField, kString), f("order_description", kString),
-	f("psp_order_id", kStringNull), f("provider_payment_id", kStringNull),
-	f("created_at", kDateTime), f("updated_at", kDateTime), f("amount", kInteger), f("currency", kString),
-	f("processing_amount", kIntegerNull), f("processing_currency", kStringNull), f("status", kString),
-	f("payment_type", kStringNull), f("type", kString), f("is_secured", kBoolean),
-	f("customer_account_id", kStringNull), f("customer_email", kString),
+	from("id", "order_id", kString), f(accountField, kString), f("order_description", kStringNull),
+	f("psp_order_id", kStringNull), f("provider_payment_id", kStringNull), f("product_id", kStringNull),
+	f("product_name", kStringNull), f("product_type", kStringNull), f("subscription_id", kStringNull),
+	f("created_at", kDateTimeNull), f("updated_at", kDateTime), f("amount", kIntegerNull), f("currency", kStringNull),
+	f("processing_amount", kIntegerNull), f("processing_currency", kStringNull),
+	f("settled_amount", kIntegerNull), f("settled_currency", kStringNull),
+	f("refunded_amount", kIntegerNull), f("refunded_currency", kStringNull), f("status", kStringNull),
+	f("refund", kStringNull), f("payment_type", kStringNull), f("payment_method", kStringNull), f("type", kStringNull),
+	f("is_secured", kBooleanNull), f("customer_account_id", kStringNull), f("customer_email", kStringNull),
 	f("customer_first_name", kStringNull), f("customer_last_name", kStringNull), f("ip_address", kStringNull),
-	f("mid", kStringNull), f("platform", kStringNull), f("geo_country", kStringNull), f("error_code", kStringNull),
-	nested("routing", routingSchema), nested("transactions", cardTransactionsSchema), nested("order_metadata", orderMetadataSchema),
+	f("mid", kStringNull), f("traffic_source", kStringNull), f("platform", kStringNull), f("geo_country", kStringNull),
+	f("error_code", kStringNull), nested("routing", routingSchema), nested("transactions", cardTransactionsSchema),
+	nested("order_metadata", metadataSchema), f("fraudulent", kBooleanNull),
 }
 
 var apmOrderFields = []field{
-	from("id", "order_id", kString), f(accountField, kString), f("order_description", kString),
-	f("created_at", kDateTime), f("updated_at", kDateTime), f("method", kString),
-	f("amount", kInteger), f("currency", kString), f("processing_amount", kIntegerNull),
-	f("processing_currency", kStringNull), f("status", kString), f("customer_account_id", kStringNull),
-	f("customer_email", kString), f("ip_address", kStringNull), f("geo_country", kStringNull),
-	f("error_code", kStringNull), nested("transactions", apmTransactionsSchema), nested("order_metadata", orderMetadataSchema),
+	from("id", "order_id", kString), f(accountField, kString), f("order_description", kStringNull),
+	f("product_id", kStringNull), f("product_name", kStringNull), f("product_type", kStringNull),
+	f("subscription_id", kStringNull), f("created_at", kDateTimeNull), f("updated_at", kDateTime),
+	f("method", kStringNull), f("amount", kIntegerNull), f("currency", kStringNull),
+	f("processing_amount", kIntegerNull), f("processing_currency", kStringNull),
+	f("settled_amount", kIntegerNull), f("settled_currency", kStringNull),
+	f("refunded_amount", kIntegerNull), f("refunded_currency", kStringNull), f("status", kStringNull),
+	f("refund", kStringNull), f("customer_account_id", kStringNull), f("customer_email", kStringNull),
+	f("ip_address", kStringNull), f("geo_country", kStringNull), f("error_code", kStringNull),
+	f("merchant_account_id", kStringNull), nested("transactions", apmTransactionsSchema),
+	nested("order_metadata", metadataSchema),
 }
 
 var chargebackFields = []field{
-	f("id", kString), f(accountField, kString), f("order_id", kString),
-	f("created_at", kDateTime), f("updated_at", kDateTime), f("dispute_date", kDateTime),
-	f("settlement_date", kDateTimeNull), f("amount", kInteger), f("currency", kString),
+	f("id", kString), f(accountField, kString), f("order_id", kStringNull),
+	f("created_at", kDateTimeNull), f("updated_at", kDateTime), f("dispute_date", kDateTimeNull),
+	f("settlement_date", kDateTimeNull), f("amount", kIntegerNull), f("currency", kStringNull),
 	f("type", kStringNull), f("status", kStringNull), f("reason_group", kStringNull),
 	f("reason_code", kStringNull), f("reason_description", kStringNull), nested("flows", chargebackFlowsSchema),
 }
 
 var paypalDisputeFields = []field{
-	from("id", "dispute_id", kString), f(accountField, kString), f("order_id", kString),
+	from("id", "dispute_id", kString), f(accountField, kString), f("order_id", kStringNull),
 	f("subscription_product_id", kStringNull), f("subscription_service_id", kStringNull),
-	f("created_at", kDateTime), f("updated_at", kDateTime), f("seller_response_due_date", kDateTimeNull),
-	f("dispute_amount", kInteger), f("dispute_currency", kString), f("dispute_life_cycle_stage", kString),
-	f("dispute_channel", kString), f("dispute_create_time", kDateTime), f("dispute_update_time", kDateTime),
-	f("dispute_outcome", kStringNull), f("reason", kString), f("status", kString),
-	f("customer_account_id", kStringNull), f("customer_email", kStringNull),
+	f("created_at", kDateTimeNull), f("updated_at", kDateTime), f("seller_response_due_date", kDateTimeNull),
+	f("dispute_amount", kIntegerNull), f("dispute_currency", kStringNull), f("dispute_life_cycle_stage", kStringNull),
+	f("dispute_channel", kStringNull), f("dispute_create_time", kDateTimeNull), f("dispute_update_time", kDateTimeNull),
+	f("dispute_outcome", kStringNull), f("reason", kStringNull), f("status", kStringNull),
+	f("represented_by", kStringNull), f("customer_account_id", kStringNull), f("customer_email", kStringNull),
 }
 
 var cardFraudAlertFields = []field{

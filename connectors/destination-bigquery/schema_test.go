@@ -113,6 +113,25 @@ func TestBuildSchemaWithFormat(t *testing.T) {
 	assert.Equal(t, bigquery.TimestampFieldType, cols[0].bqType)
 }
 
+func TestBuildSchemaTimestampWithoutTimezone(t *testing.T) {
+	jsonSchema := map[string]interface{}{
+		"properties": map[string]interface{}{
+			"created_at": map[string]interface{}{
+				"type":         []interface{}{"null", "string"},
+				"format":       "date-time",
+				"airbyte_type": "timestamp_without_timezone",
+			},
+		},
+	}
+
+	schema, cols := buildSchema(jsonSchema)
+	require.Len(t, schema, 5)
+	assert.Equal(t, bigquery.DateTimeFieldType, schema[4].Type)
+	require.Len(t, cols, 1)
+	assert.Equal(t, bigquery.DateTimeFieldType, cols[0].bqType)
+	assert.Equal(t, "DATETIME", fieldTypeToString(cols[0].bqType))
+}
+
 func TestDiffSchema(t *testing.T) {
 	existing := bigquery.Schema{
 		{Name: "_airbyte_raw_id", Type: bigquery.StringFieldType},
@@ -153,6 +172,31 @@ func TestDiffSchemaTypeChange(t *testing.T) {
 	assert.Equal(t, "count", diff.typeChanged[0].name)
 	assert.Equal(t, "INT64", diff.typeChanged[0].oldType)
 	assert.Equal(t, "NUMERIC", diff.typeChanged[0].newType)
+}
+
+// TestDiffSchemaTimestampToDateTime: a TIMESTAMP column whose property is a
+// timestamp_without_timezone becomes DATETIME.
+func TestDiffSchemaTimestampToDateTime(t *testing.T) {
+	diff := diffSchema(
+		bigquery.Schema{{Name: "created_at", Type: bigquery.TimestampFieldType}},
+		bigquery.Schema{{Name: "created_at", Type: bigquery.DateTimeFieldType}},
+	)
+
+	require.Len(t, diff.typeChanged, 1)
+	assert.Equal(t, typeChange{name: "created_at", oldType: "TIMESTAMP", newType: "DATETIME"}, diff.typeChanged[0])
+	assert.Empty(t, diff.added)
+	assert.Empty(t, diff.removed)
+}
+
+// TestDiffSchemaDateTimeKept: a DATETIME column, as Airbyte's BigQuery
+// destination creates it, needs no change.
+func TestDiffSchemaDateTimeKept(t *testing.T) {
+	schema := bigquery.Schema{{Name: "created_at", Type: bigquery.DateTimeFieldType}}
+	diff := diffSchema(schema, schema)
+
+	assert.Empty(t, diff.typeChanged)
+	assert.Empty(t, diff.added)
+	assert.Empty(t, diff.removed)
 }
 
 func TestDiffSchemaNoWideningIgnored(t *testing.T) {

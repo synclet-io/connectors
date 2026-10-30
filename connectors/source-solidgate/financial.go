@@ -43,7 +43,7 @@ var errReport = errors.New("financial entries report")
 // for its file, parses the whole CSV and only then emits its records, so a
 // day whose file fails to parse emits nothing and saves no state.
 func (s Source) financialWindow(d streamDef, desc synclet.StreamDescriptor, em *synclet.Emitter) windowReader {
-	return func(ctx context.Context, c *apiClient, w time.Time) (string, error) {
+	return func(ctx context.Context, c *apiClient, w time.Time) error {
 		req := reportRequest{
 			DateFrom: w.Format(apiTimeLayout),
 			DateTo:   w.AddDate(0, 0, 1).Format(apiTimeLayout),
@@ -53,34 +53,30 @@ func (s Source) financialWindow(d streamDef, desc synclet.StreamDescriptor, em *
 			ReportURL string `json:"report_url"`
 		}
 		if err := c.postJSON(ctx, c.reportsURL, financialEntriesPath, req, &created); err != nil {
-			return "", err
+			return err
 		}
 		reportURL, err := checkReportURL(c.reportsURL, created.ReportURL)
 		if err != nil {
-			return "", err
+			return err
 		}
 		fileURL, err := s.waitForReport(ctx, c, reportURL)
 		if err != nil {
-			return "", err
+			return err
 		}
 		data, err := c.download(ctx, fileURL)
 		if err != nil {
-			return "", err
+			return err
 		}
 		recs, err := parseFinancialEntries(d.fields, data, c.account.Name)
 		if err != nil {
-			return "", err
+			return err
 		}
-		var top string
 		for _, rec := range recs {
-			if cur, _ := rec[d.cursor].(string); cur > top {
-				top = cur
-			}
 			if err := em.Record(desc, rec); err != nil {
-				return "", err
+				return err
 			}
 		}
-		return top, nil
+		return nil
 	}
 }
 

@@ -357,6 +357,28 @@ func TestValidationErrorsInMeta(t *testing.T) {
 	assert.Equal(t, "DESTINATION_FIELD_SIZE_LIMITATION", firstErr["message"])
 }
 
+// TestTimestampWithoutTimezoneLoadedAsDateTime: a timestamp_without_timezone
+// value, which carries no zone, is loaded into a DATETIME column as it is.
+func TestTimestampWithoutTimezoneLoadedAsDateTime(t *testing.T) {
+	ldr := &mockLoader{}
+	w := NewBigQueryWriter(newMockOps(), ldr, testConfig(), testCatalogWithMode("entries", "", "append", nil, nil, map[string]interface{}{
+		"properties": map[string]interface{}{
+			"created_at": map[string]interface{}{"type": []interface{}{"null", "string"}, "format": "date-time", "airbyte_type": "timestamp_without_timezone"},
+		},
+	}))
+	w.batchSize = 1
+
+	require.NoError(t, w.AddRecord(t.Context(), "entries", map[string]interface{}{"created_at": "2026-10-16T10:00:00"}))
+
+	require.Equal(t, 1, ldr.loadCallCount)
+	call := ldr.loadCalls[0]
+	field := call.schema[len(call.schema)-1]
+	assert.Equal(t, "created_at", field.Name)
+	assert.Equal(t, bigquery.DateTimeFieldType, field.Type)
+	assert.Equal(t, "2026-10-16T10:00:00", call.records[0]["created_at"])
+	assert.JSONEq(t, `{"errors":[]}`, call.records[0]["_airbyte_meta"].(string))
+}
+
 func TestWriterNamespaceResolution(t *testing.T) {
 	ops := newMockOps()
 	ldr := &mockLoader{}

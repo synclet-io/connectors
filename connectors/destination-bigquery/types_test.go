@@ -33,10 +33,15 @@ func TestAirbyteTypeToBigQuery(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := airbyteTypeToBigQuery(tt.airbyteType, tt.format)
+			result := airbyteTypeToBigQuery(tt.airbyteType, tt.format, "")
 			assert.Equal(t, tt.expected, result)
 		})
 	}
+}
+
+func TestAirbyteTypeToBigQueryTimestampAirbyteType(t *testing.T) {
+	assert.Equal(t, bigquery.DateTimeFieldType, airbyteTypeToBigQuery("string", "date-time", "timestamp_without_timezone"))
+	assert.Equal(t, bigquery.TimestampFieldType, airbyteTypeToBigQuery("string", "date-time", "timestamp_with_timezone"))
 }
 
 func TestValidateAndCoerce(t *testing.T) {
@@ -117,6 +122,27 @@ func TestValidateAndCoerce(t *testing.T) {
 		assert.Equal(t, "2024-01-15T10:30:00.123456Z", val)
 	})
 
+	t.Run("datetime valid", func(t *testing.T) {
+		val, err := validateAndCoerce("f", "2024-01-15T10:30:00", bigquery.DateTimeFieldType)
+		require.Nil(t, err)
+		assert.Equal(t, "2024-01-15T10:30:00", val)
+	})
+
+	t.Run("datetime with fraction", func(t *testing.T) {
+		val, err := validateAndCoerce("f", "2024-01-15T10:30:00.123456", bigquery.DateTimeFieldType)
+		require.Nil(t, err)
+		assert.Equal(t, "2024-01-15T10:30:00.123456", val)
+	})
+
+	for _, s := range []string{"2024-01-15T10:30:00Z", "2024-01-15T10:30:00+03:00", "2024-01-15 10:30:00", "0000-01-01T00:00:00"} {
+		t.Run("datetime rejects "+s, func(t *testing.T) {
+			val, err := validateAndCoerce("f", s, bigquery.DateTimeFieldType)
+			assert.Nil(t, val)
+			require.NotNil(t, err)
+			assert.Equal(t, reasonSerializationError, err.reason)
+		})
+	}
+
 	t.Run("time valid", func(t *testing.T) {
 		val, err := validateAndCoerce("f", "10:30:00", bigquery.TimeFieldType)
 		require.Nil(t, err)
@@ -162,6 +188,9 @@ func TestIsWideningConversion(t *testing.T) {
 		{"FLOAT64 to STRING", bigquery.FloatFieldType, bigquery.StringFieldType, true},
 		{"DATE to STRING", bigquery.DateFieldType, bigquery.StringFieldType, true},
 		{"TIMESTAMP to STRING", bigquery.TimestampFieldType, bigquery.StringFieldType, true},
+		{"TIMESTAMP to DATETIME", bigquery.TimestampFieldType, bigquery.DateTimeFieldType, true},
+		{"DATETIME to STRING", bigquery.DateTimeFieldType, bigquery.StringFieldType, true},
+		{"DATETIME to TIMESTAMP not widening", bigquery.DateTimeFieldType, bigquery.TimestampFieldType, false},
 		{"TIME to STRING", bigquery.TimeFieldType, bigquery.StringFieldType, true},
 		{"STRING to INT64 not widening", bigquery.StringFieldType, bigquery.IntegerFieldType, false},
 		{"same type", bigquery.StringFieldType, bigquery.StringFieldType, false},

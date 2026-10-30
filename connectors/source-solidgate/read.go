@@ -55,7 +55,7 @@ func (s Source) Read(ctx context.Context, cfg Config, catalog *synclet.Configure
 			}
 			continue
 		}
-		st, err := loadCursorState(desc, state)
+		st, err := loadDayState(desc, state)
 		if err != nil {
 			return err
 		}
