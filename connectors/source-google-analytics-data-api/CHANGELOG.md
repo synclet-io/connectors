@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.1](https://github.com/synclet-io/connectors/compare/source-google-analytics-data-api-v0.1.0...source-google-analytics-data-api-v0.1.1) (2026-10-30)
+
+
+### Bug Fixes
+
+* **google:** keep authorized_user keys, drop key members of other flows ([051a1ba](https://github.com/synclet-io/connectors/commit/051a1baaa98434fac425ea0df4e4bf1142be691b))
+* **source-google-analytics-data-api:** reject service account keys whose token_uri is not Google's ([dd1e945](https://github.com/synclet-io/connectors/commit/dd1e945219e4a99dccbe65651b0ebc0b8a60e44a))
+
 ## 0.1.0 (2026-10-19)
 
 

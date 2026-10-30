@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.2.0](https://github.com/synclet-io/connectors/compare/source-solidgate-v0.1.0...source-solidgate-v0.2.0) (2026-10-30)
+
+
+### Features
+
+* **source-solidgate:** fields of the earlier connector 3.7.0, null for a field Solidgate does not send ([98e176f](https://github.com/synclet-io/connectors/commit/98e176ff8575da7e146da6f61c05c1e57e171c6a))
+
+
+### Bug Fixes
+
+* **source-solidgate:** state is the last day read per account, so days without records are not read again ([e647430](https://github.com/synclet-io/connectors/commit/e647430c80f781d7df2678f84e61e61c8db41bd1))
+
 ## 0.1.0 (2026-10-19)
 
 
