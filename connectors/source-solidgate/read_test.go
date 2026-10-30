@@ -47,6 +47,13 @@ func recordField(t *testing.T, out *testkit.Output, stream, name string) []strin
 	return vals
 }
 
+func decodeRecord(t *testing.T, data json.RawMessage) map[string]any {
+	t.Helper()
+	var rec map[string]any
+	require.NoError(t, json.Unmarshal(data, &rec))
+	return rec
+}
+
 func TestReadResumeFromDayMinusLookback(t *testing.T) {
 	srv, h := fixtureServer(t, nil)
 	src := testSource(srv)
@@ -77,7 +84,7 @@ func TestReadResumeNotBeforeStartDate(t *testing.T) {
 }
 
 // TestReadSavesDaysWithoutRecords: a day the report has no record for is
-// still saved, so the next read does not request it again; the only records
+// saved too, so the next read does not request it again; the only records
 // are from 2026-10-16 and 2026-10-17.
 func TestReadSavesDaysWithoutRecords(t *testing.T) {
 	srv, _ := fixtureServer(t, nil)
@@ -200,16 +207,15 @@ func TestReadRecords(t *testing.T) {
 		"tax_profile_id":null,"tax_category_id":"tax-cat-1","tax_is_included":null,"tax":{"category_id":"tax-cat-1","behavior":"excluded"},
 		"metadata":{"tier":"premium"}
 	}`, string(prods[0].Data))
-	// A product in the tax layout Solidgate no longer documents keeps its
-	// flat tax_* fields.
-	var rec map[string]any
-	require.NoError(t, json.Unmarshal(prods[1].Data, &rec))
-	assert.Equal(t, "tax-profile-1", rec["tax_profile_id"])
-	assert.Equal(t, "tax-cat-2", rec["tax_category_id"])
-	assert.Equal(t, false, rec["tax_is_included"])
+	// A product with the undocumented tax fields profile_id and is_included
+	// keeps them in the flat tax_* fields.
+	prod := decodeRecord(t, prods[1].Data)
+	assert.Equal(t, "tax-profile-1", prod["tax_profile_id"])
+	assert.Equal(t, "tax-cat-2", prod["tax_category_id"])
+	assert.Equal(t, false, prod["tax_is_included"])
 
 	order := out.Records(synclet.StreamDescriptor{Name: streamCardOrders})[0]
-	rec = nil
+	var rec map[string]any
 	require.NoError(t, json.Unmarshal(order.Data, &rec))
 	assert.Equal(t, map[string]any{"cascade_steps": []any{map[string]any{"mid": "mid-test", "route_id": "route-1", "cascade_number": float64(1)}}}, rec["routing"])
 	assert.Equal(t, map[string]any{"campaign": "test"}, rec["order_metadata"])
@@ -222,22 +228,20 @@ func TestReadRecords(t *testing.T) {
 		assert.Equal(t, want, rec[name], name)
 	}
 
-	apm := out.Records(synclet.StreamDescriptor{Name: streamAPMOrders})[0]
-	rec = nil
-	require.NoError(t, json.Unmarshal(apm.Data, &rec))
+	apm := decodeRecord(t, out.Records(synclet.StreamDescriptor{Name: streamAPMOrders})[0].Data)
 	for name, want := range map[string]any{
 		"product_id": "prod-0002", "product_name": "Plan 2", "product_type": "one_time", "subscription_id": nil,
 		"settled_amount": float64(500), "settled_currency": "EUR", "refunded_amount": nil, "refund": nil,
 		"merchant_account_id": "merchant-paypal-1",
 	} {
-		assert.Equal(t, want, rec[name], name)
+		assert.Equal(t, want, apm[name], name)
 	}
 
 	assert.Contains(t, string(out.Records(synclet.StreamDescriptor{Name: streamPayPalDisputes})[0].Data), `"represented_by":"merchant"`)
 }
 
-// TestReadMissingFieldsAreNull checks that a field Solidgate does not send is
-// null in the record, never "", 0 or false, as the earlier connector emits it.
+// TestReadMissingFieldsAreNull: a field Solidgate does not send is null in the
+// record, never "", 0 or false.
 func TestReadMissingFieldsAreNull(t *testing.T) {
 	const day = "2026-10-16"
 	body := func(s string) []fixture { return []fixture{{status: http.StatusOK, body: s}} }
@@ -268,16 +272,17 @@ func TestReadMissingFieldsAreNull(t *testing.T) {
 	for stream, want := range sent {
 		recs := out.Records(synclet.StreamDescriptor{Name: stream})
 		require.NotEmpty(t, recs, stream)
-		var rec map[string]any
-		require.NoError(t, json.Unmarshal(recs[0].Data, &rec))
-		d, _ := streamDefByName(stream)
+		rec := decodeRecord(t, recs[0].Data)
+		d, ok := streamDefByName(stream)
+		require.True(t, ok, stream)
 		assert.Len(t, rec, len(d.fields), stream)
 		for name, v := range rec {
-			switch w, ok := want[name]; {
-			case name == accountField:
-			case ok:
+			if name == accountField {
+				continue
+			}
+			if w, ok := want[name]; ok {
 				assert.Equal(t, w, v, "%s.%s", stream, name)
-			default:
+			} else {
 				assert.Nil(t, v, "%s.%s", stream, name)
 			}
 		}

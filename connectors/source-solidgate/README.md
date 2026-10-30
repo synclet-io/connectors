@@ -71,8 +71,8 @@ The reports API is `https://reports.solidgate.com/api/v1`, products come from
 - **Products.** Subscription products, paged by offset until a page comes back empty, with
   `term_length`, the retry settings and, as nested JSON, `billing_period`, `trial`, `tax` and
   `metadata`. `tax_profile_id`, `tax_category_id` and `tax_is_included` keep the flat tax fields of
-  the earlier connector; Solidgate no longer documents the profile and `is_included`, so those two are
-  null unless it still sends them.
+  the earlier connector; the Solidgate documentation lists neither the profile nor `is_included`, so
+  those two are null unless the API sends them.
 - **Financial entries.** Sales, refunds, chargebacks and fees as Solidgate books them, one record per
   CSV row. Amounts stay strings as the file has them.
 
@@ -104,7 +104,7 @@ records, and a day that fails is requested again by the next read.
 
 To read a past period again, set `day` of the accounts concerned to the day before it (in the
 connection's state of the stream) or reset the stream's state; `start_date` must not be later than the
-period. With append_dedup, records read again replace their earlier copies by the primary key; with
+period. With append_dedup, records read again replace the loaded copies by the primary key; with
 append, they are added again.
 
 `subscription_invoices` is requested through the subscriptions report, which selects subscriptions by
