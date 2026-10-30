@@ -174,8 +174,8 @@ func TestDiffSchemaTypeChange(t *testing.T) {
 	assert.Equal(t, "NUMERIC", diff.typeChanged[0].newType)
 }
 
-// TestDiffSchemaTimestampToDateTime: a timestamp_without_timezone column that
-// an earlier version created as TIMESTAMP becomes DATETIME.
+// TestDiffSchemaTimestampToDateTime: a TIMESTAMP column whose property is a
+// timestamp_without_timezone becomes DATETIME.
 func TestDiffSchemaTimestampToDateTime(t *testing.T) {
 	diff := diffSchema(
 		bigquery.Schema{{Name: "created_at", Type: bigquery.TimestampFieldType}},

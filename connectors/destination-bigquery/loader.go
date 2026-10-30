@@ -27,8 +27,7 @@ func newStandardLoader(client *bigquery.Client) *standardLoader {
 	return &standardLoader{client: client}
 }
 
-// encodeJSONL writes records as JSON lines, the format both loaders load: a
-// null is null and an object or array stays JSON, for a JSON column.
+// encodeJSONL encodes records as JSON lines, the format both loaders load.
 func encodeJSONL(records []map[string]interface{}) (*bytes.Buffer, error) {
 	var buf bytes.Buffer
 	enc := json.NewEncoder(&buf)
@@ -81,8 +80,8 @@ func (l *standardLoader) close() error {
 }
 
 // gcsLoader loads data to BigQuery via GCS staging (D-01).
-// Records are written to GCS as JSON lines, as the standard loader sends them,
-// then a BigQuery load job reads from the GCS URI.
+// Records are written to GCS as JSON lines, then a BigQuery load job reads them
+// from the GCS URI.
 type gcsLoader struct {
 	bqClient  *bigquery.Client
 	gcsClient *storage.Client

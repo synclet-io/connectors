@@ -272,10 +272,9 @@ func coerceTime(fieldName string, value interface{}) (interface{}, *validationEr
 }
 
 // isWideningConversion returns true if converting from one BigQuery type to another
-// is a safe widening conversion (no data loss). TIMESTAMP to DATETIME is
-// allowed too: earlier versions created a timestamp_without_timezone column as
-// TIMESTAMP and wrote null into it, since its values carry no zone; the cast
-// keeps the UTC wall time of any value it holds.
+// is a safe widening conversion (no data loss). It also allows TIMESTAMP to
+// DATETIME, the type of a timestamp_without_timezone column; the cast keeps the
+// UTC wall time.
 func isWideningConversion(from, to bigquery.FieldType) bool {
 	widenings := map[bigquery.FieldType][]bigquery.FieldType{
 		bigquery.IntegerFieldType:   {bigquery.NumericFieldType, bigquery.FloatFieldType, bigquery.StringFieldType},

@@ -358,8 +358,7 @@ func TestValidationErrorsInMeta(t *testing.T) {
 }
 
 // TestTimestampWithoutTimezoneLoadedAsDateTime: a timestamp_without_timezone
-// value carries no zone; it is loaded into a DATETIME column as it is, not
-// dropped as an invalid TIMESTAMP.
+// value, which carries no zone, is loaded into a DATETIME column as it is.
 func TestTimestampWithoutTimezoneLoadedAsDateTime(t *testing.T) {
 	ldr := &mockLoader{}
 	w := NewBigQueryWriter(newMockOps(), ldr, testConfig(), testCatalogWithMode("entries", "", "append", nil, nil, map[string]interface{}{
