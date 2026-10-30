@@ -73,7 +73,8 @@ func buildSchema(jsonSchema map[string]interface{}) (bigquery.Schema, []columnDe
 		}
 
 		airbyteType, format := extractTypeAndFormat(prop)
-		bqType := airbyteTypeToBigQuery(airbyteType, format)
+		logicalType, _ := prop["airbyte_type"].(string)
+		bqType := airbyteTypeToBigQuery(airbyteType, format, logicalType)
 
 		userFields = append(userFields, &bigquery.FieldSchema{
 			Name: name,
@@ -131,6 +132,8 @@ func fieldTypeToString(ft bigquery.FieldType) string {
 		return "BOOLEAN"
 	case bigquery.TimestampFieldType:
 		return "TIMESTAMP"
+	case bigquery.DateTimeFieldType:
+		return "DATETIME"
 	case bigquery.DateFieldType:
 		return "DATE"
 	case bigquery.TimeFieldType:
