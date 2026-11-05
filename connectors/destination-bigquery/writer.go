@@ -23,13 +23,16 @@ type streamConfig struct {
 	jsonSchema  map[string]interface{}
 	bqSchema    bigquery.Schema
 	columns     []columnDef
-	datasetID   string // resolved from namespace or default
-	tableName   string
-	cdcEnabled  bool
+	// renamed maps each record property whose column has another name to
+	// that column.
+	renamed    map[string]string
+	datasetID  string // resolved from namespace or default
+	tableName  string
+	cdcEnabled bool
 
 	// Tracking fields for sync mode implementations.
-	tempTable    string // for overwrite: "_airbyte_tmp_{streamName}"
-	stagingTable string // for append_dedup: "_airbyte_staging_{streamName}"
+	tempTable    string // for overwrite: "_airbyte_tmp_{tableName}"
+	stagingTable string // for append_dedup: "_airbyte_staging_{tableName}"
 	tableCreated bool   // whether we've ensured the final table exists
 }
 
@@ -88,26 +91,45 @@ func NewBigQueryWriter(ops bigqueryOps, ldr loader, config *Config, catalog []ca
 
 		// Build BigQuery schema from JSON schema.
 		bqSchema, columns := buildSchema(cs.Stream.JSONSchema)
+		renamed := map[string]string{}
+		for _, c := range columns {
+			if c.name != c.property {
+				renamed[c.property] = c.name
+			}
+		}
+		column := func(property string) string {
+			if c, ok := renamed[property]; ok {
+				return c
+			}
+			return property
+		}
 
 		// Detect CDC by checking for _ab_cdc_deleted_at in primary key or source fields.
 		cdcEnabled := hasCDCFields(cs.Stream.JSONSchema)
 
 		var cursorField string
 		if len(cs.CursorField) > 0 {
-			cursorField = cs.CursorField[0]
+			cursorField = column(cs.CursorField[0])
+		}
+		var primaryKey [][]string
+		for _, pk := range cs.PrimaryKey {
+			if len(pk) > 0 {
+				primaryKey = append(primaryKey, append([]string{column(pk[0])}, pk[1:]...))
+			}
 		}
 
 		sc := &streamConfig{
 			namespace:   cs.Stream.Namespace,
 			streamName:  cs.Stream.Name,
 			syncMode:    cs.DestinationSyncMode,
-			primaryKey:  cs.PrimaryKey,
+			primaryKey:  primaryKey,
 			cursorField: cursorField,
 			jsonSchema:  cs.Stream.JSONSchema,
 			bqSchema:    bqSchema,
 			columns:     columns,
-			datasetID:   datasetID,
-			tableName:   cs.Stream.Name,
+			renamed:     renamed,
+			datasetID:   datasetName(datasetID),
+			tableName:   tableOrColumnName(cs.Stream.Name),
 			cdcEnabled:  cdcEnabled,
 		}
 
@@ -127,6 +149,10 @@ func (w *BigQueryWriter) AddRecord(ctx context.Context, streamKey string, data m
 	}
 
 	buf := w.buffers[streamKey]
+
+	if len(sc.renamed) > 0 {
+		data = renameProperties(data, sc.renamed)
+	}
 
 	// Enrich record with metadata fields.
 	data["_airbyte_raw_id"] = uuid.New().String()
@@ -170,6 +196,24 @@ func (w *BigQueryWriter) AddRecord(ctx context.Context, streamKey string, data m
 	}
 
 	return nil
+}
+
+// renameProperties returns data with each property of renamed under its
+// column. A renamed property wins over a property of data that is not in the
+// schema but has the same name as its column.
+func renameProperties(data map[string]interface{}, renamed map[string]string) map[string]interface{} {
+	out := make(map[string]interface{}, len(data))
+	for k, v := range data {
+		if _, ok := renamed[k]; !ok {
+			out[k] = v
+		}
+	}
+	for k, v := range data {
+		if c, ok := renamed[k]; ok {
+			out[c] = v
+		}
+	}
+	return out
 }
 
 // QueueState stores a state message for emission after the next flush (D-13).
@@ -217,7 +261,7 @@ func (w *BigQueryWriter) ensureTable(ctx context.Context, sc *streamConfig) erro
 
 	// D-14: Legacy raw mode -- load to raw table with rawTableSchema.
 	if w.config.DisableTypeDedupe {
-		sc.tableName = "_airbyte_raw_" + sc.streamName
+		sc.tableName = "_airbyte_raw_" + tableOrColumnName(sc.streamName)
 		sc.datasetID = w.config.RawDataDataset
 
 		if err := w.ops.ensureDataset(ctx, sc.datasetID, w.config.DatasetLocation); err != nil {
@@ -333,7 +377,7 @@ func (w *BigQueryWriter) flushAppend(ctx context.Context, sc *streamConfig, buf 
 func (w *BigQueryWriter) flushOverwrite(ctx context.Context, sc *streamConfig, buf *streamBuffer) error {
 	// Create temp table on first flush.
 	if sc.tempTable == "" {
-		sc.tempTable = "_airbyte_tmp_" + sc.streamName
+		sc.tempTable = "_airbyte_tmp_" + sc.tableName
 
 		// Create temp table with 24h expiration.
 		expiration := time.Now().Add(24 * time.Hour)
@@ -357,7 +401,7 @@ func (w *BigQueryWriter) flushOverwrite(ctx context.Context, sc *streamConfig, b
 func (w *BigQueryWriter) flushAppendDedup(ctx context.Context, sc *streamConfig, buf *streamBuffer) error {
 	// Create staging table on first flush.
 	if sc.stagingTable == "" {
-		sc.stagingTable = "_airbyte_staging_" + sc.streamName
+		sc.stagingTable = "_airbyte_staging_" + sc.tableName
 
 		if err := w.ops.createTable(ctx, sc.datasetID, sc.stagingTable, sc.bqSchema,
 			nil, nil); err != nil {
