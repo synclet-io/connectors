@@ -6,10 +6,13 @@ import (
 	"cloud.google.com/go/bigquery"
 )
 
-// columnDef represents a column for SQL generation and validation.
+// columnDef represents a column for SQL generation and validation. property is
+// the record property the column holds; buildSchema sets it, schema diffs
+// leave it empty.
 type columnDef struct {
-	name   string
-	bqType bigquery.FieldType
+	name     string
+	property string
+	bqType   bigquery.FieldType
 }
 
 // schemaDiff represents differences between existing and desired schemas.
@@ -49,7 +52,9 @@ func rawTableSchema() bigquery.Schema {
 }
 
 // buildSchema parses an Airbyte JSON schema and returns a BigQuery schema
-// (metadata columns + user columns sorted alphabetically) and column definitions for SQL.
+// (metadata columns + user columns sorted alphabetically by property) and
+// column definitions for SQL. Each property gets the column columnNames gives
+// it.
 func buildSchema(jsonSchema map[string]interface{}) (bigquery.Schema, []columnDef) {
 	props, ok := jsonSchema["properties"].(map[string]interface{})
 	if !ok {
@@ -58,32 +63,33 @@ func buildSchema(jsonSchema map[string]interface{}) (bigquery.Schema, []columnDe
 
 	// Collect user columns sorted alphabetically.
 	var names []string
-	for name := range props {
-		names = append(names, name)
+	for name, p := range props {
+		if _, ok := p.(map[string]interface{}); ok {
+			names = append(names, name)
+		}
 	}
 	sort.Strings(names)
+	columnOf := columnNames(names)
 
 	var userFields bigquery.Schema
 	var cols []columnDef
 
 	for _, name := range names {
-		prop, ok := props[name].(map[string]interface{})
-		if !ok {
-			continue
-		}
+		prop := props[name].(map[string]interface{})
 
 		airbyteType, format := extractTypeAndFormat(prop)
 		logicalType, _ := prop["airbyte_type"].(string)
 		bqType := airbyteTypeToBigQuery(airbyteType, format, logicalType)
 
 		userFields = append(userFields, &bigquery.FieldSchema{
-			Name: name,
+			Name: columnOf[name],
 			Type: bqType,
 		})
 
 		cols = append(cols, columnDef{
-			name:   name,
-			bqType: bqType,
+			name:     columnOf[name],
+			property: name,
+			bqType:   bqType,
 		})
 	}
 

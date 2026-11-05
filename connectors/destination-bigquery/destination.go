@@ -64,18 +64,20 @@ func (d *BigQueryDestination) Check(ctx context.Context, config Config) (rerr er
 	}
 	defer multierr.AppendInvoke(&rerr, multierr.Close(bqClient))
 
-	dataset := bqClient.Dataset(config.DatasetID)
+	// The dataset write uses for streams without a namespace.
+	datasetID := datasetName(config.DatasetID)
+	dataset := bqClient.Dataset(datasetID)
 	if _, err := dataset.Metadata(ctx); err != nil {
 		// Dataset doesn't exist -- try to create it.
-		log.Info(fmt.Sprintf("Dataset %q not found, creating...", config.DatasetID))
+		log.Info(fmt.Sprintf("Dataset %q not found, creating...", datasetID))
 
 		if err := dataset.Create(ctx, &bigquery.DatasetMetadata{
 			Location: config.DatasetLocation,
 		}); err != nil {
-			return fmt.Errorf("failed to create dataset %q: %w", config.DatasetID, err)
+			return fmt.Errorf("failed to create dataset %q: %w", datasetID, err)
 		}
 
-		log.Info(fmt.Sprintf("Created dataset %q in %s", config.DatasetID, config.DatasetLocation))
+		log.Info(fmt.Sprintf("Created dataset %q in %s", datasetID, config.DatasetLocation))
 	}
 
 	// If GCS staging, verify bucket access.

@@ -10,6 +10,7 @@ require (
 	github.com/synclet-io/synclet-go-sdk v0.3.0
 	go.uber.org/multierr v1.11.0
 	golang.org/x/oauth2 v0.37.0
+	golang.org/x/text v0.43.0
 	google.golang.org/api v0.304.0
 )
 
@@ -62,7 +63,6 @@ require (
 	golang.org/x/sync v0.24.0 // indirect
 	golang.org/x/sys v0.49.0 // indirect
 	golang.org/x/telemetry v0.0.0-20260924152758-ed294f943157 // indirect
-	golang.org/x/text v0.43.0 // indirect
 	golang.org/x/time v0.16.0 // indirect
 	golang.org/x/tools v0.51.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
