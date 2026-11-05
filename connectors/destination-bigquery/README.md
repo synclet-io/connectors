@@ -12,6 +12,10 @@ Datasets, tables and columns are named the way Airbyte's BigQuery destination na
 
 The primary key and cursor of a stream refer to these column names.
 
+## Overwrite
+
+An overwrite stream is loaded into `_airbyte_tmp_<table>`, which is partitioned and clustered like the final table, and copied over the final table at the end of the sync. A temp table left by a failed sync is dropped first.
+
 ```bash
 task test CONNECTOR=destination-bigquery
 task build CONNECTOR=destination-bigquery

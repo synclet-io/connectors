@@ -28,9 +28,11 @@ type mockOps struct {
 }
 
 type createTableCall struct {
-	datasetID string
-	tableName string
-	schema    bigquery.Schema
+	datasetID    string
+	tableName    string
+	schema       bigquery.Schema
+	partitioning *bigquery.TimePartitioning
+	clustering   *bigquery.Clustering
 }
 
 type dropTableCall struct {
@@ -58,8 +60,8 @@ func (m *mockOps) ensureDataset(_ context.Context, datasetID, _ string) error {
 	return m.ensureErr
 }
 
-func (m *mockOps) createTable(_ context.Context, datasetID, tableName string, schema bigquery.Schema, _ *bigquery.TimePartitioning, _ *bigquery.Clustering) error {
-	m.createTableCalls = append(m.createTableCalls, createTableCall{datasetID, tableName, schema})
+func (m *mockOps) createTable(_ context.Context, datasetID, tableName string, schema bigquery.Schema, partitioning *bigquery.TimePartitioning, clustering *bigquery.Clustering) error {
+	m.createTableCalls = append(m.createTableCalls, createTableCall{datasetID, tableName, schema, partitioning, clustering})
 	return nil
 }
 
@@ -538,6 +540,28 @@ func TestOverwriteMode(t *testing.T) {
 		}
 	}
 	assert.True(t, found, "temp table should be dropped")
+}
+
+func TestOverwriteTempTableMatchesFinalTable(t *testing.T) {
+	ops := newMockOps()
+	ldr := &mockLoader{}
+	partitioning := &bigquery.TimePartitioning{Type: bigquery.DayPartitioningType, Field: "_airbyte_extracted_at"}
+	clustering := &bigquery.Clustering{Fields: []string{"_airbyte_extracted_at"}}
+	ops.tableExistsResults["test_dataset.users"] = true
+	ops.getTableMetadataResults["test_dataset.users"] = &bigquery.TableMetadata{TimePartitioning: partitioning, Clustering: clustering}
+	writer := NewBigQueryWriter(ops, ldr, testConfig(), testCatalogWithMode("users", "", "overwrite", nil, nil, simpleSchema()))
+
+	require.NoError(t, writer.AddRecord(t.Context(), "users", map[string]interface{}{"id": float64(1), "name": "Alice"}))
+	tracker, _ := newMockTracker()
+	require.NoError(t, writer.FlushAll(t.Context(), tracker))
+
+	require.NotEmpty(t, ops.dropTableCalls)
+	assert.Equal(t, dropTableCall{"test_dataset", "_airbyte_tmp_users"}, ops.dropTableCalls[0], "a leftover temp table is dropped before the temp table is created")
+	require.Len(t, ops.createTableCalls, 1)
+	created := ops.createTableCalls[0]
+	assert.Equal(t, "_airbyte_tmp_users", created.tableName)
+	assert.Equal(t, partitioning, created.partitioning)
+	assert.Equal(t, clustering, created.clustering)
 }
 
 func TestAppendMode(t *testing.T) {

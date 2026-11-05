@@ -377,16 +377,24 @@ func (w *BigQueryWriter) flushAppend(ctx context.Context, sc *streamConfig, buf 
 func (w *BigQueryWriter) flushOverwrite(ctx context.Context, sc *streamConfig, buf *streamBuffer) error {
 	// Create temp table on first flush.
 	if sc.tempTable == "" {
-		sc.tempTable = "_airbyte_tmp_" + sc.tableName
+		tempTable := "_airbyte_tmp_" + sc.tableName
 
-		// Create temp table with 24h expiration.
-		expiration := time.Now().Add(24 * time.Hour)
-		if err := w.ops.createTable(ctx, sc.datasetID, sc.tempTable, sc.bqSchema,
-			nil, nil); err != nil {
-			// Ignore error if table already exists; set expiration separately is not
-			// supported via createTable, so we accept the default.
-			_ = expiration
+		// A temp table left by a failed run still holds that run's rows.
+		if err := w.ops.dropTable(ctx, sc.datasetID, tempTable); err != nil {
+			return fmt.Errorf("dropping leftover temp table %q.%q: %w", sc.datasetID, tempTable, err)
 		}
+		// A copy job replaces a partitioned table only with a table
+		// partitioned the same way, so the temp table takes the final
+		// table's partitioning and clustering.
+		final, err := w.ops.getTableMetadata(ctx, sc.datasetID, sc.tableName)
+		if err != nil {
+			return err
+		}
+		if err := w.ops.createTable(ctx, sc.datasetID, tempTable, sc.bqSchema,
+			final.TimePartitioning, final.Clustering); err != nil {
+			return fmt.Errorf("creating temp table %q.%q: %w", sc.datasetID, tempTable, err)
+		}
+		sc.tempTable = tempTable
 	}
 
 	if err := w.loader.load(ctx, sc.datasetID, sc.tempTable, sc.bqSchema, buf.records); err != nil {
