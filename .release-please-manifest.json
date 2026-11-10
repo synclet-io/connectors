@@ -14,7 +14,7 @@
   "connectors/destination-postgres": "0.1.0",
   "connectors/destination-s3": "0.1.0",
   "connectors/destination-s3-data-lake": "0.1.0",
-  "connectors/source-airtable": "0.1.2",
+  "connectors/source-airtable": "0.1.3",
   "connectors/source-applovin": "0.1.0",
   "connectors/source-google-ads": "0.1.0",
   "connectors/source-google-analytics-data-api": "0.1.1",
