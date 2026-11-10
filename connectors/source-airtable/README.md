@@ -84,9 +84,10 @@ Every property is nullable.
 | `barcode` | object `{text, type}` |
 | `button` | object `{label, url}` |
 | `aiText` | object `{state, value, isStale, errorType}` |
-| `formula`, `rollup` | the mapping of the result type the API gives in `options.result` |
+| `formula` | the mapping of the result type the API gives in `options.result`; any value (`{}`) for a formula that references a lookup or rollup, directly or through another formula, since it can return that array (`IF({Text}, {Text}, {Lookup})`) |
+| `rollup` | any value (`{}`): `options.result` does not say whether the aggregation returns one value (`SUM(values)`) or an array (`ARRAYUNIQUE(values)`) |
 | `multipleLookupValues` | array of the mapping of `options.result` |
-| a type not listed, or a formula, rollup or lookup without a result type | any value (`{}`) |
+| a type not listed, or a formula or lookup without a result type | any value (`{}`) |
 
 A formula, rollup or lookup whose computation fails returns an error value (`{"error": "#ERROR!"}`,
 `{"specialValue": "NaN"}`). It is emitted as `null`, the record is kept, and the read logs one warning

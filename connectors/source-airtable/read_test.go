@@ -306,8 +306,11 @@ func TestReadAllTypes(t *testing.T) {
 	require.NoError(t, out.Err)
 	recs := records(t, out, allTypesStream)
 	require.Len(t, recs, 1)
-	assert.Len(t, recs[0], 38+2)
+	assert.Len(t, recs[0], 41+2)
 	assert.Equal(t, []any{float64(5), nil}, recs[0]["Linked Scores"])
+	assert.Equal(t, 4.5, recs[0]["Sum Hours"], "a rollup that aggregates to one value emits it")
+	assert.Equal(t, []any{"Task 1", "Task 2"}, recs[0]["Unique Task Names"], "a rollup that aggregates to an array emits the array")
+	assert.Equal(t, []any{"Task 1", "Task 2"}, recs[0]["Linked Names Or None"], "a formula that returns a lookup emits the array")
 	assert.Equal(t, map[string]any{"anything": []any{float64(1), "x"}}, recs[0]["Broken Formula"], "a formula without a result type passes its value through")
 	assert.Len(t, recordHits(t, h, allTypesPath), 1)
 }
