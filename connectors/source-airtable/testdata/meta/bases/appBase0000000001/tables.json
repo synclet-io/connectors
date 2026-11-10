@@ -492,6 +492,40 @@
               "type": "singleLineText"
             }
           }
+        },
+        {
+          "id": "fldAllTypes000042",
+          "name": "Created Day",
+          "type": "createdTime",
+          "options": {
+            "result": {
+              "type": "date",
+              "options": {
+                "dateFormat": {
+                  "name": "iso"
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "fldAllTypes000043",
+          "name": "Modified Day",
+          "type": "lastModifiedTime",
+          "options": {
+            "isValid": true,
+            "referencedFieldIds": [
+              "fldAllTypes000005"
+            ],
+            "result": {
+              "type": "date",
+              "options": {
+                "dateFormat": {
+                  "name": "iso"
+                }
+              }
+            }
+          }
         }
       ],
       "views": []

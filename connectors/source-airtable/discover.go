@@ -409,7 +409,14 @@ func fieldSchema(typ string, options json.RawMessage) map[string]any {
 		p := nullable("string")
 		p["format"] = "date"
 		return p
-	case "dateTime", "createdTime", lastModifiedTime:
+	case "dateTime":
+		return timestamp()
+	case "createdTime", lastModifiedTime:
+		// A created or last-modified time formatted without the time of day
+		// is sent as a date, YYYY-MM-DD.
+		if rt, _, ok := resultOf(options); ok && rt == "date" {
+			return fieldSchema(rt, nil)
+		}
 		return timestamp()
 	case "multipleSelects", "multipleRecordLinks":
 		return arrayOf(map[string]any{"type": "string"})

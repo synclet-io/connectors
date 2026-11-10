@@ -132,7 +132,9 @@
         "fldAllTypes000041": [
           "Task 1",
           "Task 2"
-        ]
+        ],
+        "fldAllTypes000042": "2026-10-01",
+        "fldAllTypes000043": "2026-10-02"
       }
     }
   ]
