@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.3](https://github.com/synclet-io/connectors/compare/source-airtable-v0.1.2...source-airtable-v0.1.3) (2026-11-10)
+
+
+### Bug Fixes
+
+* **source-airtable:** a created or last-modified time formatted as a date is a date, not a timestamp ([0d65fcd](https://github.com/synclet-io/connectors/commit/0d65fcd7ce9bcd205ce2681cf3c9b4cca0b6bf35))
+* **source-airtable:** date-only created and modified times are dates ([7efb7e5](https://github.com/synclet-io/connectors/commit/7efb7e508f316b4818692901f8a997fcd31caaf2))
+
 ## [0.1.2](https://github.com/synclet-io/connectors/compare/source-airtable-v0.1.1...source-airtable-v0.1.2) (2026-11-10)
 
 
