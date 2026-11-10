@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.2](https://github.com/synclet-io/connectors/compare/source-airtable-v0.1.1...source-airtable-v0.1.2) (2026-11-10)
+
+
+### Bug Fixes
+
+* **source-airtable:** rollups, and formulas that reference a lookup o… ([b0f5015](https://github.com/synclet-io/connectors/commit/b0f50152a04b02d6914e5cc4b494bc725de76d7c))
+* **source-airtable:** rollups, and formulas that reference a lookup or rollup, accept any value, since they can return an array ([519d18f](https://github.com/synclet-io/connectors/commit/519d18fd88f7fb3c6c968b200b08e3b98533567b))
+
 ## [0.1.1](https://github.com/synclet-io/connectors/compare/source-airtable-v0.1.0...source-airtable-v0.1.1) (2026-11-05)
 
 
