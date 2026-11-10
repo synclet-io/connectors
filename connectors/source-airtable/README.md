@@ -76,7 +76,8 @@ Every property is nullable.
 | `autoNumber`, `count`, `rating` | `integer` |
 | `checkbox` | `boolean` |
 | `date` | `string`, format `date` |
-| `dateTime`, `createdTime`, `lastModifiedTime` | `string`, format `date-time`, `airbyte_type` `timestamp_with_timezone` |
+| `dateTime`, and `createdTime`, `lastModifiedTime` formatted with the time of day | `string`, format `date-time`, `airbyte_type` `timestamp_with_timezone` |
+| `createdTime`, `lastModifiedTime` formatted as a date (`options.result.type` `date`) | `string`, format `date`: the API sends `YYYY-MM-DD` |
 | `multipleSelects`, `multipleRecordLinks` | array of `string` (choice names, linked record ids) |
 | `singleCollaborator`, `createdBy`, `lastModifiedBy` | object `{id, email, name}` |
 | `multipleCollaborators` | array of `{id, email, name}` |

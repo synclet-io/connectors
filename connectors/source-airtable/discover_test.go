@@ -137,6 +137,8 @@ func TestDiscoverTypeMapping(t *testing.T) {
 		"Future":               `{}`,
 		"Linked Names Or None": `{}`,
 		"Linked Names Copy":    `{}`,
+		"Created Day":          `{"type":["string","null"],"format":"date"}`,
+		"Modified Day":         `{"type":["string","null"],"format":"date"}`,
 	}
 	srv, _ := fixtureServer(t, nil)
 	out := discover(t, testSource(srv), Config{PersonalAccessToken: testToken, BaseIDs: []string{base1}})
