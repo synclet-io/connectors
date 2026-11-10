@@ -340,8 +340,10 @@
           "type": "formula",
           "options": {
             "isValid": true,
-            "formula": "{Amount}*2",
-            "referencedFieldIds": [],
+            "formula": "{fldAllTypes000009}*2",
+            "referencedFieldIds": [
+              "fldAllTypes000009"
+            ],
             "result": {
               "type": "number",
               "options": {
@@ -446,6 +448,50 @@
           "id": "fldAllTypes000038",
           "name": "Future",
           "type": "someFutureType"
+        },
+        {
+          "id": "fldAllTypes000039",
+          "name": "Unique Task Names",
+          "type": "rollup",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldAllTypes000022",
+            "fieldIdInLinkedTable": "fldTaskName000001",
+            "referencedFieldIds": [],
+            "result": {
+              "type": "singleLineText"
+            }
+          }
+        },
+        {
+          "id": "fldAllTypes000040",
+          "name": "Linked Names Or None",
+          "type": "formula",
+          "options": {
+            "isValid": true,
+            "formula": "IF({fldAllTypes000035}, {fldAllTypes000035}, \"none\")",
+            "referencedFieldIds": [
+              "fldAllTypes000035"
+            ],
+            "result": {
+              "type": "singleLineText"
+            }
+          }
+        },
+        {
+          "id": "fldAllTypes000041",
+          "name": "Linked Names Copy",
+          "type": "formula",
+          "options": {
+            "isValid": true,
+            "formula": "{fldAllTypes000040}",
+            "referencedFieldIds": [
+              "fldAllTypes000040"
+            ],
+            "result": {
+              "type": "singleLineText"
+            }
+          }
         }
       ],
       "views": []

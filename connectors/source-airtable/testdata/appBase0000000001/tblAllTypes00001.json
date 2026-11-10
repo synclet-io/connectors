@@ -120,7 +120,19 @@
         ],
         "fldAllTypes000038": {
           "whatever": true
-        }
+        },
+        "fldAllTypes000039": [
+          "Task 1",
+          "Task 2"
+        ],
+        "fldAllTypes000040": [
+          "Task 1",
+          "Task 2"
+        ],
+        "fldAllTypes000041": [
+          "Task 1",
+          "Task 2"
+        ]
       }
     }
   ]

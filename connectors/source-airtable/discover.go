@@ -44,9 +44,9 @@ type field struct {
 	Options json.RawMessage `json:"options,omitempty"`
 }
 
-// resultOf returns the type and options of the value a formula, rollup or
-// lookup field computes, from the field's options, or ok false when the API
-// gives none.
+// resultOf returns the type and options of the value a formula or lookup
+// field computes, from the field's options, or ok false when the API gives
+// none.
 func resultOf(options json.RawMessage) (typ string, resultOptions json.RawMessage, ok bool) {
 	var o struct {
 		Result *struct {
@@ -278,8 +278,12 @@ func tableSchema(baseID string, t table) json.RawMessage {
 		idProperty:          map[string]any{"type": "string"},
 		createdTimeProperty: timestamp(),
 	}
+	arrays := arrayValuedFields(t.Fields)
 	for _, f := range t.Fields {
 		p := fieldSchema(f.Type, f.Options)
+		if f.Type == "formula" && arrays[f.ID] {
+			p = map[string]any{}
+		}
 		p[hintField] = f.ID
 		props[propertyName(f)] = p
 	}
@@ -293,6 +297,47 @@ func tableSchema(baseID string, t table) json.RawMessage {
 		panic(fmt.Sprintf("marshal schema of %s: %v", t.ID, err))
 	}
 	return b
+}
+
+// arrayValuedFields returns the ids of the fields of a table whose value can
+// be an array inside a formula: lookups, rollups, and formulas that reference
+// one of them directly or through another formula. Such a formula can return
+// the array, as IF({Text}, {Text}, {Lookup}) does, while its result type
+// names only the type of a single value, so it accepts any value.
+func arrayValuedFields(fields []field) map[string]bool {
+	ids := map[string]bool{}
+	for _, f := range fields {
+		if f.Type == "multipleLookupValues" || f.Type == "rollup" {
+			ids[f.ID] = true
+		}
+	}
+	for changed := true; changed; {
+		changed = false
+		for _, f := range fields {
+			if f.Type != "formula" || ids[f.ID] {
+				continue
+			}
+			for _, ref := range referencedFieldIDs(f.Options) {
+				if ids[ref] {
+					ids[f.ID] = true
+					changed = true
+					break
+				}
+			}
+		}
+	}
+	return ids
+}
+
+// referencedFieldIDs returns the ids of the fields a formula references.
+func referencedFieldIDs(options json.RawMessage) []string {
+	var o struct {
+		ReferencedFieldIDs []string `json:"referencedFieldIds"`
+	}
+	if len(options) == 0 || json.Unmarshal(options, &o) != nil {
+		return nil
+	}
+	return o.ReferencedFieldIDs
 }
 
 // propertyName returns the record property of a field: its name, or
@@ -344,9 +389,12 @@ func attachment() map[string]any {
 }
 
 // fieldSchema maps an Airtable field type to the JSON schema of its value.
-// Formula and rollup fields take the schema of their result type, lookups
-// an array of it; a type without a mapping, or a computed field without a
-// result type, accepts any value.
+// Formula fields take the schema of their result type, unless tableSchema
+// finds they can return an array; lookups take an array of it. A rollup
+// accepts any value: its result type does not say whether the
+// aggregation returns one value, as SUM(values) does, or an array, as
+// ARRAYUNIQUE(values) does. A type without a mapping, or a formula or lookup
+// without a result type, accepts any value too.
 func fieldSchema(typ string, options json.RawMessage) map[string]any {
 	switch typ {
 	case "singleLineText", "multilineText", "richText", "email", "url", "phoneNumber", "singleSelect", "externalSyncSource":
@@ -377,7 +425,7 @@ func fieldSchema(typ string, options json.RawMessage) map[string]any {
 		return object("label", "string", "url", "string")
 	case "aiText":
 		return object("state", "string", "value", "string", "isStale", "boolean", "errorType", "string")
-	case "formula", "rollup":
+	case "formula":
 		if rt, ro, ok := resultOf(options); ok {
 			return fieldSchema(rt, ro)
 		}
